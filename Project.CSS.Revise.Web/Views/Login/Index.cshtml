@@ -1,0 +1,52 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+<style>
+    .login-card {
+        background: url("/assets/images/login/Atmoz-Flow-Minburi-2.jpg") !important;
+        width: 100vw !important;
+    }
+
+</style>
+<div class="col-12">
+    <div class="login-card login-dark">
+        <div>
+            <div class="login-main">
+                <form class="theme-form">
+                    <div>
+                        <a class="logo" href="index.html">
+                            <img class="img-fluid for-dark w-75" src="~/assets/images/logo/asw-logo-2.png" alt="loginpage">
+                            <img class="img-fluid for-light w-75" src="~/assets/images/logo/asw-logo-2.png" alt="loginpage">
+                        </a>
+                    </div>
+                    <h4>Sign in to account </h4>
+                    <p>Enter your email & password to login</p>
+                    <div class="form-group">
+                        <label class="col-form-label">Email Address</label>
+                        <input class="form-control" type="email" required="" placeholder="Test@gmail.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Password </label>
+                        <div class="form-input position-relative">
+                            <input class="form-control" type="password" name="login[password]" required="" placeholder="*********">
+                            <div class="show-hide"> <span class="show"></span></div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-0">
+                        <div class="checkbox p-0">
+                            <input id="checkbox1" type="checkbox">
+                            <label class="text-muted" for="checkbox1">Remember password</label>
+                        </div><a class="link" href="forget-password.html">Forgot password?</a>
+                        <div class="text-end mt-3">
+                            <button class="btn btn-block w-100"
+                                    style="background-color: #123F6D; border-color: #0F355C; color: #ffffff;"
+                                    type="submit">
+                                Sign in
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
