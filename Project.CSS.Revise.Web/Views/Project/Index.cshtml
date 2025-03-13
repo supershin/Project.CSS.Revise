@@ -1,0 +1,133 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutSite.cshtml";
+}
+<div class="container-fluid">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-6">
+                <h4>Project Tables</h4>
+            </div>
+            <div class="col-6">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="index.html">
+                            <svg class="stroke-icon">
+                                @* <use href="~/assets/svg/icon-sprite.svg#stroke-home"></use> *@
+                                <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-home")"></use>
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">Pages</li>
+                    <li class="breadcrumb-item active">Project</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Container-fluid starts-->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <h5 class="card-header">
+                    <a class="d-block text-decoration-none text-dark" data-bs-toggle="collapse" href="#filterCollapse" role="button" aria-expanded="true" aria-controls="filterCollapse">
+                        Filter <i class="fa fa-chevron-down float-end"></i>
+                    </a>
+                </h5>
+            </div>
+            <div class="collapse" id="filterCollapse">
+                <div class="card-body">
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" placeholder="Project ID">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" placeholder="Name Th">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" placeholder="Name Eng">
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-4">
+                                    <select class="form-select">
+                                        <option selected disabled>MDG</option>
+                                        <option>MDG1</option>
+                                        <option>MDG2</option>
+                                        <option>MDG3</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <select class="form-select">
+                                        <option selected disabled>Project Type</option>
+                                        <option>Condo</option>
+                                        <option>House</option>
+                                        <option>Townhome</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <select class="form-select">
+                                        <option selected disabled>Project Status</option>
+                                        <option>Planning</option>
+                                        <option>RTM</option>
+                                        <option>Completed</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-end">
+                            <button type="button" class="btn btn-secondary me-2">Reset</button>
+                            <button type="button" class="btn btn-primary">Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="card">            
+                <div class="card-body">        
+                    <div class="table-responsive custom-scrollbar">
+                        <table class="table table-striped table-bordered" id="basic-1">
+                            <thead>
+                                <tr>
+                                    <th>Name Th</th>
+                                    <th>Name Eng</th>
+                                    <th>MDG</th>
+                                    <th>Project Name</th>
+                                    <th>Project Type</th>
+                                    <th>Project Status</th>
+                                    <th>Update Date</th>
+                                    <th>Update By</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>บริษัท เอสเตท จำกัด</td>
+                                    <td>Estate Co.,Ltd.</td>
+                                    <td>MDG1</td>
+                                    <td>Kave Town Island</td>
+                                    <td>Condo</td>
+                                    <td>RTM</td>
+                                    <td>2024-10-06 14:23</td>
+                                    <td>Team Dev</td>
+                                    <td>
+                                        <ul class="action">
+                                            <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
+                                            <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <!-- Additional rows -->
+                            </tbody>
+                        </table>
+                    </div>    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- Container-fluid Ends-->
