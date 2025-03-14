@@ -550,6 +550,7 @@
         <path d="M17.4167 6.33331V11.2337C17.4167 12.4608 16.4192 13.4583 15.1921 13.4583" stroke-opacity="0.8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M17.4167 6.33331H15.0417C13.2605 6.33331 12.6667 5.73956 12.6667 3.95831V1.58331L17.4167 6.33331Z" stroke-opacity="0.8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </symbol>
+	
     <symbol id="fill-builders" viewBox="0 0 19 19" xmlns="http://www.w3.org/2000/svg">
         <path d="M11.182 1.41553C10.2331 1.41553 9.46167 2.18699 9.46167 3.13588V6.71543C9.46167 7.66432 10.2331 8.43578 11.182 8.43578C12.1309 8.43578 12.9024 7.66432 12.9024 6.71543V3.13588C12.9024 2.1947 12.1309 1.41553 11.182 1.41553Z"/>
         <path opacity="0.4" d="M15.5329 5.45026C14.7074 5.45026 14.0363 6.12142 14.0363 6.94688V8.15807C14.0363 8.32007 14.1674 8.45122 14.3294 8.45122H15.5406C16.366 8.45122 17.0372 7.78005 17.0372 6.95459C17.0372 6.12913 16.3583 5.45026 15.5329 5.45026Z"/>
@@ -560,8 +561,16 @@
         <path d="M15.4793 9.66241H11.8998C10.9509 9.66241 10.1794 10.4339 10.1794 11.3828C10.1794 12.3317 10.9509 13.1031 11.8998 13.1031H15.4793C16.4282 13.1031 17.1997 12.3317 17.1997 11.3828C17.1997 10.4339 16.4282 9.66241 15.4793 9.66241Z"/>
         <path opacity="0.4" d="M11.6755 14.214H10.4643C10.3023 14.214 10.1711 14.3451 10.1711 14.5071V15.7183C10.1711 16.5438 10.8423 17.215 11.6678 17.215C12.4932 17.215 13.1644 16.5438 13.1644 15.7183C13.1721 14.8852 12.5009 14.214 11.6755 14.214Z"/>
     </symbol>
-    
-    <symbol id="stroke-animation" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+	<symbol id="stroke-company" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<path d="M3 22H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+		<path d="M6 22V10L12 6L18 10V22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+		<path d="M9 22V14H15V22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+		<path d="M12 6V3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+	</symbol>
+
+
+	<symbol id="stroke-animation" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M9 2.40002V2.40752" stroke-opacity="0.8" stroke-width="3" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M9 5.77502V5.78252" stroke-opacity="0.8" stroke-width="3" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M9 8.77502V8.78252" stroke-opacity="0.8" stroke-width="3" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>

@@ -40,6 +40,21 @@
         .left-sidebar-wrapper *::-webkit-scrollbar-thumb {
             background-color: rgba(18, 63, 109, 0.2) !important;
         }
+        #filterToggleIcon {
+            transition: transform 0.2s ease-in-out;
+        }
+        #filterToggleIcon.collapsed {
+            transform: rotate(0deg);
+        }
+        #filterToggleIcon.expanded {
+            transform: rotate(180deg);
+        }
+
+        .position-relative .show-hide {
+            font-size: 0.9rem;
+            user-select: none;
+        }
+
     </style>
 </head>
 <body>
@@ -284,7 +299,11 @@
                                 <li><a href="user-profile.html"><i data-feather="user"></i><span>My Profile</span></a></li>
                                 <li><a href="letter-box.html"><i data-feather="mail"></i><span>Inbox</span></a></li>
                                 <li> <a href="edit-profile.html"> <i data-feather="settings"></i><span>Settings</span></a></li>
-                                <li><a class="btn btn-pill btn-outline-primary btn-sm" href="login.html">Log Out</a></li>
+                                <li>
+                                    <a class="btn btn-pill btn-outline-primary btn-sm" href="/Login/index">
+                                        Log Out
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                     </ul>
@@ -306,7 +325,7 @@
             <!-- Page Sidebar Start-->
             <div class="sidebar-wrapper" data-layout="stroke-svg">
                 <div class="logo-wrapper">
-                    <a href="index.html"><img class="img-fluid" src="~/assets/images/logo/ASW_Logo_Horizontal_dark-bg@4x.png" style="width:115px; height:36px;"> alt=""></a>
+                    <a href="index.html"><img class="img-fluid" src="~/assets/images/logo/ASW_Logo_Horizontal_dark-bg@4x.png" style="width:115px; height:36px;"></a>
                     <div class="back-btn"><i class="fa fa-angle-left"> </i></div>
                     <div class="toggle-sidebar"><i class="status_toggle middle sidebar-toggle" data-feather="grid"> </i></div>
                 </div>
@@ -333,7 +352,7 @@
                             </li>
                             <li class="sidebar-main-title">
                                 <div>
-                                    <h6 class="lan-1">General</h6>
+                                    <h6 class="lan-1">XXXXX</h6>
                                 </div>
                             </li>
                             <li class="sidebar-list">
@@ -348,125 +367,63 @@
                                     </svg><span class="lan-3">Dashboard </span>
                                 </a>
                                 <ul class="sidebar-submenu">
-                                    <li><a href="index.html">Default</a></li>
-                                    <li><a href="dashboard-02.html">Ecommerce</a></li>
-                                    <li><a href="dashboard-03.html">Project</a></li>
-                                </ul>
-                            </li>
-                            <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title" href="#">
-                                    <svg class="stroke-icon">
-                                        @* <use href="../assets/svg/icon-sprite.svg#stroke-widget"></use> *@
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-widget")"></use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        @* <use href="../assets/svg/icon-sprite.svg#fill-widget"></use> *@
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#fill-widget")"></use>
-                                    </svg><span class="lan-6">Widgets</span>
-                                </a>
-                                <ul class="sidebar-submenu">
-                                    <li><a href="general-widget.html">General</a></li>
-                                    <li><a href="chart-widget.html">Chart</a></li>
-                                </ul>
-                            </li>
-                            <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title" href="#">
-                                    <svg class="stroke-icon">
-                                        @* <use href="../assets/svg/icon-sprite.svg#stroke-layout"></use> *@
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-layout")"></use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        @* <use href="../assets/svg/icon-sprite.svg#fill-layout"></use> *@
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#fill-layout")"></use>
-                                    </svg><span class="lan-7">Page layout</span>
-                                </a>
-                                <ul class="sidebar-submenu">
-                                    <li><a href="box-layout.html">Boxed</a></li>
-                                    <li><a href="layout-rtl.html">RTL</a></li>
-                                    <li><a href="layout-dark.html">Dark Layout</a></li>
-                                    <li> <a href="hide-on-scroll.html">Hide Nav Scroll</a></li>
+                                    <li><a href="#">Main</a></li>
+                                    <li><a href="#">Ecommerce</a></li>
+                                    <li><a href="#">Project</a></li>
                                 </ul>
                             </li>
                             <li class="sidebar-main-title">
                                 <div>
-                                    <h6 class="lan-8">Settings</h6>
+                                    <h6 class="lan-888">Settings</h6>
                                 </div>
                             </li>
                             <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title" href="#">
+                                <i class="fa fa-thumb-tack"></i>
+                                <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "Project")">
                                     <svg class="stroke-icon">
-                                        @* <use href="../assets/svg/icon-sprite.svg#stroke-project"></use> *@
                                         <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-project")"></use>
                                     </svg>
                                     <svg class="fill-icon">
-                                        @* <use href="../assets/svg/icon-sprite.svg#fill-project"></use> *@
                                         <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#fill-project")"></use>
-                                    </svg><span>Project</span>
-                                </a>
-                                <ul class="sidebar-submenu">
-                                    <li><a href="projects.html">Project List</a></li>
-                                    <li><a href="projectcreate.html">Create new</a></li>
-                                </ul>
-                            </li>
-                            <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title link-nav" href="file-manager.html">
-                                    <svg class="stroke-icon">
-                                        @* <use href="../assets/svg/icon-sprite.svg#stroke-file"></use> *@
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-file")"></use>
                                     </svg>
-                                    <svg class="fill-icon">
-                                        @* <use href="../assets/svg/icon-sprite.svg#fill-file"></use> *@
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#fill-file")"></use>
-                                    </svg><span>File manager</span>
+                                    <span>Project</span>
                                 </a>
                             </li>
                             <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title link-nav" href="kanban.html">
+                                <i class="fa fa-thumb-tack"></i>
+                                <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "Bu")">
                                     <svg class="stroke-icon">
-                                        @* <use href="../assets/svg/icon-sprite.svg#stroke-board"></use> *@
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-board")"></use>
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-learning")"></use>
                                     </svg>
                                     <svg class="fill-icon">
-                                       @* <use href="../assets/svg/icon-sprite.svg#fill-board"></use> *@
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#fill-board")"></use>
-                                    </svg><span>kanban Board</span>
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-learning")"></use>
+                                    </svg>
+                                    <span>BU</span>
                                 </a>
                             </li>
                             <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title" href="#">
+                                <i class="fa fa-thumb-tack"></i>
+                                <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "Company")">
                                     <svg class="stroke-icon">
-                                        @* <use href="../assets/svg/icon-sprite.svg#stroke-ecommerce"></use> *@
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-ecommerce")"></use>
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-social")"></use>
                                     </svg>
                                     <svg class="fill-icon">
-                                        @* <use href="../assets/svg/icon-sprite.svg#fill-ecommerce"></use> *@
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#fill-ecommerce")"></use>
-                                    </svg><span>Ecommerce</span>
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-social")"></use>
+                                    </svg>
+                                    <span>Company</span>
                                 </a>
-                                <ul class="sidebar-submenu">
-                                    <li> <a href="add-products.html">Add Products</a></li>
-                                    <li><a href="product.html">Product</a></li>
-                                    <li><a href="category.html">Category page</a></li>
-                                    <li><a href="product-page.html">Product page</a></li>
-                                    <li><a href="list-products.html">Product list</a></li>
-                                    <li><a href="payment-details.html">Payment Details</a></li>
-                                    <li><a href="order-history.html">Order History</a></li>
-                                    <li>
-                                        <a class="submenu-title" href="#">Invoices<span class="sub-arrow"><i class="fa fa-angle-right"></i></span></a>
-                                        <ul class="nav-sub-childmenu submenu-content">
-                                            <li><a href="invoice-1.html">Invoice-1</a></li>
-                                            <li><a href="invoice-2.html">Invoice-2</a></li>
-                                            <li><a href="invoice-3.html">Invoice-3</a></li>
-                                            <li><a href="invoice-4.html">Invoice-4</a></li>
-                                            <li><a href="invoice-5.html">Invoice-5</a></li>
-                                            <li><a href="invoice-template.html">Invoice-6</a></li>
-                                        </ul>
-                                    </li>
-                                    <li><a href="cart.html">Cart</a></li>
-                                    <li><a href="list-wish.html">Wishlist</a></li>
-                                    <li><a href="checkout.html">Checkout</a></li>
-                                    <li><a href="pricing.html">Pricing      </a></li>
-                                </ul>
+                            </li>
+                            <li class="sidebar-list">
+                                <i class="fa fa-thumb-tack"></i>
+                                <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "User")">
+                                    <svg class="stroke-icon">
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-user")"></use>
+                                    </svg>
+                                    <svg class="fill-icon">
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-user")"></use>
+                                    </svg>
+                                    <span>User</span>
+                                </a>
                             </li>
                         </ul>
                         <div class="right-arrow" id="right-arrow"><i data-feather="arrow-right"></i></div>
@@ -515,5 +472,35 @@
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
     <script src="~/assets/js/theme-customizer/customizer.js"></script>
+    <script>
+        const filterCollapse = document.getElementById('filterCollapse');
+        const filterToggleIcon = document.getElementById('filterToggleIcon');
+
+        filterCollapse.addEventListener('show.bs.collapse', () => {
+            filterToggleIcon.classList.remove('collapsed');
+            filterToggleIcon.classList.add('expanded');
+        });
+
+        filterCollapse.addEventListener('hide.bs.collapse', () => {
+            filterToggleIcon.classList.remove('expanded');
+            filterToggleIcon.classList.add('collapsed');
+        });
+
+        // Set initial icon state
+        filterToggleIcon.classList.add('collapsed');
+
+        function togglePassword(inputId, toggleElement) {
+            var passwordInput = document.getElementById(inputId);
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleElement.textContent = "hide";
+            } else {
+                passwordInput.type = "password";
+                toggleElement.textContent = "show";
+            }
+        }
+
+
+    </script>
 </body>
 </html>
