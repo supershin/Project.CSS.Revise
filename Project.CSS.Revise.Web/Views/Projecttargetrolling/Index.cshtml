@@ -1,0 +1,265 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutSite.cshtml";
+}
+<div class="container-fluid">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-6">
+                <h4>Project target & rolling Tables</h4>
+            </div>
+            <div class="col-6">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="index.html">
+                            <svg class="stroke-icon">
+                                @* <use href="~/assets/svg/icon-sprite.svg#stroke-home"></use> *@
+                                <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-home")"></use>
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">Pages</li>
+                    <li class="breadcrumb-item active">Project target & rolling </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Container-fluid starts-->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <button class="btn btn-outline-primary" type="button" id="filterToggleBtn" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                Filter <i class="fa fa-chevron-down ms-2" id="filterToggleIcon"></i>
+                            </button>
+                        </div>
+                        <div class="collapse" id="filterCollapse">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <select class="form-select">
+                                                <option selected disabled>Year</option>
+                                                <option>2019</option>
+                                                <option>2020</option>
+                                                <option>2021</option>
+                                                <option>2022</option>
+                                                <option>2023</option>
+                                                <option>2024</option>
+                                                <option>2025</option>
+                                                <option>2026</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <select class="form-select">
+                                                <option selected disabled>Plan Type</option>
+                                                <option>Target</option>
+                                                <option>Rolling</option>
+                                                <option>Wroking Target</option>
+                                                <option>Wroking Rolling</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button type="button" class="btn btn-secondary me-2">Reset</button>
+                                            <button type="button" class="btn btn-primary">Search</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="table-responsive custom-scrollbar">
+                                <table class="table table-striped table-bordered" id="basic-1" border="1" cellspacing="0" cellpadding="5">
+                                    <thead>
+                                        <tr>
+                                            <th class="fixed-col" rowspan="2">Project</th>
+                                            <th colspan="2">Jan</th>
+                                            <th colspan="2">Feb</th>
+                                            <th colspan="2">Mar</th>
+                                            <th colspan="2">Apr</th>
+                                            <th colspan="2">May</th>
+                                            <th colspan="2">Jun</th>
+                                            <th colspan="2">Jul</th>
+                                            <th colspan="2">Aug</th>
+                                            <th colspan="2">Sep</th>
+                                            <th colspan="2">Oct</th>
+                                            <th colspan="2">Nov</th>
+                                            <th colspan="2">Dec</th>
+                                        </tr>
+                                        <tr>
+                                            <th>Unit &nbsp; &nbsp; </th>
+                                            <th>Value &nbsp; &nbsp; </th>
+                                            <th>Unit &nbsp; &nbsp; </th>
+                                            <th>Value &nbsp; &nbsp; </th>
+                                            <th>Unit &nbsp; &nbsp; </th>
+                                            <th>Value &nbsp; &nbsp; </th>
+                                            <th>Unit &nbsp; &nbsp; </th>
+                                            <th>Value &nbsp; &nbsp; </th>
+                                            <th>Unit &nbsp; &nbsp; </th>
+                                            <th>Value &nbsp; &nbsp; </th>
+                                            <th>Unit &nbsp; &nbsp; </th>
+                                            <th>Value &nbsp; &nbsp; </th>
+                                            <th>Unit &nbsp; &nbsp; </th>
+                                            <th>Value &nbsp; &nbsp; </th>
+                                            <th>Unit &nbsp; &nbsp; </th>
+                                            <th>Value &nbsp; &nbsp; </th>
+                                            <th>Unit &nbsp; &nbsp; </th>
+                                            <th>Value &nbsp; &nbsp; </th>
+                                            <th>Unit &nbsp; &nbsp; </th>
+                                            <th>Value &nbsp; &nbsp; </th>
+                                            <th>Unit &nbsp; &nbsp; </th>
+                                            <th>Value &nbsp; &nbsp; </th>
+                                            <th>Unit &nbsp; &nbsp; </th>
+                                            <th>Value &nbsp; &nbsp; </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="fixed-col">มารูน รัชดา</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fixed-col">เคฟ ป๊อป ศาลายา</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">300</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fixed-col">เคฟ วันเดอร์แลนด์</td>
+                                            <td contenteditable="true" class="editable">6000</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                            <td contenteditable="true" class="editable">0</td>
+                                            <td contenteditable="true" class="editable">0.00</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <style>
+                                .editable {
+                                    background-color: #fff; /* White background for better visibility */
+                                    cursor: pointer;
+                                    text-align: center;
+                                }
+
+                                .editable:focus {
+                                    outline: 2px solid #007bff; /* Highlight cell when editing */
+                                    background-color: #eef5ff;
+                                }
+
+                                /* Fix the "Project" column */
+                                .fixed-col {
+                                    position: sticky;
+                                    left: 0;
+                                    background: white;
+                                    z-index: 2;
+                                    border-right: 2px solid #ddd;
+                                    font-weight: bold;
+                                }
+
+                                /* Ensures header first column is also fixed */
+                                thead .fixed-col {
+                                    z-index: 3;
+                                    background: #f8f9fa;
+                                }
+
+                            </style>
+
+                            <script>
+                                document.addEventListener("DOMContentLoaded", function () {
+                                    const editableCells = document.querySelectorAll(".editable");
+
+                                    editableCells.forEach(cell => {
+                                        cell.addEventListener("input", function () {
+                                            // Prevent non-numeric input
+                                            if (isNaN(this.innerText)) {
+                                                this.innerText = this.innerText.replace(/[^0-9.]/g, '');
+                                            }
+                                        });
+
+                                        cell.addEventListener("blur", function () {
+                                            // Ensure valid number format
+                                            if (this.innerText.trim() === "") {
+                                                this.innerText = "0"; // Default to zero if empty
+                                            }
+                                        });
+                                    });
+                                });
+                            </script>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Container-fluid Ends-->

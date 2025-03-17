@@ -8,7 +8,7 @@
     <meta name="author" content="pixelstrap">
     <link rel="icon" href="~/assets/images/favicon.png" type="image/x-icon">
     <link rel="shortcut icon" href="~/assets/images/favicon.png" type="image/x-icon">
-    <title>Riho - Premium Admin Template</title>
+    <title>Project - CSS</title>
     <!-- Google font-->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
@@ -36,6 +36,7 @@
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+
     <style>
         .left-sidebar-wrapper *::-webkit-scrollbar-thumb {
             background-color: rgba(18, 63, 109, 0.2) !important;
@@ -53,6 +54,17 @@
         .position-relative .show-hide {
             font-size: 0.9rem;
             user-select: none;
+        }
+
+        .choices {
+            width: 100%;
+        }
+
+        table {
+            border-collapse: collapse;
+            white-space: nowrap;
+            width: auto; /* Auto width */
+            min-width: 100%;
         }
 
     </style>
@@ -374,10 +386,10 @@
                             </li>
                             <li class="sidebar-main-title">
                                 <div>
-                                    <h6 class="lan-888">Settings</h6>
+                                    <h6>Settings</h6>
                                 </div>
                             </li>
-                            <li class="sidebar-list">
+                            @*<li class="sidebar-list">
                                 <i class="fa fa-thumb-tack"></i>
                                 <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "Project")">
                                     <svg class="stroke-icon">
@@ -388,6 +400,21 @@
                                     </svg>
                                     <span>Project</span>
                                 </a>
+                            </li> *@
+                            <li class="sidebar-list">
+                                <i class="fa fa-thumb-tack"> </i><a class="sidebar-link sidebar-title" href="#">
+                                    <svg class="stroke-icon">
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-project")"></use>
+                                    </svg>
+                                    <svg class="fill-icon">
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#fill-project")"></use>
+                                    </svg>
+                                    <span>Project</span>
+                                </a>
+                                <ul class="sidebar-submenu">
+                                    <li><a href="@Url.Action("Index", "Project")">Project</a></li>
+                                    <li><a href="@Url.Action("Index", "Projecttargetrolling")">Project target & rolling </a></li>
+                                </ul>
                             </li>
                             <li class="sidebar-list">
                                 <i class="fa fa-thumb-tack"></i>
@@ -413,7 +440,7 @@
                                     <span>Company</span>
                                 </a>
                             </li>
-                            <li class="sidebar-list">
+                            @*<li class="sidebar-list">
                                 <i class="fa fa-thumb-tack"></i>
                                 <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "User")">
                                     <svg class="stroke-icon">
@@ -424,6 +451,21 @@
                                     </svg>
                                     <span>User</span>
                                 </a>
+                            </li> *@
+                            <li class="sidebar-list">
+                                <i class="fa fa-thumb-tack"> </i><a class="sidebar-link sidebar-title" href="#">
+                                    <svg class="stroke-icon">
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-user")"></use>
+                                    </svg>
+                                    <svg class="fill-icon">
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-user")"></use>
+                                    </svg>
+                                    <span>User</span>
+                                </a>
+                                <ul class="sidebar-submenu">
+                                    <li><a href="@Url.Action("Index", "User")">User</a></li>
+                                    <li><a href="@Url.Action("Index", "UserBank")">User Bank</a></li>
+                                </ul>
                             </li>
                         </ul>
                         <div class="right-arrow" id="right-arrow"><i data-feather="arrow-right"></i></div>
@@ -472,6 +514,10 @@
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
     <script src="~/assets/js/theme-customizer/customizer.js"></script>
+    <!-- Include Choices.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
     <script>
         const filterCollapse = document.getElementById('filterCollapse');
         const filterToggleIcon = document.getElementById('filterToggleIcon');
@@ -499,6 +545,15 @@
                 toggleElement.textContent = "show";
             }
         }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            new Choices("#multiSelectDropdown", {
+                removeItemButton: true,
+                placeholder: true,
+                placeholderValue: "Select Projects",
+                searchEnabled: true
+            });
+        });
 
 
     </script>
