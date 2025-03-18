@@ -3,16 +3,24 @@
   "WorkspaceRootPath": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|c:\\users\\f-147-asw-dev\\documents\\github\\project.css.revise\\project.css.revise.web\\views\\login\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|solutionrelative:project.css.revise.web\\views\\login\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|c:\\users\\f-147-asw-dev\\documents\\github\\project.css.revise\\project.css.revise.web\\views\\shared\\_layoutsite.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|solutionrelative:project.css.revise.web\\views\\shared\\_layoutsite.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|c:\\users\\f-147-asw-dev\\documents\\github\\project.css.revise\\project.css.revise.web\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|solutionrelative:project.css.revise.web\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|c:\\users\\f-147-asw-dev\\documents\\github\\project.css.revise\\project.css.revise.web\\wwwroot\\assets\\svg\\icon-sprite.svg||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|solutionrelative:project.css.revise.web\\wwwroot\\assets\\svg\\icon-sprite.svg||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|c:\\users\\f-147-asw-dev\\documents\\github\\project.css.revise\\project.css.revise.web\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|solutionrelative:project.css.revise.web\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|c:\\users\\f-147-asw-dev\\documents\\github\\project.css.revise\\project.css.revise.web\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|solutionrelative:project.css.revise.web\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|c:\\users\\f-147-asw-dev\\documents\\github\\project.css.revise\\project.css.revise.web\\controllers\\appointmentlimitcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|solutionrelative:project.css.revise.web\\controllers\\appointmentlimitcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|c:\\users\\f-147-asw-dev\\documents\\github\\project.css.revise\\project.css.revise.web\\views\\appointmentlimit\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|solutionrelative:project.css.revise.web\\views\\appointmentlimit\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -21,46 +29,72 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 1498,
-          "SelectedChildIndex": 2,
+          "DockedWidth": 1073,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "_Layout.cshtml",
-              "DocumentMoniker": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Views\\Shared\\_Layout.cshtml",
-              "RelativeDocumentMoniker": "Project.CSS.Revise.Web\\Views\\Shared\\_Layout.cshtml",
-              "ToolTip": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Views\\Shared\\_Layout.cshtml",
-              "RelativeToolTip": "Project.CSS.Revise.Web\\Views\\Shared\\_Layout.cshtml",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAsAAAAxAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-03-10T07:59:02.784Z",
+              "DocumentIndex": 1,
+              "Title": "icon-sprite.svg",
+              "DocumentMoniker": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\wwwroot\\assets\\svg\\icon-sprite.svg",
+              "RelativeDocumentMoniker": "Project.CSS.Revise.Web\\wwwroot\\assets\\svg\\icon-sprite.svg",
+              "ToolTip": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\wwwroot\\assets\\svg\\icon-sprite.svg",
+              "RelativeToolTip": "Project.CSS.Revise.Web\\wwwroot\\assets\\svg\\icon-sprite.svg",
+              "ViewState": "AgIAAFQAAAAAAAAAAAAAAFsAAAAQAAAAAAAAAA==",
+              "Icon": "00000000-0000-0000-0000-000000000000.000000|iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAP8SURBVDhPrZRdbJNVGMd/p33b9Qtqt9HZbe2woKxsbGDYpk5DQAkTFcQPjJgY44XGEI3GmBBMNNmVNxoWojei8VITgyzGCwgRyRjJZM5JlvERt0C3dVu3rt3bD7r3bc/xYt0o4CX/5Mn5/uc85/zOgfsppZS4u6\u002Bnp\u002BdYc3PzB6VxlFIrcwGQUpLP58lms71Hjhw5PDExEbvT4S719PSMSillsVj83ygUCnJ4eFgODg7K48eP/xyJRDaVr7eWNwC6uroOd3R0VEsFBSOFzF1GZL7DmP0Rc/o3AP6dNNne1oHT6Qzb7fb6qampy4lEInGPob39NdHY2n74aq6i\u002BvpUP2sL3\u002BCc/ZZC7AyITUgVpBC/yMQcNDzSjs/n01wu18bKysrglStXLqTT6fSyoRC4H93nCz33zudrAqFn2iI2\u002B66aY3hnTjM8vpVf9A8ZqzjElta9yLlRMqabC0M3GBoaQtd1q8/ni5w/f/6nVCoV0wAczXu8Dfvf/\u002BTp7fXvvrxlzLVdfkriWo7\u002B7FGuh19kwnBycWyGrHmDV/xNNLZuoB4/hmHg8XgYGRlZzdIC4O96r7Mjsu6Ng00Da9tyH4vF4TxTopvcugPYsuA2C4TW13Jprkhf8iHEmhDV1VUEAgG8Xi9Wq3WVAgtAQ8Bz4IXG0aoW8ysxP2jiavmBLY8d4OC2AK\u002B3VJOZnsNnr0C4nQwmbMznLaX9KChDC0AD2Lwu9dTj3u\u002BdmXEHX5ufMfmHDbPwD1IpFJJ8UaNKs2Cz2xifWyKZNqhd60ApQNxmFECrDWj2t1pO19uiY\u002BKc5QvlbtstwsrC8mxKpgrzloFhmCwVChSUKg0r1F0PQJu8GtqfHP\u002B1YiDzthoN7in\u002BefGadWuNSygpUUohlQIUQirqkLQGPfg99pLZna8IQFN67NXZm3VL54o7MbNKczttls5wtdhW58br0NDzJgM3kkSTOVCKoM\u002BFx6GtJLB8jmXS8pP5zmS24vf\u002BGW1zSEs11ITrxJnpHGeuz6IME82uUfRUkSy6WIgv8KxFYLPc/gJWUl6RpbAonHuPLh2Kzcx/eW10PHFzOq0M9xoIrUdsfJilugbiShCPJwg7CjzfXIPdunLL98p69E38Ox5Mhi/1X\u002B1rCNjMTMps1DPSPRlfJDGf4lZiAVt6kaYHND7auYFKtx2EWEVGCEE0GuXUqVMndF2PWdfXMhCbYVfEPrujLt43Eqhvde1\u002B4slGv63IJq9Ge62bfU1\u002BXtpai8OmLW\u002BjhAuAsFiIRifo7e09oev6vV9Zd3d3n5RSmqZZCkOaxnIYq7G0WpqmKc\u002BePSuDwWAbK2CXSyn118mTJztL9WV0SgiV95Wzp\u002Bv638DCnU73Sf8B3E0j/55GTsEAAAAASUVORK5CYII=",
+              "WhenOpened": "2025-03-18T03:18:18.488Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "LoginController.cs",
-              "DocumentMoniker": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Controllers\\LoginController.cs",
-              "RelativeDocumentMoniker": "Project.CSS.Revise.Web\\Controllers\\LoginController.cs",
-              "ToolTip": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Controllers\\LoginController.cs",
-              "RelativeToolTip": "Project.CSS.Revise.Web\\Controllers\\LoginController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAABAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Program.cs",
+              "RelativeDocumentMoniker": "Project.CSS.Revise.Web\\Program.cs",
+              "ToolTip": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Program.cs",
+              "RelativeToolTip": "Project.CSS.Revise.Web\\Program.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-10T07:29:12.741Z",
+              "WhenOpened": "2025-03-18T03:16:57.25Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AppointmentLimitController.cs",
+              "DocumentMoniker": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Controllers\\AppointmentLimitController.cs",
+              "RelativeDocumentMoniker": "Project.CSS.Revise.Web\\Controllers\\AppointmentLimitController.cs",
+              "ToolTip": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Controllers\\AppointmentLimitController.cs",
+              "RelativeToolTip": "Project.CSS.Revise.Web\\Controllers\\AppointmentLimitController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-18T03:16:29.449Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Views\\AppointmentLimit\\Index.cshtml",
+              "RelativeDocumentMoniker": "Project.CSS.Revise.Web\\Views\\AppointmentLimit\\Index.cshtml",
+              "ToolTip": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Views\\AppointmentLimit\\Index.cshtml",
+              "RelativeToolTip": "Project.CSS.Revise.Web\\Views\\AppointmentLimit\\Index.cshtml",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAYwBUAAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-18T03:16:12.98Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Views\\Login\\Index.cshtml",
-              "RelativeDocumentMoniker": "Project.CSS.Revise.Web\\Views\\Login\\Index.cshtml",
-              "ToolTip": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Views\\Login\\Index.cshtml",
-              "RelativeToolTip": "Project.CSS.Revise.Web\\Views\\Login\\Index.cshtml",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAoAAAAOAAAAAAAAAA==",
+              "Title": "_LayoutSite.cshtml",
+              "DocumentMoniker": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Views\\Shared\\_LayoutSite.cshtml",
+              "RelativeDocumentMoniker": "Project.CSS.Revise.Web\\Views\\Shared\\_LayoutSite.cshtml",
+              "ToolTip": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Views\\Shared\\_LayoutSite.cshtml",
+              "RelativeToolTip": "Project.CSS.Revise.Web\\Views\\Shared\\_LayoutSite.cshtml",
+              "ViewState": "AgIAALkBAAAAAAAAAAAAAMcBAABtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-03-10T07:28:49.031Z",
+              "WhenOpened": "2025-03-18T03:14:46.847Z",
               "EditorCaption": ""
             }
           ]

@@ -41,12 +41,15 @@
         .left-sidebar-wrapper *::-webkit-scrollbar-thumb {
             background-color: rgba(18, 63, 109, 0.2) !important;
         }
+
         #filterToggleIcon {
             transition: transform 0.2s ease-in-out;
         }
+
         #filterToggleIcon.collapsed {
             transform: rotate(0deg);
         }
+
         #filterToggleIcon.expanded {
             transform: rotate(180deg);
         }
@@ -65,6 +68,33 @@
             white-space: nowrap;
             width: auto; /* Auto width */
             min-width: 100%;
+        }
+
+        .editable {
+            background-color: #fff; /* White background for better visibility */
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .editable:focus {
+            outline: 2px solid #007bff; /* Highlight cell when editing */
+            background-color: #eef5ff;
+        }
+
+        /* Fix the "Project" column */
+        .fixed-col {
+            position: sticky;
+            left: 0;
+            background: white;
+            z-index: 2;
+            border-right: 2px solid #ddd;
+            font-weight: bold;
+        }
+
+        /* Ensures header first column is also fixed */
+        thead .fixed-col {
+            z-index: 3;
+            background: #f8f9fa;
         }
 
     </style>
@@ -418,6 +448,18 @@
                             </li>
                             <li class="sidebar-list">
                                 <i class="fa fa-thumb-tack"></i>
+                                <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "AppointmentLimit")">
+                                    <svg class="stroke-icon">
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#new-order")"></use>
+                                    </svg>
+                                    <svg class="fill-icon">
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#new-order")"></use>
+                                    </svg>
+                                    <span>Appointment limit</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-list">
+                                <i class="fa fa-thumb-tack"></i>
                                 <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "Bu")">
                                     <svg class="stroke-icon">
                                         <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-learning")"></use>
@@ -552,6 +594,26 @@
                 placeholder: true,
                 placeholderValue: "Select Projects",
                 searchEnabled: true
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const editableCells = document.querySelectorAll(".editable");
+
+            editableCells.forEach(cell => {
+                cell.addEventListener("input", function () {
+                    // Prevent non-numeric input
+                    if (isNaN(this.innerText)) {
+                        this.innerText = this.innerText.replace(/[^0-9.]/g, '');
+                    }
+                });
+
+                cell.addEventListener("blur", function () {
+                    // Ensure valid number format
+                    if (this.innerText.trim() === "") {
+                        this.innerText = "0"; // Default to zero if empty
+                    }
+                });
             });
         });
 

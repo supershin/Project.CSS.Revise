@@ -202,59 +202,6 @@
                                     </tbody>
                                 </table>
                             </div>
-
-                            <style>
-                                .editable {
-                                    background-color: #fff; /* White background for better visibility */
-                                    cursor: pointer;
-                                    text-align: center;
-                                }
-
-                                .editable:focus {
-                                    outline: 2px solid #007bff; /* Highlight cell when editing */
-                                    background-color: #eef5ff;
-                                }
-
-                                /* Fix the "Project" column */
-                                .fixed-col {
-                                    position: sticky;
-                                    left: 0;
-                                    background: white;
-                                    z-index: 2;
-                                    border-right: 2px solid #ddd;
-                                    font-weight: bold;
-                                }
-
-                                /* Ensures header first column is also fixed */
-                                thead .fixed-col {
-                                    z-index: 3;
-                                    background: #f8f9fa;
-                                }
-
-                            </style>
-
-                            <script>
-                                document.addEventListener("DOMContentLoaded", function () {
-                                    const editableCells = document.querySelectorAll(".editable");
-
-                                    editableCells.forEach(cell => {
-                                        cell.addEventListener("input", function () {
-                                            // Prevent non-numeric input
-                                            if (isNaN(this.innerText)) {
-                                                this.innerText = this.innerText.replace(/[^0-9.]/g, '');
-                                            }
-                                        });
-
-                                        cell.addEventListener("blur", function () {
-                                            // Ensure valid number format
-                                            if (this.innerText.trim() === "") {
-                                                this.innerText = "0"; // Default to zero if empty
-                                            }
-                                        });
-                                    });
-                                });
-                            </script>
-
                         </div>
                     </div>
                 </div>
