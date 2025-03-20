@@ -6,19 +6,19 @@
     <div class="page-title">
         <div class="row">
             <div class="col-6">
-                <h4>Sample Page</h4>
+                <h4>Main Page</h4>
             </div>
             <div class="col-6">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
                         <a href="index.html">
                             <svg class="stroke-icon">
-                                <use href="../assets/svg/icon-sprite.svg#stroke-home"></use>
+                                <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-home")"></use>
                             </svg>
                         </a>
                     </li>
                     <li class="breadcrumb-item">Pages</li>
-                    <li class="breadcrumb-item active">Sample Page</li>
+                    <li class="breadcrumb-item active">Main</li>
                 </ol>
             </div>
         </div>
@@ -26,17 +26,380 @@
 </div>
 <!-- Container-fluid starts-->
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4>Sample Card</h4><span>lorem ipsum dolor sit amet, consectetur adipisicing elit</span>
+    <div class="row size-column">
+        <div class="box-col-12">
+            <div class="row">
+                <div class="col-12">
+                    <!-- Cards Container -->
+                    <div class="card p-3">
+                        <!-- Search Bar -->
+                        <div class="card-header card-no-border total-revenue">
+                            <h4 class="m-0">Company</h4>
+                        </div>
+                        <div class="card-body pt-0">
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="searchInput" type="email" placeholder="name@example.com">
+                            <label for="searchInput">🔍 ค้นหาบริษัท / Search Company</label>
+                        </div>
+                            <div id="cardContainer" class="d-flex overflow-auto gap-3" style="white-space: nowrap; scroll-behavior: smooth;">
+                                <!-- Company Cards -->
+                                <div class="card small-widget flex-shrink-0 company-card clickable-card"
+                                     style="min-width: 300px;"
+                                     data-name="บริษัท เอสเตท คิว จำกัด Estate Q Co.,Ltd."
+                                     data-bs-toggle="collapse" data-bs-target="#Bucard"
+                                     onclick="handleCardClick(this)">
+                                    <div class="card o-hidden small-widget">
+                                        <div class="card-body total-project border-b-primary border-2">
+                                            <span class="f-light f-w-500 f-14">บริษัท เอสเตท คิว จำกัด</span>
+                                            <div class="project-details">
+                                                <div class="project-counter">
+                                                    <h5 class="f-w-600">Estate Q Co.,Ltd.</h5>
+                                                </div>
+                                                <div class="product-sub bg-primary">
+                                                    <img src="@Url.Content("~/assets/images/logo/ASW_Logo_Rac_dark-bg.png")"
+                                                         alt="Company Icon" width="52" height="45">
+                                                </div>
+                                                <ul class="bubbles">
+                                                    <li class="bubble"></li>
+                                                    <li class="bubble"></li>
+                                                    <li class="bubble"></li>
+                                                    <li class="bubble"></li>
+                                                    <li class="bubble"></li>
+                                                    <li class="bubble"></li>
+                                                    <li class="bubble"></li>
+                                                    <li class="bubble"></li>
+                                                    <li class="bubble"></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Company Card: ABJV Co.,Ltd -->
+                                <div class="card small-widget flex-shrink-0 company-card clickable-card"
+                                     style="min-width: 300px;"
+                                     data-name="บริษัท เอ บี เจ วี จำกัด ABJV Co.,Ltd"
+                                     onclick="handleCardClick(this)">
+                                    <div class="card o-hidden small-widget">
+                                        <div class="card-body total-project border-b-primary border-2">
+                                            <span class="f-light f-w-500 f-14">บริษัท เอ บี เจ วี จำกัด</span>
+                                            <div class="project-details">
+                                                <div class="project-counter">
+                                                    <h5 class="f-w-600">ABJV Co.,Ltd</h5>
+                                                </div>
+                                                <div class="product-sub bg-primary">
+                                                    <img src="@Url.Content("~/assets/images/logo/ASW_Logo_Rac_dark-bg.png")" alt="Company Icon" width="52" height="45">
+                                                </div>
+                                            </div>
+                                            <ul class="bubbles">
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Company Card: 39 Estate Co.,Ltd -->
+                                <div class="card small-widget flex-shrink-0 company-card clickable-card"
+                                     style="min-width: 300px;"
+                                     data-name="บริษัท 39 เอสเตท จำกัด 39 Estate Co.,Ltd."
+                                     onclick="handleCardClick(this)">
+                                    <div class="card o-hidden small-widget">
+                                        <div class="card-body total-project border-b-primary border-2">
+                                            <span class="f-light f-w-500 f-14">บริษัท 39 เอสเตท จำกัด</span>
+                                            <div class="project-details">
+                                                <div class="project-counter">
+                                                    <h5 class="f-w-600">39 Estate Co.,Ltd.</h5>
+                                                </div>
+                                                <div class="product-sub bg-primary">
+                                                    <img src="@Url.Content("~/assets/images/logo/ASW_Logo_Rac_dark-bg.png")" alt="Company Icon" width="52" height="45">
+                                                </div>
+                                            </div>
+                                            <ul class="bubbles">
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Company Card: CEREBIUM Co., Ltd -->
+                                <div class="card small-widget flex-shrink-0 company-card clickable-card"
+                                     style="min-width: 300px;"
+                                     data-name="บริษัท เซเรเบียม จำกัด CEREBIUM Co., Ltd"
+                                     onclick="handleCardClick(this)">
+                                    <div class="card o-hidden small-widget">
+                                        <div class="card-body total-project border-b-primary border-2">
+                                            <span class="f-light f-w-500 f-14">บริษัท เซเรเบียม จำกัด</span>
+                                            <div class="project-details">
+                                                <div class="project-counter">
+                                                    <h5 class="f-w-600">CEREBIUM Co., Ltd</h5>
+                                                </div>
+                                                <div class="product-sub bg-primary">
+                                                    <img src="@Url.Content("~/assets/images/logo/ASW_Logo_Rac_dark-bg.png")" alt="Company Icon" width="52" height="45">
+                                                </div>
+                                            </div>
+                                            <ul class="bubbles">
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Add more cards as needed -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."</p>
+            </div>
+        </div>
+        <div class="box-col-12">
+            <div class="row">
+                <div class="col-md-4 col-12 collapse" id="Bucard">
+                    <!-- Cards Container -->
+                    <div class="card p-3">
+                        <div class="card-header card-no-border total-revenue">
+                            <h4 class="m-0">BU</h4>
+                        </div>
+                        <div class="card-body pt-0">
+                            <div class="col-xl-12">
+                                <div class="card product-widget">
+                                    <div class="card-body new-product">
+                                        <div class="product-cost">
+                                            <div class="add-product">
+                                                <div class="product-icon bg-light-primary">
+                                                    <svg>
+                                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#box-add")"></use>
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-1">BUG1</h6>
+                                                </div>
+                                            </div>
+                                            <div class="product-icon" data-bs-toggle="collapse" data-bs-target="#Projectcard" style="cursor: pointer;">
+                                                <svg>
+                                                    <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#arrow-down")"></use>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-12">
+                                <div class="card product-widget">
+                                    <div class="card-body new-product">
+                                        <div class="product-cost">
+                                            <div class="add-product">
+                                                <div class="product-icon bg-light-primary">
+                                                    <svg>
+                                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#box-add")"></use>
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-1">BUG2</h6>
+                                                </div>
+                                            </div>
+                                            <div class="product-icon">
+                                                <svg>
+                                                    <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#arrow-down")"></use>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-12">
+                                <div class="card product-widget">
+                                    <div class="card-body new-product">
+                                        <div class="product-cost">
+                                            <div class="add-product">
+                                                <div class="product-icon bg-light-primary">
+                                                    <svg>
+                                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#box-add")"></use>
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-1">BUG3</h6>
+                                                </div>
+                                            </div>
+                                            <div class="product-icon">
+                                                <svg>
+                                                    <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#arrow-down")"></use>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8 col-12 collapse" id="Projectcard">
+                    <div class="card p-3">
+                        <div class="card-header card-no-border total-revenue">
+                            <h4 class="m-0">Project</h4>
+                        </div>
+                        <div class="card-body pt-0">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>                                               
+                                                400H006
+                                                <br>
+                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
+                                            </td>
+
+                                            <td>
+                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
+                                                <br> 
+                                                CHANN The Riverside Boromratchonnani                                                
+                                            </td>
+                                            <td><span class="badge bg-primary">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-pill btn-warning active">
+                                                    <i class="icofont icofont-edit"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                400H006
+                                                <br>
+                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
+                                            </td>
+
+                                            <td>
+                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
+                                                <br>
+                                                CHANN The Riverside Boromratchonnani
+                                            </td>
+                                            <td><span class="badge bg-primary">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-pill btn-warning active">
+                                                    <i class="icofont icofont-edit"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                400H006
+                                                <br>
+                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
+                                            </td>
+
+                                            <td>
+                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
+                                                <br>
+                                                CHANN The Riverside Boromratchonnani
+                                            </td>
+                                            <td><span class="badge bg-primary">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-pill btn-warning active">
+                                                    <i class="icofont icofont-edit"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                400H006
+                                                <br>
+                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
+                                            </td>
+
+                                            <td>
+                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
+                                                <br>
+                                                CHANN The Riverside Boromratchonnani
+                                            </td>
+                                            <td><span class="badge bg-primary">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-pill btn-warning active">
+                                                    <i class="icofont icofont-edit"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>                                               
+                                                400H006
+                                                <br>
+                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
+                                            </td>
+
+                                            <td>
+                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
+                                                <br> 
+                                                CHANN The Riverside Boromratchonnani                                                
+                                            </td>
+                                            <td><span class="badge bg-primary">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-pill btn-warning active">
+                                                    <i class="icofont icofont-edit"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
 <!-- Container-fluid Ends-->
+
+<!-- JavaScript for Searching -->
+<script>
+    document.getElementById('searchInput').addEventListener('input', function () {
+        let searchText = this.value.toLowerCase();
+        let cards = document.querySelectorAll('.company-card');
+
+        cards.forEach(card => {
+            let companyName = card.getAttribute('data-name').toLowerCase();
+            if (companyName.includes(searchText)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+
+    function handleCardClick(element) {
+        let companyName = element.getAttribute("data-name");
+        // alert("You clicked on: " + companyName);
+    }
+
+</script>
