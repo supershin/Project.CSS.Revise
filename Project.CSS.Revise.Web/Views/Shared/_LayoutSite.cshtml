@@ -42,11 +42,9 @@
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+    
+    <link rel="stylesheet" type="text/css" href="~/css/custom.css?ver=@DateTime.Now.Ticks.ToString()">
     <style>
-
-        .left-sidebar-wrapper *::-webkit-scrollbar-thumb {
-            background-color: rgba(18, 63, 109, 0.2) !important;
-        }
 
         #filterToggleIcon {
             transition: transform 0.2s ease-in-out;
@@ -80,6 +78,9 @@
             border: 2px solid #007bff;
         }
 
+        .scroll-demo {
+            scroll-behavior: smooth;
+        }
 
     </style>
 </head>
@@ -407,15 +408,15 @@
                                 <i class="fa fa-thumb-tack"></i>
                                 <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "Project")">
                                     <svg class="stroke-icon">
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-project")"></use>
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-learning")"></use>
                                     </svg>
                                     <svg class="fill-icon">
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#fill-project")"></use>
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-learning")"></use>
                                     </svg>
                                     <span>Project</span>
                                 </a>
                             </li>
-                            <li class="sidebar-list">
+@*                             <li class="sidebar-list">
                                 <i class="fa fa-thumb-tack"></i>
                                 <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "Bu")">
                                     <svg class="stroke-icon">
@@ -438,7 +439,7 @@
                                     </svg>
                                     <span>Company</span>
                                 </a>
-                            </li>
+                            </li> *@
                             <li class="sidebar-list">
                                 <i class="fa fa-thumb-tack"></i>
                                 <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "User")">
