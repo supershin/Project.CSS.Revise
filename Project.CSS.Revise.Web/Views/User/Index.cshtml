@@ -487,112 +487,148 @@
                                                         <i class="bi bi-trash"></i> Delete
                                                     </button>
                                                 </div>
-                                                <form class="form theme-form">
-                                                    <div class="card-body custom-input">
-                                                        <div class="row">
-                                                            <div class="col">
-                                                                <div class="mb-3 row">
-                                                                    <label class="col-sm-3">Title</label>
-                                                                    <div class="col-sm-9">
-                                                                        <select class="form-select btn-square digits" id="ddl_Title_0">
-                                                                            <option>None</option>
-                                                                            <option>นาย - Mr. </option>
-                                                                            <option selected>นาง - Mrs.</option>
-                                                                            <option>นางสาว - Ms.</option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="mb-3 row">
-                                                                    <label class="col-sm-3">Name(TH)</label>
-                                                                    <div class="col-sm-9">
-                                                                        <div class="form-floating">
-                                                                            <input class="form-control" id="txt_first_name_th_0" type="text" placeholder="" value="กิติยา">
-                                                                            <label for="txt_first_name_th_0" class="fw-normal text-secondary">ชื่อ</label>
-                                                                        </div>
-                                                                        <div class="form-floating">
-                                                                            <input class="form-control" id="txt_last_name_th_0" type="text" placeholder="" value="กัญยะโสภา">
-                                                                            <label for="txt_last_name_th_0" class="fw-normal text-secondary">นามสกุล</label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="mb-3 row">
-                                                                    <label class="col-sm-3">Name(EN)</label>
-                                                                    <div class="col-sm-9">
-                                                                        <div class="form-floating">
-                                                                            <input class="form-control" id="txt_first_name_en_0" type="text" placeholder="" value="Kittiya">
-                                                                            <label for="txt_first_name_en_0" class="fw-normal text-secondary">First name</label>
-                                                                        </div>
-                                                                        <div class="form-floating">
-                                                                            <input class="form-control" id="txt_last_name_en_0" type="text" placeholder="" value="Kanyasopa">
-                                                                            <label for="txt_last_name_en_0" class="fw-normal text-secondary">Last name</label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="mb-3 row">
-                                                                <label class="col-sm-3">Mobile</label>
-                                                                    <div class="col-sm-9">
-                                                                          <input class="form-control digits" id="txt_number_0" type="number" placeholder="Number" value="0995558888">
-                                                                    </div>
-                                                                </div>
-                                                                <div class="mb-3 row">
-                                                                    <label class="col-sm-3">Email</label>
-                                                                    <div class="col-sm-9">
-                                                                        <input class="form-control" id="txt_email_0" type="url" placeholder="Example@email.com" value="Example@email.com">
-                                                                    </div>
-                                                                </div>
-                                                                <div class="mb-3 row">
-                                                                    <label class="col-sm-3">Department</label>
-                                                                    <div class="col-sm-9">
-                                                                        <select class="form-select btn-square digits" id="ddl_Department_0">
-                                                                            <option>Customer service</option>
-                                                                            <option selected>Project manager </option>
-                                                                            <option>Quelity managment</option>
-                                                                            <option>Finance</option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="mb-3 row">
-                                                                    <label class="col-sm-3">User id</label>
-                                                                    <div class="col-sm-9">
-                                                                        <input class="form-control" id="txt_userid_0" type="text" placeholder="User name" value="Kittiya007">
-                                                                    </div>
-                                                                </div>
-                                                                <div class="mb-3 row">
-                                                                    <label class="col-sm-3">Password</label>
-                                                                    <div class="col-sm-9">
-                                                                        <input class="form-control" id="txt_password_0" type="password" placeholder="Password" value="1212312121">
-                                                                    </div>
-                                                                </div>
-                                                                <div class="mb-3 row">
-                                                                    <label class="col-sm-3">Comfirm</label>
-                                                                    <div class="col-sm-9">
-                                                                         <input class="form-control" id="txt_comfirm_password_0" type="password" placeholder="Comfirm Password" value="1212312121">
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <label class="col-sm-3">Flag</label>
-                                                                    <div class="col-sm-9">
-                                                                        <div class="form-check form-switch">
-                                                                             <input class="form-check-input" id="chk_Flag_admin_0" type="checkbox" role="switch" onchange="updateSwitchLabel(this)">
-                                                                             <label class="form-check-label custom-switch-label" for="chk_Flag_admin_0">Flag Admin</label>
-                                                                        </div>
-                                                                        <div class="form-check form-switch">
-                                                                            <input class="form-check-input" id="chk_Flag_readonly_0" type="checkbox" role="switch" checked onchange="updateSwitchLabel(this)">
-                                                                            <label class="form-check-label custom-switch-label" for="chk_Flag_readonly_0">Flag Readonly</label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="nav nav-tabs border-tab mb-0" id="bottom-tab" role="tablist">
+                                                                    <li class="nav-item"><a class="nav-link nav-border txt-info tab-info active" id="bottom-home-tab" data-bs-toggle="tab" href="#bottom-home" role="tab" aria-controls="bottom-home" aria-selected="true"><i class="icofont icofont-ui-home"> </i>Home</a></li>
+                                                        <li class="nav-item"><a class="nav-link nav-border txt-info tab-info " id="bottom-inbox-tab" data-bs-toggle="tab" href="#bottom-inbox" role="tab" aria-controls="bottom-inbox" aria-selected="false"><i class="icofont icofont-ui-message"></i>Inbox</a></li> 
+                                                    </ul>
+                                                    <div class="tab-content" id="bottom-tabContent">
+                                                        <div class="tab-pane fade" id="bottom-home" role="tabpanel" aria-labelledby="bottom-home-tab">
+                                                            <form class="form theme-form">
+                                                                <div class="card-body custom-input">
+                                                                    <div class="row">
+                                                                        <div class="col">
+                                                                            <div class="mb-3 row">
+                                                                                <label class="col-sm-3">Title</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <select class="form-select btn-square digits" id="ddl_Title_0">
+                                                                                        <option>None</option>
+                                                                                        <option>นาย - Mr. </option>
+                                                                                        <option selected>นาง - Mrs.</option>
+                                                                                        <option>นางสาว - Ms.</option>
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="mb-3 row">
+                                                                                <label class="col-sm-3">Name(TH)</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <div class="form-floating">
+                                                                                        <input class="form-control" id="txt_first_name_th_0" type="text" placeholder="" value="กิติยา">
+                                                                                        <label for="txt_first_name_th_0" class="fw-normal text-secondary">ชื่อ</label>
+                                                                                    </div>
+                                                                                    <div class="form-floating">
+                                                                                        <input class="form-control" id="txt_last_name_th_0" type="text" placeholder="" value="กัญยะโสภา">
+                                                                                        <label for="txt_last_name_th_0" class="fw-normal text-secondary">นามสกุล</label>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="mb-3 row">
+                                                                                <label class="col-sm-3">Name(EN)</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <div class="form-floating">
+                                                                                        <input class="form-control" id="txt_first_name_en_0" type="text" placeholder="" value="Kittiya">
+                                                                                        <label for="txt_first_name_en_0" class="fw-normal text-secondary">First name</label>
+                                                                                    </div>
+                                                                                    <div class="form-floating">
+                                                                                        <input class="form-control" id="txt_last_name_en_0" type="text" placeholder="" value="Kanyasopa">
+                                                                                        <label for="txt_last_name_en_0" class="fw-normal text-secondary">Last name</label>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="mb-3 row">
+                                                                                <label class="col-sm-3">Mobile</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <input class="form-control digits" id="txt_number_0" type="number" placeholder="Number" value="0995558888">
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="mb-3 row">
+                                                                                <label class="col-sm-3">Email</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <input class="form-control" id="txt_email_0" type="url" placeholder="Example@email.com" value="Example@email.com">
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="mb-3 row">
+                                                                                <label class="col-sm-3">Department</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <select class="form-select btn-square digits" id="ddl_Department_0">
+                                                                                        <option>Customer service</option>
+                                                                                        <option selected>Project manager </option>
+                                                                                        <option>Quelity managment</option>
+                                                                                        <option>Finance</option>
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="mb-3 row">
+                                                                                <label class="col-sm-3">User id</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <input class="form-control" id="txt_userid_0" type="text" placeholder="User name" value="Kittiya007">
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="mb-3 row">
+                                                                                <label class="col-sm-3">Password</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <input class="form-control" id="txt_password_0" type="password" placeholder="Password" value="1212312121">
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="mb-3 row">
+                                                                                <label class="col-sm-3">Comfirm</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <input class="form-control" id="txt_comfirm_password_0" type="password" placeholder="Comfirm Password" value="1212312121">
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="row">
+                                                                                <label class="col-sm-3">Flag</label>
+                                                                                <div class="col-sm-9">
+                                                                                    <div class="form-check form-switch">
+                                                                                        <input class="form-check-input" id="chk_Flag_admin_0" type="checkbox" role="switch" onchange="updateSwitchLabel(this)">
+                                                                                        <label class="form-check-label custom-switch-label" for="chk_Flag_admin_0">Flag Admin</label>
+                                                                                    </div>
+                                                                                    <div class="form-check form-switch">
+                                                                                        <input class="form-check-input" id="chk_Flag_readonly_0" type="checkbox" role="switch" checked onchange="updateSwitchLabel(this)">
+                                                                                        <label class="form-check-label custom-switch-label" for="chk_Flag_readonly_0">Flag Readonly</label>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
 
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="card-footer text-end">
+                                                                    <div class="col-sm-9 offset-sm-3">
+                                                                        <button class="btn btn-primary me-3" type="submit">Save</button>
+                                                                        <input class="btn btn-light" type="reset" value="Cancel">
+                                                                    </div>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                        <div class="tab-pane fade show active" id="bottom-inbox" role="tabpanel" aria-labelledby="bottom-inbox-tab">
+                                                            <div class="card-body pb-0">
+                                                                <div class="main-inbox">
+                                                                    <div class="header-inbox">
+                                                                        <div class="header-left-inbox">
+                                                                            <div class="inbox-img"><img src="../assets/images/ecommerce/06.jpg" alt="profile"></div>
+                                                                            <div class="inbox-content">
+                                                                                <h6>Dalbult Caslin </h6>
+                                                                                <p class="text-muted">stroman.rogers@gmail.com</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <ul class="header-right-inbox">
+                                                                            <li>
+                                                                                <p>8 JAN 11:30PM</p>
+                                                                            </li>
+                                                                            <li> <i class="txt-danger icofont icofont-ui-delete"></i></li>
+                                                                            <li> <i class="icofont icofont-telegram"></i></li>
+                                                                        </ul>
+                                                                    </div>
+                                                                    <div class="body-inbox mt-2">
+                                                                        <div class="body-h-wrapper"><i class="me-2 tab-space icofont icofont-star"></i><em>Compare Prices Find the Best Computer Assessors Fronted Issue.</em></div>
+                                                                        <p class="pt-2">Site speed and design are two of the most important ranking factors Google takes into consideration, as they have the biggest effect of customer staying on site as the website respond faster.</p>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="card-footer text-end">
-                                                        <div class="col-sm-9 offset-sm-3">
-                                                            <button class="btn btn-primary me-3" type="submit">Save</button>
-                                                            <input class="btn btn-light" type="reset" value="Cancel">
-                                                        </div>
-                                                    </div>
-                                                </form>                                                        
+                                                 </div>
                                             </div>
                                             <div class="tab-pane contact-tab-1 tab-content-child fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
                                                 <div class="card-header d-flex justify-content-between align-items-center">
