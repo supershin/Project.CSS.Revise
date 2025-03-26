@@ -1,18 +1,10 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\",
+  "WorkspaceRootPath": "D:\\Shin\\Source Code\\Project.CSS.Revise\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|c:\\users\\f-147-asw-dev\\documents\\github\\project.css.revise\\project.css.revise.web\\views\\login\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|solutionrelative:project.css.revise.web\\views\\login\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|c:\\users\\f-147-asw-dev\\documents\\github\\project.css.revise\\project.css.revise.web\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|solutionrelative:project.css.revise.web\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|c:\\users\\f-147-asw-dev\\documents\\github\\project.css.revise\\project.css.revise.web\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|solutionrelative:project.css.revise.web\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|d:\\shin\\source code\\project.css.revise\\project.css.revise.web\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{E9AB10D0-7C8F-4E57-A397-F27C26B0B772}|Project.CSS.Revise.Web\\Project.CSS.Revise.Web.csproj|solutionrelative:project.css.revise.web\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,45 +14,23 @@
       "DocumentGroups": [
         {
           "DockedWidth": 1498,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
             {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "_Layout.cshtml",
-              "DocumentMoniker": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Views\\Shared\\_Layout.cshtml",
-              "RelativeDocumentMoniker": "Project.CSS.Revise.Web\\Views\\Shared\\_Layout.cshtml",
-              "ToolTip": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Views\\Shared\\_Layout.cshtml",
-              "RelativeToolTip": "Project.CSS.Revise.Web\\Views\\Shared\\_Layout.cshtml",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAsAAAAxAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-03-10T07:59:02.784Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "LoginController.cs",
-              "DocumentMoniker": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Controllers\\LoginController.cs",
-              "RelativeDocumentMoniker": "Project.CSS.Revise.Web\\Controllers\\LoginController.cs",
-              "ToolTip": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Controllers\\LoginController.cs",
-              "RelativeToolTip": "Project.CSS.Revise.Web\\Controllers\\LoginController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-10T07:29:12.741Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Views\\Login\\Index.cshtml",
-              "RelativeDocumentMoniker": "Project.CSS.Revise.Web\\Views\\Login\\Index.cshtml",
-              "ToolTip": "C:\\Users\\F-147-ASW-Dev\\Documents\\GitHub\\Project.CSS.Revise\\Project.CSS.Revise.Web\\Views\\Login\\Index.cshtml",
-              "RelativeToolTip": "Project.CSS.Revise.Web\\Views\\Login\\Index.cshtml",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAoAAAAOAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-03-10T07:28:49.031Z",
+              "Title": ".gitignore",
+              "DocumentMoniker": "D:\\Shin\\Source Code\\Project.CSS.Revise\\Project.CSS.Revise.Web\\.gitignore",
+              "RelativeDocumentMoniker": "Project.CSS.Revise.Web\\.gitignore",
+              "ToolTip": "D:\\Shin\\Source Code\\Project.CSS.Revise\\Project.CSS.Revise.Web\\.gitignore",
+              "RelativeToolTip": "Project.CSS.Revise.Web\\.gitignore",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAuwCYAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-03-19T03:27:30.28Z",
               "EditorCaption": ""
             }
           ]
