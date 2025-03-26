@@ -9,10 +9,10 @@
     <link rel="icon" href="~/assets/images/favicon.png" type="image/x-icon">
     <link rel="shortcut icon" href="~/assets/images/favicon.png" type="image/x-icon">
     <title>Riho - Premium Admin Template</title>
-    <!-- Google font-->
+    <!-- Google Font: Prompt -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
     <!-- ico-font-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
@@ -26,7 +26,13 @@
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/select2.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/sweetalert2.css">
+    <!-- Range slider css-->
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/rangeslider/rSlider.min.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/prism.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/fullcalender.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/datatables.css">
     <!-- Plugins css Ends-->
     <!-- Bootstrap css-->
@@ -36,16 +42,18 @@
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+    
+    <link rel="stylesheet" type="text/css" href="~/css/custom.css?ver=@DateTime.Now.Ticks.ToString()">
     <style>
-        .left-sidebar-wrapper *::-webkit-scrollbar-thumb {
-            background-color: rgba(18, 63, 109, 0.2) !important;
-        }
+
         #filterToggleIcon {
             transition: transform 0.2s ease-in-out;
         }
+
         #filterToggleIcon.collapsed {
             transform: rotate(0deg);
         }
+
         #filterToggleIcon.expanded {
             transform: rotate(180deg);
         }
@@ -53,6 +61,25 @@
         .position-relative .show-hide {
             font-size: 0.9rem;
             user-select: none;
+        }
+
+        .clickable-card {
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .clickable-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .clickable-card.active {
+            background-color: #f0f8ff;
+            border: 2px solid #007bff;
+        }
+
+        .scroll-demo {
+            scroll-behavior: smooth;
         }
 
     </style>
@@ -367,7 +394,7 @@
                                     </svg><span class="lan-3">Dashboard </span>
                                 </a>
                                 <ul class="sidebar-submenu">
-                                    <li><a href="#">Main</a></li>
+                                    <li><a href="~/Main/index">Main</a></li>
                                     <li><a href="#">Ecommerce</a></li>
                                     <li><a href="#">Project</a></li>
                                 </ul>
@@ -381,15 +408,15 @@
                                 <i class="fa fa-thumb-tack"></i>
                                 <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "Project")">
                                     <svg class="stroke-icon">
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-project")"></use>
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-learning")"></use>
                                     </svg>
                                     <svg class="fill-icon">
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#fill-project")"></use>
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-learning")"></use>
                                     </svg>
                                     <span>Project</span>
                                 </a>
                             </li>
-                            <li class="sidebar-list">
+@*                             <li class="sidebar-list">
                                 <i class="fa fa-thumb-tack"></i>
                                 <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "Bu")">
                                     <svg class="stroke-icon">
@@ -412,7 +439,7 @@
                                     </svg>
                                     <span>Company</span>
                                 </a>
-                            </li>
+                            </li> *@
                             <li class="sidebar-list">
                                 <i class="fa fa-thumb-tack"></i>
                                 <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "User")">
@@ -465,13 +492,35 @@
     <script src="~/assets/js/slick/slick.min.js"></script>
     <script src="~/assets/js/slick/slick.js"></script>
     <script src="~/assets/js/header-slick.js"></script>
+    <script src="~/assets/js/chart/apex-chart/apex-chart.js"></script>
+    <script src="~/assets/js/chart/apex-chart/stock-prices.js"></script>
+    <script src="~/assets/js/notify/bootstrap-notify.min.js"></script>
+    <!-- Range Slider js-->
+    <script src="~/assets/js/range-slider/rSlider.min.js"></script>
+    <script src="~/assets/js/rangeslider/rangeslider.js"></script>
+    <script src="~/assets/js/prism/prism.min.js"></script>
+    <script src="~/assets/js/clipboard/clipboard.min.js"></script>
+    <script src="~/assets/js/counter/jquery.waypoints.min.js"></script>
+    <script src="~/assets/js/counter/jquery.counterup.min.js"></script>
+    <script src="~/assets/js/counter/counter-custom.js"></script>
+    <script src="~/assets/js/custom-card/custom-card.js"></script>
+    <!-- Contact js-->
+    <script src="~/assets/js/sweet-alert/sweetalert.min.js"></script>
+    <script src="~/assets/js/select2/select2.full.min.js"></script>
+    <script src="~/assets/js/select2/select2-custom.js"></script>
+    <script src="~/assets/js/form-validation-custom.js"></script>
+    <script src="~/assets/js/bookmark/jquery.validate.min.js"></script>
+    <script src="~/assets/js/contacts/custom.js"></script>
     <!-- calendar js-->
     <script src="~/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
     <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
+    <script src="~/assets/js/dashboard/dashboard_2.js"></script>
+    <script src="~/assets/js/animation/wow/wow.min.js"></script>
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
     <script src="~/assets/js/theme-customizer/customizer.js"></script>
+    <script>new WOW().init();</script>
     <script>
         const filterCollapse = document.getElementById('filterCollapse');
         const filterToggleIcon = document.getElementById('filterToggleIcon');

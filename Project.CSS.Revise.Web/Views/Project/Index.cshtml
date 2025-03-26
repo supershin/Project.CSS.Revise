@@ -6,20 +6,19 @@
     <div class="page-title">
         <div class="row">
             <div class="col-6">
-                <h4>Project Tables</h4>
+                <h4>Main Page</h4>
             </div>
             <div class="col-6">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
                         <a href="index.html">
                             <svg class="stroke-icon">
-                                @* <use href="~/assets/svg/icon-sprite.svg#stroke-home"></use> *@
                                 <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-home")"></use>
                             </svg>
                         </a>
                     </li>
                     <li class="breadcrumb-item">Pages</li>
-                    <li class="breadcrumb-item active">Project</li>
+                    <li class="breadcrumb-item active">Main</li>
                 </ol>
             </div>
         </div>
@@ -27,345 +26,379 @@
 </div>
 <!-- Container-fluid starts-->
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">            
-                <div class="card-body">  
-                    <div class="row">
-                        <div class="col-12 mb-3">
-                            <button class="btn btn-outline-primary" type="button" id="filterToggleBtn" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                Filter <i class="fa fa-chevron-down ms-2" id="filterToggleIcon"></i>
-                            </button>
+    <div class="row size-column">
+        <div class="box-col-12">
+            <div class="row">
+                <div class="col-12">
+                    <!-- Cards Container -->
+                    <div class="card p-3">
+                        <!-- Search Bar -->
+                        <div class="card-header card-no-border total-revenue">
+                            <h4 class="m-0">Company</h4>
                         </div>
-                        <div class="collapse" id="filterCollapse">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="row g-3">
-                                        <div class="col-md-4">
-                                            <input type="text" class="form-control" placeholder="Project ID">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <input type="text" class="form-control" placeholder="Name Th">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <input type="text" class="form-control" placeholder="Name Eng">
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <select class="form-select">
-                                                <option selected disabled>MDG</option>
-                                                <option>MDG1</option>
-                                                <option>MDG2</option>
-                                                <option>MDG3</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <select class="form-select">
-                                                <option selected disabled>Project Type</option>
-                                                <option>Condo</option>
-                                                <option>House</option>
-                                                <option>Townhome</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <select class="form-select">
-                                                <option selected disabled>Project Status</option>
-                                                <option>Planning</option>
-                                                <option>RTM</option>
-                                                <option>Completed</option>
-                                            </select>
+                        <div class="card-body pt-0">
+                            <div class="form-floating mb-3">
+                                <input class="form-control" id="searchInput" type="email" placeholder="name@example.com">
+                                <label for="searchInput">🔍 ค้นหาบริษัท / Search Company</label>
+                            </div>
+                            <div id="cardContainer" class="d-flex overflow-auto gap-3" style="white-space: nowrap; scroll-behavior: smooth;">
+                                <!-- Company Cards -->
+                                <div class="card small-widget flex-shrink-0 company-card clickable-card"
+                                     style="min-width: 300px;"
+                                     data-name="บริษัท เอสเตท คิว จำกัด Estate Q Co.,Ltd."
+                                     data-bs-toggle="collapse" data-bs-target="#Bucard"
+                                     onclick="handleCardClick(this)">
+                                    <div class="card o-hidden small-widget">
+                                        <div class="card-body total-project border-b-primary border-2">
+                                            <span class="f-light f-w-500 f-14">บริษัท เอสเตท คิว จำกัด</span>
+                                            <div class="project-details">
+                                                <div class="project-counter">
+                                                    <h5 class="f-w-600">Estate Q Co.,Ltd.</h5>
+                                                </div>
+                                                <div class="product-sub bg-primary">
+                                                    <img src="@Url.Content("~/assets/images/logo/ASW_Logo_Rac_dark-bg.png")"
+                                                         alt="Company Icon" width="52" height="45">
+                                                </div>
+                                                <ul class="bubbles">
+                                                    <li class="bubble"></li>
+                                                    <li class="bubble"></li>
+                                                    <li class="bubble"></li>
+                                                    <li class="bubble"></li>
+                                                    <li class="bubble"></li>
+                                                    <li class="bubble"></li>
+                                                    <li class="bubble"></li>
+                                                    <li class="bubble"></li>
+                                                    <li class="bubble"></li>
+                                                </ul>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card-footer text-end">
-                                    <button type="button" class="btn btn-secondary me-2">Reset</button>
-                                    <button type="button" class="btn btn-primary">Search</button>
+
+                                <!-- Company Card: ABJV Co.,Ltd -->
+                                <div class="card small-widget flex-shrink-0 company-card clickable-card"
+                                     style="min-width: 300px;"
+                                     data-name="บริษัท เอ บี เจ วี จำกัด ABJV Co.,Ltd"
+                                     onclick="handleCardClick(this)">
+                                    <div class="card o-hidden small-widget">
+                                        <div class="card-body total-project border-b-primary border-2">
+                                            <span class="f-light f-w-500 f-14">บริษัท เอ บี เจ วี จำกัด</span>
+                                            <div class="project-details">
+                                                <div class="project-counter">
+                                                    <h5 class="f-w-600">ABJV Co.,Ltd</h5>
+                                                </div>
+                                                <div class="product-sub bg-primary">
+                                                    <img src="@Url.Content("~/assets/images/logo/ASW_Logo_Rac_dark-bg.png")" alt="Company Icon" width="52" height="45">
+                                                </div>
+                                            </div>
+                                            <ul class="bubbles">
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="table-responsive custom-scrollbar">
-                                <table class="table table-striped table-bordered" id="basic-1">
-                                    <thead>
-                                        <tr>
-                                            <th>Name Th</th>
-                                            <th>Name Eng</th>
-                                            <th>MDG</th>
-                                            <th>Project Name</th>
-                                            <th>Project Type</th>
-                                            <th>Project Status</th>
-                                            <th>Update Date</th>
-                                            <th>Update By</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>บริษัท เอสเตท จำกัด</td>
-                                            <td>Estate Co.,Ltd.</td>
-                                            <td>MDG1</td>
-                                            <td>Kave Town Island</td>
-                                            <td>Condo</td>
-                                            <td>RTM</td>
-                                            <td>2024-10-06 14:23</td>
-                                            <td>Team Dev</td>
-                                            <td>
-                                                <ul class="action">
-                                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
-                                                    <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>บริษัท พัฒนาไทย จำกัด</td>
-                                            <td>Thai Development Co.,Ltd.</td>
-                                            <td>MDG2</td>
-                                            <td>Grand Riverside</td>
-                                            <td>Townhouse</td>
-                                            <td>RTM</td>
-                                            <td>2024-09-12 11:45</td>
-                                            <td>Admin</td>
-                                            <td>
-                                                <ul class="action">
-                                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
-                                                    <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>บริษัท อสังหา กรุ๊ป</td>
-                                            <td>Asangha Group Co.,Ltd.</td>
-                                            <td>MDG3</td>
-                                            <td>Lakeside Residence</td>
-                                            <td>Single House</td>
-                                            <td>In Progress</td>
-                                            <td>2024-08-21 16:10</td>
-                                            <td>System</td>
-                                            <td>
-                                                <ul class="action">
-                                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
-                                                    <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>บริษัท ร่วมทุนพัฒนา</td>
-                                            <td>Joint Venture Dev Co.,Ltd.</td>
-                                            <td>MDG4</td>
-                                            <td>Sunset Village</td>
-                                            <td>Condo</td>
-                                            <td>Planning</td>
-                                            <td>2024-07-30 09:50</td>
-                                            <td>Project Manager</td>
-                                            <td>
-                                                <ul class="action">
-                                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
-                                                    <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>บริษัท บ้านใหม่ จำกัด</td>
-                                            <td>Baan Mai Co.,Ltd.</td>
-                                            <td>MDG5</td>
-                                            <td>Urban Oasis</td>
-                                            <td>Townhouse</td>
-                                            <td>Completed</td>
-                                            <td>2024-06-22 14:35</td>
-                                            <td>Team Dev</td>
-                                            <td>
-                                                <ul class="action">
-                                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
-                                                    <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>บริษัท กรีนแลนด์</td>
-                                            <td>Greenland Co.,Ltd.</td>
-                                            <td>MDG6</td>
-                                            <td>Mountain View</td>
-                                            <td>Single House</td>
-                                            <td>RTM</td>
-                                            <td>2024-05-15 18:10</td>
-                                            <td>Admin</td>
-                                            <td>
-                                                <ul class="action">
-                                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
-                                                    <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>บริษัท สร้างเมือง</td>
-                                            <td>City Builder Co.,Ltd.</td>
-                                            <td>MDG7</td>
-                                            <td>Skyline Towers</td>
-                                            <td>Condo</td>
-                                            <td>Planning</td>
-                                            <td>2024-04-03 12:45</td>
-                                            <td>System</td>
-                                            <td>
-                                                <ul class="action">
-                                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
-                                                    <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>บริษัท แกรนด์เฮ้าส์</td>
-                                            <td>Grand House Co.,Ltd.</td>
-                                            <td>MDG8</td>
-                                            <td>Golden Park</td>
-                                            <td>Townhouse</td>
-                                            <td>Completed</td>
-                                            <td>2024-03-29 08:25</td>
-                                            <td>Project Manager</td>
-                                            <td>
-                                                <ul class="action">
-                                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
-                                                    <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>บริษัท สมาร์ทพร็อพ</td>
-                                            <td>Smart Property Co.,Ltd.</td>
-                                            <td>MDG9</td>
-                                            <td>Elite Mansions</td>
-                                            <td>Single House</td>
-                                            <td>RTM</td>
-                                            <td>2024-02-18 16:50</td>
-                                            <td>Admin</td>
-                                            <td>
-                                                <ul class="action">
-                                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
-                                                    <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>บริษัท นิวโฮม</td>
-                                            <td>New Home Co.,Ltd.</td>
-                                            <td>MDG10</td>
-                                            <td>Horizon Heights</td>
-                                            <td>Townhouse</td>
-                                            <td>Planning</td>
-                                            <td>2024-01-22 20:05</td>
-                                            <td>System</td>
-                                            <td>
-                                                <ul class="action">
-                                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
-                                                    <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>บริษัท รอยัลเรสซิเดนซ์</td>
-                                            <td>Royal Residence Co.,Ltd.</td>
-                                            <td>MDG11</td>
-                                            <td>Green Valley</td>
-                                            <td>Single House</td>
-                                            <td>Completed</td>
-                                            <td>2024-01-10 13:45</td>
-                                            <td>Team Dev</td>
-                                            <td>
-                                                <ul class="action">
-                                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
-                                                    <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>บริษัท ซิตี้ไลฟ์</td>
-                                            <td>City Life Co.,Ltd.</td>
-                                            <td>MDG12</td>
-                                            <td>Ocean Breeze</td>
-                                            <td>Condo</td>
-                                            <td>In Progress</td>
-                                            <td>2023-12-20 17:30</td>
-                                            <td>Admin</td>
-                                            <td>
-                                                <ul class="action">
-                                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
-                                                    <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>บริษัท เอเชียแลนด์ จำกัด</td>
-                                            <td>Asia Land Co.,Ltd.</td>
-                                            <td>MDG13</td>
-                                            <td>Silk Road Residences</td>
-                                            <td>Townhouse</td>
-                                            <td>RTM</td>
-                                            <td>2023-11-15 11:20</td>
-                                            <td>System</td>
-                                            <td>
-                                                <ul class="action">
-                                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
-                                                    <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>บริษัท เมโทรซิตี้</td>
-                                            <td>Metro City Co.,Ltd.</td>
-                                            <td>MDG14</td>
-                                            <td>Urban Skyline</td>
-                                            <td>Condo</td>
-                                            <td>Planning</td>
-                                            <td>2023-10-08 14:15</td>
-                                            <td>Project Manager</td>
-                                            <td>
-                                                <ul class="action">
-                                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
-                                                    <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>บริษัท สตาร์วิว</td>
-                                            <td>Star View Co.,Ltd.</td>
-                                            <td>MDG15</td>
-                                            <td>Celestial Towers</td>
-                                            <td>Single House</td>
-                                            <td>Completed</td>
-                                            <td>2023-09-22 18:40</td>
-                                            <td>Team Dev</td>
-                                            <td>
-                                                <ul class="action">
-                                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
-                                                    <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>บริษัท ฟิวเจอร์โฮม</td>
-                                            <td>Future Home Co.,Ltd.</td>
-                                            <td>MDG16</td>
-                                            <td>Infinity Heights</td>
-                                            <td>Townhouse</td>
-                                            <td>In Progress</td>
-                                            <td>2023-08-12 10:55</td>
-                                            <td>System</td>
-                                            <td>
-                                                <ul class="action">
-                                                    <li class="edit"><a href="#"><i class="icon-pencil-alt"></i></a></li>
-                                                    <li class="delete"><a href="#"><i class="icon-trash"></i></a></li>
-                                                </ul>
-                                            </td>
-                                        </tr>
 
-                                    </tbody>
-                                </table>
+                                <!-- Company Card: 39 Estate Co.,Ltd -->
+                                <div class="card small-widget flex-shrink-0 company-card clickable-card"
+                                     style="min-width: 300px;"
+                                     data-name="บริษัท 39 เอสเตท จำกัด 39 Estate Co.,Ltd."
+                                     onclick="handleCardClick(this)">
+                                    <div class="card o-hidden small-widget">
+                                        <div class="card-body total-project border-b-primary border-2">
+                                            <span class="f-light f-w-500 f-14">บริษัท 39 เอสเตท จำกัด</span>
+                                            <div class="project-details">
+                                                <div class="project-counter">
+                                                    <h5 class="f-w-600">39 Estate Co.,Ltd.</h5>
+                                                </div>
+                                                <div class="product-sub bg-primary">
+                                                    <img src="@Url.Content("~/assets/images/logo/ASW_Logo_Rac_dark-bg.png")" alt="Company Icon" width="52" height="45">
+                                                </div>
+                                            </div>
+                                            <ul class="bubbles">
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
 
+                                <!-- Company Card: CEREBIUM Co., Ltd -->
+                                <div class="card small-widget flex-shrink-0 company-card clickable-card"
+                                     style="min-width: 300px;"
+                                     data-name="บริษัท เซเรเบียม จำกัด CEREBIUM Co., Ltd"
+                                     onclick="handleCardClick(this)">
+                                    <div class="card o-hidden small-widget">
+                                        <div class="card-body total-project border-b-primary border-2">
+                                            <span class="f-light f-w-500 f-14">บริษัท เซเรเบียม จำกัด</span>
+                                            <div class="project-details">
+                                                <div class="project-counter">
+                                                    <h5 class="f-w-600">CEREBIUM Co., Ltd</h5>
+                                                </div>
+                                                <div class="product-sub bg-primary">
+                                                    <img src="@Url.Content("~/assets/images/logo/ASW_Logo_Rac_dark-bg.png")" alt="Company Icon" width="52" height="45">
+                                                </div>
+                                            </div>
+                                            <ul class="bubbles">
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                                <li class="bubble"></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Add more cards as needed -->
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="box-col-12">
+            <div class="row">
+                <div class="col-md-4 col-12 collapse" id="Bucard">
+                    <!-- Cards Container -->
+                    <div class="card p-3">
+                        <div class="card-header card-no-border total-revenue">
+                            <h4 class="m-0">BU</h4>
+                        </div>
+                        <div class="card-body pt-0">
+                            <div class="col-xl-12">
+                                <div class="card product-widget">
+                                    <div class="card-body new-product">
+                                        <div class="product-cost">
+                                            <div class="add-product">
+                                                <div class="product-icon bg-light-primary">
+                                                    <svg>
+                                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#box-add")"></use>
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-1">BUG1</h6>
+                                                </div>
+                                            </div>
+                                            <div class="product-icon" data-bs-toggle="collapse" data-bs-target="#Projectcard" style="cursor: pointer;">
+                                                <svg>
+                                                    <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#arrow-down")"></use>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-12">
+                                <div class="card product-widget">
+                                    <div class="card-body new-product">
+                                        <div class="product-cost">
+                                            <div class="add-product">
+                                                <div class="product-icon bg-light-primary">
+                                                    <svg>
+                                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#box-add")"></use>
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-1">BUG2</h6>
+                                                </div>
+                                            </div>
+                                            <div class="product-icon">
+                                                <svg>
+                                                    <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#arrow-down")"></use>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-12">
+                                <div class="card product-widget">
+                                    <div class="card-body new-product">
+                                        <div class="product-cost">
+                                            <div class="add-product">
+                                                <div class="product-icon bg-light-primary">
+                                                    <svg>
+                                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#box-add")"></use>
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-1">BUG3</h6>
+                                                </div>
+                                            </div>
+                                            <div class="product-icon">
+                                                <svg>
+                                                    <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#arrow-down")"></use>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8 col-12 collapse" id="Projectcard">
+                    <div class="card p-3">
+                        <div class="card-header card-no-border total-revenue">
+                            <h4 class="m-0">Project</h4>
+                        </div>
+                        <div class="card-body pt-0">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                400H006
+                                                <br>
+                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
+                                            </td>
+
+                                            <td>
+                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
+                                                <br>
+                                                CHANN The Riverside Boromratchonnani
+                                            </td>
+                                            <td><span class="badge bg-primary">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-pill btn-warning active">
+                                                    <i class="icofont icofont-edit"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                400H006
+                                                <br>
+                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
+                                            </td>
+
+                                            <td>
+                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
+                                                <br>
+                                                CHANN The Riverside Boromratchonnani
+                                            </td>
+                                            <td><span class="badge bg-primary">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-pill btn-warning active">
+                                                    <i class="icofont icofont-edit"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                400H006
+                                                <br>
+                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
+                                            </td>
+
+                                            <td>
+                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
+                                                <br>
+                                                CHANN The Riverside Boromratchonnani
+                                            </td>
+                                            <td><span class="badge bg-primary">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-pill btn-warning active">
+                                                    <i class="icofont icofont-edit"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                400H006
+                                                <br>
+                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
+                                            </td>
+
+                                            <td>
+                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
+                                                <br>
+                                                CHANN The Riverside Boromratchonnani
+                                            </td>
+                                            <td><span class="badge bg-primary">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-pill btn-warning active">
+                                                    <i class="icofont icofont-edit"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                400H006
+                                                <br>
+                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
+                                            </td>
+
+                                            <td>
+                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
+                                                <br>
+                                                CHANN The Riverside Boromratchonnani
+                                            </td>
+                                            <td><span class="badge bg-primary">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-pill btn-warning active">
+                                                    <i class="icofont icofont-edit"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <!-- Container-fluid Ends-->
+<!-- JavaScript for Searching -->
+<script>
+    document.getElementById('searchInput').addEventListener('input', function () {
+        let searchText = this.value.toLowerCase();
+        let cards = document.querySelectorAll('.company-card');
+
+        cards.forEach(card => {
+            let companyName = card.getAttribute('data-name').toLowerCase();
+            if (companyName.includes(searchText)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+
+    function handleCardClick(element) {
+        let companyName = element.getAttribute("data-name");
+        // alert("You clicked on: " + companyName);
+    }
+
+</script>
