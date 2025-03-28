@@ -48,22 +48,11 @@
                                                 <input class="form-control" type="text" placeholder="Search.."><i class="search-icon" data-feather="search"></i>
                                             </div>
                                         </div>
-                                        <div class="job-filter">
+                                        <div class="job-filter mb-2">
                                             <div class="faq-form">
                                                 <input class="form-control" type="text" placeholder="location.."><i class="search-icon" data-feather="map-pin"></i>
                                             </div>
                                         </div>
-                            @*             <div class="checkbox-animated">
-                                            @foreach (var user in Model)
-                                            {
-
-                                                <div class="checkbox-animated">
-                                                    <label class="d-block" for="chk-ani + @user.ID">
-                                                        <input class="checkbox_animated" id="chk-ani + @user.ID" type="checkbox"> @($"{user.FirstName} {user.LastName}")
-                                                    </label>
-                                                </div>
-                                            }
-                                        </div> *@
                                         <button class="btn btn-primary text-center" type="button">Find jobs</button>
                                     </div>
                                 </div>
@@ -76,35 +65,83 @@
         <div class="col-xl-9 xl-70 box-col-12">
             <div class="card">
                 <div class="card-body">
-                <div class="row">
-                    @foreach (var user in Model)
-                    {
-                        <div class="col-6">
-                            <div class="project-box b-light1-primary">
-                                <span class="badge badge-primary">Doing</span>
-                                <h5 class="f-w-500">@($"{user.FirstName} {user.LastName}")</h5>
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p>@($"{user.FirstName_Eng} {user.LastName_Eng}")</p>
+                    <div class="row">
+                        @foreach (var user in Model)
+                        {
+                            <div class="col-xl-6 col-sm-6 col-xxl-3 col-ed-6 box-col-6">
+                                <div class="card social-profile">
+                                    <div class="card-body text-center">
+                                        <div class="social-img-wrap hover-icon-swap">
+                                            <div class="social-img">
+                                                <a href="~/CSMapping">
+                                                    <i class="icofont icon-toggle icofont-man-in-glasses"
+                                                       data-default="icofont-man-in-glasses"
+                                                       data-hover="icofont-ui-edit"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="social-details mt-3">
+                                            <h5 class="mb-1">
+                                                <a href="social-app.html">@($"{user.FirstName} {user.LastName}")</a>
+                                            </h5>
+                                            <span class="f-light">@($"{user.FirstName_Eng} {user.LastName_Eng}")</span>
+
+                                            @{
+                                                var projects = new[] {  new { Name = "ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี", Units = 4 },
+                                                                        new { Name = "แอทโมซ ลาดพร้าว 71", Units = 3 },
+                                                                        new { Name = "แม็กซี่ ไพร์ม รัชดา-สุทธิสาร 71", Units = 12 }
+                                                };
+                                            }
+
+                                            @foreach (var proj in projects)
+                                            {
+                                                var collapseId = $"collapse_{user.ID}_{proj.Name.GetHashCode()}";
+                                                <div class="small text-muted mt-2">
+                                                    <a class="text-muted" data-bs-toggle="collapse" href="#@collapseId" role="button" aria-expanded="false" aria-controls="@collapseId">
+                                                        @proj.Name -
+                                                        <span class="badge rounded-circle badge-p-space badge-danger badge-small">@proj.Units</span> Unit
+                                                    </a>
+                                                </div>
+
+                                                <div class="collapse mt-2" id="@collapseId">
+                                                    <div class="card card-body py-2 px-3">
+                                                        <ul class="mb-0">
+                                                            <li>Unit : A001 - Status : <span class="badge badge-light badge-small text-dark">ว่าง</span></li>
+                                                            <li>Unit : A002 - Status : <span class="badge badge-danger badge-small">จอง</span></li>
+                                                            <li>Unit : A003 - Status : <span class="badge badge-primary badge-small">สัญญา</span></li>
+                                                            <li>Unit : A004 - Status : <span class="badge badge-success badge-small">โอน</span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
                                     </div>
                                 </div>
-                                <p>Project</p>
-                                <div class="row details">
-                                    <div class="col-6"><span>Issues </span></div>
-                                    <div class="col-6 font-primary">12 </div>
-                                    <div class="col-6"> <span>Resolved</span></div>
-                                    <div class="col-6 font-primary">5</div>
-                                    <div class="col-6"> <span>Comment</span></div>
-                                    <div class="col-6 font-primary">7</div>
-                                </div>
                             </div>
-                        </div>
-                    }
-
-                </div>
+                        }
+                    
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 <!-- Container-fluid Ends-->
+<script>
+document.querySelectorAll('.hover-icon-swap').forEach(container => {
+        const icon = container.querySelector('.icon-toggle');
+        const defaultClass = icon.dataset.default;
+        const hoverClass = icon.dataset.hover;
+
+        container.addEventListener('mouseenter', () => {
+            icon.classList.remove(defaultClass);
+            icon.classList.add(hoverClass);
+        });
+
+        container.addEventListener('mouseleave', () => {
+            icon.classList.remove(hoverClass);
+            icon.classList.add(defaultClass);
+        });
+    });
+
+</script>
