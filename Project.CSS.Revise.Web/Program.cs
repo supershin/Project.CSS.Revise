@@ -22,6 +22,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=CSResponse}/{action=Index}/{id?}");
+    pattern: "{controller=CSMapping}/{action=Index}/{id?}");
 
 app.Run();

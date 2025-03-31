@@ -43,19 +43,71 @@
                                 </div>
                                 <div class="collapse show" id="collapseOne" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                                     <div class="card-body filter-cards-view animate-chk">
-                                        <div class="job-filter mb-2">
-                                            <div class="faq-form">
-                                                <input class="form-control" type="text" placeholder="Search.."><i class="search-icon" data-feather="search"></i>
-                                            </div>
+
+                                        <!-- 🔍 พนักงาน -->
+                                        <div class="job-filter mb-3">
+                                            <label for="csUserSelect" class="form-label fw-bold">ชื่อพนักงาน</label>
+                                            <select id="csUserSelect" class="form-control searchable-select">
+                                                <option value="">พิมพ์ค้นหาชื่อพนักงาน...</option>
+                                                <option value="1">กิตติยา ใจดี</option>
+                                                <option value="2">ณัฐพร สายทอง</option>
+                                                <option value="3">นภัทร ศรีสม</option>
+                                                <option value="4">สุพรรณี วิชัย</option>
+                                                <option value="5">พนิดา อินทร์แก้ว</option>
+                                                <option value="6">ชุติมา แสงดาว</option>
+                                            </select>
                                         </div>
-                                        <div class="job-filter mb-2">
-                                            <div class="faq-form">
-                                                <input class="form-control" type="text" placeholder="location.."><i class="search-icon" data-feather="map-pin"></i>
-                                            </div>
+
+                                        <!-- 🏢 โครงการ -->
+                                        <div class="job-filter mb-3">
+                                            <label for="projectMultiSelect" class="form-label fw-bold">โครงการที่รับผิดชอบ</label>
+                                            <select id="projectMultiSelect" class="form-control multi-select" multiple>
+                                                <option value="1">มารูน รัชดา</option>
+                                                <option value="2">เคฟ ป๊อป ศาลายา</option>
+                                                <option value="3">เคฟ วันเดอร์แลนด์</option>
+                                                <option value="4">เคฟ ลูมินัส บางมด</option>
+                                                <option value="5">แอทโมซ เดอ โซล ทิพวัล สเตชั่น</option>
+                                                <option value="6">เคฟ เอ็มบริโอ รังสิต</option>
+                                                <option value="7">แอทโมซ แคนวาส ระยอง</option>
+                                                <option value="8">เคฟ ทาวน์ ไอส์แลนด์</option>
+                                                <option value="9">โมดิซ โวยาจ ศรีนครินทร์</option>
+                                                <option value="10">เคฟ ซี๊ด เกษตร</option>
+                                                <option value="11">แอทโมซ ซีซั่น ลาดกระบัง</option>
+                                                <option value="12">โมดิซ วอลท์ เกษตร - ศรีปทุม</option>
+                                                <option value="13">แอทโมซ พาลาซิโอ ลาดพร้าว-วังหิน</option>
+                                            </select>
                                         </div>
-                                        <button class="btn btn-primary text-center" type="button">Find jobs</button>
+
+                                        <!-- 🏢 อาคาร -->
+                                        <div class="job-filter mb-3">
+                                            <label for="buildingMultiSelect" class="form-label fw-bold">อาคาร</label>
+                                            <select id="buildingMultiSelect" class="form-control multi-select" multiple>
+                                                <option value="1">A</option>
+                                                <option value="2">B</option>
+                                                <option value="3">C</option>
+                                                <option value="4">D</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- 🧱 ชั้น -->
+                                        <div class="job-filter mb-3">
+                                            <label for="floorMultiSelect" class="form-label fw-bold">ชั้น</label>
+                                            <select id="floorMultiSelect" class="form-control multi-select" multiple>
+                                                <option value="B2">B2</option>
+                                                <option value="B1">B1</option>
+                                                <option value="G">G</option>
+                                                @for (int i = 1; i <= 100; i++)
+                                                {
+                                                    <option value="@i">@i</option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <!-- 🔎 ปุ่มค้นหา -->
+                                        <button class="btn btn-primary text-center" type="button">Search 🔍 </button>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -127,8 +179,49 @@
     </div>
 </div>
 <!-- Container-fluid Ends-->
+
 <script>
-document.querySelectorAll('.hover-icon-swap').forEach(container => {
+
+    document.addEventListener("DOMContentLoaded", function () {
+        new Choices('#csUserSelect', {
+            placeholderValue: '🔍 พิมพ์ค้นหาชื่อพนักงาน...',
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false
+        });
+    });
+
+     document.addEventListener("DOMContentLoaded", function () {
+        new Choices('#projectMultiSelect', {
+            removeItemButton: true,
+            placeholderValue: 'เลือกโครงการได้หลายรายการ',
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false
+        });
+    });
+
+     document.addEventListener("DOMContentLoaded", function () {
+        new Choices('#buildingMultiSelect', {
+            removeItemButton: true,
+            placeholderValue: 'เลือกอาคารได้หลายอาคาร',
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        new Choices('#floorMultiSelect', {
+            removeItemButton: true,
+            placeholderValue: 'เลือกชั้นที่ต้องการ',
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false
+        });
+    });
+
+    document.querySelectorAll('.hover-icon-swap').forEach(container => {
         const icon = container.querySelector('.icon-toggle');
         const defaultClass = icon.dataset.default;
         const hoverClass = icon.dataset.hover;

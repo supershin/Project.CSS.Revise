@@ -6,9 +6,9 @@
     <meta name="description" content="Riho admin is super flexible, powerful, clean &amp; modern responsive bootstrap 5 admin template with unlimited possibilities.">
     <meta name="keywords" content="admin template, Riho admin template, dashboard template, flat admin template, responsive admin template, web app">
     <meta name="author" content="pixelstrap">
-    <link rel="icon" href="~/assets/images/favicon.png" type="image/x-icon">
-    <link rel="shortcut icon" href="~/assets/images/favicon.png" type="image/x-icon">
-    <title>Riho - Premium Admin Template</title>
+    <link rel="icon" href="~/assets/images/logo/minaswlogo.png" type="image/x-icon">
+    <link rel="shortcut icon" href="~/assets/images/logo/minaswlogo.png" type="image/x-icon">
+    <title>Project - CSS Revise</title>
     <!-- Google Font: Prompt -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,9 +40,11 @@
     <!-- App css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+    <!-- Load Choices.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <!-- Responsive css-->
-    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
-    
+    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">   
     <link rel="stylesheet" type="text/css" href="~/css/custom.css?ver=@DateTime.Now.Ticks.ToString()">
     <style>
 
@@ -110,7 +112,17 @@
                 transition: transform 0.3s ease, color 0.3s ease;
             }
 
+        .text-scroll-horizontal {
+            display: inline-block;
+            white-space: nowrap;
+            overflow-x: auto;
+            max-width: 160px; /* Adjust based on your layout */
+            vertical-align: middle;
+        }
 
+        .choices__input {
+            font-size: 0.9rem;
+        }
 
     </style>
 </head>
