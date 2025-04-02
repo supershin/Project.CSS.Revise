@@ -1,0 +1,240 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutSite.cshtml";
+    @model List<Project.CSS.Revise.Web.Models.User>
+}
+
+<div class="container-fluid">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-6">
+                <h4>CS Response</h4>
+            </div>
+            <div class="col-6">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="index.html">
+                            <svg class="stroke-icon">
+                                <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-home")"></use>
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">Setting</li>
+                    <li class="breadcrumb-item active">CS Response</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Container-fluid starts-->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xl-3 xl-30 box-col-12">
+            <div class="md-sidebar">
+                <a class="btn btn-primary email-aside-toggle md-sidebar-toggle">Job filter</a>
+                <div class="md-sidebar-aside job-sidebar">
+                    <div class="default-according style-1 faq-accordion job-accordion">
+                        <div class="accordion" id="accordionExample">
+                            <div class="card">
+                                <div class="card-header" id="headingOne">
+                                    <h2 class="mb-0">
+                                        <button class="btn btn-link btn-block text-start" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">Filter</button>
+                                    </h2>
+                                </div>
+                                <div class="collapse show" id="collapseOne" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                    <div class="card-body filter-cards-view animate-chk">
+
+                                        <!-- 🔍 พนักงาน -->
+                                        <div class="job-filter mb-3">
+                                            <label for="csUserSelect" class="form-label fw-bold">ชื่อพนักงาน</label>
+                                            <select id="csUserSelect" class="form-control searchable-select">
+                                                <option value="">พิมพ์ค้นหาชื่อพนักงาน...</option>
+                                                <option value="1">กิตติยา ใจดี</option>
+                                                <option value="2">ณัฐพร สายทอง</option>
+                                                <option value="3">นภัทร ศรีสม</option>
+                                                <option value="4">สุพรรณี วิชัย</option>
+                                                <option value="5">พนิดา อินทร์แก้ว</option>
+                                                <option value="6">ชุติมา แสงดาว</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- 🏢 โครงการ -->
+                                        <div class="job-filter mb-3">
+                                            <label for="projectMultiSelect" class="form-label fw-bold">โครงการที่รับผิดชอบ</label>
+                                            <select id="projectMultiSelect" class="form-control multi-select" multiple>
+                                                <option value="1">มารูน รัชดา</option>
+                                                <option value="2">เคฟ ป๊อป ศาลายา</option>
+                                                <option value="3">เคฟ วันเดอร์แลนด์</option>
+                                                <option value="4">เคฟ ลูมินัส บางมด</option>
+                                                <option value="5">แอทโมซ เดอ โซล ทิพวัล สเตชั่น</option>
+                                                <option value="6">เคฟ เอ็มบริโอ รังสิต</option>
+                                                <option value="7">แอทโมซ แคนวาส ระยอง</option>
+                                                <option value="8">เคฟ ทาวน์ ไอส์แลนด์</option>
+                                                <option value="9">โมดิซ โวยาจ ศรีนครินทร์</option>
+                                                <option value="10">เคฟ ซี๊ด เกษตร</option>
+                                                <option value="11">แอทโมซ ซีซั่น ลาดกระบัง</option>
+                                                <option value="12">โมดิซ วอลท์ เกษตร - ศรีปทุม</option>
+                                                <option value="13">แอทโมซ พาลาซิโอ ลาดพร้าว-วังหิน</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- 🏢 อาคาร -->
+                                        <div class="job-filter mb-3">
+                                            <label for="buildingMultiSelect" class="form-label fw-bold">อาคาร</label>
+                                            <select id="buildingMultiSelect" class="form-control multi-select" multiple>
+                                                <option value="1">A</option>
+                                                <option value="2">B</option>
+                                                <option value="3">C</option>
+                                                <option value="4">D</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- 🧱 ชั้น -->
+                                        <div class="job-filter mb-3">
+                                            <label for="floorMultiSelect" class="form-label fw-bold">ชั้น</label>
+                                            <select id="floorMultiSelect" class="form-control multi-select" multiple>
+                                                <option value="B2">B2</option>
+                                                <option value="B1">B1</option>
+                                                <option value="G">G</option>
+                                                @for (int i = 1; i <= 100; i++)
+                                                {
+                                                    <option value="@i">@i</option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <!-- 🔎 ปุ่มค้นหา -->
+                                        <button class="btn btn-primary text-center" type="button">Search 🔍 </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-9 xl-70 box-col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        @foreach (var user in Model)
+                        {
+                            <div class="col-xl-6 col-sm-6 col-xxl-3 col-ed-6 box-col-6">
+                                <div class="card social-profile">
+                                    <div class="card-body text-center">
+                                        <div class="social-img-wrap hover-icon-swap">
+                                            <div class="social-img">
+                                                <a href="~/CSMapping">
+                                                    <i class="icofont icon-toggle icofont-man-in-glasses"
+                                                       data-default="icofont-man-in-glasses"
+                                                       data-hover="icofont-ui-edit"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="social-details mt-3">
+                                            <h5 class="mb-1">
+                                                <a href="social-app.html">@($"{user.FirstName} {user.LastName}")</a>
+                                            </h5>
+                                            <span class="f-light">@($"{user.FirstName_Eng} {user.LastName_Eng}")</span>
+
+                                            @{
+                                                var projects = new[] {  new { Name = "ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี", Units = 4 },
+                                                                        new { Name = "แอทโมซ ลาดพร้าว 71", Units = 3 },
+                                                                        new { Name = "แม็กซี่ ไพร์ม รัชดา-สุทธิสาร 71", Units = 12 }
+                                                };
+                                            }
+
+                                            @foreach (var proj in projects)
+                                            {
+                                                var collapseId = $"collapse_{user.ID}_{proj.Name.GetHashCode()}";
+                                                <div class="small text-muted mt-2">
+                                                    <a class="text-muted" data-bs-toggle="collapse" href="#@collapseId" role="button" aria-expanded="false" aria-controls="@collapseId">
+                                                        @proj.Name -
+                                                        <span class="badge rounded-circle badge-p-space badge-danger badge-small">@proj.Units</span> Unit
+                                                    </a>
+                                                </div>
+
+                                                <div class="collapse mt-2" id="@collapseId">
+                                                    <div class="card card-body py-2 px-3">
+                                                        <ul class="mb-0">
+                                                            <li>Unit : A001 - Status : <span class="badge badge-light badge-small text-dark">ว่าง</span></li>
+                                                            <li>Unit : A002 - Status : <span class="badge badge-danger badge-small">จอง</span></li>
+                                                            <li>Unit : A003 - Status : <span class="badge badge-primary badge-small">สัญญา</span></li>
+                                                            <li>Unit : A004 - Status : <span class="badge badge-success badge-small">โอน</span></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Container-fluid Ends-->
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        new Choices('#csUserSelect', {
+            placeholderValue: '🔍 พิมพ์ค้นหาชื่อพนักงาน...',
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false
+        });
+    });
+
+     document.addEventListener("DOMContentLoaded", function () {
+        new Choices('#projectMultiSelect', {
+            removeItemButton: true,
+            placeholderValue: 'เลือกโครงการได้หลายรายการ',
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false
+        });
+    });
+
+     document.addEventListener("DOMContentLoaded", function () {
+        new Choices('#buildingMultiSelect', {
+            removeItemButton: true,
+            placeholderValue: 'เลือกอาคารได้หลายอาคาร',
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        new Choices('#floorMultiSelect', {
+            removeItemButton: true,
+            placeholderValue: 'เลือกชั้นที่ต้องการ',
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false
+        });
+    });
+
+    document.querySelectorAll('.hover-icon-swap').forEach(container => {
+        const icon = container.querySelector('.icon-toggle');
+        const defaultClass = icon.dataset.default;
+        const hoverClass = icon.dataset.hover;
+
+        container.addEventListener('mouseenter', () => {
+            icon.classList.remove(defaultClass);
+            icon.classList.add(hoverClass);
+        });
+
+        container.addEventListener('mouseleave', () => {
+            icon.classList.remove(hoverClass);
+            icon.classList.add(defaultClass);
+        });
+    });
+
+</script>
