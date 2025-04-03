@@ -59,8 +59,8 @@
 
                                             <!-- 🏢 โครงการ -->
                                             <div class="job-filter mb-3">
-                                                <label for="projectMultiSelect" class="form-label fw-bold">โครงการที่รับผิดชอบ</label>
-                                                <select id="projectMultiSelect" class="form-control multi-select" multiple>
+                                                <label for="projectSelect" class="form-label fw-bold">โครงการที่รับผิดชอบ</label>
+                                                <select id="projectSelect" class="form-control searchable-select">
                                                     <option value="1">มารูน รัชดา</option>
                                                     <option value="2">เคฟ ป๊อป ศาลายา</option>
                                                     <option value="3">เคฟ วันเดอร์แลนด์</option>
@@ -102,6 +102,17 @@
                                                 </select>
                                             </div>
 
+                                            <!-- 🚪 ห้อง -->
+                                            <div class="job-filter mb-3">
+                                                <label for="roomMultiSelect" class="form-label fw-bold">ห้อง</label>
+                                                <select id="roomMultiSelect" class="form-control multi-select" multiple>
+                                                    @for (int i = 1; i <= 300; i++)
+                                                    {
+                                                        <option value="@i">Room @i</option>
+                                                    }
+                                                </select>
+                                            </div>
+
                                             <!-- 🔎 ปุ่มค้นหา -->
                                             <button class="btn btn-primary text-center" type="button">Search 🔍 </button>
                                         </div>
@@ -113,123 +124,115 @@
                     </div>
                 </div>
             </div>
-        <div class="col-xl-9 xl-70 box-col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <div>
-                        <h4>Basic Card</h4>
-                        <div class="d-flex align-items-center gap-3 f-m-light mt-1 mb-0">
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" id="filterCheckedOnly">
-                                <label class="form-check-label" for="filterCheckedOnly">แสดงเฉพาะที่เลือก</label>
-                            </div>
-                            <div class="form-check mb-0">
-                                <input class="form-check-input" type="checkbox" id="checkAll">
-                                <label class="form-check-label" for="checkAll">เลือกทั้งหมด</label>
+            <div class="col-xl-9 xl-70 box-col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4>บริษัท เอสเตท คิว จำกัด</h4>
+                            <div class="d-flex align-items-center gap-3 f-m-light mt-1 mb-0">
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" id="filterCheckedOnly">
+                                    <label class="form-check-label" for="filterCheckedOnly">แสดงเฉพาะที่เลือก</label>
+                                </div>
                             </div>
                         </div>
+                        <div>
+                            <button type="button" class="btn btn-primary btn-sm">
+                                💾 Save
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive custom-scrollbar">
-                        <table class="display" id="basic-1">
-                            <thead>
+                    <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle text-center">
+                            <thead class="table-light">
                                 <tr>
-                                    <th>#</th>
-                                    <th>Unit</th>
-                                    <th>CS name</th>
-                                    <th>Status</th>
-                                    <th>Floor & Room</th>
+                                    <th scope="col">
+                                        <input class="form-check-input" type="checkbox" id="checkAll">
+                                    </th>
+                                    <th scope="col">Unit</th>
+                                    <th scope="col">CS Name</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Floor & Room</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><input type="checkbox" class="row-check" checked></td>
-                                    <td>บริษัท เอสเตท คิว จำกัด : Unit A001</td>
+                                    <td>
+                                        <input class="form-check-input row-check" id="flexCheckCheckedA001" type="checkbox" checked>
+                                    </td>
+                                    <td>Unit A001</td>
                                     <td>กิติยา กัญยะโสภา</td>
-                                    <td><span class="badge badge-light badge-small text-dark">ว่าง</span></td>
+                                    <td><span class="badge bg-grey text-dark">ว่าง</span></td>
                                     <td>Floor : 2 - Room : 8</td>
                                 </tr>
                                 <tr>
-                                    <td><input type="checkbox" class="row-check"></td>
-                                    <td>บริษัท แอทโมซ จำกัด : Unit B105</td>
+                                    <td><input class="form-check-input row-check" type="checkbox"></td>
+                                    <td>Unit B105</td>
                                     <td>ณัฐพร สายทอง</td>
-                                    <td><span class="badge badge-danger badge-small">จอง</span></td>
+                                    <td><span class="badge bg-danger text-white">จอง</span></td>
                                     <td>Floor : 5 - Room : 12</td>
                                 </tr>
                                 <tr>
-                                    <td><input type="checkbox" class="row-check" checked></td>
-                                    <td>บริษัท เคฟ ดีเวลลอป จำกัด : Unit C307</td>
+                                    <td><input class="form-check-input row-check" type="checkbox" checked></td>
+                                    <td>Unit C307</td>
                                     <td>พนิดา อินทร์แก้ว</td>
-                                    <td><span class="badge badge-primary badge-small">สัญญา</span></td>
+                                    <td><span class="badge bg-primary">สัญญา</span></td>
                                     <td>Floor : 3 - Room : 7</td>
                                 </tr>
                                 <tr>
-                                    <td><input type="checkbox" class="row-check"></td>
-                                    <td>บริษัท โมดิซ แอสเสท จำกัด : Unit D412</td>
+                                    <td><input class="form-check-input row-check" type="checkbox"></td>
+                                    <td>Unit D412</td>
                                     <td>นภัทร ศรีสม</td>
-                                    <td><span class="badge badge-success badge-small">โอน</span></td>
+                                    <td><span class="badge bg-success">โอน</span></td>
                                     <td>Floor : 4 - Room : 12</td>
                                 </tr>
                                 <tr>
-                                    <td><input type="checkbox" class="row-check"></td>
-                                    <td>บริษัท เคฟ พร็อพเพอร์ตี้ จำกัด : Unit E206</td>
+                                    <td><input class="form-check-input row-check" type="checkbox"></td>
+                                    <td>Unit E206</td>
                                     <td>ชุติมา แสงดาว</td>
-                                    <td><span class="badge badge-light badge-small text-dark">ว่าง</span></td>
+                                    <td><span class="badge bg-light text-dark">ว่าง</span></td>
                                     <td>Floor : B1 - Room : 6</td>
                                 </tr>
                                 <tr>
-                                    <td><input type="checkbox" class="row-check" checked></td>
-                                    <td>บริษัท แอทโมซ จำกัด : Unit F809</td>
+                                    <td><input class="form-check-input row-check" type="checkbox" checked></td>
+                                    <td>Unit F809</td>
                                     <td>สุพรรณี วิชัย</td>
-                                    <td><span class="badge badge-danger badge-small">จอง</span></td>
+                                    <td><span class="badge bg-danger">จอง</span></td>
                                     <td>Floor : 8 - Room : 9</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <div class="code-box-copy">
-                        <button class="code-box-copy__btn btn-clipboard" data-clipboard-target="#example-head" title="Copy">
-                            <i class="icofont icofont-copy-alt"></i>
-                        </button>
-                        <pre>
-                        <code class="language-html" id="example-head">
-                            &lt;!-- Basic card --&gt;
-                        hire.&lt;/p&gt;
-                    </code>
-                </pre>
+
                     </div>
                 </div>
             </div>
         </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkAll = document.getElementById("checkAll");
+        const checkboxes = document.querySelectorAll(".row-check");
+        const filterToggle = document.getElementById("filterCheckedOnly"); // optional if you have this switch
 
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const checkAll = document.getElementById("checkAll");
-                const checkboxes = document.querySelectorAll(".row-check");
-                const filterToggle = document.getElementById("filterCheckedOnly");
+        checkAll.addEventListener("change", function () {
+            checkboxes.forEach(cb => cb.checked = checkAll.checked);
+        });
 
-                checkAll.addEventListener("change", function () {
-                    checkboxes.forEach(cb => cb.checked = checkAll.checked);
-                });
-
-                filterToggle.addEventListener("change", function () {
-                    checkboxes.forEach(cb => {
-                        const row = cb.closest("tr");
-                        if (filterToggle.checked) {
-                            row.style.display = cb.checked ? "" : "none";
-                        } else {
-                            row.style.display = "";
-                        }
-                    });
+        if (filterToggle) {
+            filterToggle.addEventListener("change", function () {
+                checkboxes.forEach(cb => {
+                    const row = cb.closest("tr");
+                    row.style.display = filterToggle.checked ? (cb.checked ? "" : "none") : "";
                 });
             });
-        </script>
-        </div>
-</div>
+        }
+    });
 
-<script>
+
+
     document.addEventListener("DOMContentLoaded", function () {
         new Choices('#csUserSelect', {
             placeholderValue: '🔍 พิมพ์ค้นหาชื่อพนักงาน...',
@@ -239,10 +242,9 @@
         });
     });
 
-     document.addEventListener("DOMContentLoaded", function () {
-        new Choices('#projectMultiSelect', {
-            removeItemButton: true,
-            placeholderValue: 'เลือกโครงการได้หลายรายการ',
+    document.addEventListener("DOMContentLoaded", function () {
+        new Choices('#projectSelect', {
+            placeholderValue: 'เลือกโครงการ',
             searchEnabled: true,
             itemSelectText: '',
             shouldSort: false
@@ -268,4 +270,15 @@
             shouldSort: false
         });
     });
+
+     document.addEventListener("DOMContentLoaded", function () {
+        new Choices('#roomMultiSelect', {
+            removeItemButton: true,
+            placeholderValue: 'เลือกห้องที่ต้องการ',
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false
+        });
+    });
+
 </script>

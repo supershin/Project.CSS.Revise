@@ -22,6 +22,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=CSMapping}/{action=Index}/{id?}");
+    pattern: "{controller=UserBank}/{action=Index}/{id?}");
 
 app.Run();
