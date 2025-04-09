@@ -2,6 +2,14 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_LayoutSite.cshtml";
 }
+<style>
+    tbody td {
+        text-align: left;
+    }
+    tbody td:first-child {
+        text-align: center;
+    }
+</style>
 
 <div class="container-fluid">
     <div class="page-title">
@@ -147,7 +155,7 @@
                         <table class="table table-bordered table-striped align-middle text-center">
                             <thead class="table-light">
                                 <tr>
-                                    <th scope="col">
+                                    <th scope="col" class="text-center">
                                         <input class="form-check-input" type="checkbox" id="checkAll">
                                     </th>
                                     <th scope="col">Unit</th>
@@ -158,54 +166,93 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>
+                                    <td class="text-center">
+                                        <!-- ✅ Force checkbox td center -->
                                         <input class="form-check-input row-check" id="flexCheckCheckedA001" type="checkbox" checked>
                                     </td>
-                                    <td>Unit A001</td>
-                                    <td>กิติยา กัญยะโสภา</td>
-                                    <td><span class="badge bg-grey text-dark">ว่าง</span></td>
-                                    <td>Floor : 2 - Room : 8</td>
+                                    <td class="text-start">
+                                        เคฟ เพลย์กราวด์ ลาดพร้าว-บดินทรเดชา
+                                        <small class="d-block">Unit B105</small>
+                                    </td>
+                                    <td class="text-start">กิติยา กัญยะโสภา</td>
+                                    <td class="text-start">
+                                        <span class="badge bg-grey text-dark">ว่าง</span>
+                                    </td>
+                                    <td class="text-start">Floor : 2 - Room : 8</td>
                                 </tr>
                                 <tr>
-                                    <td><input class="form-check-input row-check" type="checkbox"></td>
-                                    <td>Unit B105</td>
-                                    <td>ณัฐพร สายทอง</td>
-                                    <td><span class="badge bg-danger text-white">จอง</span></td>
-                                    <td>Floor : 5 - Room : 12</td>
+                                    <td class="text-center">
+                                        <input class="form-check-input row-check" type="checkbox">
+                                    </td>
+                                    <td class="text-start">
+                                        เคฟ เพลย์กราวด์ ลาดพร้าว-บดินทรเดชา
+                                        <small class="d-block">Unit B113</small>
+                                    </td>
+                                    <td class="text-start">ณัฐพร สายทอง</td>
+                                    <td class="text-start">
+                                        <span class="badge bg-danger text-white">จอง</span>
+                                    </td>
+                                    <td class="text-start">Floor : 5 - Room : 12</td>
                                 </tr>
                                 <tr>
-                                    <td><input class="form-check-input row-check" type="checkbox" checked></td>
-                                    <td>Unit C307</td>
-                                    <td>พนิดา อินทร์แก้ว</td>
-                                    <td><span class="badge bg-primary">สัญญา</span></td>
-                                    <td>Floor : 3 - Room : 7</td>
+                                    <td class="text-center">
+                                        <input class="form-check-input row-check" type="checkbox" checked>
+                                    </td>
+                                    <td class="text-start">
+                                        เคฟ เพลย์กราวด์ ลาดพร้าว-บดินทรเดชา
+                                        <small class="d-block">Unit C307</small>
+                                    </td>
+                                    <td class="text-start">พนิดา อินทร์แก้ว</td>
+                                    <td class="text-start">
+                                        <span class="badge bg-primary">สัญญา</span>
+                                    </td>
+                                    <td class="text-start">Floor : 3 - Room : 7</td>
                                 </tr>
                                 <tr>
-                                    <td><input class="form-check-input row-check" type="checkbox"></td>
-                                    <td>Unit D412</td>
-                                    <td>นภัทร ศรีสม</td>
-                                    <td><span class="badge bg-success">โอน</span></td>
-                                    <td>Floor : 4 - Room : 12</td>
+                                    <td class="text-center">
+                                        <input class="form-check-input row-check" type="checkbox">
+                                    </td>
+                                    <td class="text-start">
+                                        เคฟ เพลย์กราวด์ ลาดพร้าว-บดินทรเดชา
+                                        <small class="d-block">Unit C412</small>
+                                    </td>
+                                    <td class="text-start">นภัทร ศรีสม</td>
+                                    <td class="text-start">
+                                        <span class="badge bg-success">โอน</span>
+                                    </td>
+                                    <td class="text-start">Floor : 4 - Room : 12</td>
                                 </tr>
                                 <tr>
-                                    <td><input class="form-check-input row-check" type="checkbox"></td>
-                                    <td>Unit E206</td>
-                                    <td>ชุติมา แสงดาว</td>
-                                    <td><span class="badge bg-light text-dark">ว่าง</span></td>
-                                    <td>Floor : B1 - Room : 6</td>
+                                    <td class="text-center">
+                                        <input class="form-check-input row-check" type="checkbox">
+                                    </td>
+                                    <td class="text-start">
+                                        เคฟ เพลย์กราวด์ ลาดพร้าว-บดินทรเดชา
+                                        <small class="d-block">Unit E206</small>
+                                    </td>
+                                    <td class="text-start">ชุติมา แสงดาว</td>
+                                    <td class="text-start">
+                                        <span class="badge bg-light text-dark">ว่าง</span>
+                                    </td>
+                                    <td class="text-start">Floor : B1 - Room : 6</td>
                                 </tr>
                                 <tr>
-                                    <td><input class="form-check-input row-check" type="checkbox" checked></td>
-                                    <td>Unit F809</td>
-                                    <td>สุพรรณี วิชัย</td>
-                                    <td><span class="badge bg-danger">จอง</span></td>
-                                    <td>Floor : 8 - Room : 9</td>
+                                    <td class="text-center">
+                                        <input class="form-check-input row-check" type="checkbox" checked>
+                                    </td>
+                                    <td class="text-start">
+                                        เคฟ เพลย์กราวด์ ลาดพร้าว-บดินทรเดชา
+                                        <small class="d-block">Unit F806</small>
+                                    </td>
+                                    <td class="text-start">สุพรรณี วิชัย</td>
+                                    <td class="text-start">
+                                        <span class="badge bg-danger">จอง</span>
+                                    </td>
+                                    <td class="text-start">Floor : 8 - Room : 9</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-
-
                     </div>
                 </div>
             </div>
