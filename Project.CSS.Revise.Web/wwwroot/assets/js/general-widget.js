@@ -664,14 +664,11 @@ revenueWidget.render();
   
   var options = {
     series: [{
-    name: 'Chrome',
-    data: [44, 55, 41, 37, 22, 43, 21]
-  }, {
-    name: 'Firefox',
-    data: [53, 32, 33, 52, 13, 43, 32]
+        name: 'Target',
+        data: [44 , 55 , 41 , 37 , 22 , 43 , 21 , 36 , 45 , 25 , 16 , 20]
   }, { 
-    name: 'Firefox',
-    data: [12, 17, 11, 9, 15, 11, 20]
+        name: 'Rolling',
+        data: [12 , 17 , 11 , 9 , 15 , 11 , 20 , 30 , 20 , 50 , 11 , 18 ]
   }],
     colors:['var(--theme-deafult)' ,'#80B3B3' ,'#CCE0E0'],
     chart: { 
@@ -707,7 +704,7 @@ revenueWidget.render();
       enabled: false,
     },
     xaxis: {
-      categories: ['Mon', 'Tue', 'Wed', 'Thu','Fri', 'Sat' ,'Sun'
+        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept','Oct', 'Nov' ,'Dec'
       ],
       labels:{
         show: false,
