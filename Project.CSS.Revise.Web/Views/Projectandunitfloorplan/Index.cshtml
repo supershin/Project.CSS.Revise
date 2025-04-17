@@ -55,6 +55,7 @@
         </div>
     </div>
 </div>
+
 <div class="container-fluid mb-3">
     <div class="row justify-content-between align-items-end g-2">
         <!-- 🎯 Project Dropdown -->
@@ -76,12 +77,8 @@
                 </select>
             </div>
         </div>
-
         <!-- 🔘 Buttons -->
         <div class="col-md-6 d-flex justify-content-md-end justify-content-start gap-2 mt-md-0 mt-2">
-            <button class="btn btn-outline-primary shadow-sm px-4" id="searchProjectBtn">
-                <i class="icofont icofont-ui-search"></i>  Search
-            </button>
             <button class="btn btn-outline-primary shadow-sm px-4" id="uploadImage">
                 <i class="icofont icofont-file-image"></i> Upload images
             </button>
@@ -96,7 +93,7 @@
 <!-- Container-fluid starts-->
 <div class="container-fluid">
     <div class="row">
-        <div class="col-xl-6">
+        <div class="col-12 col-sm-6 col-xl-6">
             <div class="card">
                 <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
                     <h4 class="mb-0">Floor plan lists</h4>
@@ -108,16 +105,77 @@
                             <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
                                 <div class="d-flex align-items-center gap-2">
                                     <input class="form-check-input" type="checkbox" />
-                                    @* <img src="~/Upload/Images/127C001/A111_0.jpg" width="50" height="50" alt="user" class="rounded-circle" /> *@
-                                    <div class="gallery my-gallery card-body row" itemscope="">
-                                        <figure class="col-xl-3 col-md-4 col-6" itemprop="associatedMedia" itemscope="">
-                                            <a href="~/Upload/Images/127C001/A111_0.jpg" itemprop="contentUrl" data-size="50x50">
-                                                <img class="img-thumbnail" src="~/Upload/Images/127C001/A111_0.jpg" itemprop="thumbnail" alt="Image description">
-                                            </a>
-                                            <figcaption itemprop="caption description">Image caption  1</figcaption>
-                                        </figure>
-                                    </div>
-                                    <span>C1Em.jpg</span>
+                                    <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A111_0.jpg")")'>
+                                        <img src="@Url.Content("~/Upload/Images/127C001/A111_0.jpg")"
+                                             width="50" height="50"
+                                             class="img-thumbnail"
+                                             alt="Thumbnail" />
+                                    </a>
+                                    <span>A111_0.jpg</span>
+                                </div>
+                                <button class="btn-c btn-delete">
+                                    <i class="icofont icofont-trash"></i>
+                                </button>
+                            </div>
+
+                            <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
+                                <div class="d-flex align-items-center gap-2">
+                                    <input class="form-check-input" type="checkbox" />
+                                    <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")'>
+                                        <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
+                                             width="50" height="50"
+                                             class="img-thumbnail"
+                                             alt="Thumbnail" />
+                                    </a>
+                                    <span>A112_0.jpg</span>
+                                </div>
+                                <button class="btn-c btn-delete">
+                                    <i class="icofont icofont-trash"></i>
+                                </button>
+                            </div>
+
+                            <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
+                                <div class="d-flex align-items-center gap-2">
+                                    <input class="form-check-input" type="checkbox" checked/>
+                                    <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")'>
+                                        <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
+                                             width="50" height="50"
+                                             class="img-thumbnail"
+                                             alt="Thumbnail" />
+                                    </a>
+                                    <span>A112_0.jpg</span>
+                                </div>
+                                <button class="btn-c btn-delete">
+                                    <i class="icofont icofont-trash"></i>
+                                </button>
+                            </div>
+
+                            <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
+                                <div class="d-flex align-items-center gap-2">
+                                    <input class="form-check-input" type="checkbox" />
+                                    <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A111_0.jpg")")'>
+                                        <img src="@Url.Content("~/Upload/Images/127C001/A111_0.jpg")"
+                                             width="50" height="50"
+                                             class="img-thumbnail"
+                                             alt="Thumbnail" />
+                                    </a>
+                                    <span>A111_0.jpg</span>
+                                </div>
+                                <button class="btn-c btn-delete">
+                                    <i class="icofont icofont-trash"></i>
+                                </button>
+                            </div>
+
+                            <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
+                                <div class="d-flex align-items-center gap-2">
+                                    <input class="form-check-input" type="checkbox" />
+                                    <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")'>
+                                        <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
+                                             width="50" height="50"
+                                             class="img-thumbnail"
+                                             alt="Thumbnail" />
+                                    </a>
+                                    <span>A112_0.jpg</span>
                                 </div>
                                 <button class="btn-c btn-delete">
                                     <i class="icofont icofont-trash"></i>
@@ -127,66 +185,24 @@
                             <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
                                 <div class="d-flex align-items-center gap-2">
                                     <input class="form-check-input" type="checkbox" checked />
-                                    <img class="rounded-circle" src="../assets/images/user/5.jpg" alt="user" width="36" height="36">
-                                    <span>D2A.jpg</span>
+                                    <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")'>
+                                        <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
+                                             width="50" height="50"
+                                             class="img-thumbnail"
+                                             alt="Thumbnail" />
+                                    </a>
+                                    <span>A112_0.jpg</span>
                                 </div>
                                 <button class="btn-c btn-delete">
                                     <i class="icofont icofont-trash"></i>
                                 </button>
-                            </div>
-
-                            <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
-                                <div class="d-flex align-items-center gap-2">
-                                    <input class="form-check-input" type="checkbox">
-                                    <img class="rounded-circle" src="../assets/images/user/3.png" width="36" height="36">
-                                    <span>GD1F.jpg</span>
-                                </div>
-                                <button class="btn-c btn-delete">
-                                    <i class="icofont icofont-trash"></i>
-                                </button>
-                            </div>
-
-                            <!-- Root element of PhotoSwipe. Must have class pswp.-->
-                            <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-                                <div class="pswp__bg"></div>
-                                <div class="pswp__scroll-wrap">
-                                    <div class="pswp__container">
-                                        <div class="pswp__item"></div>
-                                        <div class="pswp__item"></div>
-                                        <div class="pswp__item"></div>
-                                    </div>
-                                    <div class="pswp__ui pswp__ui--hidden">
-                                        <div class="pswp__top-bar">
-                                            <div class="pswp__counter"></div>
-                                            <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-                                            <button class="pswp__button pswp__button--share" title="Share"></button>
-                                            <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-                                            <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-                                            <div class="pswp__preloader">
-                                                <div class="pswp__preloader__icn">
-                                                    <div class="pswp__preloader__cut">
-                                                        <div class="pswp__preloader__donut"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                                            <div class="pswp__share-tooltip"></div>
-                                        </div>
-                                        <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
-                                        <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
-                                        <div class="pswp__caption">
-                                            <div class="pswp__caption__center"></div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-6">
+        <div class="col-12 col-sm-6 col-xl-6">
             <div class="card">
                 <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
                     <h4 class="mb-0">Floor plan lists</h4>
@@ -194,29 +210,107 @@
                 </div>
                 <div class="card-body">
                     <div class="vertical-scroll scroll-demo">
-                        <h5 class="pb-2">Custom Scrollbar </h5>
-                        <p>I'm quite interested in learning more about <em class="txt-danger">custom scrollbars</em> because they are becoming more and more common.</p>
-                        <div class="scrollbar-images"><img class="img-fluid" src="../assets/images/banner/1.jpg" alt="banner"></div>
-                        <p>
-                            There are various justifications for customizing a scrollbar. For instance, the default scrollbar can cause an app's user interface to look inconsistent across various operating systems. In this case, having a single style is helpful.
-                        </p>
-                        <p>
-                            I never had the opportunity to learn about CSS scrollbar customization, but I have always been interested in doing so. I'll take the chance to learn more about them and share my trip in this essay.
-                        </p>
-                        <p>
-                            One crucial point to remember is that, depending on the design, a scrollbar may operate either <em class="txt-danger">horizontally or vertically</em> . Additionally, it might alter when you work on a website that is global and operates in both left-to-right and right-to-left orientations.
-                        </p>
+                        <div class="list-group">
+
+                            <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
+                                <div class="d-flex align-items-center gap-2">
+                                    <input class="form-check-input" type="checkbox" />
+                                    <span>Unit : A001</span>
+                                </div>
+                                <button class="btn-e btn-delete">
+                                    <i class="icofont icofont-edit"></i>
+                                </button>
+                            </div>
+
+                            <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
+                                <div class="d-flex align-items-center gap-2">
+                                    <input class="form-check-input" type="checkbox" />
+                                    <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")'>
+                                        <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
+                                             width="50" height="50"
+                                             class="img-thumbnail"
+                                             alt="Thumbnail" />
+                                    </a>
+                                    <span>A112_0.jpg</span>
+                                </div>
+                                <button class="btn-e btn-delete">
+                                    <i class="icofont icofont-edit"></i>
+                                </button>
+                            </div>
+
+                            <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
+                                <div class="d-flex align-items-center gap-2">
+                                    <input class="form-check-input" type="checkbox" checked />
+                                    <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")'>
+                                        <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
+                                             width="50" height="50"
+                                             class="img-thumbnail"
+                                             alt="Thumbnail" />
+                                    </a>
+                                    <span>A112_0.jpg</span>
+                                </div>
+                                <button class="btn-e btn-delete">
+                                    <i class="icofont icofont-edit"></i>
+                                </button>
+                            </div>
+
+                            <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
+                                <div class="d-flex align-items-center gap-2">
+                                    <input class="form-check-input" type="checkbox" />
+                                    <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A111_0.jpg")")'>
+                                        <img src="@Url.Content("~/Upload/Images/127C001/A111_0.jpg")"
+                                             width="50" height="50"
+                                             class="img-thumbnail"
+                                             alt="Thumbnail" />
+                                    </a>
+                                    <span>A111_0.jpg</span>
+                                </div>
+                                <button class="btn-e btn-delete">
+                                    <i class="icofont icofont-edit"></i>
+                                </button>
+                            </div>
+
+                            <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
+                                <div class="d-flex align-items-center gap-2">
+                                    <input class="form-check-input" type="checkbox" />
+                                    <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")'>
+                                        <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
+                                             width="50" height="50"
+                                             class="img-thumbnail"
+                                             alt="Thumbnail" />
+                                    </a>
+                                    <span>A112_0.jpg</span>
+                                </div>
+                                <button class="btn-e btn-delete">
+                                    <i class="icofont icofont-edit"></i>
+                                </button>
+                            </div>
+
+                            <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
+                                <div class="d-flex align-items-center gap-2">
+                                    <input class="form-check-input" type="checkbox" checked />
+                                    <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")'>
+                                        <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
+                                             width="50" height="50"
+                                             class="img-thumbnail"
+                                             alt="Thumbnail" />
+                                    </a>
+                                    <span>A112_0.jpg</span>
+                                </div>
+                                <button class="btn-e btn-delete">
+                                    <i class="icofont icofont-edit"></i>
+                                </button>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<!-- Container-fluid Ends-->
-
 
 <script>
-
     document.addEventListener("DOMContentLoaded", function () {
         new Choices('#projectSelect', {
             placeholderValue: 'เลือกโครงการ',

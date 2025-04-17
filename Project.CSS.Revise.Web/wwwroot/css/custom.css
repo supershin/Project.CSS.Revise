@@ -37,4 +37,31 @@
     margin-right: 0px;
 }
 
+.btn-e {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    background-color: #3835dc; /* 🔴 blue */
+    border: none;
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.btn-e:hover {
+    background-color: #040354;
+}
+
+.btn-e i {
+    color: white;
+    font-size: 16px;
+    line-height: 1;
+    margin-right: 0px;
+}
+
 
