@@ -28,6 +28,51 @@
         font-weight: 500;
     }
 
+    .file-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .file-item {
+        position: relative;
+        display: inline-block;
+        text-align: center;
+        width: 90px;
+    }
+
+    .file-item img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+    }
+
+    .file-item .file-remove {
+        position: absolute;
+        top: -6px;
+        right: -3px;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        background: #fff;
+        border-radius: 50%;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .file-item .file-remove i {
+        font-size: 25px; /* 🔼 Increase icon size */
+        color: #dc3545; /* Optional: ensure icon is red (Bootstrap's danger) */
+    }
+
+
+    .file-remove i {
+        /* text-decoration: none !important; */
+        margin-right: 0px;
+    }
 
 </style>
 
@@ -211,97 +256,426 @@
                 <div class="card-body">
                     <div class="vertical-scroll scroll-demo">
                         <div class="list-group">
-
-                            <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
-                                <div class="d-flex align-items-center gap-2">
-                                    <input class="form-check-input" type="checkbox" />
-                                    <span>Unit : A001</span>
+                            <div class="list-group-item list-hover-primary">
+                                <!-- Row: Checkbox + Label + Edit Button -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input" type="checkbox" />
+                                        <span>Unit : A001</span>
+                                    </div>
+                                    <button class="btn-e btn-delete" role="button" data-bs-toggle="collapse" href="#collapseA001" aria-expanded="false" aria-controls="collapseA001">
+                                        <i class="icofont icofont-edit"></i>
+                                    </button>
                                 </div>
-                                <button class="btn-e btn-delete">
-                                    <i class="icofont icofont-edit"></i>
-                                </button>
-                            </div>
+                                <!-- Unique Collapse ID -->
+                                <div class="collapse mt-2" id="collapseA001">
+                                    <div class="file-list">
+                                        <!-- Image item -->
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")' title="A112_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A112_0.jpg</div>
+                                        </div>
 
-                            <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
-                                <div class="d-flex align-items-center gap-2">
-                                    <input class="form-check-input" type="checkbox" />
-                                    <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")'>
-                                        <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
-                                             width="50" height="50"
-                                             class="img-thumbnail"
-                                             alt="Thumbnail" />
-                                    </a>
-                                    <span>A112_0.jpg</span>
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")' title="A113_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A113_0.jpg</div>
+                                        </div>
+
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")' title="A112_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A112_0.jpg</div>
+                                        </div>
+
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")' title="A113_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A113_0.jpg</div>
+                                        </div>
+
+                                    </div>
                                 </div>
-                                <button class="btn-e btn-delete">
-                                    <i class="icofont icofont-edit"></i>
-                                </button>
                             </div>
-
-                            <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
-                                <div class="d-flex align-items-center gap-2">
-                                    <input class="form-check-input" type="checkbox" checked />
-                                    <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")'>
-                                        <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
-                                             width="50" height="50"
-                                             class="img-thumbnail"
-                                             alt="Thumbnail" />
-                                    </a>
-                                    <span>A112_0.jpg</span>
+                            <div class="list-group-item list-hover-primary">
+                                <!-- Row: Checkbox + Label + Edit Button -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input" type="checkbox" />
+                                        <span>Unit : A002</span>
+                                    </div>
+                                    <button class="btn-e btn-delete" role="button" data-bs-toggle="collapse" href="#collapseA002" aria-expanded="false" aria-controls="collapseA002">
+                                        <i class="icofont icofont-edit"></i>
+                                    </button>
                                 </div>
-                                <button class="btn-e btn-delete">
-                                    <i class="icofont icofont-edit"></i>
-                                </button>
-                            </div>
+                                <!-- Unique Collapse ID -->
+                                <div class="collapse mt-2" id="collapseA002">
+                                    <div class="file-list">
+                                        <!-- Image item -->
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")' title="A112_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A112_0.jpg</div>
+                                        </div>
 
-                            <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
-                                <div class="d-flex align-items-center gap-2">
-                                    <input class="form-check-input" type="checkbox" />
-                                    <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A111_0.jpg")")'>
-                                        <img src="@Url.Content("~/Upload/Images/127C001/A111_0.jpg")"
-                                             width="50" height="50"
-                                             class="img-thumbnail"
-                                             alt="Thumbnail" />
-                                    </a>
-                                    <span>A111_0.jpg</span>
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")' title="A113_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A113_0.jpg</div>
+                                        </div>
+
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")' title="A112_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A112_0.jpg</div>
+                                        </div>
+
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")' title="A113_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A113_0.jpg</div>
+                                        </div>
+
+                                    </div>
                                 </div>
-                                <button class="btn-e btn-delete">
-                                    <i class="icofont icofont-edit"></i>
-                                </button>
                             </div>
-
-                            <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
-                                <div class="d-flex align-items-center gap-2">
-                                    <input class="form-check-input" type="checkbox" />
-                                    <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")'>
-                                        <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
-                                             width="50" height="50"
-                                             class="img-thumbnail"
-                                             alt="Thumbnail" />
-                                    </a>
-                                    <span>A112_0.jpg</span>
+                            <div class="list-group-item list-hover-primary">
+                                <!-- Row: Checkbox + Label + Edit Button -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input" type="checkbox" />
+                                        <span>Unit : A003</span>
+                                    </div>
+                                    <button class="btn-e btn-delete" role="button" data-bs-toggle="collapse" href="#collapseA003" aria-expanded="false" aria-controls="collapseA003">
+                                        <i class="icofont icofont-edit"></i>
+                                    </button>
                                 </div>
-                                <button class="btn-e btn-delete">
-                                    <i class="icofont icofont-edit"></i>
-                                </button>
-                            </div>
+                                <!-- Unique Collapse ID -->
+                                <div class="collapse mt-2" id="collapseA003">
+                                    <div class="file-list">
+                                        <!-- Image item -->
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")' title="A112_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A112_0.jpg</div>
+                                        </div>
 
-                            <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary">
-                                <div class="d-flex align-items-center gap-2">
-                                    <input class="form-check-input" type="checkbox" checked />
-                                    <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")'>
-                                        <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
-                                             width="50" height="50"
-                                             class="img-thumbnail"
-                                             alt="Thumbnail" />
-                                    </a>
-                                    <span>A112_0.jpg</span>
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")' title="A113_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A113_0.jpg</div>
+                                        </div>
+
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")' title="A112_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A112_0.jpg</div>
+                                        </div>
+
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")' title="A113_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A113_0.jpg</div>
+                                        </div>
+
+                                    </div>
                                 </div>
-                                <button class="btn-e btn-delete">
-                                    <i class="icofont icofont-edit"></i>
-                                </button>
                             </div>
+                            <div class="list-group-item list-hover-primary">
+                                <!-- Row: Checkbox + Label + Edit Button -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input" type="checkbox" />
+                                        <span>Unit : A004</span>
+                                    </div>
+                                    <button class="btn-e btn-delete" role="button" data-bs-toggle="collapse" href="#collapseA004" aria-expanded="false" aria-controls="collapseA004">
+                                        <i class="icofont icofont-edit"></i>
+                                    </button>
+                                </div>
+                                <!-- Unique Collapse ID -->
+                                <div class="collapse mt-2" id="collapseA004">
+                                    <div class="file-list">
+                                        <!-- Image item -->
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")' title="A112_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A112_0.jpg</div>
+                                        </div>
 
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")' title="A113_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A113_0.jpg</div>
+                                        </div>
+
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")' title="A112_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A112_0.jpg</div>
+                                        </div>
+
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")' title="A113_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A113_0.jpg</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-group-item list-hover-primary">
+                                <!-- Row: Checkbox + Label + Edit Button -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input" type="checkbox" />
+                                        <span>Unit : A005</span>
+                                    </div>
+                                    <button class="btn-e btn-delete" role="button" data-bs-toggle="collapse" href="#collapseA005" aria-expanded="false" aria-controls="collapseA005">
+                                        <i class="icofont icofont-edit"></i>
+                                    </button>
+                                </div>
+                                <!-- Unique Collapse ID -->
+                                <div class="collapse mt-2" id="collapseA005">
+                                    <div class="file-list">
+                                        <!-- Image item -->
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")' title="A112_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A112_0.jpg</div>
+                                        </div>
+
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")' title="A113_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A113_0.jpg</div>
+                                        </div>
+
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")' title="A112_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A112_0.jpg</div>
+                                        </div>
+
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")' title="A113_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A113_0.jpg</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-group-item list-hover-primary">
+                                <!-- Row: Checkbox + Label + Edit Button -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input" type="checkbox" />
+                                        <span>Unit : A006</span>
+                                    </div>
+                                    <button class="btn-e btn-delete" role="button" data-bs-toggle="collapse" href="#collapseA006" aria-expanded="false" aria-controls="collapseA006">
+                                        <i class="icofont icofont-edit"></i>
+                                    </button>
+                                </div>
+                                <!-- Unique Collapse ID -->
+                                <div class="collapse mt-2" id="collapseA006">
+                                    <div class="file-list">
+                                        <!-- Image item -->
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")' title="A112_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A112_0.jpg</div>
+                                        </div>
+
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")' title="A113_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A113_0.jpg</div>
+                                        </div>
+
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A112_0.jpg")")' title="A112_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A112_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A112_0.jpg</div>
+                                        </div>
+
+                                        <div class="file-item">
+                                            <a href="javascript:void(0);" onclick='openViewer("@Url.Content("~/Upload/Images/127C001/A113_0.jpg")")' title="A113_0.jpg">
+                                                <img src="@Url.Content("~/Upload/Images/127C001/A113_0.jpg")"
+                                                     class="img-thumbnail"
+                                                     width="50" height="50"
+                                                     alt="Thumbnail" />
+                                            </a>
+                                            <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file">
+                                                <i class="fa fa-times-circle"></i>
+                                            </button>
+                                            <div class="text-center small mt-1">A113_0.jpg</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
