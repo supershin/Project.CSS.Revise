@@ -13,6 +13,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Viewer.js CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.6/viewer.min.css" rel="stylesheet" />
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
     <!-- ico-font-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
@@ -25,11 +27,14 @@
     <!-- Plugins css start-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/slick-theme.css">
-    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/select2.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/sweetalert2.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollbar.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/scrollable.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/photoswipe.css">
     <!-- Range slider css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/rangeslider/rSlider.min.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/range-slider.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/animate.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/prism.css">
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/fullcalender.css">
@@ -102,15 +107,15 @@
             cursor: pointer;
         }
 
-            .hover-icon-swap:hover {
-                background-color: #e9ecef;
-            }
+        .hover-icon-swap:hover {
+            background-color: #e9ecef;
+        }
 
-            .hover-icon-swap i {
-                font-size: 40px;
-                color: #6c757d;
-                transition: transform 0.3s ease, color 0.3s ease;
-            }
+        .hover-icon-swap i {
+            font-size: 40px;
+            color: #6c757d;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
 
         .text-scroll-horizontal {
             display: inline-block;
@@ -133,6 +138,12 @@
             <div class="loader4"></div>
         </div>
     </div>
+
+    <!-- viewer Image -->
+    <div id="imageViewerContainer" style="display: none;">
+        <img id="viewerImage" src="" alt="รูปาพขนาด" />
+    </div>
+
     <!-- loader ends-->
     <!-- tap on top starts-->
     <div class="tap-top"><i data-feather="chevrons-up"></i></div>
@@ -427,11 +438,9 @@
                             <li class="sidebar-list">
                                 <i class="fa fa-thumb-tack"> </i><a class="sidebar-link sidebar-title" href="#">
                                     <svg class="stroke-icon">
-                                        @* <use href="../assets/svg/icon-sprite.svg#stroke-home"></use> *@
                                         <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-home")"></use>
                                     </svg>
                                     <svg class="fill-icon">
-                                        @*<use href="../assets/svg/icon-sprite.svg#fill-home"></use> *@
                                         <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#fill-home")"></use>
                                     </svg><span class="lan-3">Dashboard </span>
                                 </a>
@@ -441,7 +450,25 @@
                                     <li><a href="#">Project</a></li>
                                 </ul>
                             </li>
-                            <li class="sidebar-main-title">
+                            <li class="sidebar-list">
+                                <i class="fa fa-thumb-tack"> </i><a class="sidebar-link sidebar-title" href="#">
+                                    <svg class="stroke-icon">
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-editors")"></use>
+                                    </svg>
+                                    <svg class="fill-icon">
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#fill-editors")"></use>
+                                    </svg>
+                                    <span>Settings </span>
+                                </a>
+                                <ul class="sidebar-submenu">
+                                    <li><a href="~/main/index">Company</a></li>
+                                    <li><a href="~/Projecttargetrolling/index">Project target & rolling</a></li>
+                                    <li><a href="~/CSMapping/index">CS Unit Mapping</a></li>
+                                    <li><a href="~/User/index">User</a></li>
+                                    <li><a href="~/UserBank/index">User Bank</a></li>
+                                </ul>
+                            </li>
+@*                             <li class="sidebar-main-title">
                                 <div>
                                     <h6 class="lan-888">Settings</h6>
                                 </div>
@@ -460,28 +487,16 @@
                             </li>
                             <li class="sidebar-list">
                                 <i class="fa fa-thumb-tack"></i>
-                                <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "CSResponse")">
+                                <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "CSMapping")">
                                     <svg class="stroke-icon">
                                         <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-social")"></use>
                                     </svg>
                                     <svg class="fill-icon">
                                         <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-social")"></use>
                                     </svg>
-                                    <span>CS Response</span>
+                                    <span>CS Unit Mapping</span>
                                 </a>
                             </li>
-@*                             <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"></i>
-                                <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "Company")">
-                                    <svg class="stroke-icon">
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-social")"></use>
-                                    </svg>
-                                    <svg class="fill-icon">
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-social")"></use>
-                                    </svg>
-                                    <span>Company</span>
-                                </a>
-                            </li> *@
                             <li class="sidebar-list">
                                 <i class="fa fa-thumb-tack"></i>
                                 <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "User")">
@@ -493,7 +508,7 @@
                                     </svg>
                                     <span>User</span>
                                 </a>
-                            </li>
+                            </li> *@
                         </ul>
                         <div class="right-arrow" id="right-arrow"><i data-feather="arrow-right"></i></div>
                     </div>
@@ -536,6 +551,7 @@
     <script src="~/assets/js/header-slick.js"></script>
     <script src="~/assets/js/chart/apex-chart/apex-chart.js"></script>
     <script src="~/assets/js/chart/apex-chart/stock-prices.js"></script>
+    <script src="~/assets/js/chart/apex-chart/moment.min.js"></script>
     <script src="~/assets/js/notify/bootstrap-notify.min.js"></script>
     <!-- Range Slider js-->
     <script src="~/assets/js/range-slider/rSlider.min.js"></script>
@@ -556,11 +572,28 @@
     <!-- calendar js-->
     <script src="~/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
     <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
+    <script src="~/assets/js/general-widget.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <script src="~/assets/js/dashboard/dashboard_2.js"></script>
     <script src="~/assets/js/animation/wow/wow.min.js"></script>
+    <script src="~/assets/js/range-slider/ion.rangeSlider.min.js"></script>
+    <script src="~/assets/js/range-slider/rangeslider-script.js"></script>
+
+    <script src="~/assets/js/photoswipe/photoswipe.min.js"></script>
+    <script src="~/assets/js/photoswipe/photoswipe-ui-default.min.js"></script>
+    <script src="~/assets/js/photoswipe/photoswipe.js"></script>
+
+    <!-- Viewer.js JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.6/viewer.min.js"></script>
+
+
+    <!-- ตัว scrollable นี่แปลกๆนะใช้ได้แค่อันใดอันนึง ระหว่าง perfect-scrollbar และ scrollable-custom ห้ามเปิดพร้อมกันและไม่รู้ต่างยังไงแต่เลือก perfect เพราะมี perfect เฉยๆ-->
+    <script src="~/assets/js/scrollable/perfect-scrollbar.min.js"></script>
+    @* <script src="~/assets/js/scrollable/scrollable-custom.js"></script> *@
+
     <!-- Plugins JS Ends-->
     <!-- Theme js-->
     <script src="~/assets/js/script.js"></script>
+    <script src="~/js/Custom.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <script src="~/assets/js/theme-customizer/customizer.js"></script>
     <script>new WOW().init();</script>
     <script>
@@ -590,8 +623,6 @@
                 toggleElement.textContent = "show";
             }
         }
-
-
     </script>
 </body>
 </html>
