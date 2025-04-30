@@ -1,0 +1,458 @@
+﻿@{
+    ViewData["Title"] = "Index";
+}
+<main class="container">
+	<style>
+		.content-window {
+			width: 100%;
+			min-height: 480px;
+			margin-top: 80px;
+			background: #fff;
+			border-radius: 6px;
+			box-shadow: 2px 2px 12px rgba(0,0,0, 0.4);
+		}
+
+		.window-img {
+			width: 100%;
+			height: 180px;
+			background: #ddd;
+			background-size: cover;
+			background-position: center center;
+			border-top-right-radius: 6px;
+			border-top-left-radius: 6px;
+		}
+
+		.window-button {
+			height: 100px;
+			width: 100px;
+			color: #fff;
+			border: none;
+			border-radius: 50%;
+			box-shadow: 0 0 8px rgba(0,0,0, 0.6);
+			margin-top: -50px;
+			margin-left: auto;
+			margin-right: auto;
+			text-align: center;
+		}
+
+		.window-button > .glyphicon {
+			font-size: 40px;
+			text-align: center;
+			top: 2px;
+			margin: 0;
+			margin-left: 0;
+			transition-duration: 0.6s;
+		}
+
+		.window-text {
+			margin-top: 50px;
+			padding: 40px;
+		}
+
+		.window-text-center {
+			margin-top: 0;
+		}
+
+		.window-text > p {
+			color: #ccc;
+		}
+
+		/*
+			 * The styles below are not DRY for
+			 * ease of copying.
+			 *
+			 * To get the given styles needed you can
+			 * simply copy the full section below
+			 * that you require rather than try to
+			 * figure out what bits to chop out.
+			*/
+
+		/* Popout to right Styles
+			=============================================*/
+		.popout-right {
+			width: 100px;
+			margin-left: 20px;
+		}
+
+		.popout-menu-right {
+			background: none;
+			border: none;
+			box-shadow: none;
+			left: 110px;
+			top: -82px;
+		}
+
+			.popout-menu-right li {
+				width: 140px;
+				margin-bottom: 18px;
+				padding: 6px;
+				background: #337ab7;
+				border-radius: 6px;
+				box-shadow: 0 0 8px rgba(0,0,0, 0.6);
+			}
+
+				.popout-menu-right li:last-of-type {
+					margin-bottom: 0;
+				}
+
+				.popout-menu-right li:nth-of-type(2n) {
+					margin-left: 12px;
+				}
+
+				.popout-menu-right li a {
+					color: #fff;
+				}
+
+					.popout-menu-right li a:hover {
+						background: inherit;
+						color: #fff;
+					}
+
+				.popout-menu-right li:hover {
+					background: #286090;
+				}
+
+					.popout-menu-right li:hover:after {
+						border-right-color: #286090;
+					}
+
+		/** Arrow Styles For Popout Right **/
+		.arrow-box-left {
+			position: relative;
+			background: #337ab7;
+		}
+
+			.arrow-box-left::after {
+				right: 100%;
+				top: 50%;
+				border: solid transparent;
+				content: " ";
+				height: 0;
+				width: 0;
+				position: absolute;
+				pointer-events: none;
+				border-color: rgba(136, 183, 213, 0);
+				border-right-color: #337ab7;
+				border-width: 8px;
+				margin-top: -8px;
+			}
+
+
+		/* Popout center Styles
+			=============================================*/
+		.popout-center {
+			width: 100px;
+			margin-right: auto;
+			margin-left: auto;
+		}
+
+		.popout-menu-center {
+			background: none;
+			border: none;
+			box-shadow: none;
+			top: -112px;
+		}
+
+		.popout-menu-center li {
+			width: 100px;
+			margin-bottom: 48px;
+			padding: 6px;
+			background: #337ab7;
+			border-radius: 6px;
+			box-shadow: 0 0 8px rgba(0,0,0, 0.6);
+			text-align: center;
+		}
+
+				.popout-menu-center li:last-of-type {
+					margin-bottom: 0;
+				}
+
+				.popout-menu-center li:nth-of-type(1n) {
+					margin-left: 0;
+				}
+
+				.popout-menu-center li:nth-of-type(2n) {
+					margin-left: 120px;
+				}
+
+				.popout-menu-center li:nth-of-type(3n) {
+					margin-left: -120px;
+					margin-top: -88px;
+				}
+
+				.popout-menu-center li:nth-of-type(4n) {
+					margin-left: 0px;
+				}
+
+				.popout-menu-center li a {
+					color: #fff;
+				}
+
+					.popout-menu-center li a:hover {
+						background: inherit;
+						color: #fff;
+					}
+
+				.popout-menu-center li:hover {
+					background: #286090;
+				}
+		/** Arrow Styles For Popout Center **/
+		.arrow-box-up {
+			position: relative;
+			background: #337ab7;
+		}
+
+			.arrow-box-up::after {
+				bottom: 100%;
+				left: 50%;
+				border: solid transparent;
+				content: " ";
+				height: 0;
+				width: 0;
+				position: absolute;
+				pointer-events: none;
+				border-color: rgba(136, 183, 213, 0);
+				border-bottom-color: #337ab7;
+				border-width: 8px;
+				margin-left: -8px;
+			}
+
+		.popout-menu-up li:hover:after {
+			border-bottom-color: #286090;
+		}
+
+		.arrow-box-down {
+			position: relative;
+			background: #337ab7;
+		}
+
+			.arrow-box-down::after {
+				top: 100%;
+				left: 50%;
+				border: solid transparent;
+				content: " ";
+				height: 0;
+				width: 0;
+				position: absolute;
+				pointer-events: none;
+				border-color: rgba(136, 183, 213, 0);
+				border-top-color: #337ab7;
+				border-width: 8px;
+				margin-left: -8px;
+			}
+
+		.popout-menu-center li.arrow-box-down:hover:after {
+			border-top-color: #286090;
+		}
+
+		.popout-menu-center li.arrow-box-up:hover:after {
+			border-bottom-color: #286090;
+		}
+
+		.popout-menu-center li.arrow-box-left:hover:after {
+			border-right-color: #286090;
+		}
+
+		.popout-menu-center li.arrow-box-right:hover:after {
+			border-left-color: #286090;
+		}
+
+		/* Popout to left Styles
+			=============================================*/
+		.popout-left {
+			width: 100px;
+			margin-right: 20px;
+		}
+
+		.popout-menu-left {
+			background: none;
+			border: none;
+			box-shadow: none;
+			margin-right: 100px;
+			top: -82px;
+		}
+
+			.popout-menu-left li {
+				width: 140px;
+				margin-bottom: 18px;
+				padding: 6px;
+				background: #337ab7;
+				border-radius: 6px;
+				box-shadow: 0 0 8px rgba(0,0,0, 0.6);
+			}
+
+				.popout-menu-left li:last-of-type {
+					margin-bottom: 0;
+				}
+
+				.popout-menu-left li:not(:nth-of-type(2n)) {
+					margin-left: 12px;
+				}
+
+				.popout-menu-left li a {
+					color: #fff;
+				}
+
+					.popout-menu-left li a:hover {
+						background: inherit;
+						color: #fff;
+					}
+
+				.popout-menu-left li:hover {
+					background: #286090;
+				}
+		/** Arrow Styles For Popout Left **/
+		.arrow-box-right {
+			position: relative;
+			background: #337ab7;
+		}
+
+			.arrow-box-right::after {
+				left: 100%;
+				top: 50%;
+				border: solid transparent;
+				content: " ";
+				height: 0;
+				width: 0;
+				position: absolute;
+				pointer-events: none;
+				border-color: rgba(136, 183, 213, 0);
+				border-left-color: #337ab7;
+				border-width: 8px;
+				margin-top: -8px;
+			}
+
+		.popout-menu-left li:hover:after {
+			border-left-color: #286090;
+		}
+
+	</style>
+    <section class="row">
+
+		<!-- Pops out to right -->
+		<div class="col-md-4">
+
+			<div class="content-window">
+
+				<div class="window-img"></div>
+
+				<div class="dropdown popout-right pull-left">
+					<button class="window-button btn-primary dropdown-toggle" type="button" role="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+						<span class="icon-popout-right glyphicon glyphicon-menu-hamburger"></span>
+					</button>
+					<ul class="dropdown-menu popout-menu-right" role="menu" aria-labelledby="dropdownMenu1">
+						<li role="presentation" class="dropdown-link-right arrow-box-left"><a role="menuitem" tabindex="-1" href="#">Read More</a></li>
+						<li role="presentation" class="dropdown-link-right arrow-box-left"></span><a role="menuitem" tabindex="-1" href="#">View All</a></li>
+						<li role="presentation" class="dropdown-link-right arrow-box-left"><a role="menuitem" tabindex="-1" href="#">Share</a></li>
+					</ul>
+				</div>
+
+				<div class="window-text">
+					<h4>Popout to right!</h4>
+					<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna nibh, viverra non, semper suscipit, posuere a, pede.</p>
+					<p>Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis. Morbi in sem quis dui placerat ornare. Pellentesque odio nisi, euismod in, pharetra a, ultricies in, diam. Sed arcu. Cras consequat.</p>
+				</div>
+
+			</div>
+
+		</div>
+		<!-- //Close Pops out to right -->
+		<!-- Pops out to center -->
+		<div class="col-md-4">
+
+			<div class="content-window">
+
+				<div class="window-img"></div>
+
+				<div class="dropdown popout-center">
+					<button class="window-button btn-primary dropdown-toggle" type="button" role="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+						<span class="icon-popout-center glyphicon glyphicon-menu-hamburger"></span>
+					</button>
+					<ul class="dropdown-menu popout-menu-center" role="menu" aria-labelledby="dropdownMenu1">
+						<li role="presentation" class="dropdown-link-center arrow-box-down"><a role="menuitem" tabindex="-1" href="#"><span class="glyphicon glyphicon-user"></span></a></li>
+						<li role="presentation" class="dropdown-link-center arrow-box-left"><a role="menuitem" tabindex="-1" href="#"><span class="glyphicon glyphicon-home"></span></a></li>
+						<li role="presentation" class="dropdown-link-center arrow-box-right"><a role="menuitem" tabindex="-1" href="#"><span class="glyphicon glyphicon-camera"></span></a></li>
+						<li role="presentation" class="dropdown-link-center arrow-box-up"><a role="menuitem" tabindex="-1" href="#"><span class="glyphicon glyphicon-comment"></span></a></li>
+					</ul>
+				</div>
+
+				<div class="window-text window-text-center">
+					<h4>Popout to center!</h4>
+					<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna nibh, viverra non, semper suscipit, posuere a, pede.</p>
+					<p>Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis. Morbi in sem quis dui placerat ornare. Pellentesque odio nisi, euismod in, pharetra a, ultricies in, diam. Sed arcu. Cras consequat.</p>
+				</div>
+
+			</div>
+
+		</div>
+		<!-- //CLose Pops out to center -->
+		<!-- Pops out to left -->
+		<div class="col-md-4">
+
+			<div class="content-window">
+
+				<div class="window-img"></div>
+
+				<div class="dropdown popout-left pull-right">
+					<button class="window-button btn-primary dropdown-toggle" type="button" role="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+						<span class="icon-popout-left glyphicon glyphicon-menu-hamburger"></span>
+					</button>
+					<ul class="dropdown-menu popout-menu-left" role="menu" aria-labelledby="dropdownMenu1">
+						<li role="presentation" class="dropdown-link-left arrow-box-right"><a role="menuitem" tabindex="-1" href="#">Read More</a></li>
+						<li role="presentation" class="dropdown-link-left arrow-box-right"><a role="menuitem" tabindex="-1" href="#">View All</a></li>
+						<li role="presentation" class="dropdown-link-left arrow-box-right"><a role="menuitem" tabindex="-1" href="#">Share</a></li>
+					</ul>
+				</div>
+
+				<div class="window-text">
+					<h4>Popout to left!</h4>
+					<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna nibh, viverra non, semper suscipit, posuere a, pede.</p>
+					<p>Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis. Morbi in sem quis dui placerat ornare. Pellentesque odio nisi, euismod in, pharetra a, ultricies in, diam. Sed arcu. Cras consequat.</p>
+				</div>
+
+			</div>
+
+		</div>
+		<!-- //CLose Pops out to left -->
+
+	</section>
+	<script>
+		//For popout to right
+		$('.popout-right').on('show.bs.dropdown', function () {
+			$('.window-button>.icon-popout-right').removeClass('glyphicon-menu-hamburger');
+			$('.window-button>.icon-popout-right').addClass('animated rotateIn glyphicon-remove');
+			$('.dropdown-link-right').addClass('animated bounceIn');
+		})
+		$('.popout-right').on('hide.bs.dropdown', function () {
+			$('.window-button>.icon-popout-right').removeClass('animated rotateIn glyphicon-remove');
+			$('.dropdown-link-right').removeClass('animated bounceIn');
+			$('.window-button>.icon-popout-right').addClass('animated bounceIn glyphicon-menu-hamburger');
+		})
+
+		//For popout to center
+		$('.popout-center').on('show.bs.dropdown', function () {
+			$('.window-button>.icon-popout-center').removeClass('glyphicon-menu-hamburger');
+			$('.window-button>.icon-popout-center').addClass('animated rotateIn glyphicon-remove');
+			$('.dropdown-link-center').addClass('animated bounceIn');
+		})
+		$('.popout-center').on('hide.bs.dropdown', function () {
+			$('.window-button>.icon-popout-center').removeClass('animated rotateIn glyphicon-remove');
+			$('.dropdown-link-center').removeClass('animated bounceIn');
+			$('.window-button>.icon-popout-center').addClass('animated bounceIn glyphicon-menu-hamburger');
+		})
+
+		//For popout to left
+		$('.popout-left').on('show.bs.dropdown', function () {
+			$('.window-button>.icon-popout-left').removeClass('glyphicon-menu-hamburger');
+			$('.window-button>.icon-popout-left').addClass('animated rotateIn glyphicon-remove');
+			$('.dropdown-link-left').addClass('animated bounceIn');
+		})
+		$('.popout-left').on('hide.bs.dropdown', function () {
+			$('.window-button>.icon-popout-left').removeClass('animated rotateIn glyphicon-remove');
+			$('.dropdown-link-left').removeClass('animated bounceIn');
+			$('.window-button>.icon-popout-left').addClass('animated bounceIn glyphicon-menu-hamburger');
+		})
+
+
+	</script>
+</main>

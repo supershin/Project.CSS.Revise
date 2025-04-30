@@ -6,9 +6,9 @@
     <meta name="description" content="Riho admin is super flexible, powerful, clean &amp; modern responsive bootstrap 5 admin template with unlimited possibilities.">
     <meta name="keywords" content="admin template, Riho admin template, dashboard template, flat admin template, responsive admin template, web app">
     <meta name="author" content="pixelstrap">
-    <link rel="icon" href="~/assets/images/favicon.png" type="image/x-icon">
-    <link rel="shortcut icon" href="~/assets/images/favicon.png" type="image/x-icon">
-    <title>Riho - Premium Admin Template</title>
+    <link rel="icon" href="~/assets/images/logo/minaswlogo.png" type="image/x-icon">
+    <link rel="shortcut icon" href="~/assets/images/logo/minaswlogo.png" type="image/x-icon">
+    <title>Project - CSS Revise</title>
     <!-- Google Font: Prompt -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,9 +40,11 @@
     <!-- App css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
+    <!-- Load Choices.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <!-- Responsive css-->
-    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
-    
+    <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">   
     <link rel="stylesheet" type="text/css" href="~/css/custom.css?ver=@DateTime.Now.Ticks.ToString()">
     <style>
 
@@ -80,6 +82,46 @@
 
         .scroll-demo {
             scroll-behavior: smooth;
+        }
+
+        .badge-small {
+            font-size: 0.65rem;
+            padding: 0.25em 0.45em;
+        }
+
+        .hover-icon-swap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 80px;
+            width: 80px;
+            margin: auto;
+            background-color: #f8f9fa;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+
+            .hover-icon-swap:hover {
+                background-color: #e9ecef;
+            }
+
+            .hover-icon-swap i {
+                font-size: 40px;
+                color: #6c757d;
+                transition: transform 0.3s ease, color 0.3s ease;
+            }
+
+        .text-scroll-horizontal {
+            display: inline-block;
+            white-space: nowrap;
+            overflow-x: auto;
+            max-width: 160px; /* Adjust based on your layout */
+            vertical-align: middle;
+        }
+
+        .choices__input {
+            font-size: 0.9rem;
         }
 
     </style>
@@ -416,19 +458,19 @@
                                     <span>Project</span>
                                 </a>
                             </li>
-@*                             <li class="sidebar-list">
+                            <li class="sidebar-list">
                                 <i class="fa fa-thumb-tack"></i>
-                                <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "Bu")">
+                                <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "CSResponse")">
                                     <svg class="stroke-icon">
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-learning")"></use>
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-social")"></use>
                                     </svg>
                                     <svg class="fill-icon">
-                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-learning")"></use>
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-social")"></use>
                                     </svg>
-                                    <span>BU</span>
+                                    <span>CS Response</span>
                                 </a>
                             </li>
-                            <li class="sidebar-list">
+@*                             <li class="sidebar-list">
                                 <i class="fa fa-thumb-tack"></i>
                                 <a class="sidebar-link sidebar-title link-nav" href="@Url.Action("Index", "Company")">
                                     <svg class="stroke-icon">
