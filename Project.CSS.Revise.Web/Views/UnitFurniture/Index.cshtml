@@ -157,8 +157,216 @@
                     };
                 </script>
             </div>
+        </div>
+    </div>
+     <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <!-- Title Row -->
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Unit list</h4>
+                </div>
 
+                <!-- Filter Row -->
+                <div class="row mt-3 g-2">
+                    <!-- Project Filter -->
+                    <div class="col-md-3 col-sm-6">
+                        <select id="projectSelect" class="form-control searchable-select" multiple>
+                            <option value="1">มารูน รัชดา</option>
+                            <option value="2">เคฟ ป๊อป ศาลายา</option>
+                            <option value="3">เคฟ วันเดอร์แลนด์</option>
+                            <option value="4">เคฟ ลูมินัส บางมด</option>
+                            <option value="5">แอทโมซ เดอ โซล ทิพวัล สเตชั่น</option>
+                            <option value="6">เคฟ เอ็มบริโอ รังสิต</option>
+                            <option value="7">แอทโมซ แคนวาส ระยอง</option>
+                            <option value="8">เคฟ ทาวน์ ไอส์แลนด์</option>
+                            <option value="9">โมดิซ โวยาจ ศรีนครินทร์</option>
+                            <option value="10">เคฟ ซี๊ด เกษตร</option>
+                            <option value="11">แอทโมซ ซีซั่น ลาดกระบัง</option>
+                            <option value="12">โมดิซ วอลท์ เกษตร - ศรีปทุม</option>
+                            <option value="13">แอทโมซ พาลาซิโอ ลาดพร้าว-วังหิน</option>
+                        </select>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="col-md-3 col-sm-6">
+                        <input type="text" class="form-control form-control-sm" placeholder="Search units...">
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="col-md-3 col-sm-6">
+                        <input type="text" class="form-control form-control-sm" placeholder="Search type...">
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="col-md-2 col-sm-6">
+                        <select class="form-select form-select-sm">
+                            <option selected disabled>Filter by Category</option>
+                            <option value="condo">Condo</option>
+                            <option value="house">House</option>
+                        </select>
+                    </div>
+
+                    <!-- Search Button -->
+                    <div class="col-md-2 col-sm-6">
+                        <button type="button" class="btn btn-primary btn-sm w-100">
+                            Search
+                        </button>
+                    </div>
+
+                    <!-- Search Button -->
+                    <div class="col-md-2 col-sm-12 text-md-end">
+                        <button type="button" class="btn btn-primary btn-sm w-100">
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col" class="text-center">
+                                    <input class="form-check-input" type="checkbox" id="checkAll">
+                                </th>
+                                <th scope="col">Unit Detail</th>
+                                <th scope="col">Furniture</th>
+                                <th scope="col">Check Status</th>
+                                <th scope="col">Update</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center">
+                                    <input class="form-check-input row-check" id="flexCheckCheckedA001" type="checkbox" checked>
+                                </td>
+                                <td class="text-start">
+                                    เคฟ เพลย์กราวด์ ลาดพร้าว-บดินทรเดชา
+                                    <small class="d-block">Condo / Unit: B105 / Type: A1B </small>
+                                </td>
+                                <td class="text-start">
+                                       1
+                                </td>
+                                <td class="text-start">
+                                    Pass
+                                </td>
+                                <td class="text-start">
+                                    <i class="icofont icofont-user"></i> พนิดา อินทร์แก้ว
+                                    <small class="d-block mt-1">
+                                        <i class="icofont icofont-calendar"></i> 12/05/2025
+                                    </small>
+                                </td>
+                            </tr>
+
+@*                             <tr>
+                                <td class="text-center">
+                                    <input class="form-check-input row-check" id="flexCheckCheckedA002" type="checkbox">
+                                </td>
+                                <td class="text-start">
+                                    เอสต้า ซีรีนิตี้ บรมราชชนนี
+                                    <small class="d-block">House / Unit A005 / Room 05</small>
+                                </td>
+                                <td class="text-start">
+                                    <i class="icofont icofont-user"></i> เสาวณีย์ พงษ์ฟ้าประทานพร
+                                    <small class="d-block">
+                                        <i class="icofont icofont-sale-discount"></i> Sale
+                                    </small>
+                                </td>
+                                <td class="text-start">
+                                    <i class="icofont icofont-user"></i> สุธัช (อาร์ท) ขันธไพรศรี
+                                    <small class="d-block mt-1">
+                                        <i class="icofont icofont-calendar"></i> 12/05/2025
+                                    </small>
+                                </td>
+                            </tr>
+
+                            <!-- ✅ Mockup Row 1 -->
+                            <tr>
+                                <td class="text-center">
+                                    <input class="form-check-input row-check" id="flexCheckCheckedA003" type="checkbox" checked>
+                                </td>
+                                <td class="text-start">
+                                    เดอะ พาร์คแลนด์ เพชรเกษม 56
+                                    <small class="d-block">Condo / Unit D201 / Floor 2 / Room 1</small>
+                                </td>
+                                <td class="text-start">
+                                    <i class="icofont icofont-user"></i> ณัฐวุฒิ ศรีสุวรรณ
+                                    <small class="d-block">
+                                        <i class="icofont icofont-support"></i> Customer Service
+                                    </small>
+                                </td>
+                                <td class="text-start">
+                                    <i class="icofont icofont-user"></i> ธนพัฒน์ อุดมชัย
+                                    <small class="d-block mt-1">
+                                        <i class="icofont icofont-calendar"></i> 14/05/2025
+                                    </small>
+                                </td>
+                            </tr>
+
+                            <!-- ✅ Mockup Row 2 -->
+                            <tr>
+                                <td class="text-center">
+                                    <input class="form-check-input row-check" id="flexCheckCheckedA004" type="checkbox">
+                                </td>
+                                <td class="text-start">
+                                    ไอดีโอ โมบิ พระราม 9
+                                    <small class="d-block">Condo / Unit C310 / Floor 3 / Room 10</small>
+                                </td>
+                                <td class="text-start">
+                                    <i class="icofont icofont-user"></i> อภิสิทธิ์ ทองพูน
+                                    <small class="d-block">
+                                        <i class="icofont icofont-support"></i> Customer Service
+                                    </small>
+                                </td>
+                                <td class="text-start">
+                                    <i class="icofont icofont-user"></i> ภัทรพล มีชัย
+                                    <small class="d-block mt-1">
+                                        <i class="icofont icofont-calendar"></i> 15/05/2025
+                                    </small>
+                                </td>
+                            </tr>
+
+                            <!-- ✅ Mockup Row 3 -->
+                            <tr>
+                                <td class="text-center">
+                                    <input class="form-check-input row-check" id="flexCheckCheckedA005" type="checkbox" checked>
+                                </td>
+                                <td class="text-start">
+                                    นิว โนเบิล ไฟฉาย-วงเวียนใหญ่
+                                    <small class="d-block">Condo / Unit E502 / Floor 5 / Room 2</small>
+                                </td>
+                                <td class="text-start">
+                                    <i class="icofont icofont-user"></i> ปภาวดี ศรีสุธรรม
+                                    <small class="d-block">
+                                        <i class="icofont icofont-users-social"></i> Deviate
+                                    </small>
+                                </td>
+                                <td class="text-start">
+                                    <i class="icofont icofont-user"></i> กานต์รวี นิลไพศาล
+                                    <small class="d-block mt-1">
+                                        <i class="icofont icofont-calendar"></i> 16/05/2025
+                                    </small>
+                                </td>
+                            </tr> *@
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 <!-- Container-fluid Ends-->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+            new Choices('#projectSelect', {
+                placeholderValue: 'เลือกโครงการ',
+                removeItemButton: true, // Show "X" to remove selected items
+                searchEnabled: true,
+                itemSelectText: '',
+                shouldSort: false
+            });
+        });
+</script>
