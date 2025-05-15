@@ -3,6 +3,34 @@
     Layout = "~/Views/Shared/_LayoutSite.cshtml";
 }
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<style>
+    .filter-control {
+        min-height: 44.5px;
+        font-size: 0.875rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .choices__inner {
+        min-height: 38px !important;
+        padding: 4px 8px !important;
+        font-size: 0.875rem;
+    }
+
+    .choices__list--multiple .choices__item {
+        font-size: 0.8rem;
+        padding: 2px 6px;
+    }
+
+    .choices__list--dropdown .choices__item {
+        font-size: 0.85rem;
+    }
+
+    .card-selected {
+        border: 2px solid #0d6efd !important; /* Bootstrap primary blue */
+        border-radius: 8px;
+    }
+
+</style>
 
 <div class="container-fluid">
     <div class="page-title">
@@ -155,6 +183,18 @@
                     document.getElementById("scrollRight").onclick = () => {
                       carousel.scrollBy({ left: 150, behavior: "smooth" });
                     };
+
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const cards = document.querySelectorAll("#productCarousel a");
+
+                        cards.forEach(card => {
+                            card.addEventListener("click", function (e) {
+                                e.preventDefault(); // Optional: prevent page jump
+                                this.querySelector(".card").classList.toggle("card-selected");
+                            });
+                        });
+                    });
+
                 </script>
             </div>
         </div>
@@ -164,14 +204,14 @@
             <div class="card-header">
                 <!-- Title Row -->
                 <div class="d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Unit list</h4>
+                    <h4 class="mb-0">รายการแปลง</h4>
                 </div>
 
                 <!-- Filter Row -->
                 <div class="row mt-3 g-2">
-                    <!-- Project Filter -->
-                    <div class="col-md-3 col-sm-6">
-                        <select id="projectSelect" class="form-control searchable-select" multiple>
+
+                    <div class="col-md-5 col-sm-6">
+                        <select id="projectSelect" class="form-control filter-control" multiple>
                             <option value="1">มารูน รัชดา</option>
                             <option value="2">เคฟ ป๊อป ศาลายา</option>
                             <option value="3">เคฟ วันเดอร์แลนด์</option>
@@ -190,36 +230,21 @@
 
                     <!-- Search Input -->
                     <div class="col-md-3 col-sm-6">
-                        <input type="text" class="form-control form-control-sm" placeholder="Search units...">
-                    </div>
-
-                    <!-- Status Filter -->
-                    <div class="col-md-3 col-sm-6">
-                        <input type="text" class="form-control form-control-sm" placeholder="Search type...">
+                        <input type="text" class="form-control filter-control" placeholder="Search units...">
                     </div>
 
                     <!-- Category Filter -->
-                    <div class="col-md-2 col-sm-6">
-                        <select class="form-select form-select-sm">
-                            <option selected disabled>Filter by Category</option>
-                            <option value="condo">Condo</option>
-                            <option value="house">House</option>
-                        </select>
+                    <div class="col-md-3 col-sm-6">
+                        <input type="text" class="form-control filter-control" placeholder="Search types...">
                     </div>
 
                     <!-- Search Button -->
-                    <div class="col-md-2 col-sm-6">
-                        <button type="button" class="btn btn-primary btn-sm w-100">
+                    <div class="col-md-1 col-sm-6">
+                        <button type="button" class="btn btn-primary btn-sm w-100 filter-control">
                             Search
                         </button>
                     </div>
 
-                    <!-- Search Button -->
-                    <div class="col-md-2 col-sm-12 text-md-end">
-                        <button type="button" class="btn btn-primary btn-sm w-100">
-                            Save
-                        </button>
-                    </div>
                 </div>
             </div>
 
