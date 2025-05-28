@@ -31,6 +31,6 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Projectandunitfloorplan}/{action=Index}/{id?}");
+    pattern: "{controller=UnitFurniture}/{action=Index}/{id?}");
 
 app.Run();
