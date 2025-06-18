@@ -1,56 +1,127 @@
 ﻿@{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "CSS - Login";
 }
-<style>
-    .login-card {
-        background: url("/assets/images/login/Atmoz-Flow-Minburi-2.jpg") !important;
-    }
-</style>
-<div class="col-12">
-    <div class="login-card login-dark">
-        <div>
-            <div class="login-main">
-                <form class="theme-form">
-                    <div>
-                        <a class="logo" href="index.html">
-                            <img class="img-fluid for-dark w-75" src="~/assets/images/logo/asw-logo-2.png" alt="loginpage">
-                            <img class="img-fluid for-light w-75" src="~/assets/images/logo/asw-logo-2.png" alt="loginpage">
-                        </a>
-                    </div>
-                    <h4>Sign in to account </h4>
-                    <p>Enter your email & password to login</p>
-                    <div class="form-group">
-                        <label class="col-form-label">Email Address</label>
-                        <input class="form-control" type="email" required="" placeholder="Test@gmail.com">
-                    </div>
-                    <div class="form-group">
-                        <label class="col-form-label">Password </label>
-                        <div class="form-input position-relative">
-                            <input class="form-control" type="password" name="login[password]" required="" placeholder="*********">
-                            <div class="show-hide"> <span class="show"></span></div>
-                        </div>
-                    </div>
-                    <div class="form-group mb-0">
-                        <div class="checkbox p-0">
-                            <input id="checkbox1" type="checkbox">
-                            <label class="text-muted" for="checkbox1">Remember password</label>
-                        </div><a class="link" href="forget-password.html">Forgot password?</a>
-                        <div class="text-end mt-3">
-@*                             <button class="btn btn-block w-100"
-                                    style="background-color: #123F6D; border-color: #0F355C; color: #ffffff;"
-                                    type="submit">
-                                Sign in
-                            </button> *@
-                            <button class="btn btn-block w-100"
-                                    style="background-color: #123F6D; border-color: #0F355C; color: #ffffff;"
-                                    type="button"
-                                    onclick="window.location.href='/Main/index';">
-                                Sign in
-                            </button>
-                        </div>
-                    </div>
-                </form>
+<div class="login-card">
+    <div class="login-main">
+        <form id="loginForm" class="theme-form">
+            <div>
+                <a class="logo" href="#">
+                    <img class="img-fluid for-dark w-75" src="~/assets/images/logo/asw-logo-2.png" alt="loginpage">
+                    <img class="img-fluid for-light w-75" src="~/assets/images/logo/asw-logo-2.png" alt="loginpage">
+                </a>
             </div>
-        </div>
+            <h4>Customer service system</h4>
+            <p>Enter your email or UserID & password to login</p>
+            <div id="loginAlert" class="alert alert-danger d-none" role="alert">
+                <!-- message will be set here -->
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Email or UserID</label>
+                <input class="form-control" type="text" id="username" name="Username" required placeholder="Email or UserID">
+            </div>
+
+            <div class="form-group">
+                <label class="col-form-label">Password</label>
+                <div class="position-relative">
+                    <input class="form-control pe-5" type="password" id="password" name="Password" required placeholder="********">
+                    <button type="button"
+                            onmousedown="revealPassword(true)"
+                            onmouseup="revealPassword(false)"
+                            onmouseleave="revealPassword(false)"
+                            class="position-absolute"
+                            style="top: 50%; right: 10px; transform: translateY(-50%); border: none; background: none; color: black;">
+                        <i class="fa fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group mb-0">
+                <div class="checkbox p-0">
+                    <input id="checkbox1" type="checkbox">
+                    <label class="text-muted" for="checkbox1">Remember password</label>
+                </div>
+                <a class="link" href="forget-password.html">Forgot password?</a>
+                <div class="text-end mt-3">
+                    <button id="btnLogin" type="button" onclick="submitLogin()" class="btn btn-block w-100"
+                            style="background-color: #123F6D; border-color: #0F355C; color: #ffffff;">
+                        <span class="spinner-border spinner-border-sm me-2 d-none" role="status" id="btnSpinner"></span>
+                        <span id="btnText">Sign in</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+
     </div>
+
 </div>
+@section scripts{
+    <script>
+        async function submitLogin() {
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
+
+        const alertBox = document.getElementById("loginAlert");
+        const btnLogin = document.getElementById("btnLogin");
+        const btnSpinner = document.getElementById("btnSpinner");
+        const btnText = document.getElementById("btnText");
+
+        alertBox.classList.add("d-none");
+        alertBox.innerText = "";
+
+        if (!username || !password) {
+            showError("Please enter both username and password.");
+            return;
+        }
+
+        // 🔄 Show loading
+        btnLogin.disabled = true;
+        btnSpinner.classList.remove("d-none");
+        btnText.innerText = "Signing in...";
+
+        const formData = new URLSearchParams();
+        formData.append("Username", username);
+        formData.append("Password", password);
+
+        try {
+            const response = await fetch("/Login/Login", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: formData.toString()
+            });
+
+            const result = await response.json();
+
+            if (result.status === 1) {
+                window.location.href = result.redirectUrl;
+            } else {
+                showError(result.message);
+            }
+
+        } catch (error) {
+            showError("Something went wrong. Please try again.");
+        } finally {
+            // ✅ Reset button state
+            btnLogin.disabled = false;
+            btnSpinner.classList.add("d-none");
+            btnText.innerText = "Sign in";
+        }
+    }
+
+        function showError(message) {
+            const alertBox = document.getElementById("loginAlert");
+            alertBox.classList.remove("d-none");
+            alertBox.classList.add("animate__animated", "animate__shakeX");
+            alertBox.innerText = message;
+
+            setTimeout(() => {
+                alertBox.classList.remove("animate__animated", "animate__shakeX");
+            }, 1000);
+        }
+
+        function revealPassword(shouldShow) {
+            const passwordInput = document.getElementById("password");
+            passwordInput.type = shouldShow ? "text" : "password";
+        }
+
+    </script>
+}

@@ -4,10 +4,15 @@
     {
         public int ID { get; set; }
         public int? DepartmentID { get; set; }
+        public string? DepartmentName { get; set; }
         public int? RoleID { get; set; }
         public int? BUID { get; set; }
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
+        public string? TitleTH { get; set; }
+        public string? TitleEN { get; set; }
+        public string? FirstNameTH { get; set; }
+        public string? LastNameTH { get; set; }
+        public string? FirstNameEN { get; set; }
+        public string? LastNameEN { get; set; }
         public string? Mobile { get; set; }
         public string? Email { get; set; }
         public string? Username { get; set; }
