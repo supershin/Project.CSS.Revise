@@ -29,13 +29,40 @@
             padding: 0;
         }
 
-        body {
+/*         body {
             background: url("/assets/images/login/Atmoz-Flow-Minburi-2.jpg") no-repeat center center fixed;
             background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
+        } */
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            position: relative;
         }
+
+        /* 🔁 Background slideshow layer */
+        #bg-slideshow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: opacity 1.5s ease-in-out;
+            opacity: 1;
+        }
+
 
         .login-card {
             background: rgba(0, 0, 0, 0);
@@ -59,6 +86,7 @@
     </style>
 </head>
 <body>
+    <div id="bg-slideshow"></div>
     <!-- login page start-->
     <div class="container-fluid p-0">
         <div class="row p-0">
@@ -66,17 +94,44 @@
                 @RenderBody()
             </main>
         </div>
-        <script src="~/assets/js/jquery.min.js"></script>
-        <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
-        <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
-        <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
-        <script src="~/assets/js/config.js"></script>
-        <script src="~/assets/js/script.js"></script>
     </div>
-</body>
+    <script src="~/assets/js/jquery.min.js"></script>
+    <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+    <script src="~/assets/js/config.js"></script>
+    <script src="~/assets/js/script.js"></script>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        const images = [
+            "/assets/images/login/Atmoz-Flow-Minburi-2.jpg",
+            "/assets/images/login/Modiz_rhyme_ramkhamhaeng.jpg",
+            "/assets/images/login/Kave_playground.jpg"
+        ];
+
+        let current = 0;
+        const bg = document.getElementById("bg-slideshow");
+
+        function changeBackground() {
+            bg.style.opacity = 0;
+            setTimeout(() => {
+                current = (current + 1) % images.length;
+                bg.style.backgroundImage = `url('${images[current]}')`;
+                bg.style.opacity = 1;
+            }, 800); // time to fade out
+        }
+
+        // Initial background
+        bg.style.backgroundImage = `url('${images[0]}')`;
+
+        // Loop every 6 seconds
+        setInterval(changeBackground, 6000);
+    </script>
+
+</body>
 

@@ -52,14 +52,17 @@
                                 </div>
                                 <div class="tab-pane fade show active" id="pills-shop-event" role="tabpanel" aria-labelledby="pills-shop-event-tab">
                                     <div class="row g-2 align-items-end pt-3">
-                                        <!-- BUG Multi-select -->
+
+                                        <!-- I wanna try with this dropdwon -->
                                         <div class="col-md-3">
-                                            <label class="form-label fw-bold">BUG</label>
-                                            <select class="form-select" multiple id="bugSelect">
-                                                <option>BUG1</option>
-                                                <option>BUG2</option>
-                                                <option>BUG3</option>
-                                            </select>
+                                            <label class="form-label fw-bold">BU</label>
+                                            <form>
+                                                <input id="dropdownInput"
+                                                       class="form-control"
+                                                       name="tags"
+                                                       placeholder="Type to search..."
+                                                       />
+                                            </form>
                                         </div>
 
                                         <!-- Project Multi-select -->
@@ -315,44 +318,75 @@
 </div>
 <!-- Container-fluid Ends-->
 <!-- JavaScript for Searching -->
-<script>
-    document.getElementById('searchInput').addEventListener('input', function () {
-        let searchText = this.value.toLowerCase();
-        let cards = document.querySelectorAll('.company-card');
+<script src="~/assets/js/select2/tagify.polyfills.min.js"></script>
+<script src="~/assets/js/select2/tagify.js"></script>
 
-        cards.forEach(card => {
-            let companyName = card.getAttribute('data-name').toLowerCase();
-            if (companyName.includes(searchText)) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const input = document.querySelector('#dropdownInput');
+
+        if (input) {
+            const tagify = new Tagify(input, {
+                whitelist: [
+                    { value: "roxo", label: "Roxo" },
+                    { value: "sheltos", label: "Sheltos" },
+                    { value: "zeta", label: "Zeta" },
+                    { value: "koho", label: "Koho" },
+                    { value: "tivo", label: "Tivo" },
+                    { value: "viho", label: "Viho" }
+                ],
+                dropdown: {
+                    enabled: 0,          // ✨ ไม่ต้องพิมพ์ก็แสดงได้
+                    maxItems: 10,
+                    closeOnSelect: false,
+                    classname: "tagify-dropdown"
+                }
+            });
+
+            // 👇 แสดง dropdown ทันทีที่ focus
+            input.addEventListener('focus', () => tagify.dropdown.show.call(tagify));
+        }
     });
 
-    function handleCardClick(element) {
-        let companyName = element.getAttribute("data-name");
-        // alert("You clicked on: " + companyName);
-    }
+    </script>
+    <script>
+        document.getElementById('searchInput').addEventListener('input', function () {
+            let searchText = this.value.toLowerCase();
+            let cards = document.querySelectorAll('.company-card');
 
-    // Date range picker using Flatpickr
-       flatpickr("#dateRange", {
-           mode: "range",
-           dateFormat: "d/m/Y",
-           locale: "th" // optional: if you want Thai calendar format
-       });
+            cards.forEach(card => {
+                let companyName = card.getAttribute('data-name').toLowerCase();
+                if (companyName.includes(searchText)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
 
-       // Activate Choices.js dropdown
-       new Choices("#bugSelect", {
-           removeItemButton: true,
-           maxItemCount: 10,
-           placeholderValue: "เลือก BUG"
-       });
+        function handleCardClick(element) {
+            let companyName = element.getAttribute("data-name");
+            // alert("You clicked on: " + companyName);
+        }
 
-       new Choices("#projectSelect", {
-           removeItemButton: true,
-           maxItemCount: 10,
-           placeholderValue: "เลือกโครงการ"
-       });
+        // Date range picker using Flatpickr
+           flatpickr("#dateRange", {
+               mode: "range",
+               dateFormat: "d/m/Y",
+               locale: "th" // optional: if you want Thai calendar format
+           });
 
-</script>
+           // Activate Choices.js dropdown
+           new Choices("#bugSelect", {
+               removeItemButton: true,
+               maxItemCount: 10,
+               placeholderValue: "เลือก BUG"
+           });
+
+           new Choices("#projectSelect", {
+               removeItemButton: true,
+               maxItemCount: 10,
+               placeholderValue: "เลือกโครงการ"
+           });
+
+    </script>
