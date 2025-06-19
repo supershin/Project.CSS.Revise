@@ -1,17 +1,19 @@
-﻿namespace Project.CSS.Revise.Web.Commond
+﻿using System.Text;
+
+namespace Project.CSS.Revise.Web.Commond
 {
     public static class SecurityManager
     {
         public static string EnCryptPassword(string password)
         {
-            byte[] toEncodeAsBytes = System.Text.ASCIIEncoding.ASCII.GetBytes(password);
-            string encryptPassword = System.Convert.ToBase64String(toEncodeAsBytes);
+            byte[] toEncodeAsBytes = Encoding.UTF8.GetBytes(password);
+            string encryptPassword = Convert.ToBase64String(toEncodeAsBytes);
             return encryptPassword;
         }
         public static string DecodeFrom64(string encryptData)
         {
-            byte[] encodedDataAsBytes = System.Convert.FromBase64String(encryptData);
-            string returnValue = System.Text.ASCIIEncoding.ASCII.GetString(encodedDataAsBytes);
+            byte[] encodedDataAsBytes = Convert.FromBase64String(encryptData);
+            string returnValue = Encoding.UTF8.GetString(encodedDataAsBytes);
             return returnValue;
         }
     }

@@ -50,8 +50,9 @@ namespace Project.CSS.Revise.Web.Controllers
                     return Json(new { status = 0, message = message });
                 }
 
-                //var x = SecurityManager.EnCryptPassword(userProfile.TitleEN + "." + " " + userProfile.FirstNameEN + " " + userProfile.LastNameEN ?? "");
+                //var x = SecurityManager.EnCryptPassword(userProfile.TitleTH + "." + " " + userProfile.FirstNameTH + " " + userProfile.LastNameTH ?? "");
                 //var y = SecurityManager.DecodeFrom64(x);
+
                 // ✅ Add Claims for this user
                 var claims = new List<Claim>
                 {
