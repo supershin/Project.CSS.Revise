@@ -26,6 +26,9 @@ builder.Services.Configure<UserProfile>(builder.Configuration.GetSection("UserPr
 // Add Services Scope
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<ILoginRepo, LoginRepo>();
+builder.Services.AddScoped<IMasterRepo, MasterRepo>();
+builder.Services.AddScoped<IMasterService, MasterService>();
+
 
 // Add Rate Limiting Middleware
 builder.Services.AddMemoryCache();

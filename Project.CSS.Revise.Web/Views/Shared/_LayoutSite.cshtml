@@ -2,7 +2,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta http-equiv="X-Frame-Options" content="deny">
+  @* <meta http-equiv="X-Frame-Options" content="deny"> *@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Riho admin is super flexible, powerful, clean &amp; modern responsive bootstrap 5 admin template with unlimited possibilities.">
     <meta name="keywords" content="admin template, Riho admin template, dashboard template, flat admin template, responsive admin template, web app">
@@ -135,6 +135,9 @@
     </style>
 </head>
 <body>
+    <script>
+        let baseUrl = '@ViewBag.baseUrl'
+    </script>
     <!-- loader starts-->
     <div class="loader-wrapper">
         <div class="loader">
@@ -165,7 +168,9 @@
                         <li class="onhover-dropdown notification-down">
                             <div class="notification-box">
                                 @* <svg class="icon" width="24" height="24"><use xlink:href="/assets/svg/icon-sprite.svg#notification-header"></use></svg> *@
-                                <svg class="icon" width="24" height="24"> <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#notification-header")"></use> </svg> 
+                                <svg class="icon" width="24" height="24"> 
+                                    <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#notification-header")"></use> 
+                                </svg> 
                                 <span class="badge rounded-pill badge-secondary">4 </span>
                             </div>
                             <div class="onhover-show-div notification-dropdown">
@@ -228,7 +233,7 @@
                                                                         </div>
                                                                         <div>
                                                                             <svg>
-                                                                                <use href="~/assets/svg/icon-sprite.svg#more-vertical"></use>
+                                                                            @*     <use href="~/assets/svg/icon-sprite.svg#more-vertical"></use> *@
                                                                             </svg>
                                                                         </div>
                                                                     </div>
@@ -243,7 +248,7 @@
                                                                         </div>
                                                                         <div>
                                                                             <svg>
-                                                                                <use href="~/assets/svg/icon-sprite.svg#more-vertical"></use>
+                                                                             @*    <use href="~/assets/svg/icon-sprite.svg#more-vertical"></use> *@
                                                                             </svg>
                                                                         </div>
                                                                     </div>
@@ -553,9 +558,9 @@
     <script src="~/assets/js/slick/slick.min.js"></script>
     <script src="~/assets/js/slick/slick.js"></script>
     <script src="~/assets/js/header-slick.js"></script>
-    <script src="~/assets/js/chart/apex-chart/apex-chart.js"></script>
+@*  <script src="~/assets/js/chart/apex-chart/apex-chart.js"></script>
     <script src="~/assets/js/chart/apex-chart/stock-prices.js"></script>
-    <script src="~/assets/js/chart/apex-chart/moment.min.js"></script>
+    <script src="~/assets/js/chart/apex-chart/moment.min.js"></script> *@
     <script src="~/assets/js/notify/bootstrap-notify.min.js"></script>
     <!-- Range Slider js-->
     <script src="~/assets/js/range-slider/rSlider.min.js"></script>
@@ -576,19 +581,21 @@
     <!-- calendar js-->
     <script src="~/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
     <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
-    <script src="~/assets/js/general-widget.js?ver=@DateTime.Now.Ticks.ToString()"></script>
-    <script src="~/assets/js/dashboard/dashboard_2.js"></script>
+@*     <script src="~/assets/js/general-widget.js?ver=@DateTime.Now.Ticks.ToString()"></script>
+    <script src="~/assets/js/dashboard/dashboard_2.js"></script> *@
     <script src="~/assets/js/animation/wow/wow.min.js"></script>
     <script src="~/assets/js/range-slider/ion.rangeSlider.min.js"></script>
     <script src="~/assets/js/range-slider/rangeslider-script.js"></script>
     <!-- select2 js-->
     <script src="~/assets/js/select2/tagify.polyfills.min.js"></script>
     <script src="~/assets/js/select2/tagify.js"></script>
+@*     <script src="~/assets/js/select2/tagify.polyfills.min.js"></script>
+    <script src="~/assets/js/select2/tagify.js"></script>
     <script src="~/assets/js/select2/intltelinput.min.js"></script>
     <script src="~/assets/js/select2/telephone-input.js"></script>
     <script src="~/assets/js/select2/custom-inputsearch.js"></script>
     <script src="~/assets/js/select2/select3-custom.js"></script>
-    <script src="~/assets/js/height-equal.js"></script>
+    <script src="~/assets/js/height-equal.js"></script> *@
 
     <script src="~/assets/js/photoswipe/photoswipe.min.js"></script>
     <script src="~/assets/js/photoswipe/photoswipe-ui-default.min.js"></script>
@@ -608,33 +615,6 @@
     <script src="~/js/Custom.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <script src="~/assets/js/theme-customizer/customizer.js"></script>
     <script>new WOW().init();</script>
-    <script>
-        const filterCollapse = document.getElementById('filterCollapse');
-        const filterToggleIcon = document.getElementById('filterToggleIcon');
-
-        filterCollapse.addEventListener('show.bs.collapse', () => {
-            filterToggleIcon.classList.remove('collapsed');
-            filterToggleIcon.classList.add('expanded');
-        });
-
-        filterCollapse.addEventListener('hide.bs.collapse', () => {
-            filterToggleIcon.classList.remove('expanded');
-            filterToggleIcon.classList.add('collapsed');
-        });
-
-        // Set initial icon state
-        filterToggleIcon.classList.add('collapsed');
-
-        function togglePassword(inputId, toggleElement) {
-            var passwordInput = document.getElementById(inputId);
-            if (passwordInput.type === "password") {
-                passwordInput.type = "text";
-                toggleElement.textContent = "hide";
-            } else {
-                passwordInput.type = "password";
-                toggleElement.textContent = "show";
-            }
-        }
-    </script>
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

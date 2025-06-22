@@ -1,6 +1,7 @@
 ﻿@{
     Layout = "~/Views/Shared/_LayoutSite.cshtml";
 }
+
 <div class="container-fluid">
     <div class="page-title">
         <div class="row">
@@ -10,11 +11,7 @@
             <div class="col-6">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
-                        <a href="index.html">
-                            <svg class="stroke-icon">
-                                <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-home")"></use>
-                            </svg>
-                        </a>
+
                     </li>
                     <li class="breadcrumb-item">Pages</li>
                     <li class="breadcrumb-item active">Other Settings</li>
@@ -48,16 +45,16 @@
                             </ul>
                             <div class="tab-content" id="pills-tabContent">
                                 <div class="tab-pane fade" id="pills-counter" role="tabpanel" aria-labelledby="pills-counter-tab">
-                                    <p class="pt-3">The ultimate goal of every web design is to create a site that will reach its audience and be useful to them...</p>
+                
                                 </div>
                                 <div class="tab-pane fade show active" id="pills-shop-event" role="tabpanel" aria-labelledby="pills-shop-event-tab">
                                     <div class="row g-2 align-items-end pt-3">
 
-                                        <!-- I wanna try with this dropdwon -->
+                                        <!-- BU Multi-select -->
                                         <div class="col-md-3">
                                             <label class="form-label fw-bold">BU</label>
                                             <form>
-                                                <input id="dropdownInput"
+                                                <input id="ddl-bu-shop-event"
                                                        class="form-control"
                                                        name="tags"
                                                        placeholder="Type to search..."
@@ -65,15 +62,23 @@
                                             </form>
                                         </div>
 
-                                        <!-- Project Multi-select -->
-                                        <div class="col-md-3">
+                                        <!-- Project Single-select -->
+                                        <div class="col-md-3" id="project-dropdown-container">
                                             <label class="form-label fw-bold">โครงการ</label>
-                                            <select class="form-select" multiple id="projectSelect">
-                                                <option>โครงการทั้งหมด</option>
-                                                <option>โครงการ A</option>
-                                                <option>โครงการ B</option>
-                                            </select>
+                                            <form>
+                                                <div id="project-loading" style="display: none;">
+                                                    <div class="spinner-border text-primary spinner-border-sm" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div> กำลังโหลด...
+                                                </div>
+
+                                                <input id="ddl-project-shop-event"
+                                                       class="form-control"
+                                                       name="tags"
+                                                       placeholder="Type to search..." />
+                                            </form>
                                         </div>
+
 
                                         <!-- Date Range -->
                                         <div class="col-md-3">
@@ -90,303 +95,272 @@
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="pills-project-zone" role="tabpanel" aria-labelledby="pills-project-zone-tab">
-                                    <div class="pt-3 d-flex align-items-center gap-3 pills-blogger">
-                                        <div class="blog-wrapper"><img class="blog-img" src="../assets/images/dashboard-2/headphones.png" alt="head-phone"></div>
-                                        <div class="blog-content">
-                                            <em class="txt-danger fw-bold">Smart headphones</em> — also called smart earbuds or hearables — are high-tech in-ear devices...
-                                        </div>
-                                    </div>
+
                                 </div>
                                 <div class="tab-pane fade" id="pills-land-office" role="tabpanel" aria-labelledby="pills-land-office-tab">
-                                    <div class="pt-3 d-flex align-items-center gap-3 pills-blogger">
-                                        <div class="blog-wrapper"><img class="blog-img" src="../assets/images/dashboard-2/headphones.png" alt="head-phone"></div>
-                                        <div class="blog-content">
-                                            <!-- Add content here -->
-                                        </div>
-                                    </div>
+
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-            </div>
-        </div>
-        <div class="box-col-12">
-            <div class="row">
-                <div class="col-md-4 col-12 collapse" id="Bucard">
-                    <!-- Cards Container -->
-                    <div class="card p-3">
-                        <div class="card-header card-no-border total-revenue">
-                            <h4 class="m-0">BU</h4>
-                        </div>
-                        <div class="card-body pt-0">
-                            <div class="col-xl-12">
-                                <div class="card product-widget">
-                                    <div class="card-body new-product">
-                                        <div class="product-cost">
-                                            <div class="add-product">
-                                                <div class="product-icon bg-light-primary">
-                                                    <svg>
-                                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#box-add")"></use>
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <h6 class="mb-1">BUG1</h6>
-                                                </div>
-                                            </div>
-                                            <div class="product-icon" data-bs-toggle="collapse" data-bs-target="#Projectcard" style="cursor: pointer;">
-                                                <svg>
-                                                    <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#arrow-down")"></use>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-12">
-                                <div class="card product-widget">
-                                    <div class="card-body new-product">
-                                        <div class="product-cost">
-                                            <div class="add-product">
-                                                <div class="product-icon bg-light-primary">
-                                                    <svg>
-                                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#box-add")"></use>
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <h6 class="mb-1">BUG2</h6>
-                                                </div>
-                                            </div>
-                                            <div class="product-icon">
-                                                <svg>
-                                                    <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#arrow-down")"></use>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-12">
-                                <div class="card product-widget">
-                                    <div class="card-body new-product">
-                                        <div class="product-cost">
-                                            <div class="add-product">
-                                                <div class="product-icon bg-light-primary">
-                                                    <svg>
-                                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#box-add")"></use>
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <h6 class="mb-1">BUG3</h6>
-                                                </div>
-                                            </div>
-                                            <div class="product-icon">
-                                                <svg>
-                                                    <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#arrow-down")"></use>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-8 col-12 collapse" id="Projectcard">
-                    <div class="card p-3">
-                        <div class="card-header card-no-border total-revenue">
-                            <h4 class="m-0">Project</h4>
-                        </div>
-                        <div class="card-body pt-0">
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Name</th>
-                                            <th>Status</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                400H006
-                                                <br>
-                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
-                                            </td>
-
-                                            <td>
-                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
-                                                <br>
-                                                CHANN The Riverside Boromratchonnani
-                                            </td>
-                                            <td><span class="badge bg-primary">Active</span></td>
-                                            <td>
-                                                <button class="btn btn-pill btn-warning active">
-                                                    <i class="icofont icofont-edit"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                400H006
-                                                <br>
-                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
-                                            </td>
-
-                                            <td>
-                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
-                                                <br>
-                                                CHANN The Riverside Boromratchonnani
-                                            </td>
-                                            <td><span class="badge bg-primary">Active</span></td>
-                                            <td>
-                                                <button class="btn btn-pill btn-warning active">
-                                                    <i class="icofont icofont-edit"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                400H006
-                                                <br>
-                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
-                                            </td>
-
-                                            <td>
-                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
-                                                <br>
-                                                CHANN The Riverside Boromratchonnani
-                                            </td>
-                                            <td><span class="badge bg-primary">Active</span></td>
-                                            <td>
-                                                <button class="btn btn-pill btn-warning active">
-                                                    <i class="icofont icofont-edit"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                400H006
-                                                <br>
-                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
-                                            </td>
-
-                                            <td>
-                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
-                                                <br>
-                                                CHANN The Riverside Boromratchonnani
-                                            </td>
-                                            <td><span class="badge bg-primary">Active</span></td>
-                                            <td>
-                                                <button class="btn btn-pill btn-warning active">
-                                                    <i class="icofont icofont-edit"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                400H006
-                                                <br>
-                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
-                                            </td>
-
-                                            <td>
-                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
-                                                <br>
-                                                CHANN The Riverside Boromratchonnani
-                                            </td>
-                                            <td><span class="badge bg-primary">Active</span></td>
-                                            <td>
-                                                <button class="btn btn-pill btn-warning active">
-                                                    <i class="icofont icofont-edit"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </div>
     </div>
 </div>
-<!-- Container-fluid Ends-->
-<!-- JavaScript for Searching -->
-<script src="~/assets/js/select2/tagify.polyfills.min.js"></script>
-<script src="~/assets/js/select2/tagify.js"></script>
 
+<!-- หลังจาก jQuery -->
+
+@* @section Scripts {
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const input = document.querySelector('#dropdownInput');
+        function loadBUOptions(callback) {
+            $('.loader-wrapper').show();
+            $.ajax({
+                url: baseUrl + 'OtherSettings/Page_Load',
+                type: 'POST',
+                dataType: 'json',
+                success: function (res) {
+                    if (res.success && res.buList?.length) {
+                        const buInput = document.querySelector('#ddl-bu-shop-event');
 
-        if (input) {
-            const tagify = new Tagify(input, {
-                whitelist: [
-                    { value: "roxo", label: "Roxo" },
-                    { value: "sheltos", label: "Sheltos" },
-                    { value: "zeta", label: "Zeta" },
-                    { value: "koho", label: "Koho" },
-                    { value: "tivo", label: "Tivo" },
-                    { value: "viho", label: "Viho" }
-                ],
-                dropdown: {
-                    enabled: 0,          // ✨ ไม่ต้องพิมพ์ก็แสดงได้
-                    maxItems: 10,
-                    closeOnSelect: false,
-                    classname: "tagify-dropdown"
+                        if (buInput._tagify) {
+                            buInput._tagify.destroy();
+                        }
+
+                        const buTagify = new Tagify(buInput, {
+                            whitelist: res.buList.map(x => ({
+                                value: x.ID.toString(),
+                                label: x.Name
+                            })),
+                            dropdown: {
+                                enabled: 0,
+                                maxItems: 20,
+                                closeOnSelect: false,
+                                classname: "tagify-dropdown"
+                            }
+                        });
+
+                        buInput.addEventListener('focus', () => buTagify.dropdown.show.call(buTagify));
+
+                        // ✅ เมื่อ BU เปลี่ยน -> โหลด Project
+                        buTagify.on('change', function (e) {
+                            const selectedBU = buTagify.value.map(x => x.value).join(',');
+                            loadProjectOptions(selectedBU);
+                        });
+
+                        if (typeof callback === 'function') callback();
+                    }
+                },
+                error: function () {
+                    console.error("โหลด BU ไม่สำเร็จ");
+                },
+                complete: function () {
+                    $('.loader-wrapper').fadeOut();
                 }
             });
-
-            // 👇 แสดง dropdown ทันทีที่ focus
-            input.addEventListener('focus', () => tagify.dropdown.show.call(tagify));
         }
-    });
 
-    </script>
-    <script>
-        document.getElementById('searchInput').addEventListener('input', function () {
-            let searchText = this.value.toLowerCase();
-            let cards = document.querySelectorAll('.company-card');
 
-            cards.forEach(card => {
-                let companyName = card.getAttribute('data-name').toLowerCase();
-                if (companyName.includes(searchText)) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
+        function loadProjectOptions(buIds) {
+            console.log("🔍 BU ที่เลือก:", buIds);
+
+            $.ajax({
+                url: baseUrl + 'OtherSettings/GetProjectListByBU',
+                type: 'POST',
+                dataType: 'json',
+                data: { L_BUID: buIds },
+                success: function (res) {
+                    console.log("✅ Project Response:", res);
+
+                    if (res.success && res.data?.length) {
+                        const projectInput = document.querySelector('#ddl-project-shop-event');
+
+                        if (!projectInput) {
+                            console.warn("⚠️ ไม่พบ input id='ddl-project-shop-event'");
+                            return;
+                        }
+
+                        // 🔄 ถ้ามี tagify เก่าอยู่ให้ลบทิ้งก่อน
+                        if (projectInput._tagify) {
+                            projectInput._tagify.destroy();
+                        }
+
+                        const tagify = new Tagify(projectInput, {
+                            enforceWhitelist: true,
+                            maxTags: 1, // ⛔ ใช้ได้แค่ 1 ตัว (single select)
+                            whitelist: res.data.map(x => ({
+                                value: x.ProjectID,
+                                label: x.ProjectNameTH
+                            })),
+                            dropdown: {
+                                enabled: 0,
+                                maxItems: 20,
+                                closeOnSelect: true,
+                                classname: "tagify-dropdown"
+                            }
+                        });
+
+                        // 💬 Show dropdown on focus
+                        projectInput.addEventListener('focus', () => tagify.dropdown.show.call(tagify));
+                    } else {
+                        console.warn("⚠️ ไม่มี Project ที่ตรงกับ BU ที่เลือก");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("❌ โหลด Project ไม่สำเร็จ:", error);
+                },
+                complete: function () {
+                    console.log("✅ โหลด Project เสร็จสมบูรณ์");
                 }
+            });
+        }
+
+
+
+        $(document).ready(function () {
+            loadBUOptions(function () {
+                console.log("โหลด BU สำเร็จแล้ว พร้อมใช้งาน ✅");
             });
         });
+    </script>
+} *@
+@section Scripts {
+    <script>
+        let projectTagify = null; // 🧠 ตัวแปรกลางไว้เช็ค & ทำลาย
+        let buTagify = null;
 
-        function handleCardClick(element) {
-            let companyName = element.getAttribute("data-name");
-            // alert("You clicked on: " + companyName);
+        function loadBUOptions(callback) {
+            $('.loader-wrapper').show();
+
+            $.ajax({
+                url: baseUrl + 'OtherSettings/Page_Load',
+                type: 'POST',
+                dataType: 'json',
+                success: function (res) {
+                    if (res.success && res.buList?.length) {
+                        const buInput = document.querySelector('#ddl-bu-shop-event');
+
+                        if (buTagify) {
+                            buTagify.removeAllListeners();
+                            buTagify.destroy();
+                            buTagify = null;
+                        }
+
+                        buTagify = new Tagify(buInput, {
+                            tagTextProp: "label", // ✅ จุดที่ทำให้แสดงชื่อ (label) แทนค่า (value)
+                            whitelist: res.buList.map(x => ({
+                                value: x.ID.toString(),
+                                label: x.Name
+                            })),
+                            dropdown: {
+                                enabled: 0,
+                                maxItems: 20,
+                                closeOnSelect: false,
+                                classname: "tagify-dropdown"
+                            }
+                        });
+
+                        buInput.addEventListener('focus', () => buTagify.dropdown.show.call(buTagify));
+
+                        buTagify.on('change', function () {
+                            const selectedBU = buTagify.value.map(x => x.value).join(',');
+                            loadProjectOptions(selectedBU);
+                        });
+
+                        if (typeof callback === 'function') callback();
+                    }
+                },
+                error: function () {
+                    console.error("โหลด BU ไม่สำเร็จ");
+                },
+                complete: function () {
+                    $('.loader-wrapper').fadeOut();
+                }
+            });
         }
 
-        // Date range picker using Flatpickr
-           flatpickr("#dateRange", {
-               mode: "range",
-               dateFormat: "d/m/Y",
-               locale: "th" // optional: if you want Thai calendar format
-           });
+        function loadProjectOptions(buIds) {
+            console.log("🔍 BU ที่เลือก:", buIds);
 
-           // Activate Choices.js dropdown
-           new Choices("#bugSelect", {
-               removeItemButton: true,
-               maxItemCount: 10,
-               placeholderValue: "เลือก BUG"
-           });
+            const container = document.querySelector('#project-dropdown-container');
+            const inputId = 'ddl-project-shop-event';
 
-           new Choices("#projectSelect", {
-               removeItemButton: true,
-               maxItemCount: 10,
-               placeholderValue: "เลือกโครงการ"
-           });
+            // 🔄 ล้างตัวเก่าแบบเด็ดขาด
+            const oldInput = document.getElementById(inputId);
+            if (oldInput) {
+                if (oldInput._tagify) {
+                    oldInput._tagify.destroy();
+                }
+                oldInput.remove(); // ลบ input ออกเลย
+            }
 
+            // 🟡 Show mini loader
+            const loaderHTML = `
+                <div id="project-loading" class="d-flex align-items-center gap-2">
+                    <div class="spinner-border text-primary spinner-border-sm" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span>กำลังโหลดโครงการ...</span>
+                </div>`;
+            container.querySelector('form').innerHTML = loaderHTML;
+
+            // 📡 เรียก AJAX
+            $.ajax({
+                url: baseUrl + 'OtherSettings/GetProjectListByBU',
+                type: 'POST',
+                dataType: 'json',
+                data: { L_BUID: buIds },
+                success: function (res) {
+                    console.log("✅ Project Response:", res);
+
+                    // ✅ สร้าง input ใหม่
+                    const newInput = document.createElement('input');
+                    newInput.setAttribute('id', inputId);
+                    newInput.setAttribute('name', 'tags');
+                    newInput.setAttribute('class', 'form-control');
+                    newInput.setAttribute('placeholder', 'Type to search...');
+
+                    const form = container.querySelector('form');
+                    form.innerHTML = ''; // เคลียร์ loader
+                    form.appendChild(newInput);
+
+                    // ✅ Apply Tagify ใหม่
+                    const tagify = new Tagify(newInput, {
+                        tagTextProp: "label", // ✅ จุดที่ทำให้แสดงชื่อโครงการ
+                        whitelist: res.data.map(x => ({
+                            value: x.ProjectID,
+                            label: x.ProjectNameTH
+                        })),
+                        dropdown: {
+                            enabled: 0,
+                            maxItems: 20,
+                            closeOnSelect: true,
+                            classname: "tagify-dropdown"
+                        }
+                    });
+
+
+                    newInput.addEventListener('focus', () => tagify.dropdown.show.call(tagify));
+                },
+                error: function (xhr, status, error) {
+                    console.error("❌ โหลด Project ไม่สำเร็จ:", error);
+                },
+                complete: function () {
+                    console.log("✅ โหลด Project เสร็จสมบูรณ์");
+                }
+            });
+        }
+
+
+
+
+        $(document).ready(function () {
+            loadBUOptions(() => {
+                console.log("✅ โหลด BU แล้ว พร้อมใช้");
+            });
+        });
     </script>
+}
+
+
+
