@@ -11,6 +11,7 @@ namespace Project.CSS.Revise.Web.Respositories
     {
         public List<BUModel> GetlistBU(BUModel model);
         public List<ProjectModel> GetlistPrject(ProjectModel model);
+        public List<EventsModel> GetlistEvents(EventsModel model);
     }
     public class MasterRepo : IMasterRepo
     {
@@ -31,6 +32,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                         }).ToList();
             return query;
         }
+
         public List<ProjectModel> GetlistPrject(ProjectModel filter)
         {
             List<ProjectModel> result = new List<ProjectModel>();
@@ -55,6 +57,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                         @L_BUID = ''
                                         OR CHARINDEX(',' + CAST(b.ID AS NVARCHAR) + ',', ',' + @L_BUID + ',') > 0
                                     )
+                                ORDER BY b.ID
                              ";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
@@ -68,7 +71,7 @@ namespace Project.CSS.Revise.Web.Respositories
                             result.Add(new ProjectModel
                             {
                                 ProjectID = reader["ProjectID"].ToString(),
-                                ProjectNameTH = reader["ProjectName"].ToString(),
+                                ProjectNameTH = reader["BUname"].ToString() + " - " + reader["ProjectName"].ToString(),
                                 ProjectNameEN = reader["ProjectName_Eng"].ToString()
                                 // BUname และ BUID สามารถเพิ่มได้ ถ้าอยากเก็บไว้ใน Model
                             });
@@ -79,6 +82,75 @@ namespace Project.CSS.Revise.Web.Respositories
 
             return result;
         }
+
+        public List<EventsModel> GetlistEvents(EventsModel filter)
+        {
+            List<EventsModel> result = new List<EventsModel>();
+            string connectionString = _context.Database.GetDbConnection().ConnectionString;
+
+            // 🎨 Set สำหรับเก็บสีที่เคยใช้แล้ว
+            HashSet<string> usedColors = new HashSet<string>();
+            Random rand = new Random();
+
+            // 🔧 ฟังก์ชันสุ่มสีแบบไม่ซ้ำ
+            string GenerateUniqueColor()
+            {
+                string color;
+                do
+                {
+                    color = $"#{rand.Next(0x1000000):X6}"; // สุ่ม hex เช่น #A3F2C1
+                }
+                while (usedColors.Contains(color));
+
+                usedColors.Add(color);
+                return color;
+            }
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                string sql = @"
+                                SELECT [ID]
+                                      ,[ProjectID]
+                                      ,[Name]
+                                      ,[Location]
+                                      ,[StartDate]
+                                      ,[EndDate]
+                                FROM [CSS_UAT_2].[dbo].[tm_Event]
+                                WHERE ProjectID = @L_ProjectID
+                                  AND FlagActive = 1
+                                  AND CONVERT(DATE, [StartDate]) >= CONVERT(DATE, @L_Startdate)
+                                  AND CONVERT(DATE, [EndDate]) <= CONVERT(DATE, @L_Enddate)
+                                ORDER BY [StartDate]
+                            ";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.Add(new SqlParameter("@L_ProjectID", filter.L_ProjectID ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_Startdate", filter.L_Startdate ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_Enddate", filter.L_Enddate ?? ""));
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            result.Add(new EventsModel
+                            {
+                                Name = reader["Name"].ToString(),
+                                Location = reader["Location"].ToString(),
+                                StartDate = reader["StartDate"].ToString(),
+                                EndDate = reader["EndDate"].ToString(),
+                                Color = GenerateUniqueColor() // 🎨 สุ่มสีไม่ซ้ำ
+                            });
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
 
 
 

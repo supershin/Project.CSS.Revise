@@ -8,6 +8,7 @@ namespace Project.CSS.Revise.Web.Service
     {
         public List<BUModel> GetlistBU(BUModel model);
         public List<ProjectModel> GetlistPrject(ProjectModel model);
+        public List<EventsModel> GetlistEvents(EventsModel model);
     }
     public class MasterService : IMasterService
     {
@@ -21,6 +22,12 @@ namespace Project.CSS.Revise.Web.Service
         public List<BUModel> GetlistBU(BUModel model)
         {
             List<BUModel> resp = _MasterRepo.GetlistBU(model);
+            return resp;
+        }
+
+        public List<EventsModel> GetlistEvents(EventsModel model)
+        {
+            List<EventsModel> resp = _MasterRepo.GetlistEvents(model);
             return resp;
         }
 

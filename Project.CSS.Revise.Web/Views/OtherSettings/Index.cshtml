@@ -1,6 +1,32 @@
 ﻿@{
     Layout = "~/Views/Shared/_LayoutSite.cshtml";
 }
+<style>
+    /* Force same height for all Choices.js dropdowns */
+    .choices__inner {
+        min-height: 48px;  /* Same as Bootstrap .form-control */
+        padding: 6px 12px;
+        line-height: 1.5;
+    }
+
+    .choices__list--multiple .choices__item {
+        margin-bottom: 2px;
+    }
+
+    #dateRange {
+        min-height: 48px;
+        padding: 6px 12px;
+        line-height: 1.5;
+    }
+
+    .btn.btn-48 {
+        height: 48px;
+        padding-top: 0.375rem;
+        padding-bottom: 0.375rem;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+</style>
 
 <div class="container-fluid">
     <div class="page-title">
@@ -31,16 +57,16 @@
                         <div class="card-body">
                             <ul class="nav nav-pills nav-primary" id="pills-tab" role="tablist">
                                 <li class="nav-item">
-                                    <a class="nav-link" id="pills-counter-tab" data-bs-toggle="pill" href="#pills-counter" role="tab" aria-controls="pills-counter" aria-selected="false">Counter</a>
+                                    <a class="nav-link" id="pills-counter-tab" data-bs-toggle="pill" href="#pills-counter" role="tab" aria-controls="pills-counter" aria-selected="false" onclick="loadPartial('Partial_counter')">Counter</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link active" id="pills-shop-event-tab" data-bs-toggle="pill" href="#pills-shop-event" role="tab" aria-controls="pills-shop-event" aria-selected="true">Shop & Event</a>
+                                    <a class="nav-link active" id="pills-shop-event-tab" data-bs-toggle="pill" href="#pills-shop-event" role="tab" aria-controls="pills-shop-event" aria-selected="true" onclick="loadPartial('Partial_shop_event')">Shop & Event</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="pills-project-zone-tab" data-bs-toggle="pill" href="#pills-project-zone" role="tab" aria-controls="pills-project-zone" aria-selected="false">Project Zone</a>
+                                    <a class="nav-link" id="pills-project-zone-tab" data-bs-toggle="pill" href="#pills-project-zone" role="tab" aria-controls="pills-project-zone" aria-selected="false" onclick="loadPartial('Partial_zone')">Project Zone</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="pills-land-office-tab" data-bs-toggle="pill" href="#pills-land-office" role="tab" aria-controls="pills-land-office" aria-selected="false">Land Office</a>
+                                    <a class="nav-link" id="pills-land-office-tab" data-bs-toggle="pill" href="#pills-land-office" role="tab" aria-controls="pills-land-office" aria-selected="false" onclick="loadPartial('Partial_land_office')">Land Office</a>
                                 </li>
                             </ul>
                             <div class="tab-content" id="pills-tabContent">
@@ -53,32 +79,19 @@
                                         <!-- BU Multi-select -->
                                         <div class="col-md-3">
                                             <label class="form-label fw-bold">BU</label>
-                                            <form>
-                                                <input id="ddl-bu-shop-event"
-                                                       class="form-control"
-                                                       name="tags"
-                                                       placeholder="Type to search..."
-                                                       />
-                                            </form>
+                                            <select id="ddl-bu-shop-event" class="form-control" multiple></select>
                                         </div>
 
                                         <!-- Project Single-select -->
                                         <div class="col-md-3" id="project-dropdown-container">
                                             <label class="form-label fw-bold">โครงการ</label>
-                                            <form>
-                                                <div id="project-loading" style="display: none;">
-                                                    <div class="spinner-border text-primary spinner-border-sm" role="status">
-                                                        <span class="visually-hidden">Loading...</span>
-                                                    </div> กำลังโหลด...
-                                                </div>
-
-                                                <input id="ddl-project-shop-event"
-                                                       class="form-control"
-                                                       name="tags"
-                                                       placeholder="Type to search..." />
-                                            </form>
+                                            <div id="project-loading" style="display: none;">
+                                                <div class="spinner-border text-primary spinner-border-sm" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div> กำลังโหลด...
+                                            </div>
+                                            <select id="ddl-project-shop-event" class="form-control"></select>
                                         </div>
-
 
                                         <!-- Date Range -->
                                         <div class="col-md-3">
@@ -88,9 +101,18 @@
 
                                         <!-- New Event Button -->
                                         <div class="col-md-3 text-end">
-                                            <button type="button" class="btn btn-success w-100">
-                                                <i class="fa fa-plus me-1"></i> New Event
-                                            </button>
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <button type="button" class="btn btn-secondary btn-48 w-100" id="btn-search-shop-event">
+                                                        <i class="fa fa-search me-1"></i> Search
+                                                    </button>
+                                                </div>
+                                                <div class="col-md-3 text-end">
+                                                    <button type="button" class="btn btn-success btn-48 w-100">
+                                                        <i class="fa fa-plus me-1"></i> New Event
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -106,261 +128,14 @@
                 </div>
             </div>
         </div>
+        <div class="box-col-12" id="Box_show_partial">
+
+        </div>
     </div>
 </div>
-
-<!-- หลังจาก jQuery -->
-
-@* @section Scripts {
-    <script>
-        function loadBUOptions(callback) {
-            $('.loader-wrapper').show();
-            $.ajax({
-                url: baseUrl + 'OtherSettings/Page_Load',
-                type: 'POST',
-                dataType: 'json',
-                success: function (res) {
-                    if (res.success && res.buList?.length) {
-                        const buInput = document.querySelector('#ddl-bu-shop-event');
-
-                        if (buInput._tagify) {
-                            buInput._tagify.destroy();
-                        }
-
-                        const buTagify = new Tagify(buInput, {
-                            whitelist: res.buList.map(x => ({
-                                value: x.ID.toString(),
-                                label: x.Name
-                            })),
-                            dropdown: {
-                                enabled: 0,
-                                maxItems: 20,
-                                closeOnSelect: false,
-                                classname: "tagify-dropdown"
-                            }
-                        });
-
-                        buInput.addEventListener('focus', () => buTagify.dropdown.show.call(buTagify));
-
-                        // ✅ เมื่อ BU เปลี่ยน -> โหลด Project
-                        buTagify.on('change', function (e) {
-                            const selectedBU = buTagify.value.map(x => x.value).join(',');
-                            loadProjectOptions(selectedBU);
-                        });
-
-                        if (typeof callback === 'function') callback();
-                    }
-                },
-                error: function () {
-                    console.error("โหลด BU ไม่สำเร็จ");
-                },
-                complete: function () {
-                    $('.loader-wrapper').fadeOut();
-                }
-            });
-        }
-
-
-        function loadProjectOptions(buIds) {
-            console.log("🔍 BU ที่เลือก:", buIds);
-
-            $.ajax({
-                url: baseUrl + 'OtherSettings/GetProjectListByBU',
-                type: 'POST',
-                dataType: 'json',
-                data: { L_BUID: buIds },
-                success: function (res) {
-                    console.log("✅ Project Response:", res);
-
-                    if (res.success && res.data?.length) {
-                        const projectInput = document.querySelector('#ddl-project-shop-event');
-
-                        if (!projectInput) {
-                            console.warn("⚠️ ไม่พบ input id='ddl-project-shop-event'");
-                            return;
-                        }
-
-                        // 🔄 ถ้ามี tagify เก่าอยู่ให้ลบทิ้งก่อน
-                        if (projectInput._tagify) {
-                            projectInput._tagify.destroy();
-                        }
-
-                        const tagify = new Tagify(projectInput, {
-                            enforceWhitelist: true,
-                            maxTags: 1, // ⛔ ใช้ได้แค่ 1 ตัว (single select)
-                            whitelist: res.data.map(x => ({
-                                value: x.ProjectID,
-                                label: x.ProjectNameTH
-                            })),
-                            dropdown: {
-                                enabled: 0,
-                                maxItems: 20,
-                                closeOnSelect: true,
-                                classname: "tagify-dropdown"
-                            }
-                        });
-
-                        // 💬 Show dropdown on focus
-                        projectInput.addEventListener('focus', () => tagify.dropdown.show.call(tagify));
-                    } else {
-                        console.warn("⚠️ ไม่มี Project ที่ตรงกับ BU ที่เลือก");
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error("❌ โหลด Project ไม่สำเร็จ:", error);
-                },
-                complete: function () {
-                    console.log("✅ โหลด Project เสร็จสมบูรณ์");
-                }
-            });
-        }
-
-
-
-        $(document).ready(function () {
-            loadBUOptions(function () {
-                console.log("โหลด BU สำเร็จแล้ว พร้อมใช้งาน ✅");
-            });
-        });
-    </script>
-} *@
 @section Scripts {
-    <script>
-        let projectTagify = null; // 🧠 ตัวแปรกลางไว้เช็ค & ทำลาย
-        let buTagify = null;
-
-        function loadBUOptions(callback) {
-            $('.loader-wrapper').show();
-
-            $.ajax({
-                url: baseUrl + 'OtherSettings/Page_Load',
-                type: 'POST',
-                dataType: 'json',
-                success: function (res) {
-                    if (res.success && res.buList?.length) {
-                        const buInput = document.querySelector('#ddl-bu-shop-event');
-
-                        if (buTagify) {
-                            buTagify.removeAllListeners();
-                            buTagify.destroy();
-                            buTagify = null;
-                        }
-
-                        buTagify = new Tagify(buInput, {
-                            tagTextProp: "label", // ✅ จุดที่ทำให้แสดงชื่อ (label) แทนค่า (value)
-                            whitelist: res.buList.map(x => ({
-                                value: x.ID.toString(),
-                                label: x.Name
-                            })),
-                            dropdown: {
-                                enabled: 0,
-                                maxItems: 20,
-                                closeOnSelect: false,
-                                classname: "tagify-dropdown"
-                            }
-                        });
-
-                        buInput.addEventListener('focus', () => buTagify.dropdown.show.call(buTagify));
-
-                        buTagify.on('change', function () {
-                            const selectedBU = buTagify.value.map(x => x.value).join(',');
-                            loadProjectOptions(selectedBU);
-                        });
-
-                        if (typeof callback === 'function') callback();
-                    }
-                },
-                error: function () {
-                    console.error("โหลด BU ไม่สำเร็จ");
-                },
-                complete: function () {
-                    $('.loader-wrapper').fadeOut();
-                }
-            });
-        }
-
-        function loadProjectOptions(buIds) {
-            console.log("🔍 BU ที่เลือก:", buIds);
-
-            const container = document.querySelector('#project-dropdown-container');
-            const inputId = 'ddl-project-shop-event';
-
-            // 🔄 ล้างตัวเก่าแบบเด็ดขาด
-            const oldInput = document.getElementById(inputId);
-            if (oldInput) {
-                if (oldInput._tagify) {
-                    oldInput._tagify.destroy();
-                }
-                oldInput.remove(); // ลบ input ออกเลย
-            }
-
-            // 🟡 Show mini loader
-            const loaderHTML = `
-                <div id="project-loading" class="d-flex align-items-center gap-2">
-                    <div class="spinner-border text-primary spinner-border-sm" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <span>กำลังโหลดโครงการ...</span>
-                </div>`;
-            container.querySelector('form').innerHTML = loaderHTML;
-
-            // 📡 เรียก AJAX
-            $.ajax({
-                url: baseUrl + 'OtherSettings/GetProjectListByBU',
-                type: 'POST',
-                dataType: 'json',
-                data: { L_BUID: buIds },
-                success: function (res) {
-                    console.log("✅ Project Response:", res);
-
-                    // ✅ สร้าง input ใหม่
-                    const newInput = document.createElement('input');
-                    newInput.setAttribute('id', inputId);
-                    newInput.setAttribute('name', 'tags');
-                    newInput.setAttribute('class', 'form-control');
-                    newInput.setAttribute('placeholder', 'Type to search...');
-
-                    const form = container.querySelector('form');
-                    form.innerHTML = ''; // เคลียร์ loader
-                    form.appendChild(newInput);
-
-                    // ✅ Apply Tagify ใหม่
-                    const tagify = new Tagify(newInput, {
-                        tagTextProp: "label", // ✅ จุดที่ทำให้แสดงชื่อโครงการ
-                        whitelist: res.data.map(x => ({
-                            value: x.ProjectID,
-                            label: x.ProjectNameTH
-                        })),
-                        dropdown: {
-                            enabled: 0,
-                            maxItems: 20,
-                            closeOnSelect: true,
-                            classname: "tagify-dropdown"
-                        }
-                    });
-
-
-                    newInput.addEventListener('focus', () => tagify.dropdown.show.call(tagify));
-                },
-                error: function (xhr, status, error) {
-                    console.error("❌ โหลด Project ไม่สำเร็จ:", error);
-                },
-                complete: function () {
-                    console.log("✅ โหลด Project เสร็จสมบูรณ์");
-                }
-            });
-        }
-
-
-
-
-        $(document).ready(function () {
-            loadBUOptions(() => {
-                console.log("✅ โหลด BU แล้ว พร้อมใช้");
-            });
-        });
-    </script>
+    <script src="~/js/Pages/OtherSetting/index.js?ver=@DateTime.Now.Ticks.ToString()"></script>
+    <script src="~/js/Pages/OtherSetting/Partial_shop_event.js?ver=@DateTime.Now.Ticks.ToString()"></script>
 }
-
 
 

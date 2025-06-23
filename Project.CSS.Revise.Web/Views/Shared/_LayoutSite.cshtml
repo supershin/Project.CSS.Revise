@@ -54,6 +54,10 @@
     <!-- select2 css-->
     <link rel="stylesheet" href="~/assets/css/vendors/tagify.css" />
     <link rel="stylesheet" type="text/css" href="~/css/custom.css?ver=@DateTime.Now.Ticks.ToString()">
+    <!-- selectize -->
+    <link href="https://cdn.jsdelivr.net/npm/selectize@0.12.6/dist/css/selectize.default.css" rel="stylesheet">
+    <!-- Daterangepicker CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <style>
 
         #filterToggleIcon {
@@ -581,7 +585,7 @@
     <!-- calendar js-->
     <script src="~/assets/js/datatable/datatables/jquery.dataTables.min.js"></script>
     <script src="~/assets/js/datatable/datatables/datatable.custom.js"></script>
-@*     <script src="~/assets/js/general-widget.js?ver=@DateTime.Now.Ticks.ToString()"></script>
+@*  <script src="~/assets/js/general-widget.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <script src="~/assets/js/dashboard/dashboard_2.js"></script> *@
     <script src="~/assets/js/animation/wow/wow.min.js"></script>
     <script src="~/assets/js/range-slider/ion.rangeSlider.min.js"></script>
@@ -589,13 +593,6 @@
     <!-- select2 js-->
     <script src="~/assets/js/select2/tagify.polyfills.min.js"></script>
     <script src="~/assets/js/select2/tagify.js"></script>
-@*     <script src="~/assets/js/select2/tagify.polyfills.min.js"></script>
-    <script src="~/assets/js/select2/tagify.js"></script>
-    <script src="~/assets/js/select2/intltelinput.min.js"></script>
-    <script src="~/assets/js/select2/telephone-input.js"></script>
-    <script src="~/assets/js/select2/custom-inputsearch.js"></script>
-    <script src="~/assets/js/select2/select3-custom.js"></script>
-    <script src="~/assets/js/height-equal.js"></script> *@
 
     <script src="~/assets/js/photoswipe/photoswipe.min.js"></script>
     <script src="~/assets/js/photoswipe/photoswipe-ui-default.min.js"></script>
@@ -604,6 +601,9 @@
     <!-- Viewer.js JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.6/viewer.min.js"></script>
 
+    <!-- Moment.js + Daterangepicker -->
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
     <!-- ตัว scrollable นี่แปลกๆนะใช้ได้แค่อันใดอันนึง ระหว่าง perfect-scrollbar และ scrollable-custom ห้ามเปิดพร้อมกันและไม่รู้ต่างยังไงแต่เลือก perfect เพราะมี perfect เฉยๆ-->
     <script src="~/assets/js/scrollable/perfect-scrollbar.min.js"></script>

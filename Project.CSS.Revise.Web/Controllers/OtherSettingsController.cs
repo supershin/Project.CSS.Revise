@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Service;
 
@@ -33,6 +34,48 @@ namespace Project.CSS.Revise.Web.Controllers
             var result = _masterService.GetlistPrject(model);
             return Json(new { success = true, data = result });
         }
+
+        [HttpGet]
+        public IActionResult LoadPartial(string viewName, string projectID, string daterang)
+        {
+            if (string.IsNullOrEmpty(viewName))
+            {
+                return BadRequest("View name cannot be null or empty.");
+            }
+            else if (viewName == "Partial_shop_event")
+            {
+                // ✂️ แยกช่วงวันที่ออกจาก daterang
+                string? startDate = null;
+                string? endDate = null;
+
+                if (!string.IsNullOrWhiteSpace(daterang) && daterang.Contains(" - "))
+                {
+                    var parts = daterang.Split(" - ");
+                    if (parts.Length == 2)
+                    {
+                        // 👇 แปลงเป็น yyyy-MM-dd เพื่อให้ SQL อ่านง่าย
+                        startDate = DateTime.ParseExact(parts[0], "dd/MM/yyyy", null).ToString("yyyy-MM-dd");
+                        endDate = DateTime.ParseExact(parts[1], "dd/MM/yyyy", null).ToString("yyyy-MM-dd");
+                    }
+                }
+
+                var filter = new EventsModel
+                {
+                    L_ProjectID = projectID,
+                    L_Startdate = startDate,
+                    L_Enddate = endDate
+                };
+
+                var listEvents = _masterService.GetlistEvents(filter);
+
+                return PartialView(viewName, listEvents);
+            }
+
+            return PartialView(viewName);
+        }
+
+
+
 
 
     }
