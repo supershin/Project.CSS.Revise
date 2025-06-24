@@ -60,8 +60,6 @@ function loadBUOptions(callback) {
                     }
                 });
 
-
-
                 if (typeof callback === 'function') callback();
             }
         },
@@ -73,9 +71,8 @@ function loadBUOptions(callback) {
         }
     });
 }
-
 function loadProjectOptions(buIds) {
-    console.log("🔍 BU ที่เลือก:", buIds);
+    /*console.log("🔍 BU ที่เลือก:", buIds);*/
 
     const projectContainer = document.getElementById('project-dropdown-container');
     const projectSelect = document.getElementById('ddl-project-shop-event');
@@ -89,7 +86,7 @@ function loadProjectOptions(buIds) {
         dataType: 'json',
         data: { L_BUID: buIds },
         success: function (res) {
-            console.log("✅ Project Response:", res);
+            //console.log("✅ Project Response:", res);
 
             // Destroy old choices
             if (projectChoices) {
@@ -115,15 +112,18 @@ function loadProjectOptions(buIds) {
 
         },
         error: function (xhr, status, error) {
-            console.error("❌ โหลด Project ไม่สำเร็จ:", error);
+   /*         console.error("❌ โหลด Project ไม่สำเร็จ:", error);*/
         },
         complete: function () {
-            console.log("✅ โหลด Project เสร็จสมบูรณ์");
+            //console.log("✅ โหลด Project เสร็จสมบูรณ์");
             projectContainer.querySelector('#project-loading').style.display = 'none';
         }
     });
 }
-
+function openNewEventModal() {
+    const modal = new bootstrap.Modal(document.getElementById('modal-new-event'));
+    modal.show();
+}
 
 $(document).ready(function () {
     // ✅ 1. Init Choices เปล่าๆ ให้กับ Project ตอนโหลดหน้าเลย
@@ -137,7 +137,7 @@ $(document).ready(function () {
 
     // ✅ 2. ค่อยโหลด BU และ set event loadProjectOptions
     loadBUOptions(() => {
-        console.log("✅ โหลด BU แล้ว พร้อมใช้");
+/*        console.log("✅ โหลด BU แล้ว พร้อมใช้");*/
     });
 
     $('#dateRange').daterangepicker({
@@ -160,4 +160,5 @@ $(document).ready(function () {
         $(this).val('');
     });
 
+    loadPartial('Partial_shop_event');
 });
