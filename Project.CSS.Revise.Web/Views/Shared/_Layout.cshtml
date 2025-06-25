@@ -1,37 +1,92 @@
 ﻿<head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="X-Frame-Options" content="deny">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Riho admin is super flexible, powerful, clean &amp; modern responsive bootstrap 5 admin template with unlimited possibilities.">
     <meta name="keywords" content="admin template, Riho admin template, dashboard template, flat admin template, responsive admin template, web app">
     <meta name="author" content="pixelstrap">
     <link rel="icon" href="~/assets/images/favicon.png" type="image/x-icon">
     <link rel="shortcut icon" href="~/assets/images/favicon.png" type="image/x-icon">
-    <title>Riho - Premium Admin Template</title>
-    <!-- Google font-->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="~/assets/css/font-awesome.css">
-    <!-- ico-font-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/icofont.css">
-    <!-- Themify icon-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/themify.css">
-    <!-- Flag icon-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/flag-icon.css">
-    <!-- Feather icon-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/feather-icon.css">
-    <!-- Plugins css start-->
-    <!-- Plugins css Ends-->
-    <!-- Bootstrap css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/vendors/bootstrap.css">
-    <!-- App css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/style.css">
     <link id="color" rel="stylesheet" href="~/assets/css/color-1.css" media="screen">
-    <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="~/assets/css/responsive.css">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+/*         body {
+            background: url("/assets/images/login/Atmoz-Flow-Minburi-2.jpg") no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        } */
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 🔁 Background slideshow layer */
+        #bg-slideshow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: opacity 1.5s ease-in-out;
+            opacity: 1;
+        }
+
+
+        .login-card {
+            background: rgba(0, 0, 0, 0);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0);
+            color: #fff;
+            max-width: 500px;
+            width: 100%;
+        }
+
+            .login-card .form-control {
+                background-color: rgba(255, 255, 255, 0.9);
+                color: #000;
+            }
+
+        #loginAlert {
+            transition: all 0.3s ease;
+        }
+
+    </style>
 </head>
 <body>
+    <div id="bg-slideshow"></div>
     <!-- login page start-->
     <div class="container-fluid p-0">
         <div class="row p-0">
@@ -39,35 +94,44 @@
                 @RenderBody()
             </main>
         </div>
-        <!-- latest jquery-->
-        <script src="~/assets/js/jquery.min.js"></script>
-        <!-- Bootstrap js-->
-        <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
-        <!-- feather icon js-->
-        <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
-        <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
-        <!-- scrollbar js-->
-        <!-- Sidebar jquery-->
-        <script src="~/assets/js/config.js"></script>
-        <!-- Plugins JS start-->
-        <!-- calendar js-->
-        <!-- Plugins JS Ends-->
-        <!-- Theme js-->
-        <script src="~/assets/js/script.js"></script>
     </div>
-</body>
-
-
-
-
-@*     <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - Project.CSS.Revise.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer> *@
+    <script src="~/assets/js/jquery.min.js"></script>
+    <script src="~/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather.min.js"></script>
+    <script src="~/assets/js/icons/feather-icon/feather-icon.js"></script>
+    <script src="~/assets/js/config.js"></script>
+    <script src="~/assets/js/script.js"></script>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        const images = [
+            "/assets/images/login/Atmoz-Flow-Minburi-2.jpg",
+            "/assets/images/login/Modiz_rhyme_ramkhamhaeng.jpg",
+            "/assets/images/login/Kave_playground.jpg"
+        ];
+
+        let current = 0;
+        const bg = document.getElementById("bg-slideshow");
+
+        function changeBackground() {
+            bg.style.opacity = 0;
+            setTimeout(() => {
+                current = (current + 1) % images.length;
+                bg.style.backgroundImage = `url('${images[current]}')`;
+                bg.style.opacity = 1;
+            }, 800); // time to fade out
+        }
+
+        // Initial background
+        bg.style.backgroundImage = `url('${images[0]}')`;
+
+        // Loop every 6 seconds
+        setInterval(changeBackground, 6000);
+    </script>
+
+</body>
 

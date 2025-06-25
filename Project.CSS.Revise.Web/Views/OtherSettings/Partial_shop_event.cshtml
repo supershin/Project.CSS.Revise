@@ -1,0 +1,54 @@
+﻿@model List<Project.CSS.Revise.Web.Models.Master.EventsModel>  
+
+<style>  
+    #Projectcard .card-body {  
+        min-height: 600px;  
+    }  
+</style>  
+
+<!-- Calendar & Event List Layout -->  
+<div class="row">  
+    <div class="col-md-3 col-12">  
+        <div class="card height-equal">  
+            <div class="card-header border-l-secondary border-2">  
+                <h4>Event</h4>  
+            </div>  
+            <div class="card-body scroll-demo">  
+                <ol class="list-group list-group-numbered scroll-rtl" id="event-list-panel">  
+                    <li class="list-group-item">ไม่พบกิจกรรม</li>  
+                </ol>  
+            </div>  
+        </div>  
+    </div>  
+
+    <div class="col-md-9 col-12" id="Projectcard">  
+        <div class="card p-3">  
+            <div class="card-header card-no-border total-revenue">  
+                <h4 class="m-0">Project</h4>  
+            </div>  
+            <div class="card-body pt-0">  
+                <div id="calendar"></div>  
+            </div>  
+        </div>  
+    </div>  
+</div>  
+
+<div class="modal fade" id="modalEventInfo" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalEventTitle">ข้อมูลกิจกรรม</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>วันที่:</strong> <span id="modalEventDate"></span></p>
+                <p><strong>สถานที่:</strong> <span id="modalEventLocation"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

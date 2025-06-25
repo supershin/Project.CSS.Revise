@@ -1,9 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Project.CSS.Revise.Web.Data;
 
 namespace Project.CSS.Revise.Web.Controllers
 {
-    public class MainController : Controller
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+    public class MainController : BaseController
     {
+
+        public MainController(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
+        {
+
+        }
+
         public IActionResult Index()
         {
             return View();
