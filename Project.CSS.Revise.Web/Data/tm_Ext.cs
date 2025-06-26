@@ -70,6 +70,12 @@ public partial class tm_Ext
     [InverseProperty("QCType")]
     public virtual ICollection<TR_AttachFileQC> TR_AttachFileQCs { get; set; } = new List<TR_AttachFileQC>();
 
+    [InverseProperty("ContactReason")]
+    public virtual ICollection<TR_ContactLog> TR_ContactLogContactReasons { get; set; } = new List<TR_ContactLog>();
+
+    [InverseProperty("CustomerType")]
+    public virtual ICollection<TR_ContactLog> TR_ContactLogCustomerTypes { get; set; } = new List<TR_ContactLog>();
+
     [InverseProperty("QCType")]
     public virtual ICollection<TR_ContactLog> TR_ContactLogQCTypes { get; set; } = new List<TR_ContactLog>();
 
@@ -147,9 +153,6 @@ public partial class tm_Ext
 
     [InverseProperty("QCType")]
     public virtual ICollection<TR_QC_CheckList> TR_QC_CheckLists { get; set; } = new List<TR_QC_CheckList>();
-
-    [InverseProperty("QCType")]
-    public virtual ICollection<TR_QC_ContactLog> TR_QC_ContactLogs { get; set; } = new List<TR_QC_ContactLog>();
 
     [InverseProperty("EstimateStatus")]
     public virtual ICollection<TR_QC_Defect_OverDueExpect> TR_QC_Defect_OverDueExpects { get; set; } = new List<TR_QC_Defect_OverDueExpect>();

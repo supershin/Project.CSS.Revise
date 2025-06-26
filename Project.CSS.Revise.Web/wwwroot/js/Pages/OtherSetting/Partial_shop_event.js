@@ -115,6 +115,8 @@ function initFullCalendarWithEvents(eventsRaw, onComplete) {
 
         initialView: 'dayGridMonth',
         initialDate: initialDate,
+        //height: 'auto',         // ✅ Important: Make height flexible
+        aspectRatio: 1.5,       // ✅ Adjusts width/height balance
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',

@@ -134,9 +134,6 @@ public partial class tm_Project
     public virtual ICollection<TR_QC_CheckList> TR_QC_CheckLists { get; set; } = new List<TR_QC_CheckList>();
 
     [InverseProperty("Project")]
-    public virtual ICollection<TR_QC_ContactLog> TR_QC_ContactLogs { get; set; } = new List<TR_QC_ContactLog>();
-
-    [InverseProperty("Project")]
     public virtual ICollection<TR_QC_Defect> TR_QC_Defects { get; set; } = new List<TR_QC_Defect>();
 
     [InverseProperty("Project")]

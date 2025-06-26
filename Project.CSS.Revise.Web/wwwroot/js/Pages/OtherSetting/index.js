@@ -20,6 +20,12 @@ function loadBUOptions(callback) {
                 // Clear old options
                 buSelect.innerHTML = '';
 
+                // ✅ Add default option manually
+                const defaultOption = new Option('เลือก BU', '', true, false);
+                defaultOption.disabled = true;
+                defaultOption.hidden = true;
+                buSelect.add(defaultOption);
+
                 // Populate new options
                 res.buList.forEach(x => {
                     const option = new Option(x.Name, x.ID, false, false);
@@ -46,6 +52,14 @@ function loadBUOptions(callback) {
 
                         const projectSelect = document.getElementById('ddl-project-shop-event');
                         projectSelect.innerHTML = ''; // clear <option> list
+
+                        // ✅ Add default option manually
+                        const defaultOption = new Option('เลือกโครงการ', '', false, true);
+                        defaultOption.disabled = true;
+                        defaultOption.hidden = true;
+                        projectSelect.add(defaultOption);
+
+                        console.log("เลือกโครงการ:")
 
                         // 🔁 Re-init with empty Choices
                         projectChoices = new Choices(projectSelect, {
@@ -86,7 +100,7 @@ function loadProjectOptions(buIds) {
         dataType: 'json',
         data: { L_BUID: buIds },
         success: function (res) {
-            //console.log("✅ Project Response:", res);
+            /*console.log("✅ Project Response:", res);*/
 
             // Destroy old choices
             if (projectChoices) {
@@ -96,19 +110,26 @@ function loadProjectOptions(buIds) {
             // Clear old options
             projectSelect.innerHTML = '';
 
-            // Populate options
+            // ✅ Add default option: เลือกโครงการ
+            const defaultOption = new Option('เลือกโครงการ', '', false, false);
+            defaultOption.disabled = true;
+            defaultOption.hidden = true;
+            projectSelect.add(defaultOption);
+
+            // ✅ Add dynamic options
             res.data.forEach(x => {
-                const option = new Option(x.ProjectNameTH, x.ProjectID, false, false);
+                const option = new Option(x.ProjectNameTH, x.ProjectID, true, false);
                 projectSelect.add(option);
             });
 
-            // Re-init Choices.js
+            // ✅ Re-init Choices.js (do not auto select)
             projectChoices = new Choices(projectSelect, {
                 removeItemButton: false,
                 searchEnabled: true,
                 placeholder: true,
                 shouldSort: false
             });
+
 
         },
         error: function (xhr, status, error) {
@@ -135,9 +156,7 @@ $(document).ready(function () {
         shouldSort: false
     });
 
-    // ✅ 2. ค่อยโหลด BU และ set event loadProjectOptions
     loadBUOptions(() => {
-/*        console.log("✅ โหลด BU แล้ว พร้อมใช้");*/
     });
 
     $('#dateRange').daterangepicker({
@@ -161,4 +180,20 @@ $(document).ready(function () {
     });
 
     loadPartial('Partial_shop_event');
+});
+
+$(document).on('click', '.month-btn', function () {
+    const month = $(this).data('month');
+    const year = new Date().getFullYear();
+    const date = `${year}-${String(month).padStart(2, '0')}-01`;
+
+    // FullCalendar jump to month
+    const calendarApi = $('#calendar').fullCalendar ? $('#calendar') : null;
+    if (calendarApi) {
+        calendarApi.fullCalendar('gotoDate', date);
+    }
+
+    // Highlight active
+    $('.month-btn').removeClass('active');
+    $(this).addClass('active');
 });

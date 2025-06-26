@@ -25,6 +25,8 @@ public partial class TR_ProjectShopEvent
 
     public int? ShopQuota { get; set; }
 
+    public bool? IsUsed { get; set; }
+
     public bool? FlagActive { get; set; }
 
     [Column(TypeName = "datetime")]

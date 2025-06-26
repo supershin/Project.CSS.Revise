@@ -19,8 +19,4 @@ public partial class TR_DefectTypeVendor_Mapping
     [ForeignKey("DefectTypeID")]
     [InverseProperty("TR_DefectTypeVendor_Mappings")]
     public virtual tm_DefectType? DefectType { get; set; }
-
-    [ForeignKey("VendorID")]
-    [InverseProperty("TR_DefectTypeVendor_Mappings")]
-    public virtual tm_Vendor? Vendor { get; set; }
 }

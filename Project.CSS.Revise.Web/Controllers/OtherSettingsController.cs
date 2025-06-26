@@ -18,6 +18,8 @@ namespace Project.CSS.Revise.Web.Controllers
 
         public IActionResult Index()
         {
+            var listBu = _masterService.GetlistBU(new BUModel());
+            ViewBag.listBu = listBu;
             return View();
         }
 
@@ -44,7 +46,6 @@ namespace Project.CSS.Revise.Web.Controllers
             }
             return PartialView(viewName);
         }
-
 
 
         [HttpGet]

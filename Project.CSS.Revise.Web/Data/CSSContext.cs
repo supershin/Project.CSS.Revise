@@ -6,6 +6,10 @@ namespace Project.CSS.Revise.Web.Data;
 
 public partial class CSSContext : DbContext
 {
+    public CSSContext()
+    {
+    }
+
     public CSSContext(DbContextOptions<CSSContext> options)
         : base(options)
     {
@@ -119,8 +123,6 @@ public partial class CSSContext : DbContext
 
     public virtual DbSet<TR_AttachFileQC> TR_AttachFileQCs { get; set; }
 
-    public virtual DbSet<TR_Bank_Target> TR_Bank_Targets { get; set; }
-
     public virtual DbSet<TR_CompanyProject> TR_CompanyProjects { get; set; }
 
     public virtual DbSet<TR_ContactLog> TR_ContactLogs { get; set; }
@@ -130,8 +132,6 @@ public partial class CSSContext : DbContext
     public virtual DbSet<TR_CustomerSatisfaction_Detail> TR_CustomerSatisfaction_Details { get; set; }
 
     public virtual DbSet<TR_DefectHistory> TR_DefectHistories { get; set; }
-
-    public virtual DbSet<TR_DefectHistory_20240518> TR_DefectHistory_20240518s { get; set; }
 
     public virtual DbSet<TR_DefectTypeVendor_Mapping> TR_DefectTypeVendor_Mappings { get; set; }
 
@@ -197,8 +197,6 @@ public partial class CSSContext : DbContext
 
     public virtual DbSet<TR_QC6> TR_QC6s { get; set; }
 
-    public virtual DbSet<TR_QC6_106C001> TR_QC6_106C001s { get; set; }
-
     public virtual DbSet<TR_QC6_ProjectSendMail> TR_QC6_ProjectSendMails { get; set; }
 
     public virtual DbSet<TR_QC6_Unsold> TR_QC6_Unsolds { get; set; }
@@ -207,15 +205,11 @@ public partial class CSSContext : DbContext
 
     public virtual DbSet<TR_QC_CheckList> TR_QC_CheckLists { get; set; }
 
-    public virtual DbSet<TR_QC_ContactLog> TR_QC_ContactLogs { get; set; }
-
     public virtual DbSet<TR_QC_ContactLogResource> TR_QC_ContactLogResources { get; set; }
 
     public virtual DbSet<TR_QC_Defect> TR_QC_Defects { get; set; }
 
     public virtual DbSet<TR_QC_DefectResource> TR_QC_DefectResources { get; set; }
-
-    public virtual DbSet<TR_QC_Defect_20240518> TR_QC_Defect_20240518s { get; set; }
 
     public virtual DbSet<TR_QC_Defect_Draft> TR_QC_Defect_Drafts { get; set; }
 
@@ -263,6 +257,8 @@ public partial class CSSContext : DbContext
 
     public virtual DbSet<TR_Sync_QC> TR_Sync_QCs { get; set; }
 
+    public virtual DbSet<TR_TagEvent> TR_TagEvents { get; set; }
+
     public virtual DbSet<TR_TargetRollingPlan> TR_TargetRollingPlans { get; set; }
 
     public virtual DbSet<TR_TargetRollingPlan_BK> TR_TargetRollingPlan_BKs { get; set; }
@@ -270,8 +266,6 @@ public partial class CSSContext : DbContext
     public virtual DbSet<TR_TerminateTransferAppoint> TR_TerminateTransferAppoints { get; set; }
 
     public virtual DbSet<TR_TerminateTransferAppoint_Document> TR_TerminateTransferAppoint_Documents { get; set; }
-
-    public virtual DbSet<TR_TransferAppointHistory> TR_TransferAppointHistories { get; set; }
 
     public virtual DbSet<TR_TransferDocument> TR_TransferDocuments { get; set; }
 
@@ -377,8 +371,6 @@ public partial class CSSContext : DbContext
 
     public virtual DbSet<temp_TUC002> temp_TUC002s { get; set; }
 
-    public virtual DbSet<temp_bank_target> temp_bank_targets { get; set; }
-
     public virtual DbSet<temp_checker> temp_checkers { get; set; }
 
     public virtual DbSet<temp_cs_response> temp_cs_responses { get; set; }
@@ -387,15 +379,9 @@ public partial class CSSContext : DbContext
 
     public virtual DbSet<temp_defect> temp_defects { get; set; }
 
-    public virtual DbSet<temp_defect_vendor> temp_defect_vendors { get; set; }
-
-    public virtual DbSet<temp_edit_letter> temp_edit_letters { get; set; }
-
     public virtual DbSet<temp_jenie_unit> temp_jenie_units { get; set; }
 
     public virtual DbSet<temp_letter> temp_letters { get; set; }
-
-    public virtual DbSet<temp_line> temp_lines { get; set; }
 
     public virtual DbSet<temp_modiz> temp_modizs { get; set; }
 
@@ -403,13 +389,9 @@ public partial class CSSContext : DbContext
 
     public virtual DbSet<temp_unit> temp_units { get; set; }
 
-    public virtual DbSet<temp_unit_400H006> temp_unit_400H006s { get; set; }
-
     public virtual DbSet<temp_unit_cmd005> temp_unit_cmd005s { get; set; }
 
     public virtual DbSet<temp_unit_maxxi> temp_unit_maxxis { get; set; }
-
-    public virtual DbSet<temp_unit_status> temp_unit_statuses { get; set; }
 
     public virtual DbSet<tm_Answer> tm_Answers { get; set; }
 
@@ -453,8 +435,6 @@ public partial class CSSContext : DbContext
 
     public virtual DbSet<tm_LineToken> tm_LineTokens { get; set; }
 
-    public virtual DbSet<tm_LineToken_BK> tm_LineToken_BKs { get; set; }
-
     public virtual DbSet<tm_Menu> tm_Menus { get; set; }
 
     public virtual DbSet<tm_Position> tm_Positions { get; set; }
@@ -476,6 +456,8 @@ public partial class CSSContext : DbContext
     public virtual DbSet<tm_Shop> tm_Shops { get; set; }
 
     public virtual DbSet<tm_Subject> tm_Subjects { get; set; }
+
+    public virtual DbSet<tm_Tag> tm_Tags { get; set; }
 
     public virtual DbSet<tm_TitleName> tm_TitleNames { get; set; }
 
@@ -523,8 +505,6 @@ public partial class CSSContext : DbContext
 
     public virtual DbSet<vw_BI_Transfer_TargetRollingActual> vw_BI_Transfer_TargetRollingActuals { get; set; }
 
-    public virtual DbSet<vw_Contract_BankAccount> vw_Contract_BankAccounts { get; set; }
-
     public virtual DbSet<vw_Defect> vw_Defects { get; set; }
 
     public virtual DbSet<vw_ITF_TempBlakUnit> vw_ITF_TempBlakUnits { get; set; }
@@ -538,6 +518,10 @@ public partial class CSSContext : DbContext
     public virtual DbSet<vw_UnitMatrix_QCProgress_V2> vw_UnitMatrix_QCProgress_V2s { get; set; }
 
     public virtual DbSet<vw_getRANDValue> vw_getRANDValues { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Data Source=10.0.20.14;Initial Catalog=css_uat_2;User ID=css;Password=css@2022;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -948,13 +932,6 @@ public partial class CSSContext : DbContext
             entity.HasOne(d => d.Unit).WithMany(p => p.TR_AttachFileQCs).HasConstraintName("FK_TR_AttachFileQC_tm_Unit");
         });
 
-        modelBuilder.Entity<TR_Bank_Target>(entity =>
-        {
-            entity.HasKey(e => e.ID).HasName("PK_tr_Bank_Target");
-
-            entity.HasOne(d => d.Bank).WithMany(p => p.TR_Bank_Targets).HasConstraintName("FK_tr_Bank_Target_tm_Bank");
-        });
-
         modelBuilder.Entity<TR_CompanyProject>(entity =>
         {
             entity.HasOne(d => d.Company).WithMany(p => p.TR_CompanyProjects).HasConstraintName("FK_TR_CompanyProject_tm_Company");
@@ -969,6 +946,10 @@ public partial class CSSContext : DbContext
             entity.Property(e => e.UpdateDate).HasDefaultValueSql("(getdate())");
 
             entity.HasOne(d => d.Bank).WithMany(p => p.TR_ContactLogs).HasConstraintName("FK_TR_ContactLog_tm_Bank");
+
+            entity.HasOne(d => d.ContactReason).WithMany(p => p.TR_ContactLogContactReasons).HasConstraintName("FK_TR_ContactLog_tm_Ext3");
+
+            entity.HasOne(d => d.CustomerType).WithMany(p => p.TR_ContactLogCustomerTypes).HasConstraintName("FK_TR_ContactLog_tm_Ext2");
 
             entity.HasOne(d => d.Project).WithMany(p => p.TR_ContactLogs).HasConstraintName("FK_TR_ContactLog_tm_Project");
 
@@ -1007,16 +988,9 @@ public partial class CSSContext : DbContext
             entity.HasOne(d => d.Question).WithMany(p => p.TR_CustomerSatisfaction_Details).HasConstraintName("FK_TR_CustomerSatisfaction_Detail_TR_QuestionCS");
         });
 
-        modelBuilder.Entity<TR_DefectHistory_20240518>(entity =>
-        {
-            entity.Property(e => e.ID).ValueGeneratedOnAdd();
-        });
-
         modelBuilder.Entity<TR_DefectTypeVendor_Mapping>(entity =>
         {
             entity.HasOne(d => d.DefectType).WithMany(p => p.TR_DefectTypeVendor_Mappings).HasConstraintName("FK_TR_DefectTypeVendor_Mapping_tm_DefectType");
-
-            entity.HasOne(d => d.Vendor).WithMany(p => p.TR_DefectTypeVendor_Mappings).HasConstraintName("FK_TR_DefectTypeVendor_Mapping_tm_Vendor");
         });
 
         modelBuilder.Entity<TR_DefectVendor>(entity =>
@@ -1405,21 +1379,6 @@ public partial class CSSContext : DbContext
             entity.HasOne(d => d.Unit).WithMany(p => p.TR_QC_CheckLists).HasConstraintName("FK_TR_QC_CheckList_tm_Unit");
         });
 
-        modelBuilder.Entity<TR_QC_ContactLog>(entity =>
-        {
-            entity.HasKey(e => e.ID).HasName("PK_tr_QC_ContactLog");
-
-            entity.Property(e => e.ID).ValueGeneratedNever();
-
-            entity.HasOne(d => d.Project).WithMany(p => p.TR_QC_ContactLogs).HasConstraintName("FK_tr_QC_ContactLog_tr_QC_ContactLog");
-
-            entity.HasOne(d => d.QCType).WithMany(p => p.TR_QC_ContactLogs).HasConstraintName("FK_tr_QC_ContactLog_tm_Ext");
-
-            entity.HasOne(d => d.QC).WithMany(p => p.TR_QC_ContactLogs).HasConstraintName("FK_tr_QC_ContactLog_TR_QC6");
-
-            entity.HasOne(d => d.Unit).WithMany(p => p.TR_QC_ContactLogs).HasConstraintName("FK_tr_QC_ContactLog_tm_Unit");
-        });
-
         modelBuilder.Entity<TR_QC_ContactLogResource>(entity =>
         {
             entity.Property(e => e.ID).ValueGeneratedNever();
@@ -1682,6 +1641,17 @@ public partial class CSSContext : DbContext
             entity.HasOne(d => d.Unit).WithMany(p => p.TR_Sync_QCs).HasConstraintName("FK_TR_Sync_QC_tm_Unit");
         });
 
+        modelBuilder.Entity<TR_TagEvent>(entity =>
+        {
+            entity.HasKey(e => e.ID).HasName("PK_tr_TagEvent");
+
+            entity.Property(e => e.ID).ValueGeneratedNever();
+
+            entity.HasOne(d => d.Event).WithMany(p => p.TR_TagEvents).HasConstraintName("FK_tr_TagEvent_tm_Event");
+
+            entity.HasOne(d => d.Tag).WithMany(p => p.TR_TagEvents).HasConstraintName("FK_tr_TagEvent_tm_Tag");
+        });
+
         modelBuilder.Entity<TR_TargetRollingPlan>(entity =>
         {
             entity.HasKey(e => e.ID).HasName("PK_TR_TargetRolloing");
@@ -1719,11 +1689,6 @@ public partial class CSSContext : DbContext
             entity.HasOne(d => d.TerminateTransferAppoint).WithMany(p => p.TR_TerminateTransferAppoint_Documents).HasConstraintName("FK_TR_TerminateTransferAppoint_Document_TR_TerminateTransferAppoint");
 
             entity.HasOne(d => d.UnitDocument).WithMany(p => p.TR_TerminateTransferAppoint_Documents).HasConstraintName("FK_TR_TerminateTransferAppoint_Document_TR_UnitDocument");
-        });
-
-        modelBuilder.Entity<TR_TransferAppointHistory>(entity =>
-        {
-            entity.HasKey(e => e.ID).HasName("PK_tr_TransferAppointHistory");
         });
 
         modelBuilder.Entity<TR_TransferDocument>(entity =>
@@ -2109,11 +2074,6 @@ public partial class CSSContext : DbContext
             entity.HasOne(d => d.ProjectZone).WithMany(p => p.tm_LineTokens).HasConstraintName("FK_tm_LineToken_tm_Ext");
         });
 
-        modelBuilder.Entity<tm_LineToken_BK>(entity =>
-        {
-            entity.Property(e => e.ID).ValueGeneratedOnAdd();
-        });
-
         modelBuilder.Entity<tm_Menu>(entity =>
         {
             entity.HasOne(d => d.QCType).WithMany(p => p.tm_Menus).HasConstraintName("FK_tm_Menu_tm_Ext");
@@ -2203,6 +2163,12 @@ public partial class CSSContext : DbContext
             entity.HasOne(d => d.Topic).WithMany(p => p.tm_Subjects).HasConstraintName("FK_tm_Subject_tm_Topic");
         });
 
+        modelBuilder.Entity<tm_Tag>(entity =>
+        {
+            entity.Property(e => e.CreateDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.UpdateDate).HasDefaultValueSql("(getdate())");
+        });
+
         modelBuilder.Entity<tm_TitleName>(entity =>
         {
             entity.HasKey(e => e.ID).HasName("PK_tm_Title");
@@ -2260,11 +2226,6 @@ public partial class CSSContext : DbContext
             entity.HasOne(d => d.TitleID_EngNavigation).WithMany(p => p.tm_UserTitleID_EngNavigations).HasConstraintName("FK_tm_User_tm_TitleName1");
         });
 
-        modelBuilder.Entity<tm_Vendor>(entity =>
-        {
-            entity.Property(e => e.ID).ValueGeneratedNever();
-        });
-
         modelBuilder.Entity<tm_WIPMatrix>(entity =>
         {
             entity.Property(e => e.ID).ValueGeneratedNever();
@@ -2317,11 +2278,6 @@ public partial class CSSContext : DbContext
         modelBuilder.Entity<vw_BI_Transfer_TargetRollingActual>(entity =>
         {
             entity.ToView("vw_BI_Transfer_TargetRollingActual");
-        });
-
-        modelBuilder.Entity<vw_Contract_BankAccount>(entity =>
-        {
-            entity.ToView("vw_Contract_BankAccount");
         });
 
         modelBuilder.Entity<vw_Defect>(entity =>
