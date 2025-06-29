@@ -62,10 +62,8 @@
 
                                                     <!-- Year -->
                                                     <div class="filter-item">
-                                                        <select id="ddl-year" class="form-select">
+                                                        <select id="ddl-year-shop-event" class="form-select">
                                                             <option value="">เลือกปี</option>
-                                                            <option>2024</option>
-                                                            <option>2025</option>
                                                         </select>
                                                     </div>
 
@@ -91,82 +89,6 @@
                                         <li> <strong>Mail Us:</strong> contact@us@gmail.com</li>
                                         <li> <strong>Contact Number: </strong> (954) 357-7760</li>
                                     </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <!-- Search Bar -->
-                    <div class="card p-3">
-                        <div class="card-body">
-                            <ul class="nav nav-pills nav-primary" id="pills-tab" role="tablist">
-                                <li class="nav-item">
-                                    <a class="nav-link" id="pills-counter-tab" data-bs-toggle="pill" href="#pills-counter" role="tab" aria-controls="pills-counter" aria-selected="false" onclick="loadPartial('Partial_counter')">Counter</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link active" id="pills-shop-event-tab" data-bs-toggle="pill" href="#pills-shop-event" role="tab" aria-controls="pills-shop-event" aria-selected="true" onclick="loadPartial('Partial_shop_event')">Shop & Event</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="pills-project-zone-tab" data-bs-toggle="pill" href="#pills-project-zone" role="tab" aria-controls="pills-project-zone" aria-selected="false" onclick="loadPartial('Partial_zone')">Project Zone</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="pills-land-office-tab" data-bs-toggle="pill" href="#pills-land-office" role="tab" aria-controls="pills-land-office" aria-selected="false" onclick="loadPartial('Partial_land_office')">Land Office</a>
-                                </li>
-                            </ul>
-                            <div class="tab-content" id="pills-tabContent">
-                                <div class="tab-pane fade" id="pills-counter" role="tabpanel" aria-labelledby="pills-counter-tab">
-                
-                                </div>
-                                <div class="tab-pane fade show active" id="pills-shop-event" role="tabpanel" aria-labelledby="pills-shop-event-tab">
-                                    <div class="row g-2 align-items-end pt-3">
-
-                                        <!-- BU Multi-select -->
-                                        <div class="col-md-3">
-                                            <label class="form-label fw-bold">BU</label>
-                                            @* <select id="ddl-bu-shop-event" class="form-control" multiple></select> *@
-                                        </div>
-
-                                        <!-- Project Single-select -->
-@*                                         <div class="col-md-3" id="project-dropdown-container">
-                                            <label class="form-label fw-bold">โครงการ</label>
-                                            <div id="project-loading" style="display: none;">
-                                                <div class="spinner-border text-primary spinner-border-sm" role="status">
-                                                    <span class="visually-hidden">Loading...</span>
-                                                </div> กำลังโหลด...
-                                            </div>
-                                            <select id="ddl-project-shop-event" class="form-control"></select>
-                                        </div> *@
-
-                                        <!-- Date Range -->
-                                        <div class="col-md-3">
-                                            <label class="form-label fw-bold">วันที่</label>
-                                            <input type="text" class="form-control" id="dateRange" placeholder="dd/mm/yyyy - dd/mm/yyyy" />
-                                        </div>
-
-                                        <!-- New Event Button -->
-                                        <div class="col-md-3 text-end">
-                                            @* <div class="row">
-                                                <div class="col-6">
-                                                    <button type="button" class="btn btn-secondary btn-48 w-100" id="btn-search-shop-event" onclick="LoadPartialshopevent()">
-                                                        <i class="fa fa-search me-1"></i> Search
-                                                    </button>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <button type="button" class="btn btn-success btn-48 w-100" onclick="openNewEventModal()">
-                                                        <i class="fa fa-plus me-1"></i> New Event
-                                                    </button>
-                                                </div>
-                                            </div> *@
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="pills-project-zone" role="tabpanel" aria-labelledby="pills-project-zone-tab">
-
-                                </div>
-                                <div class="tab-pane fade" id="pills-land-office" role="tabpanel" aria-labelledby="pills-land-office-tab">
-
                                 </div>
                             </div>
                         </div>

@@ -16,18 +16,17 @@
 
 
 let calendarInstance = null;
-function LoadPartialshopevent() {
+function LoadPartialshopevent(monthOverride = '') {
     const projectId = $('#ddl-project-shop-event').val();
-    const dateRange = $('#dateRange').val();
+    const year = $('#ddl-year-shop-event').val();
+    const month = monthOverride || '';
 
-    const $panel = $('#event-list-panel');
+   /* const $panel = $('#event-list-panel');*/
     const $calendar = $('#calendar');
 
-    if ($panel.length) {
-        $panel.html(`
-            <li class="list-group-item text-center text-muted">กำลังโหลดข้อมูล...</li>
-        `);
-    }
+    //if ($panel.length) {
+    //    $panel.html(`<li class="list-group-item text-center text-muted">กำลังโหลดข้อมูล...</li>`);
+    //}
 
     if ($calendar.length) {
         $calendar.html(`
@@ -40,23 +39,19 @@ function LoadPartialshopevent() {
 
     $.getJSON(baseUrl + 'OtherSettings/GetEventsForCalendar', {
         projectID: projectId,
-        daterang: dateRange
+        year: year,
+        month: month
     })
-        .done(function (eventList) {
-            initFullCalendarWithEvents(eventList, function () {
-                console.log('✅ Calendar loaded successfully');
-                // 🔁 callback logic ถ้าต้องทำอะไรต่อ เช่น scroll, focus, reload
-            });
-        })
-        .fail(function (xhr) {
-            console.error('❌ โหลด Event ไม่สำเร็จ:', xhr);
-            if ($panel.length) {
-                $panel.html('<li class="list-group-item text-danger">โหลดรายการไม่สำเร็จ</li>');
-            }
-            if ($calendar.length) {
-                $calendar.html('<div class="alert alert-danger">โหลดปฏิทินไม่สำเร็จ</div>');
-            }
+    .done(function (eventList) {
+        initFullCalendarWithEvents(eventList, function () {
+            console.log('✅ Calendar loaded successfully');
         });
+    })
+    .fail(function (xhr) {
+        console.error('❌ โหลด Event ไม่สำเร็จ:', xhr);
+        $panel.html('<li class="list-group-item text-danger">โหลดรายการไม่สำเร็จ</li>');
+        $calendar.html('<div class="alert alert-danger">โหลดปฏิทินไม่สำเร็จ</div>');
+    });
 }
 function initFullCalendarWithEvents(eventsRaw, onComplete) {
     const events = eventsRaw.map(ev => {
@@ -83,14 +78,37 @@ function initFullCalendarWithEvents(eventsRaw, onComplete) {
     });
 
 
-    const firstDateStr = events.length > 0 ? events[0].start : null;
-    let initialDate = new Date();
+    //const firstDateStr = events.length > 0 ? events[0].end : null;
+    //let initialDate = new Date();
 
-    if (firstDateStr) {
-        const parsed = new Date(firstDateStr);
-        if (!isNaN(parsed.getTime())) {
-            initialDate = parsed;
+    //if (firstDateStr) {
+    //    const parsed = new Date(firstDateStr);
+    //    if (!isNaN(parsed.getTime())) {
+    //        initialDate = parsed;
+    //    }
+    //}
+
+    const selectedYear = $('#ddl-year-shop-event').val(); // จาก dropdown ปี
+    let initialDate = new Date(); // fallback
+
+    if (events.length > 0) {
+        const firstDateStr = events[0].start;
+        const firstDate = new Date(firstDateStr);
+
+        if (!isNaN(firstDate.getTime())) {
+            const eventYear = firstDate.getFullYear();
+
+            if (selectedYear && parseInt(selectedYear) === eventYear) {
+                // ✅ ปีของ event ตรงกับที่เลือก → ใช้ได้
+                initialDate = firstDate;
+            } else {
+                // ❌ ปีไม่ตรง → fallback เป็น 1 ม.ค. ของปีที่เลือก
+                initialDate = new Date(`${selectedYear}-01-01`);
+            }
         }
+    } else if (selectedYear) {
+        // ⛔ ไม่มี event เลย → fallback เป็น 1 ม.ค. ของปีที่เลือก
+        initialDate = new Date(`${selectedYear}-01-01`);
     }
 
     const calendarEl = document.getElementById('calendar');
@@ -118,7 +136,7 @@ function initFullCalendarWithEvents(eventsRaw, onComplete) {
         //height: 'auto',         // ✅ Important: Make height flexible
         aspectRatio: 1.5,       // ✅ Adjusts width/height balance
         headerToolbar: {
-            left: 'prev,next today',
+            left: '', // ❌ ไม่มี prev,next,today
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
@@ -143,10 +161,11 @@ function initFullCalendarWithEvents(eventsRaw, onComplete) {
 
     calendarInstance.render();
 
-    const panel = document.getElementById('event-list-panel');
+    const panel = $('#calendar');
     panel.innerHTML = '';
 
-    if (!events || events.length === 0) {
+    console.log('events.length = ' + events.length);
+    if (events.length === 0) {
         panel.innerHTML = '<li class="list-group-item">ไม่พบกิจกรรม</li>';
     } else {
         events.forEach((ev, index) => {
@@ -168,7 +187,7 @@ function initFullCalendarWithEvents(eventsRaw, onComplete) {
 
             item.appendChild(titleSpan);
             item.appendChild(colorDot);
-            panel.appendChild(item);
+            /*panel.appendChild(item);*/
         });
     }
 
@@ -193,6 +212,42 @@ function openEventModal(event) {
 
     $('#modalEventInfo').modal('show');
 }
+function updateMonthBadges() {
+    const projectId = $('#ddl-project-shop-event').val();
+    const year = $('#ddl-year-shop-event').val();
+
+    if (!projectId || !year) return;
+
+    $.getJSON(baseUrl + 'OtherSettings/GetlistCountEventByMonth', {
+        projectID: projectId,
+        year: year
+    })
+        .done(function (data) {
+            // เคลียร์ badge ทั้งหมดก่อน
+            $('.month-btn').each(function () {
+                const badge = $(this).find('.badge');
+                if (badge.length) {
+                    badge.remove(); // ลบ badge เดิม
+                }
+            });
+
+            // ใส่ badge เฉพาะเดือนที่มีข้อมูล
+            data.forEach(ev => {
+                const month = ev.MonthNumber;
+                const count = ev.EventCount;
+
+                const btn = $(`.month-btn[data-month="${month}"]`);
+                if (btn.length && count > 0) {
+                    const badge = `<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">${count}</span>`;
+                    btn.append(badge);
+                }
+            });
+        })
+        .fail(function (xhr) {
+            console.error('❌ โหลดจำนวน Event รายเดือนล้มเหลว:', xhr);
+        });
+}
+
 
 
 

@@ -21,10 +21,11 @@ function loadBUOptions(callback) {
                 buSelect.innerHTML = '';
 
                 // ✅ Add default option manually
-                const defaultOption = new Option('เลือก BU', '', true, false);
+                const defaultOption = new Option('เลือก BU', '', true, true); // <-- selected: true
                 defaultOption.disabled = true;
                 defaultOption.hidden = true;
                 buSelect.add(defaultOption);
+
 
                 // Populate new options
                 res.buList.forEach(x => {
@@ -35,10 +36,15 @@ function loadBUOptions(callback) {
                 // Init Choices.js
                 buChoices = new Choices(buSelect, {
                     removeItemButton: true,
+                    itemSelectText: '',           // ❌ ไม่แสดง "Press to select"
                     searchEnabled: true,
                     placeholder: true,
                     shouldSort: false
                 });
+
+                // ✅ Force clear selection (no auto-select)
+                buChoices.setChoiceByValue('');
+
 
                 // ✅ ถ้าเปลี่ยน BU → ต้องโหลด Project หรือเคลียร์ Project ถ้าไม่มี BU
                 buSelect.addEventListener('change', function () {
@@ -54,18 +60,18 @@ function loadBUOptions(callback) {
                         projectSelect.innerHTML = ''; // clear <option> list
 
                         // ✅ Add default option manually
-                        const defaultOption = new Option('เลือกโครงการ', '', false, true);
+                        const defaultOption = new Option('เลือกโครงการ', '', true, true);
                         defaultOption.disabled = true;
                         defaultOption.hidden = true;
                         projectSelect.add(defaultOption);
 
-                        console.log("เลือกโครงการ:")
 
                         // 🔁 Re-init with empty Choices
                         projectChoices = new Choices(projectSelect, {
                             removeItemButton: false,
-                            searchEnabled: true,
-                            placeholder: true,
+                            searchEnabled: true,         // ❌ ปิด search
+                            itemSelectText: '',           // ❌ ไม่มี "Press to select"
+                            placeholder: false,
                             shouldSort: false
                         });
 
@@ -85,6 +91,7 @@ function loadBUOptions(callback) {
         }
     });
 }
+
 function loadProjectOptions(buIds) {
     /*console.log("🔍 BU ที่เลือก:", buIds);*/
 
@@ -102,34 +109,34 @@ function loadProjectOptions(buIds) {
         success: function (res) {
             /*console.log("✅ Project Response:", res);*/
 
-            // Destroy old choices
+            // ✅ Destroy old Choices.js
             if (projectChoices) {
                 projectChoices.destroy();
             }
 
-            // Clear old options
+            // ✅ Clear old options
             projectSelect.innerHTML = '';
 
-            // ✅ Add default option: เลือกโครงการ
-            const defaultOption = new Option('เลือกโครงการ', '', false, false);
+            // ✅ Add default option manually
+            const defaultOption = new Option('เลือกโครงการ', '', true, true); // selected & selectedIndex = 0
             defaultOption.disabled = true;
             defaultOption.hidden = true;
             projectSelect.add(defaultOption);
 
             // ✅ Add dynamic options
             res.data.forEach(x => {
-                const option = new Option(x.ProjectNameTH, x.ProjectID, true, false);
+                const option = new Option(x.ProjectNameTH, x.ProjectID, false, false); // <-- not selected
                 projectSelect.add(option);
             });
 
-            // ✅ Re-init Choices.js (do not auto select)
+            // ✅ Re-init Choices.js (no input style)
             projectChoices = new Choices(projectSelect, {
                 removeItemButton: false,
-                searchEnabled: true,
-                placeholder: true,
+                searchEnabled: true,     // ✅ ปิดช่องค้นหาเพื่อให้เหมือน <select> ปกติ
+                itemSelectText: '',       // ✅ เอา Press to select ออก
+                placeholder: false,       // ✅ ไม่ให้มี placeholder เด้งขึ้น
                 shouldSort: false
             });
-
 
         },
         error: function (xhr, status, error) {
@@ -141,59 +148,40 @@ function loadProjectOptions(buIds) {
         }
     });
 }
-function openNewEventModal() {
-    const modal = new bootstrap.Modal(document.getElementById('modal-new-event'));
-    modal.show();
-}
 
 $(document).ready(function () {
     // ✅ 1. Init Choices เปล่าๆ ให้กับ Project ตอนโหลดหน้าเลย
     const projectSelect = document.getElementById('ddl-project-shop-event');
     projectChoices = new Choices(projectSelect, {
         removeItemButton: false,
+        itemSelectText: '',
         searchEnabled: true,
         placeholder: true,
         shouldSort: false
     });
 
-    loadBUOptions(() => {
-    });
+    // ✅ 2. Generate year options: current year -5 to +5
+    const yearSelect = document.getElementById('ddl-year-shop-event');
+    const currentYear = new Date().getFullYear();
+    for (let i = currentYear - 5; i <= currentYear + 5; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.text = i;
+        yearSelect.appendChild(option);
+    }
 
-    $('#dateRange').daterangepicker({
-        autoUpdateInput: false,
-        locale: {
-            format: 'DD/MM/YYYY',
-            cancelLabel: 'Clear',
-            applyLabel: 'Apply',
-            daysOfWeek: ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'],
-            monthNames: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'],
-            firstDay: 1
-        }
-    });
-
-    $('#dateRange').on('apply.daterangepicker', function (ev, picker) {
-        $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
-    });
-
-    $('#dateRange').on('cancel.daterangepicker', function (ev, picker) {
-        $(this).val('');
-    });
-
+    loadBUOptions(() => { });
     loadPartial('Partial_shop_event');
 });
 
-$(document).on('click', '.month-btn', function () {
-    const month = $(this).data('month');
-    const year = new Date().getFullYear();
-    const date = `${year}-${String(month).padStart(2, '0')}-01`;
+function openNewEventModal() {
+    const modal = new bootstrap.Modal(document.getElementById('modal-new-event'));
+    modal.show();
+}
 
-    // FullCalendar jump to month
-    const calendarApi = $('#calendar').fullCalendar ? $('#calendar') : null;
-    if (calendarApi) {
-        calendarApi.fullCalendar('gotoDate', date);
-    }
-
-    // Highlight active
-    $('.month-btn').removeClass('active');
-    $(this).addClass('active');
+$('#btn-search-shop-event').on('click', function () {
+    $('.month-btn').removeClass('active'); // clear active
+    LoadPartialshopevent();                // โหลด event ทั้งปี
+    updateMonthBadges();                   // 🔁 โหลด count รายเดือนใหม่
 });
+

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Master;
+using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
 using Project.CSS.Revise.Web.Service;
 
 namespace Project.CSS.Revise.Web.Controllers
@@ -79,22 +80,26 @@ namespace Project.CSS.Revise.Web.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetEventsForCalendar(string projectID, string daterang)
+        public JsonResult GetlistCountEventByMonth(string projectID, string year)
         {
-            string? startDate = null, endDate = null;
-
-            if (!string.IsNullOrWhiteSpace(daterang) && daterang.Contains(" - "))
+            var filter = new Monthevents
             {
-                var parts = daterang.Split(" - ");
-                startDate = DateTime.ParseExact(parts[0], "dd/MM/yyyy", null).ToString("yyyy-MM-dd");
-                endDate = DateTime.ParseExact(parts[1], "dd/MM/yyyy", null).ToString("yyyy-MM-dd");
-            }
+                L_ProjectID = projectID,
+                L_year = year
+            };
 
+            var listCountEvents = _masterService.GetlistCountEventByMonth(filter);
+            return Json(listCountEvents);
+        }
+
+        [HttpGet]
+        public JsonResult GetEventsForCalendar(string projectID, string month, string year)
+        {
             var filter = new EventsModel
             {
                 L_ProjectID = projectID,
-                L_Startdate = startDate,
-                L_Enddate = endDate
+                L_month = month,
+                L_year = year                
             };
 
             var listEvents = _masterService.GetlistEvents(filter);

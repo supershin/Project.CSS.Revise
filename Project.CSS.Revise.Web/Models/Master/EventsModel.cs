@@ -5,6 +5,8 @@
         public string? L_ProjectID { get; set; }
         public string? L_Startdate { get; set; }
         public string? L_Enddate { get; set; }
+        public string? L_month { get; set; }
+        public string? L_year { get; set; }
 
         public int? ID { get; set; }
         public string? Name { get; set; }

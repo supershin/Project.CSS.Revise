@@ -18,25 +18,23 @@
                     <span>Add Event</span>
                 </button>
 
-                <!-- Month Buttons: Moved into header -->
+                <!-- Month Buttons: Include inline onclick -->
                 <div class="d-flex flex-wrap justify-content-start gap-2">
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="1">
-                        Jan <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
-                    </button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="2">
-                        Feb <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">1</span>
-                    </button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="3">Mar <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">5</span></button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="4">Apr <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">0</span></button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="5">May <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">2</span></button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="6">Jun <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">7</span></button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="7">Jul <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">1</span></button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="8">Aug <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">4</span></button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="9">Sep <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">0</span></button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="10">Oct <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">3</span></button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="11">Nov <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">2</span></button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="12">Dec <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">6</span></button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="1" onclick="LoadPartialshopevent('1')">Jan</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="2" onclick="LoadPartialshopevent('2')">Feb</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="3" onclick="LoadPartialshopevent('3')">Mar</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="4" onclick="LoadPartialshopevent('4')">Apr</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="5" onclick="LoadPartialshopevent('5')">May</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="6" onclick="LoadPartialshopevent('6')">Jun</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="7" onclick="LoadPartialshopevent('7')">Jul</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="8" onclick="LoadPartialshopevent('8')">Aug</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="9" onclick="LoadPartialshopevent('9')">Sep</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="10" onclick="LoadPartialshopevent('10')">Oct</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="11" onclick="LoadPartialshopevent('11')">Nov</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="12" onclick="LoadPartialshopevent('12')">Dec</button>
                 </div>
+
+
             </div>
         </div>
 
@@ -45,7 +43,6 @@
         </div>
     </div>
 </div>
-
 
 
 <div class="modal fade" id="modalEventInfo" tabindex="-1" role="dialog">

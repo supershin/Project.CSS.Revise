@@ -4,6 +4,7 @@ using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Master;
+using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
 
 namespace Project.CSS.Revise.Web.Respositories
 {
@@ -12,6 +13,7 @@ namespace Project.CSS.Revise.Web.Respositories
         public List<BUModel> GetlistBU(BUModel model);
         public List<ProjectModel> GetlistPrject(ProjectModel model);
         public List<EventsModel> GetlistEvents(EventsModel model);
+        public List<Monthevents> GetlistCountEventByMonth(Monthevents model);
     }
     public class MasterRepo : IMasterRepo
     {
@@ -111,25 +113,63 @@ namespace Project.CSS.Revise.Web.Respositories
                 conn.Open();
 
                 string sql = @"
-                                SELECT [ID]
-                                      ,[ProjectID]
-                                      ,[Name]
-                                      ,[Location]
-                                      ,[StartDate]
-                                      ,[EndDate]
-                                FROM [CSS_UAT_2].[dbo].[tm_Event]
-                                WHERE ProjectID = @L_ProjectID
-                                  AND FlagActive = 1
-                                  AND CONVERT(DATE, [StartDate]) >= CONVERT(DATE, @L_Startdate)
-                                  AND CONVERT(DATE, [EndDate]) <= CONVERT(DATE, @L_Enddate)
-                                ORDER BY [StartDate]
+                                IF @L_Month = ''
+                                BEGIN
+                                    -- 📅 กรณีดูทั้งปี
+                                    SELECT 
+	                                       [ID]
+                                          ,[ProjectID]
+                                          ,[Name]
+                                          ,[Location]
+                                          ,[StartDate]
+                                          ,[EndDate]
+                                    FROM [tm_Event]
+                                    WHERE 
+                                        ProjectID = @L_ProjectID
+                                        AND FlagActive = 1
+                                        AND (
+                                            YEAR(StartDate) = CAST(@L_Year AS INT)
+                                            OR YEAR(EndDate) = CAST(@L_Year AS INT)
+                                        )
+                                    ORDER BY StartDate;
+                                END
+                                ELSE
+                                BEGIN
+                                    -- 📅 กรณีระบุเดือน (เช่น 2 = Feb)
+                                    SELECT 	       
+	                                       [ID]
+                                          ,[ProjectID]
+                                          ,[Name]
+                                          ,[Location]
+                                          ,[StartDate]
+                                          ,[EndDate]
+                                    FROM [tm_Event]
+                                    WHERE 
+                                        ProjectID = @L_ProjectID
+                                        AND FlagActive = 1
+                                        AND (
+                                            (
+                                                YEAR(StartDate) = CAST(@L_Year AS INT)
+                                                AND MONTH(StartDate) = CAST(@L_Month AS INT)
+                                            )
+                                            OR (
+                                                YEAR(EndDate) = CAST(@L_Year AS INT)
+                                                AND MONTH(EndDate) = CAST(@L_Month AS INT)
+                                            )
+                                            OR (
+                                                StartDate <= EOMONTH(CONVERT(DATE, @L_Year + '-' + @L_Month + '-01'))
+                                                AND EndDate >= CONVERT(DATE, @L_Year + '-' + @L_Month + '-01')
+                                            )
+                                        )
+                                    ORDER BY StartDate;
+                                END
                             ";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.Parameters.Add(new SqlParameter("@L_ProjectID", filter.L_ProjectID ?? ""));
-                    cmd.Parameters.Add(new SqlParameter("@L_Startdate", filter.L_Startdate ?? ""));
-                    cmd.Parameters.Add(new SqlParameter("@L_Enddate", filter.L_Enddate ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_Month", filter.L_month ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_Year", filter.L_year ?? ""));
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
@@ -141,7 +181,71 @@ namespace Project.CSS.Revise.Web.Respositories
                                 Location = reader["Location"].ToString(),
                                 StartDate = reader["StartDate"].ToString(),
                                 EndDate = reader["EndDate"].ToString(),
-                                Color = GenerateUniqueColor() // 🎨 สุ่มสีไม่ซ้ำ
+                                Color = GenerateUniqueColor()
+                            });
+                        }
+                    }
+                }
+            }
+
+
+            return result;
+        }
+
+        public List<Monthevents> GetlistCountEventByMonth(Monthevents filter)
+        {
+            List<Monthevents> result = new List<Monthevents>();
+            string connectionString = _context.Database.GetDbConnection().ConnectionString;
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                string sql = @"
+                                SELECT 
+                                    MonthName,
+                                    MonthNumber,
+                                    COUNT(*) AS EventCount
+                                FROM (
+                                    SELECT 
+                                        DATENAME(MONTH, [StartDate]) AS MonthName,
+                                        MONTH([StartDate]) AS MonthNumber,
+                                        [ID]
+                                    FROM [tm_Event]
+                                    WHERE [ProjectID] = @L_ProjectID
+                                      AND [FlagActive] = 1
+                                      AND YEAR([StartDate]) = @L_Year
+
+                                    UNION
+
+                                    SELECT 
+                                        DATENAME(MONTH, [EndDate]) AS MonthName,
+                                        MONTH([EndDate]) AS MonthNumber,
+                                        [ID]
+                                    FROM [tm_Event]
+                                    WHERE [ProjectID] = @L_ProjectID
+                                      AND [FlagActive] = 1
+                                      AND YEAR([EndDate]) = @L_Year
+                                      AND MONTH([StartDate]) <> MONTH([EndDate]) -- ✅ ป้องกันซ้ำเดือนเดียวกัน
+                                ) AS Combined
+                                GROUP BY MonthName, MonthNumber
+                                ORDER BY MonthNumber
+                            ";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.Add(new SqlParameter("@L_ProjectID", filter.L_ProjectID ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_Year", filter.L_year ?? ""));
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            result.Add(new Monthevents
+                            {
+                                MonthName = reader["MonthName"].ToString(),
+                                MonthNumber = Convert.ToInt32(reader["MonthNumber"]),
+                                EventCount = Convert.ToInt32(reader["EventCount"])
                             });
                         }
                     }
@@ -150,9 +254,6 @@ namespace Project.CSS.Revise.Web.Respositories
 
             return result;
         }
-
-
-
 
     }
 }
