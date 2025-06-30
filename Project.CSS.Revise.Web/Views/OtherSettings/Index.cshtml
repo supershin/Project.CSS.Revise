@@ -1,4 +1,5 @@
-﻿@{
+﻿@using Project.CSS.Revise.Web.Models.Master
+@{
     Layout = "~/Views/Shared/_LayoutSite.cshtml";
 }
 
@@ -82,6 +83,7 @@
                                         </div>
                                        
                                     </div>
+                                </div>
                                 <div class="tab-pane fade" id="project-zone-filter" role="tabpanel" aria-labelledby="project-zone-tab">
                                     <ul class="pt-3 d-flex flex-column gap-1">
                                         <li>Us Technology offers web & mobile development solutions for all industry verticals.Include a short form using fields that'll help your business understand who's contacting them.</li>
@@ -90,7 +92,6 @@
                                         <li> <strong>Contact Number: </strong> (954) 357-7760</li>
                                     </ul>
                                 </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -98,190 +99,282 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="modal-new-event" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">New Event</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Tabs -->
-                <ul class="nav nav-tabs mb-3" id="eventTab" role="tablist">
-                    <li class="nav-item">
-                        <button class="nav-link active" id="event-tab" data-bs-toggle="tab" data-bs-target="#event" type="button" role="tab">Event</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" id="shop-tab" data-bs-toggle="tab" data-bs-target="#shop" type="button" role="tab">Shop</button>
-                    </li>
-                </ul>
-                <div class="tab-content" id="eventTabContent">
-                    <!-- Event Tab -->
-                    <div class="tab-pane fade show active" id="event" role="tabpanel">
-                        <div class="row g-3">
-                            <div class="col-md-12">
-                                <label class="form-label fw-bold">Event</label>
-                                <input type="text" class="form-control" id="eventName">
-                            </div>
-                            <div class="col-md-12">
-                                <label class="form-label fw-bold">Tag</label>
-                                <select id="eventTag" class="form-control" multiple></select>
-                            </div>
-                            <div class="col-md-12">
-                                <label class="form-label fw-bold">Project</label>
-                                <select id="eventProjects" class="form-control" multiple></select>
-                            </div>
-                            <div class="col-md-12">
-                                <label class="form-label fw-bold">Date & Time</label>
-                                <div class="row g-2">
-                                    <div class="col-md-3">
-                                        <input type="date" class="form-control" id="eventStartDate">
-                                    </div>
-                                    <div class="col-md-2">
-                                        <input type="time" class="form-control" id="eventStartTime">
-                                    </div>
-                                    <div class="col-md-1 text-center">-</div>
-                                    <div class="col-md-3">
-                                        <input type="date" class="form-control" id="eventEndDate">
-                                    </div>
-                                    <div class="col-md-2">
-                                        <input type="time" class="form-control" id="eventEndTime">
-                                    </div>
+    <div class="modal fade bd-example-modal-lg" id="modal-new-event" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModal" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myExtraLargeModal">New Event</h4>
+                    <button class="btn-close py-0" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body dark-modal">
+                    <div class="card-body">
+                        <ul class="simple-wrapper nav nav-tabs" id="myTab" role="tablist">
+                            <li class="nav-item"><a class="nav-link active txt-primary" id="modal-Event-add-tab" data-bs-toggle="tab" href="#modal-Event-add" role="tab" aria-controls="modal-Event-add" aria-selected="true"><i class="fa fa-calendar" aria-hidden="true"></i>Event</a></li>
+                            <li class="nav-item"><a class="nav-link txt-primary" id="modal-Shop-add-tab" data-bs-toggle="tab" href="#modal-Shop-add" role="tab" aria-controls="modal-Shop-add" aria-selected="false"><i class="fa fa-shopping-basket" aria-hidden="true"></i>Shop</a></li>
+                        </ul>
+                        <div class="tab-content" id="myTabContent">
+                            <div class="tab-pane fade show active" id="modal-Event-add" role="tabpanel" aria-labelledby="modal-Event-add-tab">
+                                <div class="card-body custom-input p-3">
+                                    <form class="form theme-form">
+                                        <div class="card-body custom-input">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="mb-3 row">
+                                                        <label class="col-sm-3">Event</label>
+                                                        <div class="col-sm-9">
+                                                            <input class="form-control" type="text" placeholder="Event name">
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3 row">
+                                                        <label class="col-sm-3">Tag</label>
+                                                        <div class="col-sm-9">
+                                                            <input id="ddl-modal-new-event-tags" class="form-control" placeholder="เพิ่มแท็กใหม่หรือเลือกจากรายการ" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3 row">
+                                                        <label class="col-sm-3 col-form-label fw-bold">Project</label>
+                                                        <div class="col-sm-9">
+                                                            <select id="ddl-modal-new-event-projects" class="form-control" multiple>
+                                                                @foreach (var item in ViewBag.listDDlAllProject)
+                                                                {
+                                                                    <option value="@item.ValueString">@item.Text</option>
+                                                                }
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3 row align-items-center">
+                                                        <label class="col-sm-3">Date and Time</label>
+
+                                                        <div class="col-sm-4">
+                                                            <input class="form-control" id="startDateTime" placeholder="Start DateTime">
+                                                        </div>
+
+                                                        <div class="col-sm-1 text-center fw-bold">-</div>
+
+                                                        <div class="col-sm-4">
+                                                            <input class="form-control" id="endDateTime" placeholder="End DateTime">
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3 row align-items-center">
+                                                        <label class="col-sm-3">สถานะการใช้งาน</label>
+                                                        <div class="col-sm-9">
+                                                            <div class="form-check form-switch">
+                                                                <input class="form-check-input" type="checkbox" id="toggleActive" checked>
+                                                                <label class="form-check-label" for="toggleActive">เปิดใช้งาน</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer text-end">
+                                            <div class="col-sm-9 offset-sm-3">
+                                                <button class="btn btn-primary me-3" type="submit">Save</button>
+                                                <input class="btn btn-light" type="reset" value="Cancel">
+                                            </div>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label fw-bold">สถานะการใช้งาน</label>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="eventActive" checked>
-                                </div>
+                            <div class="tab-pane fade" id="modal-Shop-add" role="tabpanel" aria-labelledby="modal-Shop-add-tab">
+                                <div class="card-body custom-input p-3">
+                                    <div class="row">
+                                        <div class="col-12 row">
+                                            <div class="mb-3 row">
+                                                <label class="col-sm-3">Date</label>
+                                                <div class="col-sm-9">
+                                                    <input class="form-control" type="text" placeholder="Event name">
+                                                </div>
+                                            </div>
+                                            <div class="mb-3 row">
+                                                <label class="col-sm-3">Shop</label>
+                                                <div class="col-sm-9">
+                                                   @*  Make button +New shope here please !!! *@
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead class="table-light text-center">
+                                                <tr>
+                                                    <th><input type="checkbox" id="selectAllShop"></th>
+                                                    <th>Shop</th>
+                                                    <th>จำนวนโควต้า</th>
+                                                    <th>จำนวนสิทธิ์ต่อ Unit</th>
+                                                    <th>การใช้งาน</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="shopTableBody">
+                                                <tr>
+                                                    <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
+                                                    <td>บ้านไร่กาแฟ</td>
+                                                    <td><input type="number" class="form-control" value="150"></td>
+                                                    <td><input type="number" class="form-control" value="2"></td>
+                                                    <td class="text-center">
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" checked>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
+                                                        <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
+                                                    <td>Egg Drop</td>
+                                                    <td><input type="number" class="form-control" value="100"></td>
+                                                    <td><input type="number" class="form-control" value="1"></td>
+                                                    <td class="text-center">
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" checked>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
+                                                        <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
+                                                    <td>WorkShop</td>
+                                                    <td><input type="number" class="form-control" value="30"></td>
+                                                    <td><input type="number" class="form-control" value="1"></td>
+                                                    <td class="text-center">
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" checked>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
+                                                        <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
+                                                    <td>กิจกรรมดูดวง</td>
+                                                    <td><input type="number" class="form-control" value="20"></td>
+                                                    <td><input type="number" class="form-control" value="1"></td>
+                                                    <td class="text-center">
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox">
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
+                                                        <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
+                                                    <td>บัวลอยไข่หวาน</td>
+                                                    <td><input type="number" class="form-control" value="50"></td>
+                                                    <td><input type="number" class="form-control" value="1"></td>
+                                                    <td class="text-center">
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" checked>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
+                                                        <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
+                                                    </td>
+                                                </tr>
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                        </div>
+                                    </div>
+                                </div>           
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Shop Tab -->
-                    <div class="tab-pane fade" id="shop" role="tabpanel">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Date</label>
-                            <select id="shopDates" class="form-control" multiple></select>
-                        </div>
-
-                        <button type="button" class="btn btn-success mb-3" onclick="addNewShopRow()">+ New Shop</button>
-
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead class="table-light text-center">
-                                    <tr>
-                                        <th><input type="checkbox" id="selectAllShop"></th>
-                                        <th>Shop</th>
-                                        <th>จำนวนโควต้า</th>
-                                        <th>จำนวนสิทธิ์ต่อ Unit</th>
-                                        <th>การใช้งาน</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="shopTableBody">
-                                    <tr>
-                                        <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
-                                        <td>บ้านไร่กาแฟ</td>
-                                        <td><input type="number" class="form-control" value="150"></td>
-                                        <td><input type="number" class="form-control" value="2"></td>
-                                        <td class="text-center">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" checked>
-                                            </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
-                                        <td>Egg Drop</td>
-                                        <td><input type="number" class="form-control" value="100"></td>
-                                        <td><input type="number" class="form-control" value="1"></td>
-                                        <td class="text-center">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" checked>
-                                            </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
-                                        <td>WorkShop</td>
-                                        <td><input type="number" class="form-control" value="30"></td>
-                                        <td><input type="number" class="form-control" value="1"></td>
-                                        <td class="text-center">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" checked>
-                                            </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
-                                        <td>กิจกรรมดูดวง</td>
-                                        <td><input type="number" class="form-control" value="20"></td>
-                                        <td><input type="number" class="form-control" value="1"></td>
-                                        <td class="text-center">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox">
-                                            </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
-                                        <td>บัวลอยไข่หวาน</td>
-                                        <td><input type="number" class="form-control" value="50"></td>
-                                        <td><input type="number" class="form-control" value="1"></td>
-                                        <td class="text-center">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" checked>
-                                            </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-danger" onclick="deleteEvent()">Delete</button>
-                <button class="btn btn-success" onclick="saveEvent()">Save</button>
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            </div>
         </div>
     </div>
-</div>
 
 @section Scripts {
     <!-- ✅ FullCalendar v6.1.10 + moment + ภาษาไทย -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/th.global.min.js"></script>
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" type="text/css" href="~/css/shopandevent.css?ver=@DateTime.Now.Ticks.ToString()">
 
     <script src="~/js/Pages/OtherSetting/index.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <script src="~/js/Pages/OtherSetting/Partial_shop_event.js?ver=@DateTime.Now.Ticks.ToString()"></script>
-  
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        flatpickr("#startDateTime", {
+            enableTime: true,
+            time_24hr: true,
+            dateFormat: "Y-m-d H:i", // Example: 2025-06-30 13:45
+            defaultHour: 9,
+            defaultMinute: 0
+        });
+
+        flatpickr("#endDateTime", {
+            enableTime: true,
+            time_24hr: true,
+            dateFormat: "Y-m-d H:i",
+            defaultHour: 18,
+            defaultMinute: 0
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const input = document.getElementById('ddl-modal-new-event-tags');
+
+            const whitelistFromServer = @Html.Raw(Json.Serialize(
+                                ((List<GetDDLModel>)ViewBag.Listtag).Select(t => new { value = t.Text })
+                        ));
+
+        const tagify = new Tagify(input, {
+            whitelist: whitelistFromServer,
+            enforceWhitelist: false,
+            dropdown: {
+                enabled: 0,       // 🔁 ปิด auto dropdown แบบ default
+                closeOnSelect: false,
+                fuzzySearch: true,
+                highlightFirst: true,
+                maxItems: 20
+            }
+        });
+
+            // ✅ Auto show dropdown เมื่อ focus
+            input.addEventListener('focus', () => {
+                tagify.dropdown.show.call(tagify, ''); // แสดง dropdown ทั้งหมด
+            });
+
+            tagify.on('add', function (e) {
+                const newTag = e.detail.data.value;
+                const exists = whitelistFromServer.some(tag => tag.value === newTag);
+
+                if (!exists) {
+                    $.ajax({
+                        url: '/OtherSettings/CreateNewTag',
+                        type: 'POST',
+                        data: { name: newTag },
+                        success: function (res) {
+                            if (res.success) {
+                                tagify.settings.whitelist.push({ value: newTag });
+                                whitelistFromServer.push({ value: newTag });
+                            } else {
+                                alert('ไม่สามารถเพิ่มแท็กได้');
+                                tagify.removeTag(newTag);
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+
+    </script>
+
 }
 
 

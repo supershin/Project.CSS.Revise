@@ -21,6 +21,22 @@ namespace Project.CSS.Revise.Web.Controllers
         {
             var listBu = _masterService.GetlistBU(new BUModel());
             ViewBag.listBu = listBu;
+
+
+            var filterDDlAllProject = new GetDDLModel
+            {
+                Act = "listDDlAllProject"
+            };
+            var listDDlAllProject = _masterService.GetlisDDl(filterDDlAllProject);
+            ViewBag.listDDlAllProject = listDDlAllProject;
+
+            var filter = new GetDDLModel
+            {
+                Act = "listAlltag"
+            };
+            var Listtag = _masterService.GetlisDDl(filter);
+            ViewBag.Listtag = Listtag;
+
             return View();
         }
 
@@ -28,6 +44,8 @@ namespace Project.CSS.Revise.Web.Controllers
         public JsonResult Page_Load()
         {
             var data = _masterService.GetlistBU(new BUModel());
+            
+
             return Json(new { success = true, buList = data });
         }
 

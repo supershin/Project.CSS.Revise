@@ -11,6 +11,7 @@ namespace Project.CSS.Revise.Web.Service
         public List<ProjectModel> GetlistPrject(ProjectModel model);
         public List<EventsModel> GetlistEvents(EventsModel model);
         public List<Monthevents> GetlistCountEventByMonth(Monthevents model);
+        public List<GetDDLModel> GetlisDDl(GetDDLModel model);
     }
     public class MasterService : IMasterService
     {
@@ -42,6 +43,12 @@ namespace Project.CSS.Revise.Web.Service
         public List<Monthevents> GetlistCountEventByMonth(Monthevents model)
         {
             List<Monthevents> resp = _MasterRepo.GetlistCountEventByMonth(model);
+            return resp;
+        }
+
+        public List<GetDDLModel> GetlisDDl(GetDDLModel model)
+        {
+            List<GetDDLModel> resp = _MasterRepo.GetlisDDl(model);
             return resp;
         }
     }

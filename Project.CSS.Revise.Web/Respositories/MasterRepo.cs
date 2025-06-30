@@ -14,6 +14,7 @@ namespace Project.CSS.Revise.Web.Respositories
         public List<ProjectModel> GetlistPrject(ProjectModel model);
         public List<EventsModel> GetlistEvents(EventsModel model);
         public List<Monthevents> GetlistCountEventByMonth(Monthevents model);
+        public List<GetDDLModel> GetlisDDl(GetDDLModel model);
     }
     public class MasterRepo : IMasterRepo
     {
@@ -255,5 +256,52 @@ namespace Project.CSS.Revise.Web.Respositories
             return result;
         }
 
+        public List<GetDDLModel> GetlisDDl(GetDDLModel model)
+        {
+            switch (model.Act)
+            {
+                case "Ext":
+                    var extQuery = from ext in _context.tm_Exts
+                                   where ext.ExtTypeID == model.ID && ext.FlagActive == true
+                                   orderby ext.LineOrder
+                                   select new GetDDLModel
+                                   {
+                                       ValueInt = ext.ID,
+                                       Text = ext.Name
+                                   };
+
+                    return extQuery.ToList();
+
+                case "listDDlAllProject":
+                    var ListProject = from t1 in _context.tm_Projects
+                                      join t2 in _context.tm_BUProject_Mappings on t1.ProjectID equals t2.ProjectID into joined
+                                      from t2 in joined.DefaultIfEmpty()
+                                      join t3 in _context.tm_BUs on t2.BUID equals t3.ID into joinedt3
+                                      from t3 in joinedt3.DefaultIfEmpty()
+                                      where t1.FlagActive == true && t3.FlagActive == true
+                                      select new GetDDLModel
+                                      {
+                                          ValueString = t1.ProjectID,
+                                          Text = "("+ t3.Name + ") " + t1.ProjectName
+                                      };
+
+                   return ListProject.ToList();
+
+                case "listAlltag":
+                    var ListAlltag = from t1 in _context.tm_Tags
+                                     where t1.FlagActive == true 
+                                      select new GetDDLModel
+                                      {
+                                          ValueInt = t1.ID,
+                                          Text =  t1.Name
+                                      };
+
+                    return ListAlltag.ToList();
+
+                default:
+
+                return new List<GetDDLModel>();
+            }
+        }
     }
 }

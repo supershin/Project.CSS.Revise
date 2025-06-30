@@ -151,8 +151,8 @@ function loadProjectOptions(buIds) {
 
 $(document).ready(function () {
     // ✅ 1. Init Choices เปล่าๆ ให้กับ Project ตอนโหลดหน้าเลย
-    const projectSelect = document.getElementById('ddl-project-shop-event');
-    projectChoices = new Choices(projectSelect, {
+    const projectShopSelect = document.getElementById('ddl-project-shop-event');
+    projectChoices = new Choices(projectShopSelect, {
         removeItemButton: false,
         itemSelectText: '',
         searchEnabled: true,
@@ -170,18 +170,28 @@ $(document).ready(function () {
         yearSelect.appendChild(option);
     }
 
+    // ✅ 3. Init Choices ใน Modal สำหรับ multi-select project
+    const modalProjectSelect = document.getElementById('ddl-modal-new-event-projects');
+    if (modalProjectSelect) {
+        new Choices(modalProjectSelect, {
+            removeItemButton: true,
+            searchEnabled: true,
+            placeholder: true,
+            placeholderValue: 'เลือก Project ได้หลายรายการ',
+            noResultsText: 'ไม่พบรายการ',
+        });
+    }
+
+    // ✅ 4. โหลด BU และ Partial
     loadBUOptions(() => { });
     loadPartial('Partial_shop_event');
 });
 
+
 function openNewEventModal() {
-    const modal = new bootstrap.Modal(document.getElementById('modal-new-event'));
+    const modalElement = document.getElementById('modal-new-event');
+    const modal = new bootstrap.Modal(modalElement);
     modal.show();
 }
 
-$('#btn-search-shop-event').on('click', function () {
-    $('.month-btn').removeClass('active'); // clear active
-    LoadPartialshopevent();                // โหลด event ทั้งปี
-    updateMonthBadges();                   // 🔁 โหลด count รายเดือนใหม่
-});
 
