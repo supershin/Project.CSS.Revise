@@ -302,7 +302,7 @@
             </div>
         </div>
     </div>
-
+</div>
 @section Scripts {
     <!-- ✅ FullCalendar v6.1.10 + moment + ภาษาไทย -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
@@ -331,53 +331,35 @@
             defaultMinute: 0
         });
 
+        let tagifyInstance;
+
         document.addEventListener('DOMContentLoaded', function () {
             const input = document.getElementById('tags-modal-new-event-tags');
 
             const whitelistFromServer = @Html.Raw(Json.Serialize(
-                                ((List<GetDDLModel>)ViewBag.Listtag).Select(t => new { value = t.Text })
-                        ));
+            ((List<GetDDLModel>)ViewBag.Listtag).Select(t => new { value = t.Text })
+        ));
 
-        const tagify = new Tagify(input, {
-            whitelist: whitelistFromServer,
-            enforceWhitelist: false,
-            dropdown: {
-                enabled: 0,       // 🔁 ปิด auto dropdown แบบ default
-                closeOnSelect: false,
-                fuzzySearch: true,
-                highlightFirst: true,
-                maxItems: 20
-            }
-        });
-
-            // ✅ Auto show dropdown เมื่อ focus
-            input.addEventListener('focus', () => {
-                tagify.dropdown.show.call(tagify, ''); // แสดง dropdown ทั้งหมด
-            });
-
-            tagify.on('add', function (e) {
-                const newTag = e.detail.data.value;
-                const exists = whitelistFromServer.some(tag => tag.value === newTag);
-
-                if (!exists) {
-                    $.ajax({
-                        url: '/OtherSettings/CreateNewTag',
-                        type: 'POST',
-                        data: { name: newTag },
-                        success: function (res) {
-                            if (res.success) {
-                                tagify.settings.whitelist.push({ value: newTag });
-                                whitelistFromServer.push({ value: newTag });
-                            } else {
-                                alert('ไม่สามารถเพิ่มแท็กได้');
-                                tagify.removeTag(newTag);
-                            }
-                        }
-                    });
+            tagifyInstance = new Tagify(input, {
+                whitelist: whitelistFromServer,
+                enforceWhitelist: false, // ✅ อนุญาตให้พิมพ์เองได้
+                dropdown: {
+                    enabled: 0,
+                    closeOnSelect: false,
+                    fuzzySearch: true,
+                    highlightFirst: true,
+                    maxItems: 20
                 }
             });
-        });
 
+            // ✅ แสดง dropdown เมื่อ focus
+            input.addEventListener('focus', () => {
+                tagifyInstance.dropdown.show.call(tagifyInstance, '');
+            });
+
+            // ❌ ตัด AJAX add tag ทิ้ง เพราะจะบันทึกตอน submit แทน
+            // tagifyInstance.on('add', function (e) {...});
+        });
 
     </script>
 

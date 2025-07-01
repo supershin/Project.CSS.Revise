@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Master;
@@ -14,9 +15,12 @@ namespace Project.CSS.Revise.Web.Controllers
     public class OtherSettingsController : BaseController
     {
         private readonly IMasterService _masterService;
-        public OtherSettingsController(IHttpContextAccessor httpContextAccessor, IMasterService masterService): base(httpContextAccessor)
+
+        private readonly IShopAndEventService _shopAndEventService;
+        public OtherSettingsController(IHttpContextAccessor httpContextAccessor, IMasterService masterService, IShopAndEventService shopAndEventService) : base(httpContextAccessor)
         {
             _masterService = masterService;
+            _shopAndEventService = shopAndEventService;
         }
 
         public IActionResult Index()
@@ -127,57 +131,43 @@ namespace Project.CSS.Revise.Web.Controllers
         [HttpPost]
         public IActionResult InsertNewEventsAndtags([FromBody] CreateEvents_Tags model)
         {
-            //if (string.IsNullOrWhiteSpace(model.EventName))
-            //    return BadRequest("Event Name is required.");
 
-            //// 💡 Insert Event to tr_Event table
-            //var newEvent = new tr_Event
-            //{
-            //    ID = Guid.NewGuid(),
-            //    Name = model.EventName,
-            //    Location = model.EventLocation,
-            //    StartDate = Convert.ToDateTime(model.StartDateTime),
-            //    EndDate = Convert.ToDateTime(model.EndDateTime),
-            //    FlagActive = model.IsActive,
-            //    CreateDate = DateTime.Now,
-            //    CreateBy = "System"
-            //};
-            //_context.tr_Events.Add(newEvent);
-            //_context.SaveChanges();
+            if (string.IsNullOrEmpty(model.EventName) || string.IsNullOrEmpty(model.EventLocation) || model.TagItems == null || model.TagItems.Count == 0)
+            {
+                return Json(new { success = false, message = "Event name, location, and at least one tag are required." });
+            }
+            if (model.ProjectIds == null || model.ProjectIds.Count == 0)
+            {
+                return Json(new { success = false, message = "At least one project must be selected." });
+            }
+            if (string.IsNullOrEmpty(model.StartDateTime) || string.IsNullOrEmpty(model.EndDateTime))
+            {
+                return Json(new { success = false, message = "Start and end date/time are required." });
+            }
+            if (DateTime.TryParse(model.StartDateTime, out DateTime startDate) && DateTime.TryParse(model.EndDateTime, out DateTime endDate))
+            {
+                if (startDate >= endDate)
+                {
+                    return Json(new { success = false, message = "Start date/time must be before end date/time." });
+                }
+            }
+            else
+            {
+                return Json(new { success = false, message = "Invalid date format." });
+            }
+            if (model.TagItems.Any(tag => string.IsNullOrEmpty(tag.Value) || string.IsNullOrEmpty(tag.Label)))
+            {
+                return Json(new { success = false, message = "All tags must have both value and label." });
+            }
 
-            //// 💡 Save project mappings (e.g., tr_EventProject)
-            //foreach (var projectId in model.ProjectIds)
-            //{
-            //    _context.tr_EventProjects.Add(new tr_EventProject
-            //    {
-            //        ID = Guid.NewGuid(),
-            //        EventID = newEvent.ID,
-            //        ProjectID = Guid.Parse(projectId),
-            //        CreateDate = DateTime.Now,
-            //        CreateBy = "System"
-            //    });
-            //}
+            string LoginID = User.FindFirst("LoginID")?.Value;
+            string UserID = SecurityManager.DecodeFrom64(LoginID);
 
-            //// 💡 Insert new tags (check existence first)
-            //foreach (var tag in model.TagItems)
-            //{
-            //    var exists = _context.tm_Tags.Any(t => t.Name == tag.Value && t.FlagActive);
-            //    if (!exists)
-            //    {
-            //        var newTag = new tm_Tag
-            //        {
-            //            Name = tag.Value,
-            //            FlagActive = true,
-            //            CreateDate = DateTime.Now,
-            //            CreateBy = "System"
-            //        };
-            //        _context.tm_Tags.Add(newTag);
-            //    }
-            //}
+            model.UserID = Commond.FormatExtension.Nulltoint(UserID);
 
-            //_context.SaveChanges();
+            var result = _shopAndEventService.CreateEventsAndTags(model);
 
-            return Ok(new { success = true, message = "Event saved successfully." });
+            return Json(new { success = result.ID > 0, message = result.Message });
         }
 
 

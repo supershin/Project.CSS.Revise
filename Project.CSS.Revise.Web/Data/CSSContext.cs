@@ -1647,8 +1647,6 @@ public partial class CSSContext : DbContext
         {
             entity.HasKey(e => e.ID).HasName("PK_tr_TagEvent");
 
-            entity.Property(e => e.ID).ValueGeneratedNever();
-
             entity.HasOne(d => d.Event).WithMany(p => p.TR_TagEvents).HasConstraintName("FK_tr_TagEvent_tm_Event");
 
             entity.HasOne(d => d.Tag).WithMany(p => p.TR_TagEvents).HasConstraintName("FK_tr_TagEvent_tm_Tag");

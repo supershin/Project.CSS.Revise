@@ -196,7 +196,6 @@ function openNewEventModal() {
 
 
 function getEventFormData() {
-    const tagifyInstance = Tagify.getTagifyElement(document.getElementById('tags-modal-new-event-tags'));
     const tagifyRaw = tagifyInstance.value.map(t => ({
         value: t.value,
         label: t.label || t.value
@@ -219,3 +218,48 @@ function getEventFormData() {
         isActive
     };
 }
+
+
+
+
+$(document).on('submit', '.form.theme-form', function (e) {
+    e.preventDefault(); // ❌ ป้องกัน form reload หน้า
+
+    const formData = getEventFormData();
+
+    fetch(baseUrl + 'OtherSettings/InsertNewEventsAndtags', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    })
+        .then(res => res.json())
+        .then(res => {
+            if (res.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สำเร็จ!',
+                    text: res.message
+                }).then(() => {
+                    // ✅ ปิด modal + รีเฟรชตาราง
+                    $('#modal-new-event').modal('hide');
+                    reloadTablePreservePage(); // ถ้ามีฟังก์ชันรีโหลด
+                });
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'แจ้งเตือน',
+                    text: res.message
+                });
+            }
+        })
+        .catch(err => {
+            console.error('❌ Insert Error:', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง'
+            });
+        });
+});
