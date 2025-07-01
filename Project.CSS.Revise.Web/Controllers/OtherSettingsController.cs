@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
@@ -44,8 +46,6 @@ namespace Project.CSS.Revise.Web.Controllers
         public JsonResult Page_Load()
         {
             var data = _masterService.GetlistBU(new BUModel());
-            
-
             return Json(new { success = true, buList = data });
         }
 
@@ -123,6 +123,63 @@ namespace Project.CSS.Revise.Web.Controllers
             var listEvents = _masterService.GetlistEvents(filter);
             return Json(listEvents);
         }
+
+        [HttpPost]
+        public IActionResult InsertNewEventsAndtags([FromBody] CreateEvents_Tags model)
+        {
+            //if (string.IsNullOrWhiteSpace(model.EventName))
+            //    return BadRequest("Event Name is required.");
+
+            //// 💡 Insert Event to tr_Event table
+            //var newEvent = new tr_Event
+            //{
+            //    ID = Guid.NewGuid(),
+            //    Name = model.EventName,
+            //    Location = model.EventLocation,
+            //    StartDate = Convert.ToDateTime(model.StartDateTime),
+            //    EndDate = Convert.ToDateTime(model.EndDateTime),
+            //    FlagActive = model.IsActive,
+            //    CreateDate = DateTime.Now,
+            //    CreateBy = "System"
+            //};
+            //_context.tr_Events.Add(newEvent);
+            //_context.SaveChanges();
+
+            //// 💡 Save project mappings (e.g., tr_EventProject)
+            //foreach (var projectId in model.ProjectIds)
+            //{
+            //    _context.tr_EventProjects.Add(new tr_EventProject
+            //    {
+            //        ID = Guid.NewGuid(),
+            //        EventID = newEvent.ID,
+            //        ProjectID = Guid.Parse(projectId),
+            //        CreateDate = DateTime.Now,
+            //        CreateBy = "System"
+            //    });
+            //}
+
+            //// 💡 Insert new tags (check existence first)
+            //foreach (var tag in model.TagItems)
+            //{
+            //    var exists = _context.tm_Tags.Any(t => t.Name == tag.Value && t.FlagActive);
+            //    if (!exists)
+            //    {
+            //        var newTag = new tm_Tag
+            //        {
+            //            Name = tag.Value,
+            //            FlagActive = true,
+            //            CreateDate = DateTime.Now,
+            //            CreateBy = "System"
+            //        };
+            //        _context.tm_Tags.Add(newTag);
+            //    }
+            //}
+
+            //_context.SaveChanges();
+
+            return Ok(new { success = true, message = "Event saved successfully." });
+        }
+
 
     }
 }

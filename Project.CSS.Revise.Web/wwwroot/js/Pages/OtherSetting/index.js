@@ -195,3 +195,27 @@ function openNewEventModal() {
 }
 
 
+function getEventFormData() {
+    const tagifyInstance = Tagify.getTagifyElement(document.getElementById('tags-modal-new-event-tags'));
+    const tagifyRaw = tagifyInstance.value.map(t => ({
+        value: t.value,
+        label: t.label || t.value
+    }));
+
+    const eventName = $('#txt-modal-new-event-name').val().trim();
+    const eventLocation = $('#txt-modal-new-event-location').val().trim();
+    const projectIds = $('#ddl-modal-new-event-projects').val();
+    const start = $('#txt-modal-new-event-start-date-time').val();
+    const end = $('#txt-modal-new-event-end-date-time').val();
+    const isActive = $('#tg-modal-new-event-status').is(':checked');
+
+    return {
+        eventName,
+        eventLocation,
+        tagItems: tagifyRaw,
+        projectIds,
+        startDateTime: start,
+        endDateTime: end,
+        isActive
+    };
+}

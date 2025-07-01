@@ -1150,6 +1150,8 @@ public partial class CSSContext : DbContext
             entity.Property(e => e.FlagActive).HasDefaultValue(true);
             entity.Property(e => e.UpdateDate).HasDefaultValueSql("(getdate())");
 
+            entity.HasOne(d => d.Event).WithMany(p => p.TR_ProjectShopEvents).HasConstraintName("FK_TR_ProjectShopEvent_Tm_Event");
+
             entity.HasOne(d => d.Project).WithMany(p => p.TR_ProjectShopEvents).HasConstraintName("FK_tr_ProjectShopEvent_tm_Project");
 
             entity.HasOne(d => d.Shop).WithMany(p => p.TR_ProjectShopEvents).HasConstraintName("FK_tr_ProjectShopEvent_tm_Shop");

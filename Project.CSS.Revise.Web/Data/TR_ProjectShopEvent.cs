@@ -16,6 +16,8 @@ public partial class TR_ProjectShopEvent
     [Unicode(false)]
     public string? ProjectID { get; set; }
 
+    public int? EventID { get; set; }
+
     public int? ShopID { get; set; }
 
     [Column(TypeName = "datetime")]
@@ -36,6 +38,10 @@ public partial class TR_ProjectShopEvent
 
     [Column(TypeName = "datetime")]
     public DateTime? UpdateDate { get; set; }
+
+    [ForeignKey("EventID")]
+    [InverseProperty("TR_ProjectShopEvents")]
+    public virtual tm_Event? Event { get; set; }
 
     [ForeignKey("ProjectID")]
     [InverseProperty("TR_ProjectShopEvents")]
