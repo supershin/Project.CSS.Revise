@@ -6,15 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Project.CSS.Revise.Web.Data;
 
-[Table("tm_Vendor")]
-public partial class tm_Vendor
+[Table("tm_Tag")]
+public partial class tm_Tag
 {
     [Key]
     public int ID { get; set; }
 
-    public int? VendorTypeID { get; set; }
-
-    [StringLength(500)]
+    [StringLength(200)]
     public string? Name { get; set; }
 
     public bool? FlagActive { get; set; }
@@ -28,4 +26,7 @@ public partial class tm_Vendor
     public DateTime? UpdateDate { get; set; }
 
     public int? UpdateBy { get; set; }
+
+    [InverseProperty("Tag")]
+    public virtual ICollection<TR_TagEvent> TR_TagEvents { get; set; } = new List<TR_TagEvent>();
 }

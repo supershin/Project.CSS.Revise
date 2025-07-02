@@ -194,6 +194,9 @@ public partial class GetUnit_V2
     [Column(TypeName = "decimal(18, 2)")]
     public decimal? TransferNetPrice { get; set; }
 
+    [StringLength(100)]
+    public string? UnitStatus_Sale { get; set; }
+
     [StringLength(10)]
     [Unicode(false)]
     public string? ExpectTransferDeviate { get; set; }

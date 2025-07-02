@@ -60,6 +60,14 @@ public partial class TR_ContactLog
     [InverseProperty("TR_ContactLogs")]
     public virtual tm_Bank? Bank { get; set; }
 
+    [ForeignKey("ContactReasonID")]
+    [InverseProperty("TR_ContactLogContactReasons")]
+    public virtual tm_Ext? ContactReason { get; set; }
+
+    [ForeignKey("CustomerTypeID")]
+    [InverseProperty("TR_ContactLogCustomerTypes")]
+    public virtual tm_Ext? CustomerType { get; set; }
+
     [ForeignKey("ProjectID")]
     [InverseProperty("TR_ContactLogs")]
     public virtual tm_Project? Project { get; set; }

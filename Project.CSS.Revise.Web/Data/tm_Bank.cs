@@ -55,9 +55,6 @@ public partial class tm_Bank
     public virtual ICollection<PR_UserBank_Mapping> PR_UserBank_Mappings { get; set; } = new List<PR_UserBank_Mapping>();
 
     [InverseProperty("Bank")]
-    public virtual ICollection<TR_Bank_Target> TR_Bank_Targets { get; set; } = new List<TR_Bank_Target>();
-
-    [InverseProperty("Bank")]
     public virtual ICollection<TR_ContactLog> TR_ContactLogs { get; set; } = new List<TR_ContactLog>();
 
     [InverseProperty("Bank")]

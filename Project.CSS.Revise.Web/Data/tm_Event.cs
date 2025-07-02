@@ -50,5 +50,11 @@ public partial class tm_Event
     public virtual ICollection<TR_Letter_C> TR_Letter_Cs { get; set; } = new List<TR_Letter_C>();
 
     [InverseProperty("Event")]
+    public virtual ICollection<TR_ProjectShopEvent> TR_ProjectShopEvents { get; set; } = new List<TR_ProjectShopEvent>();
+
+    [InverseProperty("Event")]
+    public virtual ICollection<TR_TagEvent> TR_TagEvents { get; set; } = new List<TR_TagEvent>();
+
+    [InverseProperty("Event")]
     public virtual ICollection<TR_UnitEvent> TR_UnitEvents { get; set; } = new List<TR_UnitEvent>();
 }

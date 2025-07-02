@@ -1,5 +1,6 @@
 ﻿using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Master;
+using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
 using Project.CSS.Revise.Web.Respositories;
 
 namespace Project.CSS.Revise.Web.Service
@@ -9,6 +10,8 @@ namespace Project.CSS.Revise.Web.Service
         public List<BUModel> GetlistBU(BUModel model);
         public List<ProjectModel> GetlistPrject(ProjectModel model);
         public List<EventsModel> GetlistEvents(EventsModel model);
+        public List<Monthevents> GetlistCountEventByMonth(Monthevents model);
+        public List<GetDDLModel> GetlisDDl(GetDDLModel model);
     }
     public class MasterService : IMasterService
     {
@@ -34,6 +37,18 @@ namespace Project.CSS.Revise.Web.Service
         public List<ProjectModel> GetlistPrject(ProjectModel model)
         {
             List<ProjectModel> resp = _MasterRepo.GetlistPrject(model);
+            return resp;
+        }
+
+        public List<Monthevents> GetlistCountEventByMonth(Monthevents model)
+        {
+            List<Monthevents> resp = _MasterRepo.GetlistCountEventByMonth(model);
+            return resp;
+        }
+
+        public List<GetDDLModel> GetlisDDl(GetDDLModel model)
+        {
+            List<GetDDLModel> resp = _MasterRepo.GetlisDDl(model);
             return resp;
         }
     }
