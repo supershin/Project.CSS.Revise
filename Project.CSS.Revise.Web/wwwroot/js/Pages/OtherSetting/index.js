@@ -223,6 +223,19 @@ function getEventFormData() {
     };
 }
 
+$('#modal-new-event').on('show.bs.modal', function () {
+    // ✅ ซ่อนปุ่ม Tab <li> ทั้ง Shop แบบถูกต้อง (ไม่ใช่ .hide() แต่ใช้ d-none)
+    $('#li-tab-shop').addClass('d-none');
+
+    // ✅ Reset ไปที่ Event tab ทุกครั้งที่เปิด
+    $('#modal-Event-add-tab').addClass('active');
+    $('#modal-Event-add').addClass('show active');
+
+    // ❌ ล้างสถานะ Shop tab เผื่อเคยเปิดไว้
+    $('#modal-Shop-add-tab').removeClass('active');
+    $('#modal-Shop-add').removeClass('show active');
+});
+
 
 
 
@@ -247,8 +260,9 @@ $(document).on('submit', '.form.theme-form', function (e) {
                     text: res.message
                 }).then(() => {
                     // ✅ ปิด modal + รีเฟรชตาราง
-                    /*$('#modal-new-event').modal('hide');*/
-                    //reloadTablePreservePage(); // ถ้ามีฟังก์ชันรีโหลด
+                    $('#li-tab-shop').removeClass('d-none'); // แสดง Shop tab
+                    const shopTab = new bootstrap.Tab(document.getElementById('modal-Shop-add-tab'));
+                    shopTab.show(); // auto switch ไป Shop tab
                 });
             } else {
                 Swal.fire({
