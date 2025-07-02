@@ -202,6 +202,8 @@ function getEventFormData() {
     }));
 
     const eventName = $('#txt-modal-new-event-name').val().trim();
+    const eventType = $('#txt-modal-new-event-type-name').val().trim();
+    const eventColor = $('#color-modal-new-event-type-color').val().trim();
     const eventLocation = $('#txt-modal-new-event-location').val().trim();
     const projectIds = $('#ddl-modal-new-event-projects').val();
     const start = $('#txt-modal-new-event-start-date-time').val();
@@ -210,6 +212,8 @@ function getEventFormData() {
 
     return {
         eventName,
+        eventType,
+        eventColor,
         eventLocation,
         tagItems: tagifyRaw,
         projectIds,
@@ -243,8 +247,8 @@ $(document).on('submit', '.form.theme-form', function (e) {
                     text: res.message
                 }).then(() => {
                     // ✅ ปิด modal + รีเฟรชตาราง
-                    $('#modal-new-event').modal('hide');
-                    reloadTablePreservePage(); // ถ้ามีฟังก์ชันรีโหลด
+                    /*$('#modal-new-event').modal('hide');*/
+                    //reloadTablePreservePage(); // ถ้ามีฟังก์ชันรีโหลด
                 });
             } else {
                 Swal.fire({

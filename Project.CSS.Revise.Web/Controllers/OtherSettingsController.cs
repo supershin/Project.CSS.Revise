@@ -136,6 +136,10 @@ namespace Project.CSS.Revise.Web.Controllers
             {
                 return Json(new { success = false, message = "Event name, location, and at least one tag are required." });
             }
+            if (string.IsNullOrEmpty(model.EventType) || string.IsNullOrEmpty(model.EventColor))
+            {
+                return Json(new { success = false, message = "Event type and color are required." });
+            }
             if (model.ProjectIds == null || model.ProjectIds.Count == 0)
             {
                 return Json(new { success = false, message = "At least one project must be selected." });

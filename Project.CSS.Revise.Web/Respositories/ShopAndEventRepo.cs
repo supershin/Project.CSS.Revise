@@ -59,55 +59,90 @@ namespace Project.CSS.Revise.Web.Respositories
 
                     var eventIdsCreated = new List<int>(); // 👉 เก็บ EventID ที่ถูกสร้าง
 
-                    // ✅ 2. Loop เพิ่ม Event ตาม ProjectID
+                    // ✅ 2. สร้าง Event เพียงครั้งเดียว
+                    var newEvent = new tm_Event
+                    {
+                        Name = model.EventName?.Trim(),
+                        Location = model.EventLocation?.Trim(),
+                        StartDate = Commond.FormatExtension.ToDateFromddmmyyy(model.StartDateTime!),
+                        EndDate = Commond.FormatExtension.ToDateFromddmmyyy(model.EndDateTime!),
+                        FlagActive = model.IsActive,
+                        CraeteDate = DateTime.Now,
+                        CreateBy = model.UserID,
+                        UpdateDate = DateTime.Now,
+                        UpdateBy = model.UserID
+                    };
+
+                    _context.tm_Events.Add(newEvent);
+                    _context.SaveChanges(); // 👈 Insert only once
+
+                    // ✅ 3. เพิ่มความสัมพันธ์ Project ↔ Event
                     if (model.ProjectIds != null && model.ProjectIds.Any())
                     {
                         foreach (var projectId in model.ProjectIds)
                         {
-                            var newEvent = new tm_Event
+                            var relation = new TR_ProjectEvent
                             {
                                 ProjectID = projectId,
-                                Name = model.EventName?.Trim(),
-                                Location = model.EventLocation?.Trim(),
-                                StartDate = Commond.FormatExtension.ToDateFromddmmyyy(model.StartDateTime!),
-                                EndDate = Commond.FormatExtension.ToDateFromddmmyyy(model.EndDateTime!),
-                                FlagActive = model.IsActive,
-                                CraeteDate = DateTime.Now,
+                                EventID = newEvent.ID,
+                                FlagActive = true,
+                                CreateDate = DateTime.Now,
                                 CreateBy = model.UserID,
                                 UpdateDate = DateTime.Now,
                                 UpdateBy = model.UserID
                             };
-
-                            _context.tm_Events.Add(newEvent);
-                            _context.SaveChanges(); // ต้อง Save เพื่อให้ newEvent.ID มีค่า
-
-                            eventIdsCreated.Add(newEvent.ID);
-
-                            // ✅ 3. เพิ่มความสัมพันธ์ใน TR_TagEvent
-                            foreach (var tagId in newTagIds)
-                            {
-                                var tagEvent = new TR_TagEvent
-                                {
-                                    EventID = newEvent.ID,
-                                    TagID = tagId
-                                };
-                                _context.TR_TagEvents.Add(tagEvent);
-                            }
-
-                            _context.SaveChanges(); // Save TR_TagEvent หลัง loop แต่ละ event
+                            _context.TR_ProjectEvents.Add(relation);
                         }
+                        _context.SaveChanges(); // save all TR_ProjectEvent records
                     }
 
+                    // ✅ 4. เพิ่มความสัมพันธ์ Tag ↔ Event
+                    foreach (var tagId in newTagIds)
+                    {
+                        var tagEvent = new TR_TagEvent
+                        {
+                            EventID = newEvent.ID,
+                            TagID = tagId
+                        };
+                        _context.TR_TagEvents.Add(tagEvent);
+                    }
+                    _context.SaveChanges(); // save all TR_TagEvent
+
+
+
+                    // ✅ 5. เพิ่มความสัมพันธ์ EventType ↔ Event
+                    var NewEventType = new tm_EventType
+                    {
+                        Name = model.EventType?.Trim(),
+                        EventID = newEvent.ID,
+                        ColorCode = model.EventColor?.Trim(),
+                        FlagActive = true,
+                        CraeteDate = DateTime.Now,
+                        CreateBy = model.UserID,
+                        UpdateDate = DateTime.Now,
+                        UpdateBy = model.UserID
+
+                    };
+                    _context.tm_EventTypes.Add(NewEventType);
+                    _context.SaveChanges();
+
+                    // ✅ 6. บันทึกการเปลี่ยนแปลงทั้งหมด
                     transaction.Commit();
 
-                    response.ID = eventIdsCreated.FirstOrDefault();
-                    response.Message = "สร้าง Event + Tag และเชื่อมโยง Tag สำเร็จแล้ว";
+                    // ✅ 7. ส่งผลลัพธ์กลับ
+                    response.ID = newEvent.ID;
+                    response.Message = "Event and tags created successfully, and tag linkage completed.";
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    response.Message = $"เกิดข้อผิดพลาด: {ex.Message}";
+                    var message = ex.InnerException != null
+                        ? $"INNER ERROR: {ex.InnerException.Message}"
+                        : $"ERROR: {ex.Message}";
+
+                    response.Message = $"An error occurred: {message}";
                 }
+
             }
 
             return response;

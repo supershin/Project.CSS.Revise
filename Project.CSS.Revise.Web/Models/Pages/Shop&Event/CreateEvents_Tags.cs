@@ -3,13 +3,15 @@
     public class CreateEvents_Tags
     {
         public string? EventName { get; set; }
+        public string? EventType{ get; set; }
+        public string? EventColor { get; set; }
         public string? EventLocation { get; set; }
         public List<TagModel>? TagItems { get; set; } // ใช้รับ tag แบบ value/label
         public List<string>? ProjectIds { get; set; } // multiple select
         public string? StartDateTime { get; set; }
         public string? EndDateTime { get; set; }
         public bool IsActive { get; set; }
-        public int? UserID { get; set; }
+        public int UserID { get; set; }
     }
     public class TagModel
     {

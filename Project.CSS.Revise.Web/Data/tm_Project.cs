@@ -80,6 +80,9 @@ public partial class tm_Project
     public virtual ICollection<TR_ProjectEmail_Mapping> TR_ProjectEmail_Mappings { get; set; } = new List<TR_ProjectEmail_Mapping>();
 
     [InverseProperty("Project")]
+    public virtual ICollection<TR_ProjectEvent> TR_ProjectEvents { get; set; } = new List<TR_ProjectEvent>();
+
+    [InverseProperty("Project")]
     public virtual ICollection<TR_ProjectFloorPlan> TR_ProjectFloorPlans { get; set; } = new List<TR_ProjectFloorPlan>();
 
     [InverseProperty("Project")]

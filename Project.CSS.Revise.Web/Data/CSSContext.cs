@@ -161,6 +161,8 @@ public partial class CSSContext : DbContext
 
     public virtual DbSet<TR_ProjectEmail_Mapping> TR_ProjectEmail_Mappings { get; set; }
 
+    public virtual DbSet<TR_ProjectEvent> TR_ProjectEvents { get; set; }
+
     public virtual DbSet<TR_ProjectFloorPlan> TR_ProjectFloorPlans { get; set; }
 
     public virtual DbSet<TR_ProjectLandOffice> TR_ProjectLandOffices { get; set; }
@@ -418,6 +420,8 @@ public partial class CSSContext : DbContext
     public virtual DbSet<tm_Equipment> tm_Equipments { get; set; }
 
     public virtual DbSet<tm_Event> tm_Events { get; set; }
+
+    public virtual DbSet<tm_EventType> tm_EventTypes { get; set; }
 
     public virtual DbSet<tm_Ext> tm_Exts { get; set; }
 
@@ -1124,6 +1128,13 @@ public partial class CSSContext : DbContext
             entity.Property(e => e.UpdateDate).HasDefaultValueSql("(getdate())");
 
             entity.HasOne(d => d.Project).WithMany(p => p.TR_ProjectEmail_Mappings).HasConstraintName("FK_TR_ProjectEmail_Mapping_tm_Project");
+        });
+
+        modelBuilder.Entity<TR_ProjectEvent>(entity =>
+        {
+            entity.HasOne(d => d.Event).WithMany(p => p.TR_ProjectEvents).HasConstraintName("FK_TR_ProjectEvent_tm_Event");
+
+            entity.HasOne(d => d.Project).WithMany(p => p.TR_ProjectEvents).HasConstraintName("FK_TR_ProjectEvent_TR_ProjectEvent");
         });
 
         modelBuilder.Entity<TR_ProjectFloorPlan>(entity =>
@@ -2001,6 +2012,15 @@ public partial class CSSContext : DbContext
             entity.Property(e => e.UpdateDate).HasDefaultValueSql("(getdate())");
 
             entity.HasOne(d => d.Project).WithMany(p => p.tm_Events).HasConstraintName("FK_tm_Event_tm_Project");
+        });
+
+        modelBuilder.Entity<tm_EventType>(entity =>
+        {
+            entity.HasKey(e => e.ID).HasName("PK__tm_Event__3214EC27DD2C84BB");
+
+            entity.Property(e => e.FlagActive).HasDefaultValue(true);
+
+            entity.HasOne(d => d.Event).WithMany(p => p.tm_EventTypes).HasConstraintName("FK_tm_EventType_tm_Event");
         });
 
         modelBuilder.Entity<tm_Ext>(entity =>
