@@ -223,21 +223,18 @@ function getEventFormData() {
     };
 }
 
-$('#modal-new-event').on('show.bs.modal', function () {
-    // ✅ ซ่อนปุ่ม Tab <li> ทั้ง Shop แบบถูกต้อง (ไม่ใช่ .hide() แต่ใช้ d-none)
-    $('#li-tab-shop').addClass('d-none');
+//$('#modal-new-event').on('show.bs.modal', function () {
+//    // ✅ ซ่อนปุ่ม Tab <li> ทั้ง Shop แบบถูกต้อง (ไม่ใช่ .hide() แต่ใช้ d-none)
+//    $('#li-tab-shop').addClass('d-none');
 
-    // ✅ Reset ไปที่ Event tab ทุกครั้งที่เปิด
-    $('#modal-Event-add-tab').addClass('active');
-    $('#modal-Event-add').addClass('show active');
+//    // ✅ Reset ไปที่ Event tab ทุกครั้งที่เปิด
+//    $('#modal-Event-add-tab').addClass('active');
+//    $('#modal-Event-add').addClass('show active');
 
-    // ❌ ล้างสถานะ Shop tab เผื่อเคยเปิดไว้
-    $('#modal-Shop-add-tab').removeClass('active');
-    $('#modal-Shop-add').removeClass('show active');
-});
-
-
-
+//    // ❌ ล้างสถานะ Shop tab เผื่อเคยเปิดไว้
+//    $('#modal-Shop-add-tab').removeClass('active');
+//    $('#modal-Shop-add').removeClass('show active');
+//});
 
 $(document).on('submit', '.form.theme-form', function (e) {
     e.preventDefault(); // ❌ ป้องกัน form reload หน้า

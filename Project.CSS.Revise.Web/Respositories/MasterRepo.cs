@@ -298,6 +298,30 @@ namespace Project.CSS.Revise.Web.Respositories
 
                     return ListAlltag.ToList();
 
+                case "listEventdateByID":
+                    var eventItem = _context.tm_Events.FirstOrDefault(e => e.ID == model.ID);
+
+                    if (eventItem != null)
+                    {
+                        if (eventItem?.StartDate == null || eventItem?.EndDate == null)
+                        {
+                            return new List<GetDDLModel>();
+                        }
+                        else
+                        {
+                            var dateList = Enumerable.Range(0, (eventItem.EndDate.Value.Date - eventItem.StartDate.Value.Date).Days + 1)
+                                        .Select(offset => eventItem.StartDate.Value.Date.AddDays(offset))
+                                        .Select(date => new GetDDLModel
+                                        {
+                                            Text = Commond.FormatExtension.FormatDateToDayMonthNameYear(date),
+                                            ValueString = date.ToString("yyyy-MM-dd")
+                                        }).ToList();
+
+                            return dateList;
+                        }
+                    }
+                    return new List<GetDDLModel>();
+
                 default:
 
                 return new List<GetDDLModel>();

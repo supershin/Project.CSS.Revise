@@ -2,6 +2,55 @@
 @{
     Layout = "~/Views/Shared/_LayoutSite.cshtml";
 }
+<style>
+    .card-header {
+        border-bottom: 1px solid #dee2e6;
+    }
+    .date-item-box {
+        min-width: 120px;
+        text-align: center;
+        padding: 6px 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        background-color: white;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .date-item-box.active {
+        border: 2px solid #006666;
+        font-weight: bold;
+        background-color: #f0fdfa;
+    }
+
+    .date-day {
+        font-size: 14px;
+        color: #555;
+    }
+
+    .date-full {
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    .form-check {
+        min-width: max-content; /* ป้องกัน label ขึ้นบรรทัดเอง */
+    }
+
+    .form-check-label {
+        color: #000 !important; /* สีดำและบังคับ */
+    }
+
+    .btn-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        padding: 5px 0;
+        text-align: center;
+        font-size: 14px;
+    }
+
+</style>
 
 <div class="container-fluid">
     <div class="page-title">
@@ -110,7 +159,7 @@
                     <div class="card-body">
                         <ul class="simple-wrapper nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item"><a class="nav-link active txt-primary" id="modal-Event-add-tab" data-bs-toggle="tab" href="#modal-Event-add" role="tab" aria-controls="modal-Event-add" aria-selected="true"><i class="fa fa-calendar" aria-hidden="true"></i>Event</a></li>
-                            <li class="nav-item d-none" id="li-tab-shop">
+                            <li class="nav-item" id="li-tab-shop">
                                 <a class="nav-link txt-primary" id="modal-Shop-add-tab" data-bs-toggle="tab" href="#modal-Shop-add" role="tab" aria-controls="modal-Shop-add" aria-selected="false">
                                     <i class="fa fa-shopping-basket" aria-hidden="true"></i>Shop
                                 </a>
@@ -198,113 +247,141 @@
                             <div class="tab-pane fade" id="modal-Shop-add" role="tabpanel" aria-labelledby="modal-Shop-add-tab">
                                 <div class="card-body custom-input p-3">
                                     <div class="row">
-                                        <div class="col-12 row">
-                                            <div class="mb-3 row">
-                                                <label class="col-sm-3">Date</label>
-                                                <div class="col-sm-9">
-                                                    <input class="form-control" type="text" placeholder="Event name">
+                                        <div class="col-12">
+                                            <div class="card shadow-sm border rounded mb-3">
+                                                <div class="card-header bg-white fw-bold" style="font-size: 1rem;">
+                                                    <i class="fa fa-calendar me-1 text-primary"></i> เลือกวันที่ของกิจกรรม
                                                 </div>
-                                            </div>
-                                            <div class="mb-3 row">
-                                                <label class="col-sm-3">Shop</label>
-                                                <div class="col-sm-9">
-                                                   @*  Make button +New shope here please !!! *@
+                                                <div class="card-body py-3">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <button type="button" class="btn" id="btn-date-prev">&lt;</button>
+
+                                                        <div class="flex-grow-1 mx-2 overflow-auto" style="white-space: nowrap;" id="date-scroll-wrapper">
+                                                            <div class="d-inline-flex gap-2" id="date-scroll-list">
+                                                                <!-- วันจะโหลดด้วย JS -->
+                                                            </div>
+                                                        </div>
+
+                                                        <button type="button" class="btn" id="btn-date-next">&gt;</button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-12">
-                                            <div class="table-responsive">
-                                        <table class="table table-bordered">
-                                            <thead class="table-light text-center">
-                                                <tr>
-                                                    <th><input type="checkbox" id="selectAllShop"></th>
-                                                    <th>Shop</th>
-                                                    <th>จำนวนโควต้า</th>
-                                                    <th>จำนวนสิทธิ์ต่อ Unit</th>
-                                                    <th>การใช้งาน</th>
-                                                    <th>Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="shopTableBody">
-                                                <tr>
-                                                    <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
-                                                    <td>บ้านไร่กาแฟ</td>
-                                                    <td><input type="number" class="form-control" value="150"></td>
-                                                    <td><input type="number" class="form-control" value="2"></td>
-                                                    <td class="text-center">
-                                                        <div class="form-check form-switch">
+                                            <div class="card shadow-sm border rounded mb-3 checkbox-checked">
+                                                <div class="card-header bg-white fw-bold" style="font-size: 1rem;">
+                                                    <i class="fa fa-building-o me-1 text-primary"></i> เลือกโครงการที่ร่วมกิจกรรมในวันนี้
+                                                </div>
+                                                <div class="card-body py-3 d-flex flex-wrap gap-3">
+                                                    <div class="form-check checkbox checkbox-primary mb-0">
+                                                        <input class="form-check-input" id="checkbox-primary-1" type="checkbox" checked="">
+                                                        <label class="form-check-label" for="checkbox-primary-1">มารูน รัชดา</label>
+                                                    </div>
+                                                    <div class="form-check checkbox checkbox-primary mb-0">
+                                                        <input class="form-check-input" id="checkbox-primary-2" type="checkbox">
+                                                        <label class="form-check-label" for="checkbox-primary-2">เคฟ วันเดอร์แลนด์</label>
+                                                    </div>
+                                                    <div class="form-check checkbox checkbox-primary mb-0">
+                                                        <input class="form-check-input" id="checkbox-primary-3" type="checkbox" checked="">
+                                                        <label class="form-check-label" for="checkbox-primary-3">แอทโมซ พาลาซิโอ ลาดพร้าว-วังหิน</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div> 
+                                        <style>
+                                            .shop-card {
+                                                border: 1px solid #e0e0e0;
+                                                border-radius: 10px;
+                                                padding: 15px;
+                                                display: flex;
+                                                align-items: center;
+                                                flex-wrap: wrap;
+                                                gap: 15px;
+                                                background-color: #fdfdfd;
+                                            }
+
+                                                .shop-card .form-check-label {
+                                                    font-weight: bold;
+                                                    color: #000;
+                                                }
+
+                                                .shop-card .form-control {
+                                                    width: 100px;
+                                                }
+
+                                                .shop-card .form-switch {
+                                                    margin-left: 10px;
+                                                }
+
+                                            .shop-actions {
+                                                margin-left: auto;
+                                                display: flex;
+                                                gap: 10px;
+                                            }
+                                        </style>
+
+                                        <div class="col-12">
+                                            <div class="card shadow-sm border rounded mb-3">
+                                                <div class="card-header bg-white fw-bold" style="font-size: 1rem;">
+                                                    <i class="fa fa-shopping-basket me-1 text-primary"></i> ระบุร้านค้าที่ร่วมกิจกรรมนี้
+                                                </div>
+                                                <div class="card-body p-3">
+                                                    <!-- 🔁 Shop Row -->
+                                                    <div class="shop-line">
+                                                        <div class="form-check me-2">
                                                             <input class="form-check-input" type="checkbox" checked>
                                                         </div>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
-                                                        <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
-                                                    <td>Egg Drop</td>
-                                                    <td><input type="number" class="form-control" value="100"></td>
-                                                    <td><input type="number" class="form-control" value="1"></td>
-                                                    <td class="text-center">
-                                                        <div class="form-check form-switch">
-                                                            <input class="form-check-input" type="checkbox" checked>
+                                                        <div class="shop-label">บ้านไร่กาแฟ</div>
+
+                                                        <div class="quota">
+                                                            <input type="number" class="form-control form-control-sm" value="150">
                                                         </div>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
-                                                        <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
-                                                    <td>WorkShop</td>
-                                                    <td><input type="number" class="form-control" value="30"></td>
-                                                    <td><input type="number" class="form-control" value="1"></td>
-                                                    <td class="text-center">
-                                                        <div class="form-check form-switch">
-                                                            <input class="form-check-input" type="checkbox" checked>
+
+                                                        <div class="per-unit">
+                                                            <input type="number" class="form-control form-control-sm" value="2">
                                                         </div>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
-                                                        <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
-                                                    <td>กิจกรรมดูดวง</td>
-                                                    <td><input type="number" class="form-control" value="20"></td>
-                                                    <td><input type="number" class="form-control" value="1"></td>
-                                                    <td class="text-center">
-                                                        <div class="form-check form-switch">
+
+                                                        <div class="switch">
+                                                            <div class="form-check form-switch">
+                                                                <input class="form-check-input" type="checkbox" role="switch" checked>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="action-btns">
+                                                            <button class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></button>
+                                                            <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- 🔁 Copy เพิ่มได้ -->
+                                                    <div class="shop-line">
+                                                        <div class="form-check me-2">
                                                             <input class="form-check-input" type="checkbox">
                                                         </div>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
-                                                        <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
-                                                    <td>บัวลอยไข่หวาน</td>
-                                                    <td><input type="number" class="form-control" value="50"></td>
-                                                    <td><input type="number" class="form-control" value="1"></td>
-                                                    <td class="text-center">
-                                                        <div class="form-check form-switch">
-                                                            <input class="form-check-input" type="checkbox" checked>
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
-                                                        <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                                                    </td>
-                                                </tr>
+                                                        <div class="shop-label">WorkShop</div>
 
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                                        <div class="quota">
+                                                            <input type="number" class="form-control form-control-sm" value="30">
+                                                        </div>
+
+                                                        <div class="per-unit">
+                                                            <input type="number" class="form-control form-control-sm" value="1">
+                                                        </div>
+
+                                                        <div class="switch">
+                                                            <div class="form-check form-switch">
+                                                                <input class="form-check-input" type="checkbox">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="action-btns">
+                                                            <button class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></button>
+                                                            <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>           
@@ -375,6 +452,114 @@
         });
 
     </script>
+    <script>
+        let shopIndex = 0;
+
+        function addShopCard(name = '', quota = '', unitPer = '', isActive = true, isChecked = false) {
+            const id = `shop_${shopIndex++}`;
+            const checked = isChecked ? 'checked' : '';
+            const active = isActive ? 'checked' : '';
+
+            const html = `
+                <div class="shop-card" data-id="${id}">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="cb-${id}" ${checked}>
+                        <label class="form-check-label" for="cb-${id}">${name || 'ชื่อร้านค้า'}</label>
+                    </div>
+                    <input type="number" class="form-control" placeholder="จำนวนโควต้า" value="${quota}" ${!isChecked ? 'disabled' : ''}>
+                    <input type="number" class="form-control" placeholder="สิทธิ์ต่อ Unit" value="${unitPer}" ${!isChecked ? 'disabled' : ''}>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" ${active}>
+                    </div>
+                    <div class="shop-actions">
+                        <button class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger btn-delete-shop"><i class="fa fa-trash"></i></button>
+                    </div>
+                </div>
+            `;
+
+            $('#shopCardList').append(html);
+        }
+
+        // ➕ ปุ่มเพิ่มร้าน
+        $('#btnAddShop').on('click', function () {
+            addShopCard();
+        });
+
+        // 🗑 ลบร้าน
+        $(document).on('click', '.btn-delete-shop', function () {
+            $(this).closest('.shop-card').remove();
+        });
+
+        // ✅ เปิด checkbox → enable input
+        $(document).on('change', '.form-check-input[type="checkbox"]', function () {
+            const container = $(this).closest('.shop-card');
+            const isChecked = $(this).is(':checked');
+            container.find('input[type="number"]').prop('disabled', !isChecked);
+        });
+
+        // 👇 Mockup เริ่มต้น
+        $(document).ready(function () {
+            addShopCard('Egg Drop', 100, 2, true, true);
+            addShopCard('บ้านไร่กาแฟ', 150, 2, true, true);
+            addShopCard('WorkShop', 30, 1, true, true);
+        });
+    </script>
+
+@*     <script>
+        let shopIndex = 0;
+
+        function addShopCard(name = '', quota = '', unitPer = '', isActive = true, isChecked = false) {
+            const id = `shop_${shopIndex++}`;
+            const checked = isChecked ? 'checked' : '';
+            const active = isActive ? 'checked' : '';
+
+            const html = `
+                <div class="shop-card col-12" data-id="${id}">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="cb-${id}" ${checked}>
+                        <label class="form-check-label" for="cb-${id}">${name || 'ชื่อร้านค้า'}</label>
+                    </div>
+                    <input type="number" class="form-control" placeholder="จำนวนโควต้า" value="${quota}" ${!isChecked ? 'disabled' : ''}>
+                    <input type="number" class="form-control" placeholder="สิทธิ์ต่อ Unit" value="${unitPer}" ${!isChecked ? 'disabled' : ''}>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" ${active}>
+                    </div>
+                    <div class="shop-actions">
+                        <button class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger btn-delete-shop"><i class="fa fa-trash"></i></button>
+                    </div>
+                </div>
+            `;
+
+            $('#shopCardList').append(html);
+        }
+
+        // ➕ ปุ่มเพิ่มร้าน
+        $('#btnAddShop').on('click', function () {
+            addShopCard();
+        });
+
+        // 🗑 ลบร้าน
+        $(document).on('click', '.btn-delete-shop', function () {
+            $(this).closest('.shop-card').remove();
+        });
+
+        // ✅ เปิด checkbox → enable input
+        $(document).on('change', '.form-check-input[type="checkbox"]', function () {
+            const container = $(this).closest('.shop-card');
+            const isChecked = $(this).is(':checked');
+            container.find('input[type="number"]').prop('disabled', !isChecked);
+        });
+
+        // 👇 Mockup เริ่มต้น
+        $(document).ready(function () {
+            addShopCard('Egg Drop', 100, 2, true, true);
+            addShopCard('บ้านไร่กาแฟ', 150, 2, true, true);
+            addShopCard('WorkShop', 30, 1, true, true);
+        });
+    </script> *@
+
 
 }
 
