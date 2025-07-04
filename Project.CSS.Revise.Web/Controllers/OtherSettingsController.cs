@@ -17,6 +17,7 @@ namespace Project.CSS.Revise.Web.Controllers
         private readonly IMasterService _masterService;
 
         private readonly IShopAndEventService _shopAndEventService;
+
         public OtherSettingsController(IHttpContextAccessor httpContextAccessor, IMasterService masterService, IShopAndEventService shopAndEventService) : base(httpContextAccessor)
         {
             _masterService = masterService;
@@ -68,37 +69,6 @@ namespace Project.CSS.Revise.Web.Controllers
                 return BadRequest("View name cannot be null or empty.");
             }
             return PartialView(viewName);
-        }
-
-
-        [HttpGet]
-        public IActionResult LoadPartialshopevent(string projectID, string daterang)
-        {
-            string? startDate = null;
-            string? endDate = null;
-
-            //if (!string.IsNullOrWhiteSpace(daterang) && daterang.Contains(" - "))
-            //{
-            //    var parts = daterang.Split(" - ");
-            //    if (parts.Length == 2)
-            //    {
-            //        // 👇 แปลงเป็น yyyy-MM-dd เพื่อให้ SQL อ่านง่าย
-            //        startDate = DateTime.ParseExact(parts[0], "dd/MM/yyyy", null).ToString("yyyy-MM-dd");
-            //        endDate = DateTime.ParseExact(parts[1], "dd/MM/yyyy", null).ToString("yyyy-MM-dd");
-            //    }
-            //}
-
-            //var filter = new EventsModel
-            //{
-            //    L_ProjectID = projectID,
-            //    L_Startdate = startDate,
-            //    L_Enddate = endDate
-            //};
-
-            //var listEvents = _masterService.GetlistEvents(filter);
-
-            return PartialView("Partial_shop_event");
-
         }
 
         [HttpGet]
@@ -174,6 +144,38 @@ namespace Project.CSS.Revise.Web.Controllers
             return Json(new { success = result.ID > 0, message = result.Message });
         }
 
+        [HttpGet]
+        public JsonResult GetDataTabShopFromInsert(int EventID)
+        {
 
+            var filter = new GetDDLModel
+            {
+                Act = "listEventdateByID",
+                ID = EventID,
+            };
+            var listEventdate = _masterService.GetlisDDl(filter);
+
+            var filter2 = new GetDDLModel
+            {
+                Act = "listEventProjectByID",
+                ID = EventID,
+            };
+            var listEventproject = _masterService.GetlisDDl(filter2);
+
+            var filter3 = new GetDDLModel
+            {
+                Act = "listShop"
+            };
+            var listShop = _masterService.GetlisDDl(filter3);
+
+            var result = new
+            {
+                EventDates = listEventdate,
+                EventProjects = listEventproject,
+                Shops = listShop
+            };
+
+            return Json(result);
+        }
     }
 }

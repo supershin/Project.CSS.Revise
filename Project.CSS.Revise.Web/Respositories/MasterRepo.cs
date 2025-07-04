@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models;
@@ -313,7 +314,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                         .Select(offset => eventItem.StartDate.Value.Date.AddDays(offset))
                                         .Select(date => new GetDDLModel
                                         {
-                                            Text = Commond.FormatExtension.FormatDateToDayMonthNameYear(date),
+                                            Text = Commond.FormatExtension.FormatDateToThaiShortString(date),
                                             ValueString = date.ToString("yyyy-MM-dd")
                                         }).ToList();
 
@@ -321,6 +322,30 @@ namespace Project.CSS.Revise.Web.Respositories
                         }
                     }
                     return new List<GetDDLModel>();
+
+                case "listEventProjectByID":
+                    var EventProject = from t1 in _context.TR_ProjectEvents
+                                       join t2 in _context.tm_Projects on t1.ProjectID equals t2.ProjectID into joined
+                                       from t2 in joined.DefaultIfEmpty()
+                                       where t1.FlagActive == true && t1.EventID == model.ID
+                                       select new GetDDLModel
+                                      {
+                                          ValueString = t1.ProjectID,
+                                          Text = t2.ProjectName
+                                       };
+
+                    return EventProject.ToList();
+
+                case "listShop":
+                    var listShop = from t1 in _context.tm_Shops
+                                    where t1.FlagActive == true
+                                    select new GetDDLModel
+                                    {
+                                        ValueInt = t1.ID,
+                                        Text = t1.Name
+                                    };
+
+                    return listShop.ToList();
 
                 default:
 

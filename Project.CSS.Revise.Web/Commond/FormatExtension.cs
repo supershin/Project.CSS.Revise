@@ -337,5 +337,30 @@ namespace Project.CSS.Revise.Web.Commond
             return string.Empty;
         }
 
+        public static string FormatDateToThaiShortString(object dateObject)
+        {
+            if (dateObject == null || dateObject == DBNull.Value)
+            {
+                return string.Empty;
+            }
+
+            if (DateTime.TryParse(dateObject.ToString(), out DateTime date))
+            {
+                var thaiCulture = new CultureInfo("th-TH");
+
+                // ตัวย่อวันในสัปดาห์
+                string[] thaiDayShortNames = { "อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส." };
+                string shortDayName = thaiDayShortNames[(int)date.DayOfWeek];
+
+                int day = date.Day;
+                string month = date.ToString("MMM", thaiCulture);
+                int year = date.Year;
+
+                return $"{shortDayName} {day} {month} {year}";
+            }
+
+            return string.Empty;
+        }
+
     }
 }

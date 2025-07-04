@@ -187,13 +187,12 @@ $(document).ready(function () {
     loadPartial('Partial_shop_event');
 });
 
-
 function openNewEventModal() {
+    
     const modalElement = document.getElementById('modal-new-event');
     const modal = new bootstrap.Modal(modalElement);
     modal.show();
 }
-
 
 function getEventFormData() {
     const tagifyRaw = tagifyInstance.value.map(t => ({
@@ -223,18 +222,19 @@ function getEventFormData() {
     };
 }
 
-//$('#modal-new-event').on('show.bs.modal', function () {
-//    // ✅ ซ่อนปุ่ม Tab <li> ทั้ง Shop แบบถูกต้อง (ไม่ใช่ .hide() แต่ใช้ d-none)
-//    $('#li-tab-shop').addClass('d-none');
+$('#modal-new-event').on('show.bs.modal', function () {
+    loadShopTabDataTest();
+    //// ✅ ซ่อนปุ่ม Tab <li> ทั้ง Shop แบบถูกต้อง (ไม่ใช่ .hide() แต่ใช้ d-none)
+    //$('#li-tab-shop').addClass('d-none');
 
-//    // ✅ Reset ไปที่ Event tab ทุกครั้งที่เปิด
-//    $('#modal-Event-add-tab').addClass('active');
-//    $('#modal-Event-add').addClass('show active');
+    //// ✅ Reset ไปที่ Event tab ทุกครั้งที่เปิด
+    //$('#modal-Event-add-tab').addClass('active');
+    //$('#modal-Event-add').addClass('show active');
 
-//    // ❌ ล้างสถานะ Shop tab เผื่อเคยเปิดไว้
-//    $('#modal-Shop-add-tab').removeClass('active');
-//    $('#modal-Shop-add').removeClass('show active');
-//});
+    //// ❌ ล้างสถานะ Shop tab เผื่อเคยเปิดไว้
+    //$('#modal-Shop-add-tab').removeClass('active');
+    //$('#modal-Shop-add').removeClass('show active');
+});
 
 $(document).on('submit', '.form.theme-form', function (e) {
     e.preventDefault(); // ❌ ป้องกัน form reload หน้า
@@ -256,10 +256,18 @@ $(document).on('submit', '.form.theme-form', function (e) {
                     title: 'สำเร็จ!',
                     text: res.message
                 }).then(() => {
-                    // ✅ ปิด modal + รีเฟรชตาราง
                     $('#li-tab-shop').removeClass('d-none'); // แสดง Shop tab
                     const shopTab = new bootstrap.Tab(document.getElementById('modal-Shop-add-tab'));
-                    shopTab.show(); // auto switch ไป Shop tab
+                    shopTab.show(); // ไปหน้า Shop tab
+
+                    // ✅ ดึงข้อมูลจาก API
+                    fetch(baseUrl + 'OtherSettings/GetDataTabShopFromInsert?EventID=' + res.ID)
+                        .then(r => r.json())
+                        .then(data => {
+                            renderEventDates(data.EventDates);
+                            renderEventProjects(data.EventProjects);
+                            renderShops(data.Shops);
+                        });
                 });
             } else {
                 Swal.fire({
@@ -278,3 +286,248 @@ $(document).on('submit', '.form.theme-form', function (e) {
             });
         });
 });
+
+function renderEventDates(dates) {
+    const track = document.getElementById("calendarTrack");
+    track.innerHTML = ''; // ล้างของเดิม
+
+    dates.forEach(item => {
+        const btn = document.createElement("button");
+        btn.className = "calendar-item";
+        btn.textContent = item.Text;
+        btn.setAttribute("data-value", item.ValueString);
+        btn.onclick = () => selectCalendarItem(btn);
+        track.appendChild(btn);
+    });
+}
+
+function renderEventProjects(projects) {
+    console.log(projects);
+    const container = document.querySelector('#modal-Shop-add .checkbox-checked .card-body');
+    container.innerHTML = ''; // ล้างของเดิม
+
+    projects.forEach((proj, i) => {
+        const id = `project-check-${i}`;
+        container.innerHTML += `
+            <div class="form-check checkbox checkbox-primary mb-0">
+                <input class="form-check-input" id="${id}" type="checkbox" value="${proj.ValueString}">
+                <label class="form-check-label" for="${id}">${proj.Text}</label>
+            </div>
+        `;
+    });
+}
+
+function renderShops(shops) {
+    console.log(shops);
+    const container = document.querySelector('#modal-Shop-add .card-body.pt-3');
+    const header = container.querySelector('.shop-item-card'); // เก็บ header ไว้
+    container.innerHTML = '';
+    container.appendChild(header); // เอา header กลับมา
+
+    shops.forEach((shop, i) => {
+        const id = `shop-${i}`;
+        container.innerHTML += `
+            <div class="shop-item-card p-3 shadow-sm rounded-3 border position-relative" style="display: grid; grid-template-columns: 22px 140px 100px 100px 100px 1fr; gap: 1rem; align-items: center;">
+                <div class="form-check m-0">
+                    <input class="form-check-input" type="checkbox" id="check-${id}" />
+                </div>
+
+                <div class="fw-semibold fs-6 text-dark">${shop.Text}</div>
+
+                <input type="number" class="form-control form-control-sm quota-input" placeholder="Quota" style="width: 100px;" disabled />
+                <input type="number" class="form-control form-control-sm quota-input" placeholder="Quota/Unit" style="width: 100px;" disabled />
+
+                <div class="form-check form-switch ms-3">
+                    <input class="form-check-input" type="checkbox" id="switch-${id}" onchange="toggleQuotaInputs(this)" />
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="editShopRow(this)">
+                        <i class="fa fa-edit me-1"></i> แก้ไข
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteShopRow(this)">
+                        <i class="fa fa-trash me-1"></i> ลบ
+                    </button>
+                </div>
+            </div>
+        `;
+
+    });
+}
+
+function loadShopTabDataTest() {
+    // ✅ ป้องกัน aria-hidden issue ด้วยการ blur focus ปัจจุบัน
+    document.activeElement?.blur();
+
+    fetch(baseUrl + 'OtherSettings/GetDataTabShopFromInsert?EventID=69')
+        .then(r => r.json())
+        .then(data => {
+            renderEventDates(data.EventDates);
+            renderEventProjects(data.EventProjects);
+            renderShops(data.Shops);
+
+            // ✅ แสดง Tab Shop และสลับแท็บ
+            //$('#li-tab-shop').removeClass('d-none');
+            //const shopTab = new bootstrap.Tab(document.getElementById('modal-Shop-add-tab'));
+            //shopTab.show();
+        })
+        .catch(err => {
+            console.error('❌ Error loading Shop Tab Data:', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: 'ไม่สามารถโหลดข้อมูลแท็บร้านค้าได้'
+            });
+        });
+}
+
+
+let currentIndex = 0;
+const slideSize = 3;
+const itemWidth = 128;
+let shopCounter = 0; // global counter
+
+function slideLeft() {
+    const track = document.getElementById("calendarTrack");
+    currentIndex = Math.max(currentIndex - slideSize, 0);
+    updateTransform(track);
+}
+
+function slideRight() {
+    const track = document.getElementById("calendarTrack");
+    const totalItems = track.children.length;
+    const maxIndex = totalItems - slideSize;
+    currentIndex = Math.min(currentIndex + slideSize, maxIndex);
+    updateTransform(track);
+}
+
+function updateTransform(track) {
+    const x = -currentIndex * itemWidth;
+    track.style.transform = `translateX(${x}px)`;
+}
+
+// Select only one
+function selectCalendarItem(el) {
+    document.querySelectorAll('.calendar-item').forEach(item => item.classList.remove('selected'));
+    el.classList.add('selected');
+}
+
+// Select all
+function selectAllDays() {
+    document.querySelectorAll('.calendar-item').forEach(item => item.classList.add('selected'));
+}
+
+
+function addNewShop() {
+    const container = document.querySelector('#modal-Shop-add .card-body.pt-3');
+    const headerRow = container.querySelector('.shop-item-card');
+    const newRow = document.createElement('div');
+
+    shopCounter++;
+
+    newRow.className = "shop-item-card p-3 shadow-sm rounded-3 border position-relative";
+    newRow.style = "display: grid; grid-template-columns: 22px 140px 100px 100px 100px 1fr; gap: 1rem; align-items: center;";
+
+    newRow.innerHTML = `
+        <!-- Checkbox -->
+        <div class="form-check m-0">
+            <input class="form-check-input" type="checkbox" id="shopCheck${shopCounter}" />
+        </div>
+
+        <!-- ชื่อร้านค้า (text input) -->
+        <input type="text" class="form-control form-control-sm fw-semibold text-dark"
+               placeholder="ชื่อร้านค้า"
+               style="width: 100%;"
+               value="ร้านใหม่ #${shopCounter}" />
+
+        <!-- Quota Inputs -->
+        <input type="number" class="form-control form-control-sm quota-input" placeholder="Quota" style="width: 100px;" disabled />
+        <input type="number" class="form-control form-control-sm quota-input" placeholder="Quota/Unit" style="width: 100px;" disabled />
+
+        <!-- Switch -->
+        <div class="form-check form-switch ms-3">
+            <input class="form-check-input" type="checkbox" id="switchUse${shopCounter}" onchange="toggleQuotaInputs(this)" />
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex gap-2 justify-content-end">
+            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="editShopRow(this)">
+                <i class="fa fa-edit me-1"></i> แก้ไข
+            </button>
+            <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteShopRow(this)">
+                <i class="fa fa-trash me-1"></i> ลบ
+            </button>
+        </div>
+    `;
+
+    container.appendChild(newRow);
+}
+
+
+function deleteShopRow(button) {
+    const row = button.closest('.shop-item-card');
+    row.remove();
+}
+
+function editShopRow(button) {
+    const row = button.closest('.shop-item-card');
+
+    // หาชื่อร้านที่เป็น div
+    const nameDiv = row.querySelector('.fw-semibold.fs-6.text-dark');
+
+    // ถ้าเจอและยังเป็น div (ไม่ได้ถูกเปลี่ยนเป็น input แล้ว)
+    if (nameDiv && nameDiv.tagName === 'DIV') {
+        const currentName = nameDiv.innerText.trim();
+
+        // สร้าง input element แทน div
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control form-control-sm fw-semibold text-dark';
+        input.style = 'min-width: 140px; width: 140px;';
+        input.value = currentName;
+
+        // แทนที่ div ด้วย input
+        nameDiv.replaceWith(input);
+
+        // auto focus
+        input.focus();
+
+        // (Optional) กด Enter หรือ blur แล้วกลับเป็น label ก็ได้
+        input.addEventListener('blur', () => {
+            revertInputToLabel(input);
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                input.blur();
+            }
+        });
+    }
+}
+
+// 🔁 เปลี่ยน input กลับเป็น div หลังจาก blur หรือ enter
+function revertInputToLabel(input) {
+    const value = input.value.trim() || 'ไม่ระบุชื่อร้าน';
+    const div = document.createElement('div');
+    div.className = 'fw-semibold fs-6 text-dark';
+    div.style = 'min-width: 140px;';
+    div.innerText = value;
+
+    input.replaceWith(div);
+}
+
+function toggleQuotaInputs(switchInput) {
+    const row = switchInput.closest('.shop-item-card');
+    const inputs = row.querySelectorAll('.quota-input');
+
+    inputs.forEach(input => {
+        input.disabled = !switchInput.checked;
+    });
+}
+
+function toggleCheckAll(el) {
+    const isChecked = el.checked;
+    const checkboxes = document.querySelectorAll('.shop-item-card input[type="checkbox"][id^="check-"]');
+    checkboxes.forEach(cb => cb.checked = isChecked);
+}

@@ -51,6 +51,141 @@
     }
 
 </style>
+<style>
+    /* Main Layout */
+    .calendar-carousel {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(8px);
+        border-radius: 1rem;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        gap: 12px;
+    }
+
+    /* Arrow Buttons */
+    .arrow-btn {
+        background: transparent;
+        border: none;
+        font-size: 1.4rem;
+        color: #444;
+        padding: 6px 10px;
+        transition: 0.2s;
+    }
+
+        .arrow-btn:hover {
+            color: #006666;
+            transform: scale(1.2);
+        }
+
+    /* Viewport & Track */
+    .carousel-viewport {
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .carousel-track {
+        transition: transform 0.4s ease;
+    }
+
+    /* Calendar Item */
+    .calendar-item {
+        background: #f4f4f4;
+        border: none;
+        margin-right: 8px;
+        padding: 12px 16px;
+        min-width: 120px;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        color: #333;
+        font-weight: 500;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        transition: all 0.2s ease;
+    }
+
+        .calendar-item:hover {
+            background-color: #e8f9f8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Selected Style */
+        .calendar-item.selected {
+            background: linear-gradient(135deg, #006666, #009999);
+            color: white;
+            font-weight: bold;
+            transform: scale(1.05);
+        }
+
+    /* Select All Button */
+    .btn-glow {
+        background-color: #009999;
+        color: white;
+        border-radius: 0.75rem;
+        padding: 8px 16px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0, 153, 153, 0.3);
+        transition: all 0.25s ease;
+    }
+
+        .btn-glow:hover {
+            background-color: #007979;
+            box-shadow: 0 6px 16px rgba(0, 153, 153, 0.4);
+        }
+
+    .shop-item-card input[type="number"] {
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .shop-item-card input::placeholder {
+        font-weight: 400;
+        color: #bbb;
+    }
+
+    .card-header .btn i {
+        pointer-events: none;
+    }
+
+</style>
+
+<style>
+    .card-body.shop-list {
+        padding-bottom: 2rem; /* หรือ 32px */
+    }
+    .shop-item-card {
+        background-color: #ffffff;
+        transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .shop-item-card:hover {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .form-check-input[type="checkbox"] {
+        transform: scale(1.2);
+    }
+
+    .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .shop-item-card {
+        background-color: #fff;
+        transition: all 0.2s ease;
+        display: grid;
+        grid-template-columns: 22px 140px 100px 100px 100px 1fr;
+        gap: 1rem;
+        align-items: center;
+    }
+
+        .shop-item-card.bg-light {
+            background-color: #f8f9fa !important;
+            border-color: #e0e0e0;
+        }
+
+</style>
+
 
 <div class="container-fluid">
     <div class="page-title">
@@ -141,6 +276,7 @@
                                         <li> <strong>Contact Number: </strong> (954) 357-7760</li>
                                     </ul>
                                 </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -148,243 +284,204 @@
         </div>
     </div>
 </div>
-    <div class="modal fade bd-example-modal-lg" id="modal-new-event" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModal" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="myExtraLargeModal">New Event</h4>
-                    <button class="btn-close py-0" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body dark-modal">
-                    <div class="card-body">
-                        <ul class="simple-wrapper nav nav-tabs" id="myTab" role="tablist">
-                            <li class="nav-item"><a class="nav-link active txt-primary" id="modal-Event-add-tab" data-bs-toggle="tab" href="#modal-Event-add" role="tab" aria-controls="modal-Event-add" aria-selected="true"><i class="fa fa-calendar" aria-hidden="true"></i>Event</a></li>
-                            <li class="nav-item" id="li-tab-shop">
-                                <a class="nav-link txt-primary" id="modal-Shop-add-tab" data-bs-toggle="tab" href="#modal-Shop-add" role="tab" aria-controls="modal-Shop-add" aria-selected="false">
-                                    <i class="fa fa-shopping-basket" aria-hidden="true"></i>Shop
-                                </a>
-                            </li>
-                        </ul>
-                        <div class="tab-content" id="myTabContent">
-                            <div class="tab-pane fade show active" id="modal-Event-add" role="tabpanel" aria-labelledby="modal-Event-add-tab">
-                                <div class="card-body custom-input p-3">
-                                    <form class="form theme-form">
-                                        <div class="card-body custom-input">
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div class="mb-3 row">
-                                                        <label class="col-sm-3">Event</label>
-                                                        <div class="col-sm-9">
-                                                            <input class="form-control" type="text" placeholder="Event name" id="txt-modal-new-event-name">
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3 row">
-                                                        <label class="col-sm-3 pt-0">Event type</label>
-                                                        <div class="col-sm-5">
-                                                            <input class="form-control" type="text" placeholder="Event type name" id="txt-modal-new-event-type-name" maxlength="100">
-                                                        </div>
-                                                        <div class="col-sm-2">
-                                                            <input class="form-control form-control-color" type="color" value="#006666" id="color-modal-new-event-type-color">
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3 row">
-                                                        <label class="col-sm-3">Location</label>
-                                                        <div class="col-sm-9">
-                                                            <input class="form-control" type="text" placeholder="Location" id="txt-modal-new-event-location">
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3 row">
-                                                        <label class="col-sm-3">Tag</label>
-                                                        <div class="col-sm-9">
-                                                            <input id="tags-modal-new-event-tags" class="form-control" placeholder="เพิ่มแท็กใหม่หรือเลือกจากรายการ"/>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3 row">
-                                                        <label class="col-sm-3 col-form-label fw-bold">Project</label>
-                                                        <div class="col-sm-9">
-                                                            <select id="ddl-modal-new-event-projects" class="form-control" multiple>
-                                                                @foreach (var item in ViewBag.listDDlAllProject)
-                                                                {
-                                                                    <option value="@item.ValueString">@item.Text</option>
-                                                                }
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3 row align-items-center">
-                                                        <label class="col-sm-3">Date and Time</label>
-
-                                                        <div class="col-sm-4">
-                                                            <input class="form-control" id="txt-modal-new-event-start-date-time" placeholder="Start DateTime">
-                                                        </div>
-
-                                                        <div class="col-sm-1 text-center fw-bold">-</div>
-
-                                                        <div class="col-sm-4">
-                                                            <input class="form-control" id="txt-modal-new-event-end-date-time" placeholder="End DateTime">
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3 row align-items-center">
-                                                        <label class="col-sm-3">สถานะการใช้งาน</label>
-                                                        <div class="col-sm-9">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input" type="checkbox" id="tg-modal-new-event-status" checked disabled>
-                                                                <label class="form-check-label" for="tg-modal-new-event-status">เปิดใช้งาน</label>
-                                                            </div>
-                                                        </div>
+<div class="modal fade bd-example-modal-lg" id="modal-new-event" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+         <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myExtraLargeModal">New Event</h4>
+                <button class="btn-close py-0" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body dark-modal">
+                <div class="card-body">
+                    <ul class="simple-wrapper nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item"><a class="nav-link active txt-primary" id="modal-Event-add-tab" data-bs-toggle="tab" href="#modal-Event-add" role="tab" aria-controls="modal-Event-add" aria-selected="true"><i class="fa fa-calendar" aria-hidden="true"></i>Event</a></li>
+                        <li class="nav-item" id="li-tab-shop">
+                            <a class="nav-link txt-primary" id="modal-Shop-add-tab" data-bs-toggle="tab" href="#modal-Shop-add" role="tab" aria-controls="modal-Shop-add" aria-selected="false">
+                                <i class="fa fa-shopping-basket" aria-hidden="true"></i>Shop
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="modal-Event-add" role="tabpanel" aria-labelledby="modal-Event-add-tab">
+                            <div class="card-body custom-input p-3">
+                                <form class="form theme-form">
+                                    <div class="card-body custom-input">
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="mb-3 row">
+                                                    <label class="col-sm-3">Event</label>
+                                                    <div class="col-sm-9">
+                                                        <input class="form-control" type="text" placeholder="Event name" id="txt-modal-new-event-name">
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <div class="card-footer text-end">
-                                            <div class="col-sm-9 offset-sm-3">
-                                                <button class="btn btn-primary me-3" type="submit">Save</button>
-                                                <input class="btn btn-light" type="reset" value="Cancel">
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="modal-Shop-add" role="tabpanel" aria-labelledby="modal-Shop-add-tab">
-                                <div class="card-body custom-input p-3">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="card shadow-sm border rounded mb-3">
-                                                <div class="card-header bg-white fw-bold" style="font-size: 1rem;">
-                                                    <i class="fa fa-calendar me-1 text-primary"></i> เลือกวันที่ของกิจกรรม
-                                                </div>
-                                                <div class="card-body py-3">
-                                                    <div class="d-flex justify-content-between align-items-center">
-                                                        <button type="button" class="btn" id="btn-date-prev">&lt;</button>
-
-                                                        <div class="flex-grow-1 mx-2 overflow-auto" style="white-space: nowrap;" id="date-scroll-wrapper">
-                                                            <div class="d-inline-flex gap-2" id="date-scroll-list">
-                                                                <!-- วันจะโหลดด้วย JS -->
-                                                            </div>
-                                                        </div>
-
-                                                        <button type="button" class="btn" id="btn-date-next">&gt;</button>
+                                                <div class="mb-3 row">
+                                                    <label class="col-sm-3 pt-0">Event type</label>
+                                                    <div class="col-sm-5">
+                                                        <input class="form-control" type="text" placeholder="Event type name" id="txt-modal-new-event-type-name" maxlength="100">
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <input class="form-control form-control-color" type="color" value="#006666" id="color-modal-new-event-type-color">
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="card shadow-sm border rounded mb-3 checkbox-checked">
-                                                <div class="card-header bg-white fw-bold" style="font-size: 1rem;">
-                                                    <i class="fa fa-building-o me-1 text-primary"></i> เลือกโครงการที่ร่วมกิจกรรมในวันนี้
-                                                </div>
-                                                <div class="card-body py-3 d-flex flex-wrap gap-3">
-                                                    <div class="form-check checkbox checkbox-primary mb-0">
-                                                        <input class="form-check-input" id="checkbox-primary-1" type="checkbox" checked="">
-                                                        <label class="form-check-label" for="checkbox-primary-1">มารูน รัชดา</label>
-                                                    </div>
-                                                    <div class="form-check checkbox checkbox-primary mb-0">
-                                                        <input class="form-check-input" id="checkbox-primary-2" type="checkbox">
-                                                        <label class="form-check-label" for="checkbox-primary-2">เคฟ วันเดอร์แลนด์</label>
-                                                    </div>
-                                                    <div class="form-check checkbox checkbox-primary mb-0">
-                                                        <input class="form-check-input" id="checkbox-primary-3" type="checkbox" checked="">
-                                                        <label class="form-check-label" for="checkbox-primary-3">แอทโมซ พาลาซิโอ ลาดพร้าว-วังหิน</label>
+                                                <div class="mb-3 row">
+                                                    <label class="col-sm-3">Location</label>
+                                                    <div class="col-sm-9">
+                                                        <input class="form-control" type="text" placeholder="Location" id="txt-modal-new-event-location">
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div> 
-                                        <style>
-                                            .shop-card {
-                                                border: 1px solid #e0e0e0;
-                                                border-radius: 10px;
-                                                padding: 15px;
-                                                display: flex;
-                                                align-items: center;
-                                                flex-wrap: wrap;
-                                                gap: 15px;
-                                                background-color: #fdfdfd;
-                                            }
-
-                                                .shop-card .form-check-label {
-                                                    font-weight: bold;
-                                                    color: #000;
-                                                }
-
-                                                .shop-card .form-control {
-                                                    width: 100px;
-                                                }
-
-                                                .shop-card .form-switch {
-                                                    margin-left: 10px;
-                                                }
-
-                                            .shop-actions {
-                                                margin-left: auto;
-                                                display: flex;
-                                                gap: 10px;
-                                            }
-                                        </style>
-
-                                        <div class="col-12">
-                                            <div class="card shadow-sm border rounded mb-3">
-                                                <div class="card-header bg-white fw-bold" style="font-size: 1rem;">
-                                                    <i class="fa fa-shopping-basket me-1 text-primary"></i> ระบุร้านค้าที่ร่วมกิจกรรมนี้
+                                                <div class="mb-3 row">
+                                                    <label class="col-sm-3">Tag</label>
+                                                    <div class="col-sm-9">
+                                                        <input id="tags-modal-new-event-tags" class="form-control" placeholder="เพิ่มแท็กใหม่หรือเลือกจากรายการ"/>
+                                                    </div>
                                                 </div>
-                                                <div class="card-body p-3">
-                                                    <!-- 🔁 Shop Row -->
-                                                    <div class="shop-line">
-                                                        <div class="form-check me-2">
-                                                            <input class="form-check-input" type="checkbox" checked>
-                                                        </div>
-                                                        <div class="shop-label">บ้านไร่กาแฟ</div>
+                                                <div class="mb-3 row">
+                                                    <label class="col-sm-3 col-form-label fw-bold">Project</label>
+                                                    <div class="col-sm-9">
+                                                        <select id="ddl-modal-new-event-projects" class="form-control" multiple>
+                                                            @foreach (var item in ViewBag.listDDlAllProject)
+                                                            {
+                                                                <option value="@item.ValueString">@item.Text</option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3 row align-items-center">
+                                                    <label class="col-sm-3">Date and Time</label>
 
-                                                        <div class="quota">
-                                                            <input type="number" class="form-control form-control-sm" value="150">
-                                                        </div>
-
-                                                        <div class="per-unit">
-                                                            <input type="number" class="form-control form-control-sm" value="2">
-                                                        </div>
-
-                                                        <div class="switch">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input" type="checkbox" role="switch" checked>
-                                                            </div>
-                                                        </div>
-
-
-                                                        <div class="action-btns">
-                                                            <button class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></button>
-                                                            <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                                                        </div>
+                                                    <div class="col-sm-4">
+                                                        <input class="form-control" id="txt-modal-new-event-start-date-time" placeholder="Start DateTime">
                                                     </div>
 
-                                                    <!-- 🔁 Copy เพิ่มได้ -->
-                                                    <div class="shop-line">
-                                                        <div class="form-check me-2">
-                                                            <input class="form-check-input" type="checkbox">
-                                                        </div>
-                                                        <div class="shop-label">WorkShop</div>
+                                                    <div class="col-sm-1 text-center fw-bold">-</div>
 
-                                                        <div class="quota">
-                                                            <input type="number" class="form-control form-control-sm" value="30">
-                                                        </div>
-
-                                                        <div class="per-unit">
-                                                            <input type="number" class="form-control form-control-sm" value="1">
-                                                        </div>
-
-                                                        <div class="switch">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input" type="checkbox">
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="action-btns">
-                                                            <button class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></button>
-                                                            <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
+                                                    <div class="col-sm-4">
+                                                        <input class="form-control" id="txt-modal-new-event-end-date-time" placeholder="End DateTime">
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3 row align-items-center">
+                                                    <label class="col-sm-3">สถานะการใช้งาน</label>
+                                                    <div class="col-sm-9">
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" id="tg-modal-new-event-status" checked disabled>
+                                                            <label class="form-check-label" for="tg-modal-new-event-status">เปิดใช้งาน</label>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="card-footer text-end">
+                                        <div class="col-sm-9 offset-sm-3">
+                                            <button class="btn btn-primary me-3" type="submit">Save</button>
+                                            <input class="btn btn-light" type="reset" value="Cancel">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="modal-Shop-add" role="tabpanel" aria-labelledby="modal-Shop-add-tab">
+                            <div class="card-body custom-input p-3">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="card shadow-sm border rounded mb-3">
+                                            <div class="card-header bg-white fw-bold" style="font-size: 1rem;">
+                                                <i class="fa fa-calendar me-1 text-primary"></i> เลือกวันที่
+                                            </div>
+                                            <div class="calendar-carousel d-flex align-items-center rounded-3 shadow-sm p-3 bg-white">
+                                                <!-- Left Button -->
+                                                <button class="arrow-btn" onclick="slideLeft()">
+                                                    <i class="fa fa-chevron-left"></i>
+                                                </button>
+
+                                                <!-- Viewport -->
+                                                <div class="carousel-viewport flex-grow-1">
+                                                    <div class="carousel-track d-flex" id="calendarTrack">
+                                                        <!-- Items -->
+                                                        <button class="calendar-item" onclick="selectCalendarItem(this)">(EXAMPLE)อ. 8 ก.ค. 2025</button>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Right Button -->
+                                                <button class="arrow-btn" onclick="slideRight()">
+                                                    <i class="fa fa-chevron-right"></i>
+                                                </button>
+
+                                                <!-- Select All Button -->
+                                                <button class="btn btn-glow ms-3" onclick="selectAllDays()">
+                                                    <i class="fa fa-check-circle me-1"></i> เลือกทุกวัน
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="card shadow-sm border rounded mb-3 checkbox-checked">
+                                            <div class="card-header bg-white fw-bold" style="font-size: 1rem;">
+                                                <i class="fa fa-building-o me-1 text-primary"></i> เลือกโครงการที่ร่วมกิจกรรม
+                                            </div>
+                                            <div class="card-body py-3 d-flex flex-wrap gap-3">
+                                                <div class="form-check checkbox checkbox-primary mb-0">
+                                                    <input class="form-check-input" id="checkbox-primary-1" type="checkbox" checked="">
+                                                    <label class="form-check-label" for="checkbox-primary-1"> (EXAMPLE) มารูน รัชดา</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="card shadow border-0 rounded mb-3">
+                                            <div class="card-header bg-white fw-bold border-bottom d-flex justify-content-between align-items-center" style="font-size: 1.05rem;">
+                                                <!-- ซ้าย: ไอคอน + ชื่อ -->
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fa fa-cart-arrow-down me-2 text-primary"></i> รายการร้านค้า
+                                                </div>
+
+                                                <!-- ขวา: ปุ่มเพิ่มร้านค้า -->
+                                                <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" onclick="addNewShop()">
+                                                    <i class="fa fa-plus me-1"></i> เพิ่มร้านค้า
+                                                </button>
+                                            </div>
+                                            <div class="card-body pt-3 pb-4 px-3 d-flex flex-column gap-3">
+                                                <!-- HEADER ROW -->
+                                            <div class="shop-item-card d-grid align-items-center p-3 shadow-sm rounded-3 border position-relative"
+                                                    style="grid-template-columns: 22px 140px 100px 100px 100px 1fr; gap: 1rem;">
+
+
+                                                    <!-- Checkbox space -->
+                                                    <div style="width: 22px;">
+                                                        <input class="form-check-input" type="checkbox" id="shopCheckall" onchange="toggleCheckAll(this)" />
+                                                    </div>
+
+                                                    <!-- ชื่อร้านค้า -->
+                                                    <div style="min-width: 140px; width: 140px;">
+                                                        ชื่อร้านค้า
+                                                    </div>
+
+                                                    <!-- Quota -->
+                                                    <div style="width: 100px;">Quota</div>
+
+                                                    <!-- Quota/Unit -->
+                                                    <div style="width: 100px;">Quota/Unit</div>
+
+                                                    <!-- Switch -->
+                                                    <div class="ms-2" style="min-width: 80px;">
+                                                        แก้ไขโควต้า
+                                                    </div>
+
+                                                    <!-- Actions -->
+                                                    <div class="ms-auto text-end" style="min-width: 120px;">
+                                                        Action
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>           
+                             </div>
+                            <div class="card-footer text-end">
+                                <div class="col-sm-9 offset-sm-3">
+                                    <button class="btn btn-primary me-3" type="submit">Save</button>
+                                    <input class="btn btn-light" type="reset" value="Cancel">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -394,6 +491,8 @@
     </div>
 </div>
 @section Scripts {
+    <!-- Font Awesome -->
+@*     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" /> *@
     <!-- ✅ FullCalendar v6.1.10 + moment + ภาษาไทย -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
@@ -405,6 +504,7 @@
     <script src="~/js/Pages/OtherSetting/Partial_shop_event.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
+
         flatpickr("#txt-modal-new-event-start-date-time", {
             enableTime: true,
             time_24hr: true,
@@ -427,8 +527,8 @@
             const input = document.getElementById('tags-modal-new-event-tags');
 
             const whitelistFromServer = @Html.Raw(Json.Serialize(
-            ((List<GetDDLModel>)ViewBag.Listtag).Select(t => new { value = t.Text })
-        ));
+                ((List<GetDDLModel>)ViewBag.Listtag).Select(t => new { value = t.Text })
+            ));
 
             tagifyInstance = new Tagify(input, {
                 whitelist: whitelistFromServer,
@@ -450,115 +550,7 @@
             // ❌ ตัด AJAX add tag ทิ้ง เพราะจะบันทึกตอน submit แทน
             // tagifyInstance.on('add', function (e) {...});
         });
-
     </script>
-    <script>
-        let shopIndex = 0;
-
-        function addShopCard(name = '', quota = '', unitPer = '', isActive = true, isChecked = false) {
-            const id = `shop_${shopIndex++}`;
-            const checked = isChecked ? 'checked' : '';
-            const active = isActive ? 'checked' : '';
-
-            const html = `
-                <div class="shop-card" data-id="${id}">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="cb-${id}" ${checked}>
-                        <label class="form-check-label" for="cb-${id}">${name || 'ชื่อร้านค้า'}</label>
-                    </div>
-                    <input type="number" class="form-control" placeholder="จำนวนโควต้า" value="${quota}" ${!isChecked ? 'disabled' : ''}>
-                    <input type="number" class="form-control" placeholder="สิทธิ์ต่อ Unit" value="${unitPer}" ${!isChecked ? 'disabled' : ''}>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" ${active}>
-                    </div>
-                    <div class="shop-actions">
-                        <button class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></button>
-                        <button class="btn btn-sm btn-danger btn-delete-shop"><i class="fa fa-trash"></i></button>
-                    </div>
-                </div>
-            `;
-
-            $('#shopCardList').append(html);
-        }
-
-        // ➕ ปุ่มเพิ่มร้าน
-        $('#btnAddShop').on('click', function () {
-            addShopCard();
-        });
-
-        // 🗑 ลบร้าน
-        $(document).on('click', '.btn-delete-shop', function () {
-            $(this).closest('.shop-card').remove();
-        });
-
-        // ✅ เปิด checkbox → enable input
-        $(document).on('change', '.form-check-input[type="checkbox"]', function () {
-            const container = $(this).closest('.shop-card');
-            const isChecked = $(this).is(':checked');
-            container.find('input[type="number"]').prop('disabled', !isChecked);
-        });
-
-        // 👇 Mockup เริ่มต้น
-        $(document).ready(function () {
-            addShopCard('Egg Drop', 100, 2, true, true);
-            addShopCard('บ้านไร่กาแฟ', 150, 2, true, true);
-            addShopCard('WorkShop', 30, 1, true, true);
-        });
-    </script>
-
-@*     <script>
-        let shopIndex = 0;
-
-        function addShopCard(name = '', quota = '', unitPer = '', isActive = true, isChecked = false) {
-            const id = `shop_${shopIndex++}`;
-            const checked = isChecked ? 'checked' : '';
-            const active = isActive ? 'checked' : '';
-
-            const html = `
-                <div class="shop-card col-12" data-id="${id}">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="cb-${id}" ${checked}>
-                        <label class="form-check-label" for="cb-${id}">${name || 'ชื่อร้านค้า'}</label>
-                    </div>
-                    <input type="number" class="form-control" placeholder="จำนวนโควต้า" value="${quota}" ${!isChecked ? 'disabled' : ''}>
-                    <input type="number" class="form-control" placeholder="สิทธิ์ต่อ Unit" value="${unitPer}" ${!isChecked ? 'disabled' : ''}>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" ${active}>
-                    </div>
-                    <div class="shop-actions">
-                        <button class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></button>
-                        <button class="btn btn-sm btn-danger btn-delete-shop"><i class="fa fa-trash"></i></button>
-                    </div>
-                </div>
-            `;
-
-            $('#shopCardList').append(html);
-        }
-
-        // ➕ ปุ่มเพิ่มร้าน
-        $('#btnAddShop').on('click', function () {
-            addShopCard();
-        });
-
-        // 🗑 ลบร้าน
-        $(document).on('click', '.btn-delete-shop', function () {
-            $(this).closest('.shop-card').remove();
-        });
-
-        // ✅ เปิด checkbox → enable input
-        $(document).on('change', '.form-check-input[type="checkbox"]', function () {
-            const container = $(this).closest('.shop-card');
-            const isChecked = $(this).is(':checked');
-            container.find('input[type="number"]').prop('disabled', !isChecked);
-        });
-
-        // 👇 Mockup เริ่มต้น
-        $(document).ready(function () {
-            addShopCard('Egg Drop', 100, 2, true, true);
-            addShopCard('บ้านไร่กาแฟ', 150, 2, true, true);
-            addShopCard('WorkShop', 30, 1, true, true);
-        });
-    </script> *@
 
 
 }
