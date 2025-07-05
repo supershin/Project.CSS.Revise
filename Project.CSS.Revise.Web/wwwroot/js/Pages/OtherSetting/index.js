@@ -237,7 +237,7 @@ $('#modal-new-event').on('show.bs.modal', function () {
 });
 
 $(document).on('submit', '.form.theme-form', function (e) {
-    e.preventDefault(); // ❌ ป้องกัน form reload หน้า
+    e.preventDefault();
 
     const formData = getEventFormData();
 
@@ -258,12 +258,11 @@ $(document).on('submit', '.form.theme-form', function (e) {
                 }).then(() => {
                     $('#li-tab-shop').removeClass('d-none'); // แสดง Shop tab
                     const shopTab = new bootstrap.Tab(document.getElementById('modal-Shop-add-tab'));
-                    shopTab.show(); // ไปหน้า Shop tab
-
-                    // ✅ ดึงข้อมูลจาก API
-                    fetch(baseUrl + 'OtherSettings/GetDataTabShopFromInsert?EventID=' + res.ID)
+                    shopTab.show(); 
+                    fetch(baseUrl + 'OtherSettings/GetDataTabShopFromInsert?EventID=' + res.id)
                         .then(r => r.json())
                         .then(data => {
+                            document.activeElement?.blur();
                             renderEventDates(data.EventDates);
                             renderEventProjects(data.EventProjects);
                             renderShops(data.Shops);
@@ -329,7 +328,7 @@ function renderShops(shops) {
         container.innerHTML += `
             <div class="shop-item-card p-3 shadow-sm rounded-3 border position-relative" style="display: grid; grid-template-columns: 22px 140px 100px 100px 100px 1fr; gap: 1rem; align-items: center;">
                 <div class="form-check m-0">
-                    <input class="form-check-input" type="checkbox" id="check-${id}" />
+                    <input class="form-check-input" type="checkbox" id="check-${shop.ValueInt}" />
                 </div>
 
                 <div class="fw-semibold fs-6 text-dark">${shop.Text}</div>
@@ -338,7 +337,7 @@ function renderShops(shops) {
                 <input type="number" class="form-control form-control-sm quota-input" placeholder="Quota/Unit" style="width: 100px;" disabled />
 
                 <div class="form-check form-switch ms-3">
-                    <input class="form-check-input" type="checkbox" id="switch-${id}" onchange="toggleQuotaInputs(this)" />
+                    <input class="form-check-input" type="checkbox" id="switch-${shop.ValueInt}" onchange="toggleQuotaInputs(this)" />
                 </div>
 
                 <div class="d-flex gap-2 justify-content-end">
@@ -431,7 +430,7 @@ function addNewShop() {
     newRow.innerHTML = `
         <!-- Checkbox -->
         <div class="form-check m-0">
-            <input class="form-check-input" type="checkbox" id="shopCheck${shopCounter}" />
+            <input class="form-check-input" type="checkbox" id="check--99" />
         </div>
 
         <!-- ชื่อร้านค้า (text input) -->
@@ -531,3 +530,110 @@ function toggleCheckAll(el) {
     const checkboxes = document.querySelectorAll('.shop-item-card input[type="checkbox"][id^="check-"]');
     checkboxes.forEach(cb => cb.checked = isChecked);
 }
+
+function saveShopTab(EventID) {
+    const selectedDates = [...document.querySelectorAll('#calendarTrack .calendar-item.selected')]
+        .map(btn => btn.getAttribute('data-value')) // dd/MM/yyyy
+        .filter(x => x);
+
+    const selectedProjects = [...document.querySelectorAll('#modal-Shop-add .checkbox-checked input[type="checkbox"]:checked')]
+        .map(cb => cb.value);
+
+    const shopCards = document.querySelectorAll('#modal-Shop-add .card-body.pt-3 .shop-item-card:not(:first-child)');
+    const ShopsItems = [];
+
+    //shopCards.forEach(card => {
+    //    const isEditMode = card.querySelector('input[type="text"]');
+    //    const name = isEditMode
+    //        ? isEditMode.value.trim()
+    //        : (card.querySelector('.fw-semibold.fs-6.text-dark')?.innerText.trim() || '');
+
+    //    const quotaInputs = card.querySelectorAll('.quota-input');
+    //    const quota = parseInt(quotaInputs[0]?.value) || 0;
+    //    const quotaPerUnit = parseInt(quotaInputs[1]?.value) || 0;
+
+    //    const isUsed = card.querySelector('input[type="checkbox"].form-check-input[id^="switchUse"]')?.checked || false;
+
+    //    ShopsItems.push({
+    //        ID: -1, // 🧠 สมมุติว่าเป็นร้านใหม่ทั้งหมด (แก้ตรงนี้หากมีระบบ Edit ID จริง)
+    //        Name: name,
+    //        UnitQuota: quotaPerUnit,
+    //        ShopQuota: quota,
+    //        IsUsed: isUsed
+    //    });
+    //});
+    shopCards.forEach(card => {
+        // 👇 1. หา Checkbox ที่มี id เช่น "shop-123"
+        const checkbox = card.querySelector('input.form-check-input[type="checkbox"][id^="check-"]');
+        console.log('checkbox : ' + checkbox);
+        const idStr = checkbox?.id?.split('-')[1] || "-1"; // shop-123 → "123"
+        console.log('idStr : ' + idStr);
+        const shopID = parseInt(idStr) || -99;
+
+        // 👇 2. ตรวจว่า checkbox ถูกติ๊กหรือไม่
+        const isUsed = checkbox?.checked || false;
+
+        // 👇 3. หา shop name (input หรือ div)
+        const isEditMode = card.querySelector('input[type="text"]');
+        const name = isEditMode
+            ? isEditMode.value.trim()
+            : (card.querySelector('.fw-semibold.fs-6.text-dark')?.innerText.trim() || '');
+
+        // 👇 4. quota
+        const quotaInputs = card.querySelectorAll('.quota-input');
+        const quota = parseInt(quotaInputs[0]?.value) || 0;
+        const quotaPerUnit = parseInt(quotaInputs[1]?.value) || 0;
+
+        ShopsItems.push({
+            ID: shopID,
+            Name: name,
+            UnitQuota: quotaPerUnit,
+            ShopQuota: quota,
+            IsUsed: isUsed
+        });
+    });
+
+
+
+    const model = {
+        EventID: EventID, // จาก step ก่อนหน้า (res.id)
+        ProjectIds: selectedProjects,
+        DatesEvent: selectedDates,
+        ShopsItems: ShopsItems
+    };
+
+    console.log("🧾 Sending Shop Data:", model);
+
+    fetch(baseUrl + 'OtherSettings/InsertNewEventsAndShops', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(model)
+    })
+        .then(res => res.json())
+        .then(res => {
+            if (res.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สำเร็จ!',
+                    text: res.message
+                });
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ผิดพลาด!',
+                    text: res.message
+                });
+            }
+        })
+        .catch(err => {
+            console.error("❌ Error saving shop data:", err);
+            Swal.fire({
+                icon: 'error',
+                title: 'ผิดพลาด!',
+                text: 'ไม่สามารถบันทึกข้อมูลร้านค้าได้'
+            });
+        });
+}
+

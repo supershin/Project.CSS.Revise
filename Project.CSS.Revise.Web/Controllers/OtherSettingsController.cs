@@ -104,34 +104,34 @@ namespace Project.CSS.Revise.Web.Controllers
 
             if (string.IsNullOrEmpty(model.EventName) || string.IsNullOrEmpty(model.EventLocation) || model.TagItems == null || model.TagItems.Count == 0)
             {
-                return Json(new { success = false, message = "Event name, location, and at least one tag are required." });
+                return Json(new { success = false, id = 0, message = "Event name, location, and at least one tag are required." });
             }
             if (string.IsNullOrEmpty(model.EventType) || string.IsNullOrEmpty(model.EventColor))
             {
-                return Json(new { success = false, message = "Event type and color are required." });
+                return Json(new { success = false, id = 0, message = "Event type and color are required." });
             }
             if (model.ProjectIds == null || model.ProjectIds.Count == 0)
             {
-                return Json(new { success = false, message = "At least one project must be selected." });
+                return Json(new { success = false, id = 0, message = "At least one project must be selected." });
             }
             if (string.IsNullOrEmpty(model.StartDateTime) || string.IsNullOrEmpty(model.EndDateTime))
             {
-                return Json(new { success = false, message = "Start and end date/time are required." });
+                return Json(new { success = false, id = 0, message = "Start and end date/time are required." });
             }
             if (DateTime.TryParse(model.StartDateTime, out DateTime startDate) && DateTime.TryParse(model.EndDateTime, out DateTime endDate))
             {
                 if (startDate >= endDate)
                 {
-                    return Json(new { success = false, message = "Start date/time must be before end date/time." });
+                    return Json(new { success = false, id = 0, message = "Start date/time must be before end date/time." });
                 }
             }
             else
             {
-                return Json(new { success = false, message = "Invalid date format." });
+                return Json(new { success = false, id = 0, message = "Invalid date format." });
             }
             if (model.TagItems.Any(tag => string.IsNullOrEmpty(tag.Value) || string.IsNullOrEmpty(tag.Label)))
             {
-                return Json(new { success = false, message = "All tags must have both value and label." });
+                return Json(new { success = false, id = 0 , message = "All tags must have both value and label." });
             }
 
             string LoginID = User.FindFirst("LoginID")?.Value;
@@ -141,7 +141,7 @@ namespace Project.CSS.Revise.Web.Controllers
 
             var result = _shopAndEventService.CreateEventsAndTags(model);
 
-            return Json(new { success = result.ID > 0, message = result.Message });
+            return Json(new { success = result.ID > 0 , id = result.ID, message = result.Message });
         }
 
         [HttpGet]
@@ -176,6 +176,16 @@ namespace Project.CSS.Revise.Web.Controllers
             };
 
             return Json(result);
+        }
+
+        [HttpPost]
+        public IActionResult InsertNewEventsAndShops([FromBody] CreateEvent_Shops model)
+        {
+            string LoginID = User.FindFirst("LoginID")?.Value;
+            string UserID = SecurityManager.DecodeFrom64(LoginID);
+            model.UserID = Commond.FormatExtension.Nulltoint(UserID);
+            var result = _shopAndEventService.CreateEventsAndShops(model);
+            return Json(new { success = result.ID, message = result.Message });
         }
     }
 }

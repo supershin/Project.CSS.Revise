@@ -6,10 +6,12 @@ namespace Project.CSS.Revise.Web.Service
     public interface IShopAndEventService
     {
         public CreateEventsTagsResponse CreateEventsAndTags(CreateEvents_Tags model);
+        public CreateEventsShopsResponse CreateEventsAndShops(CreateEvent_Shops model);
     }
     public class ShopAndEventService : IShopAndEventService
     {
         private readonly IShopAndEventRepo _shopAndEventRepo;
+
         public ShopAndEventService(IShopAndEventRepo ShopAndEventRepo)
         {
             _shopAndEventRepo = ShopAndEventRepo;
@@ -17,6 +19,10 @@ namespace Project.CSS.Revise.Web.Service
         public CreateEventsTagsResponse CreateEventsAndTags(CreateEvents_Tags model)
         {
             return _shopAndEventRepo.CreateEventsAndTags(model);
+        }
+        public CreateEventsShopsResponse CreateEventsAndShops(CreateEvent_Shops model)
+        {
+            return _shopAndEventRepo.CreateEventsAndShops(model);
         }
     }
 }
