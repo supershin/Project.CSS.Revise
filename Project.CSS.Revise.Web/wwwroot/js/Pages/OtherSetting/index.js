@@ -223,17 +223,16 @@ function getEventFormData() {
 }
 
 $('#modal-new-event').on('show.bs.modal', function () {
-    loadShopTabDataTest();
-    //// ✅ ซ่อนปุ่ม Tab <li> ทั้ง Shop แบบถูกต้อง (ไม่ใช่ .hide() แต่ใช้ d-none)
-    //$('#li-tab-shop').addClass('d-none');
+    /*loadShopTabDataTest();*/
 
-    //// ✅ Reset ไปที่ Event tab ทุกครั้งที่เปิด
-    //$('#modal-Event-add-tab').addClass('active');
-    //$('#modal-Event-add').addClass('show active');
-
-    //// ❌ ล้างสถานะ Shop tab เผื่อเคยเปิดไว้
-    //$('#modal-Shop-add-tab').removeClass('active');
-    //$('#modal-Shop-add').removeClass('show active');
+    // ✅ ซ่อนปุ่ม Tab <li> ทั้ง Shop แบบถูกต้อง (ไม่ใช่ .hide() แต่ใช้ d-none)
+    $('#li-tab-shop').addClass('d-none');
+    // ✅ Reset ไปที่ Event tab ทุกครั้งที่เปิด
+    $('#modal-Event-add-tab').addClass('active');
+    $('#modal-Event-add').addClass('show active');
+    // ❌ ล้างสถานะ Shop tab เผื่อเคยเปิดไว้
+    $('#modal-Shop-add-tab').removeClass('active');
+    $('#modal-Shop-add').removeClass('show active');
 });
 
 $(document).on('submit', '.form.theme-form', function (e) {
@@ -241,16 +240,17 @@ $(document).on('submit', '.form.theme-form', function (e) {
 
     const formData = getEventFormData();
 
-    fetch(baseUrl + 'OtherSettings/InsertNewEventsAndtags', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-    })
+        fetch(baseUrl + 'OtherSettings/InsertNewEventsAndtags', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
         .then(res => res.json())
         .then(res => {
             if (res.success) {
+                document.getElementById('hiddenEventID').value = res.id;
                 Swal.fire({
                     icon: 'success',
                     title: 'สำเร็จ!',
@@ -364,11 +364,6 @@ function loadShopTabDataTest() {
             renderEventDates(data.EventDates);
             renderEventProjects(data.EventProjects);
             renderShops(data.Shops);
-
-            // ✅ แสดง Tab Shop และสลับแท็บ
-            //$('#li-tab-shop').removeClass('d-none');
-            //const shopTab = new bootstrap.Tab(document.getElementById('modal-Shop-add-tab'));
-            //shopTab.show();
         })
         .catch(err => {
             console.error('❌ Error loading Shop Tab Data:', err);
@@ -407,15 +402,120 @@ function updateTransform(track) {
 
 // Select only one
 function selectCalendarItem(el) {
+
     document.querySelectorAll('.calendar-item').forEach(item => item.classList.remove('selected'));
     el.classList.add('selected');
+
+    // ✅ ดึงค่าวันที่จาก data-value
+    const selectedDate = el.getAttribute("data-value");
+
+    // ✅ อ่านจาก hidden input แทน hardcoded
+    const eventId = parseInt(document.getElementById("hiddenEventID")?.value || "0");
+
+    if (!eventId) {
+        console.warn("❌ ยังไม่มี EventID ที่บันทึกไว้");
+        return;
+    }
+
+    // 🔥 เรียก Controller เพื่อโหลด Project + Shops ตามวันที่ใหม่
+    fetch(baseUrl + 'OtherSettings/GetDataCreateEventsAndShops?EventID=' + eventId + '&EventDate=' + selectedDate)
+        .then(r => r.json())
+        .then(data => {
+            console.log("🎯 Loaded ShopTab Data:", data);
+            const saveFooter = document.getElementById('shop-save-footer');
+            if (data.IsHaveData) {
+                renderEventProjectsBydate(data.Projects);
+                renderShopsBydate(data.Shops);
+                if (saveFooter) saveFooter.style.display = 'none';
+            }
+            else {
+                fetch(baseUrl + 'OtherSettings/GetDataTabShopFromInsert?EventID=' + eventId)
+                    .then(r => r.json())
+                    .then(data => {
+                        /*renderEventDates(data.EventDates);*/
+                        renderEventProjects(data.EventProjects);
+                        renderShops(data.Shops);
+                        if (saveFooter) saveFooter.style.display = 'block';
+                    })
+                    .catch(err => {
+                        console.error('❌ Error loading Shop Tab Data:', err);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'เกิดข้อผิดพลาด',
+                            text: 'ไม่สามารถโหลดข้อมูลแท็บร้านค้าได้'
+                        });
+                    });  
+            }
+        })
+        .catch(err => {
+            console.error("❌ Failed to load shop data:", err);
+            Swal.fire({
+                icon: 'error',
+                title: 'โหลดข้อมูลล้มเหลว',
+                text: 'ไม่สามารถโหลดข้อมูลร้านค้าได้'
+            });
+        });
+}
+
+function renderEventProjectsBydate(projects) {
+    console.log(projects);
+    const container = document.querySelector('#modal-Shop-add .checkbox-checked .card-body');
+    container.innerHTML = ''; // ล้างของเดิม
+
+    projects.forEach((proj, i) => {
+        const id = `project-check-${i}`;
+        container.innerHTML += `
+            <div class="form-check checkbox checkbox-primary mb-0">
+                <input class="form-check-input" id="${id}" type="checkbox" value="${proj.ProjectID}" ${proj.IsUsed ? 'checked' : ''} disabled>
+                <label class="form-check-label" for="${id}">${proj.ProjectName}</label>
+            </div>
+        `;
+    });
+}
+
+function renderShopsBydate(shops) {
+    console.log(shops);
+    const container = document.querySelector('#modal-Shop-add .card-body.pt-3');
+    const header = container.querySelector('.shop-item-card'); // เก็บ header ไว้
+    container.innerHTML = '';
+    container.appendChild(header); // เอา header กลับมา
+
+    shops.forEach((shop, i) => {
+        const id = `shop-${i}`;
+        const isUsed = shop.IsUsed === true;
+
+        container.innerHTML += `
+            <div class="shop-item-card p-3 shadow-sm rounded-3 border position-relative" style="display: grid; grid-template-columns: 22px 140px 100px 100px 100px 1fr; gap: 1rem; align-items: center;">
+                <div class="form-check m-0">
+                    <input class="form-check-input" type="checkbox" id="${shop.ID}" ${isUsed ? 'checked' : ''} disabled/>
+                </div>
+
+                <div class="fw-semibold fs-6 text-dark">${shop.Name}</div>
+
+                <input type="number" class="form-control form-control-sm quota-input" placeholder="Quota" style="width: 100px;" value="${shop.ShopQuota ?? 0}" disabled />
+                <input type="number" class="form-control form-control-sm quota-input" placeholder="Quota/Unit" style="width: 100px;" value="${shop.UnitQuota ?? 0}" disabled />
+
+                <div class="form-check form-switch ms-3">
+                    <input class="form-check-input" type="checkbox" id="switch-${shop.ID}" onchange="toggleQuotaInputs(this)" disabled />
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="editShopRow(this)" disabled>
+                        <i class="fa fa-edit me-1"></i> แก้ไข
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteShopRow(this)" disabled>
+                        <i class="fa fa-trash me-1"></i> ลบ
+                    </button>
+                </div>
+            </div>
+        `;
+    });
 }
 
 // Select all
 function selectAllDays() {
     document.querySelectorAll('.calendar-item').forEach(item => item.classList.add('selected'));
 }
-
 
 function addNewShop() {
     const container = document.querySelector('#modal-Shop-add .card-body.pt-3');
@@ -461,7 +561,6 @@ function addNewShop() {
 
     container.appendChild(newRow);
 }
-
 
 function deleteShopRow(button) {
     const row = button.closest('.shop-item-card');
@@ -531,7 +630,7 @@ function toggleCheckAll(el) {
     checkboxes.forEach(cb => cb.checked = isChecked);
 }
 
-function saveShopTab(EventID) {
+function saveShopTab() {
     const selectedDates = [...document.querySelectorAll('#calendarTrack .calendar-item.selected')]
         .map(btn => btn.getAttribute('data-value')) // dd/MM/yyyy
         .filter(x => x);
@@ -542,26 +641,6 @@ function saveShopTab(EventID) {
     const shopCards = document.querySelectorAll('#modal-Shop-add .card-body.pt-3 .shop-item-card:not(:first-child)');
     const ShopsItems = [];
 
-    //shopCards.forEach(card => {
-    //    const isEditMode = card.querySelector('input[type="text"]');
-    //    const name = isEditMode
-    //        ? isEditMode.value.trim()
-    //        : (card.querySelector('.fw-semibold.fs-6.text-dark')?.innerText.trim() || '');
-
-    //    const quotaInputs = card.querySelectorAll('.quota-input');
-    //    const quota = parseInt(quotaInputs[0]?.value) || 0;
-    //    const quotaPerUnit = parseInt(quotaInputs[1]?.value) || 0;
-
-    //    const isUsed = card.querySelector('input[type="checkbox"].form-check-input[id^="switchUse"]')?.checked || false;
-
-    //    ShopsItems.push({
-    //        ID: -1, // 🧠 สมมุติว่าเป็นร้านใหม่ทั้งหมด (แก้ตรงนี้หากมีระบบ Edit ID จริง)
-    //        Name: name,
-    //        UnitQuota: quotaPerUnit,
-    //        ShopQuota: quota,
-    //        IsUsed: isUsed
-    //    });
-    //});
     shopCards.forEach(card => {
         // 👇 1. หา Checkbox ที่มี id เช่น "shop-123"
         const checkbox = card.querySelector('input.form-check-input[type="checkbox"][id^="check-"]');
@@ -593,10 +672,8 @@ function saveShopTab(EventID) {
         });
     });
 
-
-
     const model = {
-        EventID: EventID, // จาก step ก่อนหน้า (res.id)
+        EventID: parseInt(document.getElementById("hiddenEventID")?.value || "0"),
         ProjectIds: selectedProjects,
         DatesEvent: selectedDates,
         ShopsItems: ShopsItems

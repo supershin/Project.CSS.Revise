@@ -7,6 +7,7 @@ namespace Project.CSS.Revise.Web.Service
     {
         public CreateEventsTagsResponse CreateEventsAndTags(CreateEvents_Tags model);
         public CreateEventsShopsResponse CreateEventsAndShops(CreateEvent_Shops model);
+        public GetDataCreateEvent_Shops GetDataCreateEventsAndShops(GetDataCreateEvent_Shops filter);
     }
     public class ShopAndEventService : IShopAndEventService
     {
@@ -23,6 +24,11 @@ namespace Project.CSS.Revise.Web.Service
         public CreateEventsShopsResponse CreateEventsAndShops(CreateEvent_Shops model)
         {
             return _shopAndEventRepo.CreateEventsAndShops(model);
+        }
+
+        public GetDataCreateEvent_Shops GetDataCreateEventsAndShops(GetDataCreateEvent_Shops filter)
+        {
+            return _shopAndEventRepo.GetDataCreateEventsAndShops(filter);
         }
     }
 }

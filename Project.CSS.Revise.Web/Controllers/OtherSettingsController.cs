@@ -187,5 +187,19 @@ namespace Project.CSS.Revise.Web.Controllers
             var result = _shopAndEventService.CreateEventsAndShops(model);
             return Json(new { success = result.ID, message = result.Message });
         }
+
+        [HttpGet]
+        public JsonResult GetDataCreateEventsAndShops(int EventID , string EventDate)
+        {
+
+            var filter = new GetDataCreateEvent_Shops
+            {
+                EventID = EventID,
+                EventDates = EventDate,
+            };
+            var DataCreateEventShops = _shopAndEventService.GetDataCreateEventsAndShops(filter);
+
+            return Json(DataCreateEventShops);
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Project.CSS.Revise.Web.Data;
+﻿using Microsoft.Extensions.Logging;
+using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
@@ -9,6 +10,7 @@ namespace Project.CSS.Revise.Web.Respositories
     {
         public CreateEventsTagsResponse CreateEventsAndTags(CreateEvents_Tags model);
         public CreateEventsShopsResponse CreateEventsAndShops(CreateEvent_Shops model);
+        public GetDataCreateEvent_Shops GetDataCreateEventsAndShops(GetDataCreateEvent_Shops filter);
     }
     public class ShopAndEventRepo : IShopAndEventRepo
     {
@@ -256,5 +258,51 @@ namespace Project.CSS.Revise.Web.Respositories
 
             return response;
         }
+
+        public GetDataCreateEvent_Shops GetDataCreateEventsAndShops(GetDataCreateEvent_Shops filter)
+        {
+            var targetDate = Commond.FormatExtension.ToDateFromddmmyyy(filter.EventDates);
+
+            // 🔹 data1: ดึง Project ทั้งหมด ไม่สน IsUsed
+            var data1 = _context.TR_ProjectShopEvents
+                .Where(e => e.EventID == filter.EventID
+                         && e.EventDate == targetDate
+                         && e.FlagActive == true)
+                .ToList();
+
+            // 🔹 data2: ดึงเฉพาะร้านที่ IsUsed == true
+            var data2 = data1.Where(e => e.IsUsed == true).ToList();
+
+            var response = new GetDataCreateEvent_Shops
+            {
+                EventID = filter.EventID,
+                EventDates = filter.EventDates,
+                IsHaveData = data2.Any(),
+
+                Projects = data1
+                    .Select(e => e.ProjectID)
+                    .Distinct()
+                    .Select(projectId => new ListProjects
+                    {
+                        ProjectID = projectId,
+                        ProjectName = _context.tm_Projects.FirstOrDefault(p => p.ProjectID == projectId)?.ProjectName ?? "",
+                        IsUsed = true // หากต้องการให้เช็คจาก data2 ก็เปลี่ยน logic ได้
+                    }).ToList(),
+
+                Shops = data2
+                    .GroupBy(e => e.ShopID)
+                    .Select(g => new ListShops
+                    {
+                        ID = g.Key,
+                        Name = _context.tm_Shops.FirstOrDefault(s => s.ID == g.Key)?.Name ?? "",
+                        UnitQuota = g.First().UnitQuota,
+                        ShopQuota = g.First().ShopQuota,
+                        IsUsed = g.First().IsUsed,
+                    }).ToList()
+            };
+
+            return response;
+        }
+
     }
 }
