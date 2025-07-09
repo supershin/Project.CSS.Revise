@@ -145,6 +145,17 @@
         pointer-events: none;
     }
 
+    .fw-bold.text-multiline-truncate {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .badge i.fa-tag {
+        font-size: 0.85em;
+    }
+
 </style>
 
 <style>
@@ -183,7 +194,6 @@
             background-color: #f8f9fa !important;
             border-color: #e0e0e0;
         }
-
 </style>
 
 
@@ -260,8 +270,110 @@
                                                 </form>
                                             </div>
                                             <div class="col-12">
-                                                <div class="box-col-12" id="Box_show_partial">
+                                                <div class="row">
+                                                    <div class="col-xl-9 xl-60 order-xl-0 order-1 box-col-12" id="Box_show_partial">
+                                                        @* Calendar *@
+                                                    </div>
+                                                    <div class="col-xl-3 xl-40 box-col-12 learning-filter">
+                                                        <div class="md-sidebar">
+                                                            <a class="btn btn-primary email-aside-toggle md-sidebar-toggle">Sumery in year.</a>
+                                                            <div class="md-sidebar-aside job-sidebar">
+                                                                <div class="default-according style-1 faq-accordion job-accordion" id="accordionoc">
+                                                                    <div class="row">
+                                                                        <div class="col-xl-12">
+                                                                            <div class="card">
+                                                                                <div class="card-header">
+                                                                                    <h5 class="mb-0">
+                                                                                        <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#collapseicon1" aria-expanded="true" aria-controls="collapseicon1">🗓️ January</button>
+                                                                                    </h5>
+                                                                                </div>
+                                                                                <div class="collapse card-body px-0 show" id="collapseicon1" aria-labelledby="collapseicon1" data-bs-parent="#accordion">
+                                                                                    <div class="categories pt-0 pb-0">
+                                                                                        <ul class="list-unstyled">
+                                                                                            <li class="d-flex justify-content-between align-items-start mb-1">
+                                                                                                <div class="flex-grow-1 pe-3" style="min-width: 0;">
+                                                                                                    <div class="fw-bold text-truncate" style="max-width: 100%;">
+                                                                                                        QC Day!
+                                                                                                    </div>
+                                                                                                    <div class="text-muted small">
+                                                                                                        Location in <a href="#">Modiz Station</a>
+                                                                                                    </div>
+                                                                                                    <div class="d-flex flex-wrap gap-1 small">
+                                                                                                        <span class="badge bg-warning text-white border">
+                                                                                                            <i class="fa fa-tag me-1"></i> RTM
+                                                                                                        </span>
+                                                                                                        <span class="badge bg-warning text-white border">
+                                                                                                            <i class="fa fa-tag me-1"></i> Gift Voucher
+                                                                                                        </span>
+                                                                                                        <span class="badge bg-warning text-white border">
+                                                                                                            <i class="fa fa-tag me-1"></i> Food & Drink
+                                                                                                        </span>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <div class="text-end ps-2" style="white-space: nowrap;">
+                                                                                                    <h6 class="text-primary mb-0">1–5</h6>
+                                                                                                    <small class="text-muted">Jan</small>
+                                                                                                </div>
+                                                                                            </li>
+                                                                                            <li class="d-flex justify-content-between align-items-start mb-1">
+                                                                                                <div class="flex-grow-1 pe-3" style="min-width: 0;">
+                                                                                                    <div class="fw-bold text-truncate" style="max-width: 100%;">
+                                                                                                        Funny Day!
+                                                                                                    </div>
+                                                                                                    <div class="text-muted small">
+                                                                                                        Location in <a href="#">Modiz Station</a>
+                                                                                                    </div>
+                                                                                                    <div class="d-flex flex-wrap gap-1 small">
+                                                                                                        <span class="badge bg-warning text-white border">
+                                                                                                            <i class="fa fa-tag me-1"></i> Gift Voucher
+                                                                                                        </span>
+                                                                                                        <span class="badge bg-warning text-white border">
+                                                                                                            <i class="fa fa-tag me-1"></i> Food & Drink
+                                                                                                        </span>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <div class="text-end ps-2" style="white-space: nowrap;">
+                                                                                                    <h6 class="text-primary mb-0">12–17</h6>
+                                                                                                    <small class="text-muted">Jan</small>
+                                                                                                </div>
+                                                                                            </li>
+                                                                                            <li class="d-flex justify-content-between align-items-start mb-1">
+                                                                                                <div class="flex-grow-1 pe-3" style="min-width: 0;">
+                                                                                                    <div class="fw-bold text-truncate" style="max-width: 100%;">
+                                                                                                        จดหมาย Event ตรวจห้อง วันที่ 26-27 เม.ษ. 68 (Letter)
+                                                                                                    </div>
+                                                                                                    <div class="text-muted small">
+                                                                                                        Location in <a href="#">Modiz Station</a>
+                                                                                                    </div>
+                                                                                                    <div class="d-flex flex-wrap gap-1 small">
+                                                                                                        <span class="badge bg-warning text-white border">
+                                                                                                            <i class="fa fa-tag me-1"></i> Food & Drink
+                                                                                                        </span>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <div class="text-end ps-2" style="white-space: nowrap;">
+                                                                                                    <h6 class="text-primary mb-0">28–5</h6>
+                                                                                                    <small class="text-muted">Jan-feb</small>
+                                                                                                </div>
+                                                                                            </li>
+                                                                                        </ul>
+                                                                                    </div>
 
+@*                                                                                     <div class="categories pt-0 pb-0">
+                                                                                        <div class="learning-header"><span class="f-w-600">Completed Events</span></div>
+                                                                                        <ul>
+                                                                                            <li><a href="#">จดหมาย Financing (Latter)</a><span class="badge badge-secondary pull-right">48</span></li>
+                                                                                            <li><a href="#">ลาดกระบังตรวจห้อง 18-19/1 C 2-5 จดหมาย</a><span class="badge badge-secondary pull-right">19</span></li>
+                                                                                        </ul>
+                                                                                    </div> *@
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -492,8 +604,6 @@
     </div>
 </div>
 @section Scripts {
-    <!-- Font Awesome -->
-@*     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" /> *@
     <!-- ✅ FullCalendar v6.1.10 + moment + ภาษาไทย -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
