@@ -1,4 +1,5 @@
-﻿using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
+﻿using Project.CSS.Revise.Web.Models.Master;
+using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
 using Project.CSS.Revise.Web.Respositories;
 
 namespace Project.CSS.Revise.Web.Service
@@ -8,6 +9,7 @@ namespace Project.CSS.Revise.Web.Service
         public CreateEventsTagsResponse CreateEventsAndTags(CreateEvents_Tags model);
         public CreateEventsShopsResponse CreateEventsAndShops(CreateEvent_Shops model);
         public GetDataCreateEvent_Shops GetDataCreateEventsAndShops(GetDataCreateEvent_Shops filter);
+        public List<GetListShopAndEventCalendar.ListData> GetListShopAndEventSCalendar(GetListShopAndEventCalendar.FilterData filter);
     }
     public class ShopAndEventService : IShopAndEventService
     {
@@ -29,6 +31,12 @@ namespace Project.CSS.Revise.Web.Service
         public GetDataCreateEvent_Shops GetDataCreateEventsAndShops(GetDataCreateEvent_Shops filter)
         {
             return _shopAndEventRepo.GetDataCreateEventsAndShops(filter);
+        }
+
+        public List<GetListShopAndEventCalendar.ListData> GetListShopAndEventSCalendar(GetListShopAndEventCalendar.FilterData filter)
+        {
+            List<GetListShopAndEventCalendar.ListData> resp = _shopAndEventRepo.GetListShopAndEventSCalendar(filter);
+            return resp;
         }
     }
 }

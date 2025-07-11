@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Master;
@@ -11,6 +13,7 @@ namespace Project.CSS.Revise.Web.Respositories
         public CreateEventsTagsResponse CreateEventsAndTags(CreateEvents_Tags model);
         public CreateEventsShopsResponse CreateEventsAndShops(CreateEvent_Shops model);
         public GetDataCreateEvent_Shops GetDataCreateEventsAndShops(GetDataCreateEvent_Shops filter);
+        public List<GetListShopAndEventCalendar.ListData> GetListShopAndEventSCalendar(GetListShopAndEventCalendar.FilterData filter);
     }
     public class ShopAndEventRepo : IShopAndEventRepo
     {
@@ -304,5 +307,211 @@ namespace Project.CSS.Revise.Web.Respositories
             return response;
         }
 
+        public List<GetListShopAndEventCalendar.ListData> GetListShopAndEventSCalendar(GetListShopAndEventCalendar.FilterData filter)
+        {
+            List<GetListShopAndEventCalendar.ListData> result = new List<GetListShopAndEventCalendar.ListData>();
+            string connectionString = _context.Database.GetDbConnection().ConnectionString;
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                string sql = "";
+
+                if (filter.L_ShowBy == 1) // Show by ProjectID
+                {
+                    sql = @"
+                            IF @L_Month = ''
+                            BEGIN
+                                SELECT 
+                                       T1.[ID]
+                                      ,T2.[ProjectID]
+                                      ,T3.[ProjectName]
+                                      ,T3.[ProjectName_Eng]
+                                      ,T1.[Name] AS EventName
+		                              ,T4.[Name] AS EventType 
+                                      ,T4.[ColorCode] AS EventColor
+                                      ,T1.[Location]
+		                              ,T5.TagNames
+                                      ,T1.[StartDate]
+                                      ,T1.[EndDate]
+                                FROM [tm_Event](NOLOCK) T1
+                                     LEFT JOIN [TR_ProjectEvent] (NOLOCK) T2 ON T1.ID = T2.[EventID]
+		                             LEFT JOIN [tm_Project] (NOLOCK) T3 ON T2.[ProjectID] = T3.ProjectID
+		                             LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T1.[ID] = T4.EventID
+		                             LEFT JOIN (
+						                            SELECT 
+							                            T1.EventID,
+							                            STRING_AGG(T2.Name, ',') AS TagNames
+						                            FROM [TR_TagEvent] (NOLOCK) T1
+						                            LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
+						                            GROUP BY T1.EventID
+		                                       ) T5 ON T5.EventID = T1.ID
+                                WHERE 
+                                    T1.FlagActive = 1
+                                    AND T2.FlagActive = 1
+                                    AND (
+                                        @L_ProjectID = '' 
+                                        OR (',' + @L_ProjectID + ',' LIKE '%,' + T2.ProjectID + ',%')
+                                    )
+                                    AND (
+                                        YEAR(T1.StartDate) = @L_Year
+                                        OR YEAR(T1.EndDate) = @L_Year
+                                    )
+                                ORDER BY T1.StartDate;
+                            END
+                            ELSE
+                            BEGIN
+                                SELECT       
+                                       T1.[ID]
+                                      ,T2.[ProjectID]
+                                      ,T3.[ProjectName]
+                                      ,T3.[ProjectName_Eng]
+                                      ,T1.[Name] AS EventName
+		                              ,T4.[Name] AS EventType 
+                                      ,T4.[ColorCode] AS EventColor
+                                      ,T1.[Location]
+                                      ,T1.[StartDate]
+                                      ,T1.[EndDate]
+                                FROM [tm_Event](NOLOCK) T1
+                                     LEFT JOIN [TR_ProjectEvent](NOLOCK) T2 ON T1.ID = T2.[EventID]
+		                             LEFT JOIN [tm_Project] (NOLOCK) T3 ON T2.[ProjectID] = T3.ProjectID
+		                             LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T1.[ID] = T4.EventID
+                                WHERE 
+                                    T1.FlagActive = 1
+                                    AND T2.FlagActive = 1
+                                    AND (
+                                        @L_ProjectID = '' 
+                                        OR (',' + @L_ProjectID + ',' LIKE '%,' + T2.ProjectID + ',%')
+                                    )
+                                    AND 
+		                            (
+                                        (
+                                            YEAR(T1.StartDate) = @L_Year
+                                            AND MONTH(T1.StartDate) = CAST(@L_Month AS INT)
+                                        )
+                                        OR (
+                                            YEAR(T1.EndDate) = @L_Year
+                                            AND MONTH(T1.EndDate) = CAST(@L_Month AS INT)
+                                        )
+                                        OR (
+                                            T1.StartDate <= EOMONTH(CONVERT(DATE, CAST(@L_Year AS NVARCHAR(4)) + '-' + @L_Month + '-01'))
+                                            AND T1.EndDate >= CONVERT(DATE, CAST(@L_Year AS NVARCHAR(4)) + '-' + @L_Month + '-01')
+                                        )
+                                    )
+                                ORDER BY T1.StartDate;
+                            END
+                           "
+                    ;
+                }
+                else if (filter.L_ShowBy == 2) // Show by Event
+                {
+                    sql = @"
+                            IF @L_Month = ''
+                            BEGIN
+                                SELECT 
+                                       T1.[ID]
+                                      ,T1.[Name] AS EventName
+		                              ,T4.[Name] AS EventType 
+                                      ,T4.[ColorCode] AS EventColor
+                                      ,T1.[Location]
+		                              ,T5.TagNames
+                                      ,T1.[StartDate]
+                                      ,T1.[EndDate]
+                                FROM [tm_Event](NOLOCK) T1
+		                             LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T1.[ID] = T4.EventID
+		                             LEFT JOIN (
+						                            SELECT 
+							                            T1.EventID,
+							                            STRING_AGG(T2.Name, ',') AS TagNames
+						                            FROM [TR_TagEvent] (NOLOCK) T1
+						                            LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
+						                            GROUP BY T1.EventID
+		                                       ) T5 ON T5.EventID = T1.ID
+                                WHERE 
+                                    T1.FlagActive = 1
+                                    AND (
+                                        YEAR(T1.StartDate) = @L_Year
+                                        OR YEAR(T1.EndDate) = @L_Year
+                                    )
+                                ORDER BY T1.StartDate;
+                            END
+                            ELSE
+                            BEGIN
+                                SELECT       
+                                       T1.[ID]
+                                      ,T1.[Name] AS EventName
+		                              ,T4.[Name] AS EventType 
+                                      ,T4.[ColorCode] AS EventColor
+                                      ,T1.[Location]
+                                      ,T1.[StartDate]
+                                      ,T1.[EndDate]
+                                FROM [tm_Event](NOLOCK) T1
+		                             LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T1.[ID] = T4.EventID
+                                WHERE 
+                                    T1.FlagActive = 1
+                                    AND 
+		                            (
+                                        (
+                                            YEAR(T1.StartDate) = @L_Year
+                                            AND MONTH(T1.StartDate) = CAST(@L_Month AS INT)
+                                        )
+                                        OR (
+                                            YEAR(T1.EndDate) = @L_Year
+                                            AND MONTH(T1.EndDate) = CAST(@L_Month AS INT)
+                                        )
+                                        OR (
+                                            T1.StartDate <= EOMONTH(CONVERT(DATE, CAST(@L_Year AS NVARCHAR(4)) + '-' + @L_Month + '-01'))
+                                            AND T1.EndDate >= CONVERT(DATE, CAST(@L_Year AS NVARCHAR(4)) + '-' + @L_Month + '-01')
+                                        )
+                                    )
+                                ORDER BY T1.StartDate;
+                            END
+                           "
+                    ;
+                }
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.Add(new SqlParameter("@L_ProjectID", filter.L_ProjectID ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_Month", filter.L_Month ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_Year", filter.L_Year ?? 0));
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (filter.L_ShowBy == 1)
+                        {
+                            while (reader.Read())
+                            {
+                                result.Add(new GetListShopAndEventCalendar.ListData
+                                {
+                                    title = "โครงการ: " + Commond.FormatExtension.NullToString(reader["ProjectName"]) + " " + "Event: " + Commond.FormatExtension.NullToString(reader["EventName"]) ,
+                                    start = reader["StartDate"].ToString(),
+                                    end = reader["EndDate"].ToString(),
+                                    color = reader["EventColor"].ToString(),
+                                });
+                            }
+                        }
+                        else
+                        {
+                            while (reader.Read())
+                            {
+                                result.Add(new GetListShopAndEventCalendar.ListData
+                                {
+                                    title = reader["EventName"].ToString(),
+                                    start = reader["StartDate"].ToString(),
+                                    end = reader["EndDate"].ToString(),
+                                    color = reader["EventColor"].ToString(),
+                                });
+                            }
+                        }
+
+                    }
+                }
+            }
+
+
+            return result;
+        }
     }
 }
