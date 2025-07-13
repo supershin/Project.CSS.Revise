@@ -371,12 +371,21 @@ namespace Project.CSS.Revise.Web.Respositories
 		                              ,T4.[Name] AS EventType 
                                       ,T4.[ColorCode] AS EventColor
                                       ,T1.[Location]
+                                      ,T5.TagNames
                                       ,T1.[StartDate]
                                       ,T1.[EndDate]
                                 FROM [tm_Event](NOLOCK) T1
                                      LEFT JOIN [TR_ProjectEvent](NOLOCK) T2 ON T1.ID = T2.[EventID]
 		                             LEFT JOIN [tm_Project] (NOLOCK) T3 ON T2.[ProjectID] = T3.ProjectID
 		                             LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T1.[ID] = T4.EventID
+		                             LEFT JOIN (
+						                            SELECT 
+							                            T1.EventID,
+							                            STRING_AGG(T2.Name, ',') AS TagNames
+						                            FROM [TR_TagEvent] (NOLOCK) T1
+						                            LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
+						                            GROUP BY T1.EventID
+		                                       ) T5 ON T5.EventID = T1.ID
                                 WHERE 
                                     T1.FlagActive = 1
                                     AND T2.FlagActive = 1
@@ -428,6 +437,17 @@ namespace Project.CSS.Revise.Web.Respositories
 						                            LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
 						                            GROUP BY T1.EventID
 		                                       ) T5 ON T5.EventID = T1.ID
+	                                 INNER JOIN (
+		                                SELECT 
+		                                   T1.EventID
+		                                FROM [TR_ProjectEvent] (NOLOCK) T1
+		                                WHERE T1.FlagActive = 1 
+			                                AND (
+				                                @L_ProjectID = '' 
+				                                OR (',' + @L_ProjectID + ',' LIKE '%,' + T1.ProjectID + ',%')
+			                                )
+		                                GROUP BY T1.EventID 
+	                                 ) T3 ON T1.[ID] = T3.EventID
                                 WHERE 
                                     T1.FlagActive = 1
                                     AND (
@@ -444,10 +464,30 @@ namespace Project.CSS.Revise.Web.Respositories
 		                              ,T4.[Name] AS EventType 
                                       ,T4.[ColorCode] AS EventColor
                                       ,T1.[Location]
+                                      ,T5.TagNames
                                       ,T1.[StartDate]
                                       ,T1.[EndDate]
                                 FROM [tm_Event](NOLOCK) T1
-		                             LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T1.[ID] = T4.EventID
+		                            LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T1.[ID] = T4.EventID
+		                            LEFT JOIN (
+						                            SELECT 
+							                            T1.EventID,
+							                            STRING_AGG(T2.Name, ',') AS TagNames
+						                            FROM [TR_TagEvent] (NOLOCK) T1
+						                            LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
+						                            GROUP BY T1.EventID
+		                                       ) T5 ON T5.EventID = T1.ID
+                                    INNER JOIN (
+                                        SELECT 
+                                        T1.EventID
+                                        FROM [TR_ProjectEvent] (NOLOCK) T1
+                                        WHERE T1.FlagActive = 1 
+                                            AND (
+                                                @L_ProjectID = '' 
+                                                OR (',' + @L_ProjectID + ',' LIKE '%,' + T1.ProjectID + ',%')
+                                            )
+                                        GROUP BY T1.EventID 
+                                    ) T3 ON T1.[ID] = T3.EventID
                                 WHERE 
                                     T1.FlagActive = 1
                                     AND 
@@ -486,9 +526,14 @@ namespace Project.CSS.Revise.Web.Respositories
                                 result.Add(new GetListShopAndEventCalendar.ListData
                                 {
                                     title = "โครงการ: " + Commond.FormatExtension.NullToString(reader["ProjectName"]) + " " + "Event: " + Commond.FormatExtension.NullToString(reader["EventName"]) ,
-                                    start = reader["StartDate"].ToString(),
-                                    end = reader["EndDate"].ToString(),
-                                    color = reader["EventColor"].ToString(),
+                                    start = Commond.FormatExtension.NullToString(reader["StartDate"]),
+                                    end = Commond.FormatExtension.NullToString(reader["EndDate"]),
+                                    color = Commond.FormatExtension.NullToString(reader["EventColor"]),
+                                    modaltype = 1, // 1 = Project
+
+                                    Eventname = "โครงการ: " + Commond.FormatExtension.NullToString(reader["ProjectName"]) + " " + "Event: " + Commond.FormatExtension.NullToString(reader["EventName"]),
+                                    Eventlocation = Commond.FormatExtension.NullToString(reader["Location"]),
+                                    Eventtags = Commond.FormatExtension.NullToString(reader["TagNames"])
                                 });
                             }
                         }
@@ -498,10 +543,15 @@ namespace Project.CSS.Revise.Web.Respositories
                             {
                                 result.Add(new GetListShopAndEventCalendar.ListData
                                 {
-                                    title = reader["EventName"].ToString(),
-                                    start = reader["StartDate"].ToString(),
-                                    end = reader["EndDate"].ToString(),
-                                    color = reader["EventColor"].ToString(),
+                                    title = Commond.FormatExtension.NullToString(reader["EventName"]),
+                                    start = Commond.FormatExtension.NullToString(reader["StartDate"]),
+                                    end = Commond.FormatExtension.NullToString(reader["EndDate"]),
+                                    color = Commond.FormatExtension.NullToString(reader["EventColor"]),
+                                    modaltype = 2, // 2 = Event
+
+                                    Eventname = Commond.FormatExtension.NullToString(reader["EventName"]),
+                                    Eventlocation = Commond.FormatExtension.NullToString(reader["Location"]),
+                                    Eventtags = Commond.FormatExtension.NullToString(reader["TagNames"])
                                 });
                             }
                         }

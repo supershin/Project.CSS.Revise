@@ -85,16 +85,17 @@ namespace Project.CSS.Revise.Web.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetEventsForCalendar(string projectID, string month, string year)
+        public JsonResult GetEventsForCalendar(string projectID, string month, int year , int showby )
         {
-            var filter = new EventsModel
+            var filter = new GetListShopAndEventCalendar.FilterData
             {
                 L_ProjectID = projectID,
-                L_month = month,
-                L_year = year                
+                L_Month = month,
+                L_Year = year,
+                L_ShowBy = showby
             };
 
-            var listEvents = _masterService.GetlistEvents(filter);
+            var listEvents = _shopAndEventService.GetListShopAndEventSCalendar(filter);
             return Json(listEvents);
         }
 

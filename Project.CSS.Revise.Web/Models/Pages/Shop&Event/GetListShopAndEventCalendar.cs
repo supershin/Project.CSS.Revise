@@ -17,6 +17,11 @@ namespace Project.CSS.Revise.Web.Models.Pages.Shop_Event
             public string? start { get; set; }
             public string? end { get; set; }
             public string? color { get; set; }
+            public int? modaltype { get; set; }
+
+            public string? Eventname { get; set; }
+            public string? Eventlocation { get; set; }
+            public string? Eventtags { get; set; }
         }
     }
 }

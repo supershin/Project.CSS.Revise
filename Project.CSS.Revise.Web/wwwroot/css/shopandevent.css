@@ -1,11 +1,4 @@
-﻿/*.filter-bar {
-    background: #fff;
-    border-radius: 16px;
-    padding: 12px 16px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-    flex-wrap: wrap;
-}*/
-
+﻿
 /* ✅ Make Choices.js dropdown match form-control look */
 .choices__inner {
     min-height: 48px;
@@ -118,7 +111,7 @@
     height: 42px;
 }
 
-.month-btn {
+/*.month-btn {
     min-width: 64px;
     font-size: 0.85rem;
     font-weight: 500;
@@ -126,16 +119,17 @@
     transition: all 0.2s ease-in-out;
 }
 
-.month-btn:hover {
-    background-color: #0d6efd;
-    color: white;
+.month-btn.active:hover {
+    background-color: #0b5ed7;
 }
 
+
 .month-btn.active {
-    background-color: #0d6efd;
-    color: white;
-    border-color: #0d6efd;
-}
+    background-color: #0d6efd !important;
+    color: #fff !important;
+    border-color: #0d6efd !important;
+}*/
+
 
 /* ✅ Calendar container expands fully */
 #calendar {
