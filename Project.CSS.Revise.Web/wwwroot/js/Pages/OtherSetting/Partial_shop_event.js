@@ -334,7 +334,7 @@ function openEditEventProjectModal(EventID, ProjectID) {
                 console.warn('⚠️ DateEvents ไม่ถูกต้อง:', data.DateEvents);
             }
 
-            renderShopsByDateEditinProject(data.ListShops);
+            //renderShopsByDateEditinProject(data.ListShops);
         })
         .finally(() => {
             $('#modal-loader').remove();
@@ -343,8 +343,9 @@ function openEditEventProjectModal(EventID, ProjectID) {
 
 function selectCalendarItemInProject(button) {
     const allButtons = document.querySelectorAll('#calendarTrackEditinProject .calendar-item');
-    allButtons.forEach(btn => btn.classList.remove('active'));
-    button.classList.add('active');
+    allButtons.forEach(btn => btn.classList.remove('selected'));
+    button.classList.add('selected');
+    console.log('📅 Selected date:', button.getAttribute('data-value'));
 }
 
 function loadShopsForDate(dateValue, EventID, ProjectID) {
