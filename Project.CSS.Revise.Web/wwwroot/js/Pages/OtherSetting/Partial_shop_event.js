@@ -15,6 +15,9 @@
 }
 
 let calendarInstance = null;
+let firstDateValue = null;
+
+
 function LoadPartialshopevent(monthOverride = '') {
     const projectId = $('#ddl-project-shop-event').val();
     const year = $('#ddl-year-shop-event').val();
@@ -56,81 +59,6 @@ function LoadPartialshopevent(monthOverride = '') {
 
 
 }
-
-//function initFullCalendarWithEvents(eventsRaw, onComplete, monthOverride = '') {
-//    const selectedYear = $('#ddl-year-shop-event').val();
-//    const selectedMonth = monthOverride && monthOverride !== '' ? parseInt(monthOverride) : 1;
-
-//    const initialDate = new Date(`${selectedYear}-${String(selectedMonth).padStart(2, '0')}-01`);
-
-//    const events = eventsRaw.map(ev => {
-//        const startISO = parseToISO(ev.start);
-//        let endISO = parseToISO(ev.end);
-
-//        if (endISO) {
-//            const end = new Date(endISO);
-//            end.setDate(end.getDate() + 1); // ✅ always add 1 day (FullCalendar-exclusive)
-//            endISO = end.toISOString();
-//        }
-
-//        return {
-//            title: ev.title,
-//            start: startISO,
-//            end: endISO,
-//            color: ev.color
-//            //extendedProps: {
-//            //    location: ev.Location
-//            //}
-//        };
-//    });
-
-//    const calendarEl = document.getElementById('calendar');
-
-//    calendarEl.innerHTML = '';
-
-//    if (calendarInstance) {
-//        calendarInstance.destroy();
-//        calendarInstance = null;
-//    }
-
-//    calendarInstance = new FullCalendar.Calendar(calendarEl, {
-//        locale: 'en',
-//        dayHeaderFormat: { weekday: 'short' },
-//        titleFormat: {
-//            year: 'numeric',
-//            month: 'long'
-//        },
-//        initialView: 'dayGridMonth',
-//        initialDate: initialDate,
-//        aspectRatio: 1.5,
-//        headerToolbar: {
-//            left: 'prev,next today',
-//            center: 'title',
-//            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-//        },
-//        events: events,
-//        displayEventTime: false,
-//        eventClick: function (info) {
-//            openEventModal(info.event);
-//        },
-//        eventDidMount: function (info) {
-//            const el = info.el;
-//            el.style.cursor = 'pointer';
-//            el.style.borderRadius = '6px';
-//            el.style.padding = '2px 6px';
-//            el.style.fontWeight = 'bold';
-//            el.style.backgroundColor = info.event.backgroundColor || '#3498db';
-//            el.style.color = 'white';
-//        }
-//    });
-
-//    calendarInstance.render();
-
-//    // ✅ callback เมื่อเสร็จ
-//    if (typeof onComplete === 'function') {
-//        onComplete();
-//    }
-//}
 
 function initFullCalendarWithEvents(eventsRaw, onComplete, monthOverride = '') {
     const selectedYear = $('#ddl-year-shop-event').val();
@@ -343,20 +271,160 @@ function renderEventSummaryBox(eventList) {
     }, 300); // Delay 300ms for smooth loading effect
 }
 
-
-
 function parseToISO(dateStr) {
     const parsed = new Date(dateStr);
     return !isNaN(parsed.getTime()) ? parsed.toISOString() : null;
 }
+
 function EditEventProjectModal(event) {
     console.log('📘 Open Project Modal', event);
-    // เปิด modal ที่ใช้สำหรับโครงการ
-
-
+    openEditEventProjectModal(event.EventID, event.ProjectID);
     $('#modal-edit-event-in-project').modal('show');
-    // ดึงข้อมูล event.name, location, tag, etc.
 }
+
+function openEditEventProjectModal(EventID, ProjectID) {
+    $('#modal-edit-event-in-project .modal-body').addClass('position-relative').append(`
+        <div id="modal-loader" class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(255,255,255,0.8); z-index: 10;">
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>
+    `);
+
+    fetch(baseUrl + `OtherSettings/GetDataModalEditEventInProject?EventID=${EventID}&ProjectID=${ProjectID}`)
+        .then(res => res.json())
+        .then(data => {
+            $('#txt-modal-edit-event-in-project-name').val(data.EventName);
+            $('#txt-modal-edit-event-in-project-project').val(data.ProjectName);
+            $('#txt-modal-edit-event-in-project-type-name').val(data.EventType);
+            $('#color-modal-edit-event-in-project-type-color').val(data.EventColor);
+            $('#txt-modal-edit-event-in-project-location').val(data.EventLocation);
+
+            const calendarTrack = document.getElementById('calendarTrackEditinProject');
+            calendarTrack.innerHTML = '';
+
+            let firstDateValue = null;
+
+            if (Array.isArray(data.DateEvents)) {
+                data.DateEvents.forEach((d, index) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'calendar-item';
+                    btn.innerText = d.Text;
+                    btn.setAttribute('data-value', d.Value);
+
+                    btn.onclick = function () {
+                        selectCalendarItemInProject(btn);
+                        loadShopsForDate(d.Value, EventID, ProjectID);
+                    };
+
+                    calendarTrack.appendChild(btn);
+
+                    if (index === 0) {
+                        firstDateValue = d.Value;
+                    }
+                });
+
+                if (firstDateValue) {
+                    const firstBtn = calendarTrack.querySelector(`[data-value="${firstDateValue}"]`);
+                    if (firstBtn) {
+                        firstBtn.classList.add('active');
+                        loadShopsForDate(firstDateValue, EventID, ProjectID);
+                    }
+                }
+            } else {
+                console.warn('⚠️ DateEvents ไม่ถูกต้อง:', data.DateEvents);
+            }
+
+            renderShopsByDateEditinProject(data.ListShops);
+        })
+        .finally(() => {
+            $('#modal-loader').remove();
+        });
+}
+
+function selectCalendarItemInProject(button) {
+    const allButtons = document.querySelectorAll('#calendarTrackEditinProject .calendar-item');
+    allButtons.forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
+}
+
+function loadShopsForDate(dateValue, EventID, ProjectID) {
+    fetch(baseUrl + `OtherSettings/GetDataTrEventsAndShopsinProjects?EventID=${EventID}&projectID=${ProjectID}&eventDate=${dateValue}`)
+        .then(res => res.json())
+        .then(shopList => {
+            const container = document.querySelector('#modal-edit-event-in-project .card-body.pt-3.pb-4.px-3');
+            const header = container.querySelector('.shop-item-card');
+            container.innerHTML = '';
+            container.appendChild(header);
+
+            shopList.forEach((shop, i) => {
+                const id = `edit-shop-${i}`;
+                const isUsed = shop.IsUsed === true;
+
+                container.innerHTML += `
+                    <div class="shop-item-card p-3 shadow-sm rounded-3 border position-relative" 
+                         style="display: grid; grid-template-columns: 22px 140px 100px 100px 100px 1fr; gap: 1rem; align-items: center;">
+
+                        <!-- Checkbox -->
+                        <div class="form-check m-0">
+                            <input class="form-check-input" type="checkbox" id="${id}" ${isUsed ? 'checked' : ''} disabled />
+                        </div>
+
+                        <!-- Name -->
+                        <div class="fw-semibold fs-6 text-dark">${shop.Name}</div>
+
+                        <!-- Shop Quota -->
+                        <input type="number" class="form-control form-control-sm quota-input" 
+                               placeholder="Quota" style="width: 100px;" value="${shop.ShopQuota ?? 0}" disabled />
+
+                        <!-- Unit Quota -->
+                        <input type="number" class="form-control form-control-sm quota-input" 
+                               placeholder="Quota/Unit" style="width: 100px;" value="${shop.UnitQuota ?? 0}" disabled />
+
+                        <!-- Switch -->
+                        <div class="form-check form-switch ms-3">
+                            <input class="form-check-input" type="checkbox" id="switch-${shop.id}" onchange="toggleQuotaInputs(this)" disabled />
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex gap-2 justify-content-end">
+                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="editShopRow(this)" disabled>
+                                <i class="fa fa-edit me-1"></i> แก้ไข
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteShopRow(this)" disabled>
+                                <i class="fa fa-trash me-1"></i> ลบ
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+}
+
+btn.onclick = function () {
+    selectCalendarItemInProject(btn);
+    loadShopsForDate(d.Value, EventID, ProjectID); // ✅ ทำงานถูกต้องแล้ว
+};
+
+
+function slideLeftEditinProject() {
+    const track = document.getElementById("calendarTrackEditinProject");
+    currentIndex = Math.max(currentIndex - slideSize, 0);
+    updateTransformEditinProject(track);
+}
+
+function slideRightEditinProject() {
+    const track = document.getElementById("calendarTrackEditinProject");
+    const totalItems = track.children.length;
+    const maxIndex = totalItems - slideSize;
+    currentIndex = Math.min(currentIndex + slideSize, maxIndex);
+    updateTransformEditinProject(track);
+}
+
+function updateTransformEditinProject(track) {
+    const x = -currentIndex * itemWidth;
+    track.style.transform = `translateX(${x}px)`;
+}
+
 
 function EditEventModal(event) {
     console.log('📗 Open Event Modal', event);

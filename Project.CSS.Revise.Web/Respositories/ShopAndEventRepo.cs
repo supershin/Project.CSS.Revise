@@ -1,9 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Project.CSS.Revise.Web.Data;
-using Project.CSS.Revise.Web.Models;
-using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
 
 namespace Project.CSS.Revise.Web.Respositories
@@ -14,6 +11,8 @@ namespace Project.CSS.Revise.Web.Respositories
         public CreateEventsShopsResponse CreateEventsAndShops(CreateEvent_Shops model);
         public GetDataCreateEvent_Shops GetDataCreateEventsAndShops(GetDataCreateEvent_Shops filter);
         public List<GetListShopAndEventCalendar.ListData> GetListShopAndEventSCalendar(GetListShopAndEventCalendar.FilterData filter);
+        public GetDataEditEvents.EditEventInProjectModel GetDataEditEventInProject(GetDataEditEvents.GetEditEventInProjectFilterModel filter);
+        public List<GetDataEditEvents.ListEditShopsModel> GetDataTrEventsAndShopsinProject(int enventID, string projectID, string eventDate);
     }
     public class ShopAndEventRepo : IShopAndEventRepo
     {
@@ -324,7 +323,7 @@ namespace Project.CSS.Revise.Web.Respositories
                             IF @L_Month = ''
                             BEGIN
                                 SELECT 
-                                       T1.[ID]
+                                       T1.[ID] AS EventID
                                       ,T2.[ProjectID]
                                       ,T3.[ProjectName]
                                       ,T3.[ProjectName_Eng]
@@ -363,7 +362,7 @@ namespace Project.CSS.Revise.Web.Respositories
                             ELSE
                             BEGIN
                                 SELECT       
-                                       T1.[ID]
+                                       T1.[ID] AS EventID
                                       ,T2.[ProjectID]
                                       ,T3.[ProjectName]
                                       ,T3.[ProjectName_Eng]
@@ -419,7 +418,7 @@ namespace Project.CSS.Revise.Web.Respositories
                             IF @L_Month = ''
                             BEGIN
                                 SELECT 
-                                       T1.[ID]
+                                       T1.[ID] AS EventID
                                       ,T1.[Name] AS EventName
 		                              ,T4.[Name] AS EventType 
                                       ,T4.[ColorCode] AS EventColor
@@ -459,7 +458,7 @@ namespace Project.CSS.Revise.Web.Respositories
                             ELSE
                             BEGIN
                                 SELECT       
-                                       T1.[ID]
+                                       T1.[ID] AS EventID
                                       ,T1.[Name] AS EventName
 		                              ,T4.[Name] AS EventType 
                                       ,T4.[ColorCode] AS EventColor
@@ -531,6 +530,8 @@ namespace Project.CSS.Revise.Web.Respositories
                                     color = Commond.FormatExtension.NullToString(reader["EventColor"]),
                                     modaltype = 1, // 1 = Project
 
+                                    EventID = Commond.FormatExtension.Nulltoint(reader["EventID"]),
+                                    ProjectID = Commond.FormatExtension.NullToString(reader["ProjectID"]),
                                     Eventname = "โครงการ: " + Commond.FormatExtension.NullToString(reader["ProjectName"]) + " " + "Event: " + Commond.FormatExtension.NullToString(reader["EventName"]),
                                     Eventlocation = Commond.FormatExtension.NullToString(reader["Location"]),
                                     Eventtags = Commond.FormatExtension.NullToString(reader["TagNames"])
@@ -549,6 +550,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                     color = Commond.FormatExtension.NullToString(reader["EventColor"]),
                                     modaltype = 2, // 2 = Event
 
+                                    EventID = Commond.FormatExtension.Nulltoint(reader["EventID"]),
                                     Eventname = Commond.FormatExtension.NullToString(reader["EventName"]),
                                     Eventlocation = Commond.FormatExtension.NullToString(reader["Location"]),
                                     Eventtags = Commond.FormatExtension.NullToString(reader["TagNames"])
@@ -563,5 +565,76 @@ namespace Project.CSS.Revise.Web.Respositories
 
             return result;
         }
+
+        public GetDataEditEvents.EditEventInProjectModel GetDataEditEventInProject(GetDataEditEvents.GetEditEventInProjectFilterModel filter)
+        {
+            // 1. ดึงข้อมูลหลักของ Event และ Project
+            var result = (from e in _context.tm_Events
+                          join pe in _context.TR_ProjectEvents on e.ID equals pe.EventID into peJoin
+                          from pe in peJoin.DefaultIfEmpty()
+                          join p in _context.tm_Projects on pe.ProjectID equals p.ProjectID into pJoin
+                          from p in pJoin.DefaultIfEmpty()
+                          join et in _context.tm_EventTypes on e.ID equals et.EventID into etJoin
+                          from et in etJoin.DefaultIfEmpty()
+                          where e.ID == filter.EventID && pe.ProjectID == filter.ProjectID
+                          select new GetDataEditEvents.EditEventInProjectModel
+                          {
+                              EventID = e.ID,
+                              ProjectID = pe.ProjectID,
+                              ProjectName = p.ProjectName,
+                              EventName = e.Name,
+                              EventLocation = e.Location,
+                              EventType = et.Name,
+                              EventColor = et.ColorCode
+                          }).FirstOrDefault();
+
+            // 2. ตรวจสอบและเพิ่ม DateEvents
+            var eventItem = _context.tm_Events.FirstOrDefault(e => e.ID == filter.EventID);
+
+            if (result != null && eventItem != null && eventItem.StartDate != null && eventItem.EndDate != null)
+            {
+                result.DateEvents = Enumerable.Range(0, (eventItem.EndDate.Value.Date - eventItem.StartDate.Value.Date).Days + 1)
+                    .Select(offset => eventItem.StartDate.Value.Date.AddDays(offset))
+                    .Select(date => new GetDataEditEvents.DateEventModel
+                    {
+                        Text = Commond.FormatExtension.FormatDateToThaiShortString(date),
+                        Value = date.ToString("yyyy-MM-dd")
+                    }).ToList();
+            }
+
+            // 3. ดึงข้อมูลร้านค้าที่เกี่ยวข้องกับ Shop (เฉพาะ FlagActive == true)
+            result.ListShops = _context.tm_Shops.Where(s => s.FlagActive == true)
+                .Select(s => new GetDataEditEvents.ListShopsModel
+                {
+                    ID = s.ID,
+                    Name = s.Name
+                }).ToList();
+
+            return result;
+        }
+
+        public List<GetDataEditEvents.ListEditShopsModel> GetDataTrEventsAndShopsinProject(int enventID, string projectID, string eventDate)
+        {
+            var targetDate = Commond.FormatExtension.ToDateFromddmmyyy(eventDate);
+
+            var query = (from s in _context.tm_Shops
+                         where s.FlagActive == true
+                         join e in _context.TR_ProjectShopEvents
+                             on new { ShopID = (int?)s.ID, EventID = (int?)enventID, ProjectID = projectID, EventDate = targetDate } equals new { ShopID = e.ShopID, e.EventID, e.ProjectID, e.EventDate }
+                             into seJoin
+                         from e in seJoin.Where(x => x.FlagActive == true).DefaultIfEmpty()
+                         select new GetDataEditEvents.ListEditShopsModel
+                         {
+                             ID = s.ID,
+                             Name = s.Name,
+                             UnitQuota = e != null ? e.UnitQuota : 0,
+                             ShopQuota = e != null ? e.ShopQuota : 0,
+                             IsUsed = e != null && e.IsUsed == true
+                         }).ToList();
+
+            return query;
+        }
+
+
     }
 }

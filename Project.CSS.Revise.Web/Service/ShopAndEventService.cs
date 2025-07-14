@@ -10,6 +10,8 @@ namespace Project.CSS.Revise.Web.Service
         public CreateEventsShopsResponse CreateEventsAndShops(CreateEvent_Shops model);
         public GetDataCreateEvent_Shops GetDataCreateEventsAndShops(GetDataCreateEvent_Shops filter);
         public List<GetListShopAndEventCalendar.ListData> GetListShopAndEventSCalendar(GetListShopAndEventCalendar.FilterData filter);
+        public GetDataEditEvents.EditEventInProjectModel GetDataEditEventInProject(GetDataEditEvents.GetEditEventInProjectFilterModel filter);
+        public List<GetDataEditEvents.ListEditShopsModel> GetDataTrEventsAndShopsinProject(int enventID, string projectID, string eventDate);
     }
     public class ShopAndEventService : IShopAndEventService
     {
@@ -36,6 +38,17 @@ namespace Project.CSS.Revise.Web.Service
         public List<GetListShopAndEventCalendar.ListData> GetListShopAndEventSCalendar(GetListShopAndEventCalendar.FilterData filter)
         {
             List<GetListShopAndEventCalendar.ListData> resp = _shopAndEventRepo.GetListShopAndEventSCalendar(filter);
+            return resp;
+        }
+
+        public GetDataEditEvents.EditEventInProjectModel GetDataEditEventInProject(GetDataEditEvents.GetEditEventInProjectFilterModel filter)
+        {
+            return _shopAndEventRepo.GetDataEditEventInProject(filter);
+        }
+
+        public List<GetDataEditEvents.ListEditShopsModel> GetDataTrEventsAndShopsinProject(int enventID, string projectID, string eventDate)
+        {
+            List<GetDataEditEvents.ListEditShopsModel> resp = _shopAndEventRepo.GetDataTrEventsAndShopsinProject(enventID, projectID, eventDate);
             return resp;
         }
     }

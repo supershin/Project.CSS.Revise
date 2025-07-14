@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models;
@@ -199,6 +200,29 @@ namespace Project.CSS.Revise.Web.Controllers
                 EventDates = EventDate,
             };
             var DataCreateEventShops = _shopAndEventService.GetDataCreateEventsAndShops(filter);
+
+            return Json(DataCreateEventShops);
+        }
+
+        [HttpGet]
+        public JsonResult GetDataModalEditEventInProject(int EventID, string ProjectID)
+        {
+
+            var filter = new GetDataEditEvents.GetEditEventInProjectFilterModel
+            {
+                EventID = EventID,
+                ProjectID = ProjectID,
+            };
+            var DataEditEventInProject = _shopAndEventService.GetDataEditEventInProject(filter);
+
+            return Json(DataEditEventInProject);
+        }
+
+        [HttpGet]
+        public JsonResult GetDataTrEventsAndShopsinProjects(int EventID, string projectID, string eventDate)
+        {
+
+            List<GetDataEditEvents.ListEditShopsModel> DataCreateEventShops = _shopAndEventService.GetDataTrEventsAndShopsinProject(EventID, projectID, eventDate);
 
             return Json(DataCreateEventShops);
         }
