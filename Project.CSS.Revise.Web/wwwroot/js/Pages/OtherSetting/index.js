@@ -277,9 +277,11 @@ $(document).on('submit', '.form.theme-form', function (e) {
                                 data.EventProjects,
                                 'เลือกโครงการ',
                                 function (EventID) {
-                                    fetchDataByProject(EventID);
+                                    console.log("Selected ProjectID:", EventID);
+                                    fetchDataByProject(EventID); // ✅ จะถูกเรียกทันทีเมื่อ dropdown โหลดเสร็จ
                                 }
                             );
+
                         });
                 });
             } else {
@@ -314,23 +316,35 @@ function renderDropdownOptions(selectElementId, items, placeholderText = 'เล
     select.appendChild(defaultOption);
 
     // Add each item
-    items.forEach(item => {
+    items.forEach((item, index) => {
         const option = document.createElement('option');
         option.value = item.ValueInt;
         option.textContent = item.Text ?? '';
         select.appendChild(option);
     });
 
-    // Attach onchange callback if needed
+    // Attach onchange callback
     if (onChangeCallback) {
         select.onchange = () => {
-            const selectedProjectID = select.value;
-            if (selectedProjectID) {
-                onChangeCallback(selectedProjectID);
+            const EventID = select.value;
+            if (EventID) {
+                onChangeCallback(EventID);
             }
         };
     }
+
+    // ✅ Auto select first item if exists
+    if (items.length > 0) {
+        const firstValue = items[0].ValueInt;
+        select.value = firstValue;
+
+        // ✅ Trigger callback manually
+        if (onChangeCallback) {
+            onChangeCallback(firstValue);
+        }
+    }
 }
+
 
 function fetchDataByProject(EventID) {
     fetch(baseUrl + 'OtherSettings/GetDataDateTabShopFromInsert?EventID=' + EventID)
@@ -350,7 +364,6 @@ function fetchDataByProject(EventID) {
             console.error('เกิดข้อผิดพลาดในการโหลดข้อมูล:', err);
         });
 }
-
 
 function renderEventDates(dates) {
     const track = document.getElementById("calendarTrack");
