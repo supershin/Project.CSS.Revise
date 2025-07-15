@@ -143,43 +143,6 @@
 
 </style>
 <style>
-    .card-body.shop-list {
-        padding-bottom: 2rem; /* หรือ 32px */
-    }
-    .shop-item-card {
-        background-color: #ffffff;
-        transition: box-shadow 0.2s ease, transform 0.2s ease;
-    }
-
-    .shop-item-card:hover {
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-        transform: translateY(-2px);
-    }
-
-    .form-check-input[type="checkbox"] {
-        transform: scale(1.2);
-    }
-
-    .form-check-input:checked {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-    }
-
-    .shop-item-card {
-        background-color: #fff;
-        transition: all 0.2s ease;
-        display: grid;
-        grid-template-columns: 22px 140px 100px 100px 100px 1fr;
-        gap: 1rem;
-        align-items: center;
-    }
-
-        .shop-item-card.bg-light {
-            background-color: #f8f9fa !important;
-            border-color: #e0e0e0;
-        }
-</style>
-<style>
     .carousel-control-prev,
     .carousel-control-next {
         width: 50px;
@@ -199,6 +162,38 @@
     .carousel:hover .carousel-control-next {
         opacity: 1;
     }
+</style>
+<style>
+    .card-body.shop-list {
+        padding-bottom: 2rem; /* หรือ 32px */
+    }
+
+    .shop-item-card {
+        background-color: #fff;
+        transition: all 0.2s ease;
+        display: grid;
+        grid-template-columns: 32px 1.5fr 1fr 1fr 1fr 1.2fr;
+        gap: 1.2rem;
+        align-items: center;
+        width: 100%; /* ใช้เต็ม modal */
+    }
+
+
+
+        .shop-item-card:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+    .form-check-input[type="checkbox"] {
+        transform: scale(1.2);
+    }
+
+    .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
 </style>
 
 
@@ -363,7 +358,7 @@
                 <div class="card-body">
                     <ul class="simple-wrapper nav nav-tabs" id="myTab" role="tablist">
                         <li class="nav-item"><a class="nav-link active txt-primary" id="modal-Event-add-tab" data-bs-toggle="tab" href="#modal-Event-add" role="tab" aria-controls="modal-Event-add" aria-selected="true"><i class="fa fa-calendar" aria-hidden="true"></i>Event</a></li>
-                        <li class="nav-item" id="li-tab-shop">
+                        <li class="nav-item d-none" id="li-tab-shop">
                             <a class="nav-link txt-primary" id="modal-Shop-add-tab" data-bs-toggle="tab" href="#modal-Shop-add" role="tab" aria-controls="modal-Shop-add" aria-selected="false">
                                 <i class="fa fa-shopping-basket" aria-hidden="true"></i>Shop
                             </a>
@@ -372,7 +367,7 @@
                     <div class="tab-content" id="myTabContent">
                         <div class="tab-pane fade show active" id="modal-Event-add" role="tabpanel" aria-labelledby="modal-Event-add-tab">
                             <div class="card-body custom-input p-3">
-                                <form class="form theme-form">
+                                <form id="form-new-event" class="form theme-form">
                                     <div class="card-body custom-input">
                                         <div class="row">
                                             <div class="col">
@@ -449,8 +444,8 @@
                                     </div>
                                     <div class="card-footer text-end">
                                         <div class="col-sm-9 offset-sm-3">
-                                            <button class="btn btn-primary me-3" type="submit">Save</button>
-                                            <input class="btn btn-light" type="reset" value="Cancel">
+                                            <button class="btn btn-primary me-3" type="submit" id="btn-new-save-event">Save</button>
+                                            <input class="btn btn-light" type="reset" id="btn-cancel-new-event" value="Cancel">
                                         </div>
                                     </div>
                                 </form>
@@ -460,6 +455,7 @@
                             <div class="card-body custom-input p-3">
                                 <div class="row">
                                     <input type="hidden" id="hiddenEventID" value="0" />
+                                    <input type="hidden" id="hiddenProjectIDinSelected" value="0" />
                                     <div class="col-12">
                                         <div class="card shadow-sm border rounded mb-3 checkbox-checked">
                                             <div class="card-header bg-white fw-bold" style="font-size: 1rem;">
@@ -467,8 +463,6 @@
                                             </div>
                                             <div class="card-body py-3 d-flex flex-wrap gap-3">
                                                 <select id="ddl-modal-new-event-project-selected" class="form-select">
-                                                    <option value="10C001">เคฟ ซี๊ด เกษตร</option>
-                                                    <option value="400H006">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -498,9 +492,9 @@
                                                 </button>
 
                                                 <!-- Select All Button -->
-                                                <button class="btn btn-glow ms-3" onclick="selectAllDays()">
+                    @*                             <button class="btn btn-glow ms-3" onclick="selectAllDays()">
                                                     <i class="fa fa-check-circle me-1"></i> เลือกทุกวัน
-                                                </button>
+                                                </button> *@
                                             </div>
                                         </div>
                                     </div>
@@ -519,36 +513,31 @@
                                             </div>
                                             <div class="card-body pt-3 pb-4 px-3 d-flex flex-column gap-3">
                                                 <!-- HEADER ROW -->
-                                            <div class="shop-item-card d-grid align-items-center p-3 shadow-sm rounded-3 border position-relative"
-                                                    style="grid-template-columns: 22px 140px 100px 100px 100px 1fr; gap: 1rem;">
+                                                <div class="shop-item-card d-grid align-items-center p-3 shadow-sm rounded-3 border position-relative"
+                                                     style="grid-template-columns: 32px 1.5fr 1fr 1fr 1fr 1.2fr; gap: 1.2rem; width: 100%;">
 
-
-                                                    <!-- Checkbox space -->
-                                                    <div style="width: 22px;">
+                                                    <!-- Checkbox -->
+                                                    <div style="width: 32px;">
                                                         <input class="form-check-input" type="checkbox" id="shopCheckall" onchange="toggleCheckAll(this)" />
                                                     </div>
 
                                                     <!-- ชื่อร้านค้า -->
-                                                    <div style="min-width: 140px; width: 140px;">
-                                                        ชื่อร้านค้า
-                                                    </div>
+                                                    <div class="fw-bold text-dark">ชื่อร้านค้า</div>
 
                                                     <!-- Quota -->
-                                                    <div style="width: 100px;">Quota</div>
+                                                    <div class="fw-bold text-dark">Quota</div>
 
                                                     <!-- Quota/Unit -->
-                                                    <div style="width: 100px;">Quota/Unit</div>
+                                                    <div class="fw-bold text-dark">Quota/Unit</div>
 
-                                                    <!-- Switch -->
-                                                    <div class="ms-2" style="min-width: 80px;">
-                                                        แก้ไขโควต้า
-                                                    </div>
+                                                    <!-- แก้ไขโควต้า -->
+                                                    <div class="fw-bold text-dark">แก้ไขโควต้า</div>
 
-                                                    <!-- Actions -->
-                                                    <div class="ms-auto text-end" style="min-width: 120px;">
-                                                        Action
-                                                    </div>
+                                                    <!-- Action -->
+                                                    <div class="fw-bold text-dark text-end pe-2">Action</div>
                                                 </div>
+
+
                                             </div>
                                         </div>
                                     </div>
@@ -557,7 +546,6 @@
                             <div class="card-footer text-end" id="shop-save-footer">
                                 <div class="col-sm-9 offset-sm-3">
                                     <button class="btn btn-primary me-3" type="button" onclick="saveShopTab()">Save</button>
-                                    <input class="btn btn-light" type="reset" value="Cancel">
                                 </div>
                             </div>
                         </div>
@@ -580,6 +568,8 @@
                     <form class="form theme-form">
                         <div class="card-body custom-input">
                             <div class="row">
+                                <input type="hidden" id="hiddenEditEventID" value="0" />
+                                <input type="hidden" id="hiddenEditProjectID" value="0" />
                                 <div class="col-12">
                                     <div class="mb-3 row">
                                         <label class="col-sm-3">Event</label>
@@ -629,11 +619,6 @@
                                                 <button class="arrow-btn" type="button" onclick="slideRightEditinProject()">
                                                     <i class="fa fa-chevron-right"></i>
                                                 </button>
-
-                                                <!-- Select All Button -->
-                                                <button class="btn btn-glow ms-3" type="button" onclick="selectAllDays_EditProject()">
-                                                    <i class="fa fa-check-circle me-1"></i> เลือกทุกวัน
-                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -647,41 +632,36 @@
                                                     </div>
 
                                                     <!-- ขวา: ปุ่มเพิ่มร้านค้า -->
-                                                    <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" onclick="addNewShopEditinProject()">
+                                                    <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" onclick="addNewEditShop()">
                                                         <i class="fa fa-plus me-1"></i> เพิ่มร้านค้า
                                                     </button>
+
                                                 </div>
                                                 <div class="card-body pt-3 pb-4 px-3 d-flex flex-column gap-3">
                                                     <!-- HEADER ROW -->
                                                     <div class="shop-item-card d-grid align-items-center p-3 shadow-sm rounded-3 border position-relative"
-                                                         style="grid-template-columns: 22px 140px 100px 100px 100px 1fr; gap: 1rem;">
+                                                         style="grid-template-columns: 32px 1.5fr 1fr 1fr 1fr 1.2fr; gap: 1.2rem; width: 100%;">
 
-
-                                                        <!-- Checkbox space -->
-                                                        <div style="width: 22px;">
-                                                            <input class="form-check-input" type="checkbox" id="shopCheckallEditinProject" onchange="toggleCheckAllEditinProject(this)" />
+                                                        <!-- Checkbox -->
+                                                        <div style="width: 32px;">
+                                                            <input class="form-check-input" type="checkbox" id="shopCheckall" onchange="toggleCheckAll(this)" />
                                                         </div>
 
                                                         <!-- ชื่อร้านค้า -->
-                                                        <div style="min-width: 140px; width: 140px;">
-                                                            ชื่อร้านค้า
-                                                        </div>
+                                                        <div class="fw-bold text-dark">ชื่อร้านค้า</div>
 
                                                         <!-- Quota -->
-                                                        <div style="width: 100px;">Quota</div>
+                                                        <div class="fw-bold text-dark">Quota</div>
 
                                                         <!-- Quota/Unit -->
-                                                        <div style="width: 100px;">Quota/Unit</div>
+                                                        <div class="fw-bold text-dark">Quota/Unit</div>
 
-                                                        <!-- Switch -->
-                                                        <div class="ms-2" style="min-width: 80px;">
-                                                            แก้ไขโควต้า
-                                                        </div>
+                                                        <!-- แก้ไขโควต้า -->
+                                                        <div class="fw-bold text-dark">แก้ไขโควต้า</div>
 
-                                                        <!-- Actions -->
-                                                        <div class="ms-auto text-end" style="min-width: 120px;">
-                                                            Action
-                                                        </div>
+                                                        <!-- Action -->
+                                                        <div class="fw-bold text-dark text-end pe-2">Action</div>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -701,8 +681,7 @@
                         </div>
                         <div class="card-footer text-end">
                             <div class="col-sm-9 offset-sm-3">
-                                <button class="btn btn-primary me-3" type="submit">Save</button>
-                                <input class="btn btn-light" type="reset" value="Cancel">
+                                <button class="btn btn-primary me-3" type="submit" id="save-edit-event">Save</button>
                             </div>
                         </div>
                     </form>

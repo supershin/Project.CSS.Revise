@@ -292,6 +292,8 @@ function openEditEventProjectModal(EventID, ProjectID) {
     fetch(baseUrl + `OtherSettings/GetDataModalEditEventInProject?EventID=${EventID}&ProjectID=${ProjectID}`)
         .then(res => res.json())
         .then(data => {
+            $('#hiddenEditEventID').val(data.EventID);
+            $('#hiddenEditProjectID').val(data.ProjectID);
             $('#txt-modal-edit-event-in-project-name').val(data.EventName);
             $('#txt-modal-edit-event-in-project-project').val(data.ProjectName);
             $('#txt-modal-edit-event-in-project-type-name').val(data.EventType);
@@ -302,6 +304,7 @@ function openEditEventProjectModal(EventID, ProjectID) {
             calendarTrack.innerHTML = '';
 
             let firstDateValue = null;
+            let firstBtn = null;
 
             if (Array.isArray(data.DateEvents)) {
                 data.DateEvents.forEach((d, index) => {
@@ -313,28 +316,24 @@ function openEditEventProjectModal(EventID, ProjectID) {
 
                     btn.onclick = function () {
                         selectCalendarItemInProject(btn);
-                        loadShopsForDate(d.Value, EventID, ProjectID);
                     };
 
                     calendarTrack.appendChild(btn);
 
                     if (index === 0) {
                         firstDateValue = d.Value;
+                        firstBtn = btn;
                     }
                 });
 
-                if (firstDateValue) {
-                    const firstBtn = calendarTrack.querySelector(`[data-value="${firstDateValue}"]`);
-                    if (firstBtn) {
-                        firstBtn.classList.add('active');
-                        loadShopsForDate(firstDateValue, EventID, ProjectID);
-                    }
+                // ✅ กำหนดวันที่แรกเป็นค่าเริ่มต้น
+                if (firstBtn) {
+                    firstBtn.classList.add('selected');
+                    selectCalendarItemInProject(firstBtn);
                 }
             } else {
                 console.warn('⚠️ DateEvents ไม่ถูกต้อง:', data.DateEvents);
             }
-
-            //renderShopsByDateEditinProject(data.ListShops);
         })
         .finally(() => {
             $('#modal-loader').remove();
@@ -345,7 +344,108 @@ function selectCalendarItemInProject(button) {
     const allButtons = document.querySelectorAll('#calendarTrackEditinProject .calendar-item');
     allButtons.forEach(btn => btn.classList.remove('selected'));
     button.classList.add('selected');
-    console.log('📅 Selected date:', button.getAttribute('data-value'));
+
+    const selectedDate = button.getAttribute('data-value');
+    const eventID = document.getElementById('hiddenEditEventID')?.value;
+    const projectID = document.getElementById('hiddenEditProjectID')?.value;
+
+    loadShopsForEditInProject(eventID, projectID, selectedDate);
+}
+
+function loadShopsForEditInProject(eventID, projectID, selectedDate) {
+    const container = document.querySelector('#modal-edit-event-in-project .card-body.pt-3');
+    if (!container) return;
+
+    // ล้างรายการร้านค้าเก่า (ไม่ลบ HEADER)
+    const oldShopCards = container.querySelectorAll('.shop-item-card:not(:first-child)');
+    oldShopCards.forEach(el => el.remove());
+
+    fetch(`${baseUrl}OtherSettings/GetDataCreateEventsAndShops?EventID=${eventID}&EventDate=${selectedDate}&ProjectID=${projectID}`)
+        .then(res => res.json())
+        .then(data => {
+            if (Array.isArray(data)) {
+                data.forEach((shop, index) => {
+                    const shopID = shop.ID || -1;
+                    const name = shop.Name || '';
+                    const unitQuota = shop.UnitQuota || 0;
+                    const shopQuota = shop.ShopQuota || 0;
+                    const isUsed = shop.IsUsed === true;
+
+                    const newRow = document.createElement('div');
+                    newRow.className = 'shop-item-card d-grid align-items-center p-3 shadow-sm rounded-3 border position-relative';
+                    newRow.style.gridTemplateColumns = '22px 140px 100px 100px 100px 1fr';
+                    newRow.style.gap = '1rem';
+
+                    newRow.innerHTML = `
+
+                            <div class="form-check m-0">
+                                <input class="form-check-input" type="checkbox" id="check-${shopID}" ${isUsed ? 'checked' : ''}/>
+                            </div>
+
+                            <div class="fw-semibold fs-6 text-dark">${name}</div>
+
+                            <input type="number" class="form-control form-control-sm quota-input" placeholder="Quota" style="width: 100px;" value="${shopQuota ?? 0}" disabled />
+                            <input type="number" class="form-control form-control-sm quota-input" placeholder="Quota/Unit" style="width: 100px;" value="${unitQuota ?? 0}" disabled />
+
+                            <div class="form-check form-switch ms-3">
+                                <input class="form-check-input" type="checkbox" id="switch-${shop.ID}" onchange="toggleQuotaInputs(this)"/>
+                            </div>
+
+                            <div class="d-flex gap-2 justify-content-end">
+                            </div>
+
+                    `;
+
+                    container.appendChild(newRow);
+                });
+            }
+        })
+        .catch(err => {
+            console.error('❌ Error loading shops:', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'ผิดพลาด!',
+                text: 'ไม่สามารถโหลดข้อมูลร้านค้าได้'
+            });
+        });
+}
+
+function addNewEditShop() {
+    const container = document.querySelector('#modal-edit-event-in-project .card-body.pt-3');
+    if (!container) return;
+
+    const newRow = document.createElement('div');
+    newRow.className = 'shop-item-card d-grid align-items-center p-3 shadow-sm rounded-3 border position-relative';
+    newRow.style.gridTemplateColumns = '22px 140px 100px 100px 100px 1fr';
+    newRow.style.gap = '1rem';
+
+    const newID = `new-${Date.now()}`; // ให้ ID ชั่วคราว (เผื่อใช้ตอนบันทึก)
+
+    newRow.innerHTML = `
+        <div class="form-check m-0">
+            <input class="form-check-input" type="checkbox" id="check-${newID}" />
+        </div>
+
+        <input type="text" class="form-control form-control-sm fw-semibold text-dark"
+               placeholder="ชื่อร้านค้า"
+               style="min-width: 140px; width: 140px;" />
+
+        <input type="number" class="form-control form-control-sm quota-input" placeholder="Quota" style="width: 100px;" value="0" disabled />
+
+        <input type="number" class="form-control form-control-sm quota-input" placeholder="Quota/Unit" style="width: 100px;" value="0" disabled />
+
+        <div class="form-check form-switch ms-3">
+            <input class="form-check-input" type="checkbox" onchange="toggleQuotaInputs(this)" />
+        </div>
+
+        <div class="d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.shop-item-card').remove()">
+                <i class="fa fa-trash"></i>
+            </button>
+        </div>
+    `;
+
+    container.appendChild(newRow);
 }
 
 function loadShopsForDate(dateValue, EventID, ProjectID) {
@@ -406,7 +506,6 @@ btn.onclick = function () {
     loadShopsForDate(d.Value, EventID, ProjectID); // ✅ ทำงานถูกต้องแล้ว
 };
 
-
 function slideLeftEditinProject() {
     const track = document.getElementById("calendarTrackEditinProject");
     currentIndex = Math.max(currentIndex - slideSize, 0);
@@ -425,7 +524,6 @@ function updateTransformEditinProject(track) {
     const x = -currentIndex * itemWidth;
     track.style.transform = `translateX(${x}px)`;
 }
-
 
 function EditEventModal(event) {
     console.log('📗 Open Event Modal', event);

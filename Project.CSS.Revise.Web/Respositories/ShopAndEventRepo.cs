@@ -184,15 +184,14 @@ namespace Project.CSS.Revise.Web.Respositories
                         }
                     }
 
-
                     // ✅ 2. สร้าง ProjectShopEvent
-                    if (model.DatesEvent != null && model.DatesEvent.Any())
+                    if (model.ProjectIds != null && model.ProjectIds.Any())
                     {
-                        foreach (var DateInsert in model.DatesEvent)
+                        foreach (var projectId in model.ProjectIds)
                         {
-                            if (model.ProjectIds != null && model.ProjectIds.Any())
+                            if (model.DatesEvent != null && model.DatesEvent.Any())
                             {
-                                foreach (var projectId in model.ProjectIds)
+                                foreach (var DateInsert in model.DatesEvent)
                                 {
                                     if (newShopsIds != null && newShopsIds.Any())
                                     {
@@ -200,21 +199,46 @@ namespace Project.CSS.Revise.Web.Respositories
                                         {
                                             var shop = model.ShopsItems.FirstOrDefault(x => x.ID == newShopId || x.Name?.Trim() == _context.tm_Shops.FirstOrDefault(s => s.ID == newShopId)?.Name);
 
-                                            var ProjectShopEvent = new TR_ProjectShopEvent
+                                            var targetDate = Commond.FormatExtension.ToDateFromddmmyyy(DateInsert);
+
+                                            // ✅ ตรวจสอบก่อนว่า record มีอยู่หรือไม่
+                                            var existing = _context.TR_ProjectShopEvents.FirstOrDefault(e =>
+                                                e.ProjectID == projectId &&
+                                                e.EventID == model.EventID &&
+                                                e.EventDate == targetDate &&
+                                                e.ShopID == newShopId &&
+                                                e.FlagActive == true);
+
+                                            if (existing != null)
                                             {
-                                                ProjectID = projectId,
-                                                EventID = model.EventID,
-                                                EventDate = Commond.FormatExtension.ToDateFromddmmyyy(DateInsert),
-                                                ShopID = newShopId,
-                                                UnitQuota = shop?.UnitQuota ?? 0, // Default to 0 if not found
-                                                ShopQuota = shop?.ShopQuota ?? 0, // Default to 0 if not found
-                                                IsUsed = shop?.IsUsed ?? false, // Default to false if not found
-                                                FlagActive = true,
-                                                CreateDate = DateTime.Now,
-                                                CreateBy = model.UserID,
-                                                UpdateDate = DateTime.Now,
-                                            };
-                                            _context.TR_ProjectShopEvents.Add(ProjectShopEvent);
+                                                // 🔄 UPDATE
+                                                existing.UnitQuota = shop?.UnitQuota ?? 0;
+                                                existing.ShopQuota = shop?.ShopQuota ?? 0;
+                                                existing.IsUsed = shop?.IsUsed ?? false;
+                                                existing.UpdateDate = DateTime.Now;
+
+                                                _context.TR_ProjectShopEvents.Update(existing);
+                                            }
+                                            else
+                                            {
+                                                // ➕ INSERT
+                                                var ProjectShopEvent = new TR_ProjectShopEvent
+                                                {
+                                                    ProjectID = projectId,
+                                                    EventID = model.EventID,
+                                                    EventDate = targetDate,
+                                                    ShopID = newShopId,
+                                                    UnitQuota = shop?.UnitQuota ?? 0,
+                                                    ShopQuota = shop?.ShopQuota ?? 0,
+                                                    IsUsed = shop?.IsUsed ?? false,
+                                                    FlagActive = true,
+                                                    CreateDate = DateTime.Now,
+                                                    CreateBy = model.UserID,
+                                                    UpdateDate = DateTime.Now,
+                                                };
+                                                _context.TR_ProjectShopEvents.Add(ProjectShopEvent);
+                                            }
+
                                             _context.SaveChanges();
                                         }
                                     }
@@ -222,6 +246,7 @@ namespace Project.CSS.Revise.Web.Respositories
                             }
                         }
                     }
+
 
                     // ✅ 3. บันทึกการเปลี่ยนแปลงทั้งหมด
                     transaction.Commit();
@@ -250,32 +275,22 @@ namespace Project.CSS.Revise.Web.Respositories
             var targetDate = Commond.FormatExtension.ToDateFromddmmyyy(filter.EventDates);
 
             // 🔹 data1: ดึง Project ทั้งหมด ไม่สน IsUsed
-            var data1 = _context.TR_ProjectShopEvents
+            var data = _context.TR_ProjectShopEvents
                 .Where(e => e.EventID == filter.EventID
                          && e.EventDate == targetDate
-                         && e.FlagActive == true)
+                         && e.ProjectID == filter.ProjectID
+                         && e.FlagActive == true
+                         //&& e.IsUsed == true
+                         )
                 .ToList();
-
-            // 🔹 data2: ดึงเฉพาะร้านที่ IsUsed == true
-            var data2 = data1.Where(e => e.IsUsed == true).ToList();
 
             var response = new GetDataCreateEvent_Shops
             {
                 EventID = filter.EventID,
                 EventDates = filter.EventDates,
-                IsHaveData = data2.Any(),
+                IsHaveData = data.Any(),
 
-                Projects = data1
-                    .Select(e => e.ProjectID)
-                    .Distinct()
-                    .Select(projectId => new ListProjects
-                    {
-                        ProjectID = projectId,
-                        ProjectName = _context.tm_Projects.FirstOrDefault(p => p.ProjectID == projectId)?.ProjectName ?? "",
-                        IsUsed = true // หากต้องการให้เช็คจาก data2 ก็เปลี่ยน logic ได้
-                    }).ToList(),
-
-                Shops = data2
+                Shops = data
                     .GroupBy(e => e.ShopID)
                     .Select(g => new ListShops
                     {
@@ -686,29 +701,77 @@ namespace Project.CSS.Revise.Web.Respositories
             return result;
         }
 
+        //public GetDataEditEvents.EditEventInProjectModel GetDataEditEventInProject(GetDataEditEvents.GetEditEventInProjectFilterModel filter)
+        //{
+        //    // 1. ดึงข้อมูลหลักของ Event และ Project
+        //    var result = (from e in _context.tm_Events
+        //                  join pe in _context.TR_ProjectEvents on e.ID equals pe.EventID into peJoin
+        //                  from pe in peJoin.DefaultIfEmpty()
+        //                  join p in _context.tm_Projects on pe.ProjectID equals p.ProjectID into pJoin
+        //                  from p in pJoin.DefaultIfEmpty()
+        //                  join et in _context.tm_EventTypes on e.ID equals et.ID into etJoin
+        //                  from et in etJoin.DefaultIfEmpty()
+        //                  where e.ID == filter.EventID && pe.ProjectID == filter.ProjectID
+        //                  select new GetDataEditEvents.EditEventInProjectModel
+        //                  {
+        //                      EventID = e.ID,
+        //                      ProjectID = pe.ProjectID,
+        //                      ProjectName = p.ProjectName,
+        //                      EventName = e.Name,
+        //                      EventLocation = e.Location,
+        //                      EventType = et.Name,
+        //                      EventColor = et.ColorCode
+        //                  }).FirstOrDefault();
+
+        //    // 2. ตรวจสอบและเพิ่ม DateEvents
+        //    var eventItem = _context.tm_Events.FirstOrDefault(e => e.ID == filter.EventID);
+
+        //    if (result != null && eventItem != null && eventItem.StartDate != null && eventItem.EndDate != null)
+        //    {
+        //        result.DateEvents = Enumerable.Range(0, (eventItem.EndDate.Value.Date - eventItem.StartDate.Value.Date).Days + 1)
+        //            .Select(offset => eventItem.StartDate.Value.Date.AddDays(offset))
+        //            .Select(date => new GetDataEditEvents.DateEventModel
+        //            {
+        //                Text = Commond.FormatExtension.FormatDateToThaiShortString(date),
+        //                Value = date.ToString("yyyy-MM-dd")
+        //            }).ToList();
+        //    }
+
+        //    // 3. ดึงข้อมูลร้านค้าที่เกี่ยวข้องกับ Shop (เฉพาะ FlagActive == true)
+        //    result.ListShops = _context.tm_Shops.Where(s => s.FlagActive == true)
+        //        .Select(s => new GetDataEditEvents.ListShopsModel
+        //        {
+        //            ID = s.ID,
+        //            Name = s.Name
+        //        }).ToList();
+
+        //    return result;
+        //}
+
         public GetDataEditEvents.EditEventInProjectModel GetDataEditEventInProject(GetDataEditEvents.GetEditEventInProjectFilterModel filter)
         {
-            // 1. ดึงข้อมูลหลักของ Event และ Project
             var result = (from e in _context.tm_Events
-                          join pe in _context.TR_ProjectEvents on e.ID equals pe.EventID into peJoin
-                          from pe in peJoin.DefaultIfEmpty()
-                          join p in _context.tm_Projects on pe.ProjectID equals p.ProjectID into pJoin
-                          from p in pJoin.DefaultIfEmpty()
-                          join et in _context.tm_EventTypes on e.ID equals et.ID into etJoin
-                          from et in etJoin.DefaultIfEmpty()
-                          where e.ID == filter.EventID && pe.ProjectID == filter.ProjectID
+                          join p in _context.tm_Projects on e.ProjectID equals p.ProjectID into projectJoin
+                          from p in projectJoin.DefaultIfEmpty()
+
+                          join etype in _context.TR_Event_EventTypes on e.ID equals etype.EventID into etypeJoin
+                          from etype in etypeJoin.DefaultIfEmpty()
+
+                          join et in _context.tm_EventTypes on etype.EventTypeID equals et.ID into eventTypeJoin
+                          from et in eventTypeJoin.DefaultIfEmpty()
+
+                          where e.ID == filter.EventID && e.ProjectID == filter.ProjectID
                           select new GetDataEditEvents.EditEventInProjectModel
                           {
                               EventID = e.ID,
-                              ProjectID = pe.ProjectID,
+                              ProjectID = e.ProjectID,
                               ProjectName = p.ProjectName,
                               EventName = e.Name,
-                              EventLocation = e.Location,
                               EventType = et.Name,
-                              EventColor = et.ColorCode
+                              EventColor = et.ColorCode,
+                              EventLocation = e.Location
                           }).FirstOrDefault();
 
-            // 2. ตรวจสอบและเพิ่ม DateEvents
             var eventItem = _context.tm_Events.FirstOrDefault(e => e.ID == filter.EventID);
 
             if (result != null && eventItem != null && eventItem.StartDate != null && eventItem.EndDate != null)
@@ -721,14 +784,6 @@ namespace Project.CSS.Revise.Web.Respositories
                         Value = date.ToString("yyyy-MM-dd")
                     }).ToList();
             }
-
-            // 3. ดึงข้อมูลร้านค้าที่เกี่ยวข้องกับ Shop (เฉพาะ FlagActive == true)
-            result.ListShops = _context.tm_Shops.Where(s => s.FlagActive == true)
-                .Select(s => new GetDataEditEvents.ListShopsModel
-                {
-                    ID = s.ID,
-                    Name = s.Name
-                }).ToList();
 
             return result;
         }

@@ -211,17 +211,11 @@ namespace Project.CSS.Revise.Web.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetDataCreateEventsAndShops(int EventID , string EventDate)
+        public JsonResult GetDataCreateEventsAndShops(int EventID , string EventDate, string ProjectID)
         {
+            var DatalistShops = _shopAndEventService.GetDataTrEventsAndShopsinProject(EventID, ProjectID, EventDate);
 
-            var filter = new GetDataCreateEvent_Shops
-            {
-                EventID = EventID,
-                EventDates = EventDate,
-            };
-            var DataCreateEventShops = _shopAndEventService.GetDataCreateEventsAndShops(filter);
-
-            return Json(DataCreateEventShops);
+            return Json(DatalistShops);
         }
 
         [HttpGet]
