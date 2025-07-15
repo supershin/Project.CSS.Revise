@@ -15,24 +15,21 @@ public partial class tm_EventType
     [StringLength(100)]
     public string Name { get; set; } = null!;
 
-    public int EventID { get; set; }
-
     [StringLength(20)]
     public string? ColorCode { get; set; }
 
     public bool FlagActive { get; set; }
 
     [Column(TypeName = "datetime")]
-    public DateTime CraeteDate { get; set; }
+    public DateTime? CraeteDate { get; set; }
 
-    public int CreateBy { get; set; }
+    public int? CreateBy { get; set; }
 
     [Column(TypeName = "datetime")]
     public DateTime? UpdateDate { get; set; }
 
     public int? UpdateBy { get; set; }
 
-    [ForeignKey("EventID")]
-    [InverseProperty("tm_EventTypes")]
-    public virtual tm_Event Event { get; set; } = null!;
+    [InverseProperty("EventType")]
+    public virtual ICollection<TR_Event_EventType> TR_Event_EventTypes { get; set; } = new List<TR_Event_EventType>();
 }

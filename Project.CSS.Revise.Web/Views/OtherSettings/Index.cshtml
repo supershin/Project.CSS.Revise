@@ -255,76 +255,78 @@
                                     <p class="pt-3">Tabs have long been used to show alternative views of the same group of information tabs in software. Known as<em class="txt-danger"> “module tabs”</em>, these are still used today in web sites. For instance, airline companies such as Ryanair, easyJet and AirMalta use module tabs to enable the user to switch between bookings for flights, hotels and car hire.</p>
                                 </div>
                                 <div class="tab-pane fade show active" id="shop-event-filter" role="tabpanel" aria-labelledby="shop-event-tab">
-                                    <div id="carouselExampleControls" class="carousel slide" data-bs-interval="false">
-                                        <div class="carousel-inner"> 
-                                            <div class="carousel-item active">
-                                                <div class="pt-4 px-2 px-md-3">
-                                                    <div class="row">
-                                                        <div class="col-12">
-                                                            <form id="filterForm" class="filter-bar d-flex flex-wrap justify-content-center align-items-center gap-2">
-                                                                <!-- BU -->
-                                                                <div class="filter-item">
-                                                                    <select id="ddl-bu-shop-event" class="form-select">
-                                                                    </select>
-                                                                </div>
+                                    <div class="pt-4 px-2 px-md-3">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <form id="filterForm" class="filter-bar d-flex flex-wrap justify-content-center align-items-center gap-2">
+                                                    <!-- BU -->
+                                                    <div class="filter-item">
+                                                        <select id="ddl-bu-shop-event" class="form-select">
+                                                        </select>
+                                                    </div>
 
-                                                                <!-- Project -->
-                                                                <div class="filter-item" id="project-dropdown-container">
-                                                                    <div id="project-loading" style="display: none;">
-                                                                        <div class="spinner-border text-primary spinner-border-sm" role="status">
-                                                                            <span class="visually-hidden">Loading...</span>
-                                                                        </div> กำลังโหลด...
-                                                                    </div>
-                                                                    <select id="ddl-project-shop-event" class="form-select">
-                                                                        <option value="">เลือกโครงการ</option>
-                                                                    </select>
-                                                                </div>
-
-                                                                <!-- Year -->
-                                                                <div class="filter-item">
-                                                                    <select id="ddl-year-shop-event" class="form-select">
-                                                                        <option value="">เลือกปี</option>
-                                                                    </select>
-                                                                </div>
-
-                                                                <div class="filter-item">
-                                                                    <select id="ddl-showby-shop-event" class="form-select">
-                                                                        <option value="1">แสดงรายโครงการ</option>
-                                                                        <option value="2">แสดงราย Event</option>
-                                                                    </select>
-                                                                </div>
-
-                                                                <!-- Search Button -->
-                                                                <button type="button" class="btn btn-primary search-btn d-flex align-items-center gap-1" id="btn-search-shop-event" onclick="LoadPartialshopevent()">
-                                                                    <i class="fa fa-search"></i>
-                                                                    <span class="d-none d-md-inline">Search</span>
-                                                                </button>
-                                                            </form>
+                                                    <!-- Project -->
+                                                    <div class="filter-item" id="project-dropdown-container">
+                                                        <div id="project-loading" style="display: none;">
+                                                            <div class="spinner-border text-primary spinner-border-sm" role="status">
+                                                                <span class="visually-hidden">Loading...</span>
+                                                            </div> กำลังโหลด...
                                                         </div>
-                                                        <div class="col-12">
-                                                            <div class="row">
-                                                                <div class="col-xl-9 xl-60 order-xl-0 order-1 box-col-12" id="Box_show_partial">
+                                                        <select id="ddl-project-shop-event" class="form-select">
+                                                            <option value="">เลือกโครงการ</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <!-- Year -->
+                                                    <div class="filter-item">
+                                                        <select id="ddl-year-shop-event" class="form-select">
+                                                            <option value="">เลือกปี</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="filter-item">
+                                                        <select id="ddl-showby-shop-event" class="form-select">
+                                                            <option value="1">แสดงรายโครงการ</option>
+                                                            <option value="2">แสดงราย Event</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <!-- Search Button -->
+                                                    <button type="button" class="btn btn-primary search-btn d-flex align-items-center gap-1" id="btn-search-shop-event" onclick="LoadPartialshopevent()">
+                                                        <i class="fa fa-search"></i>
+                                                        <span class="d-none d-md-inline">Search</span>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            <div class="col-12">
+                                                <div id="carouselExampleControls" class="carousel slide" data-bs-interval="false">
+                                                    <div class="carousel-inner">
+                                                        <div class="carousel-item active">
+                                                            <div class="pt-4 px-2 px-md-3">
+                                                                <div class="col-xl-12 xl-60 order-xl-0 order-1 box-col-12" id="Box_show_partial">
                                                                     @* Calendar *@
                                                                 </div>
-                                                                <div class="col-xl-3 xl-40 box-col-12 learning-filter" id="Box_show_partial_event_in_year">
-                                                                    <div class="md-sidebar">
-                                                                        <a class="btn btn-primary email-aside-toggle md-sidebar-toggle">Sumery in year.</a>
-                                                                        <div class="md-sidebar-aside job-sidebar">
-                                                                            <div class="default-according style-1 faq-accordion job-accordion" id="accordionoc">
-                                                                                <div class="row">
-                                                                                    <div class="col-xl-12">
-                                                                                        <div class="card">
-                                                                                            <div class="card-header">
-                                                                                                <h5 class="mb-0">
-                                                                                                    <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#collapseicon1" aria-expanded="true" aria-controls="collapseicon1">Events in year.</button>
-                                                                                                </h5>
-                                                                                            </div>
-                                                                                            <div class="collapse card-body px-0 show" id="collapseicon1" aria-labelledby="collapseicon1" data-bs-parent="#accordion">
-                                                                                                <div class="p-4 text-center text-muted">
-                                                                                                    <i class="fa fa-calendar-times fa-2x mb-2"></i><br />
-                                                                                                    <strong>ไม่มีข้อมูลกิจกรรม</strong><br />
-                                                                                                    สำหรับปีที่เลือกไว้
-                                                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="carousel-item">
+                                                            <div class="col-xl-12 xl-60 order-xl-0 order-1 box-col-12 learning-filter" id="Box_show_partial_event_in_year">
+                                                                <div class="md-sidebar">
+                                                                    <a class="btn btn-primary email-aside-toggle md-sidebar-toggle">Sumery in year.</a>
+                                                                    <div class="md-sidebar-aside job-sidebar">
+                                                                        <div class="default-according style-1 faq-accordion job-accordion" id="accordionoc">
+                                                                            <div class="row">
+                                                                                <div class="col-xl-12">
+                                                                                    <div class="card">
+                                                                                        <div class="card-header">
+                                                                                            <h5 class="mb-0">
+                                                                                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#collapseicon1" aria-expanded="true" aria-controls="collapseicon1">Events in year.</button>
+                                                                                            </h5>
+                                                                                        </div>
+                                                                                        <div class="collapse card-body px-0 show" id="collapseicon1" aria-labelledby="collapseicon1" data-bs-parent="#accordion">
+                                                                                            <div class="p-4 text-center text-muted">
+                                                                                                <i class="fa fa-calendar-times fa-2x mb-2"></i><br />
+                                                                                                <strong>ไม่มีข้อมูลกิจกรรม</strong><br />
+                                                                                                สำหรับปีที่เลือกไว้
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
@@ -336,26 +338,18 @@
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                        <span class="visually-hidden">Previous</span>
+                                                    </button>
+                                                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                        <span class="visually-hidden">Next</span>
+                                                    </button>
                                                 </div>
                                             </div>
-                                            <div class="carousel-item">
-                                            @*     <img class="d-block w-100" src="..." alt="Second slide"> *@
-                                            </div>
-                                            <div class="carousel-item">
-                                                @* <img class="d-block w-100" src="..." alt="Third slide"> *@
-                                            </div>
                                         </div>
-                                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
-                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Previous</span>
-                                        </button>
-                                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
-                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Next</span>
-                                        </button>
                                     </div>
-
-                                  
                                 </div>
                                 <div class="tab-pane fade" id="project-zone-filter" role="tabpanel" aria-labelledby="project-zone-tab">
                                     <ul class="pt-3 d-flex flex-column gap-1">
@@ -385,7 +379,7 @@
                 <div class="card-body">
                     <ul class="simple-wrapper nav nav-tabs" id="myTab" role="tablist">
                         <li class="nav-item"><a class="nav-link active txt-primary" id="modal-Event-add-tab" data-bs-toggle="tab" href="#modal-Event-add" role="tab" aria-controls="modal-Event-add" aria-selected="true"><i class="fa fa-calendar" aria-hidden="true"></i>Event</a></li>
-                        <li class="nav-item d-none" id="li-tab-shop">
+                        <li class="nav-item" id="li-tab-shop">
                             <a class="nav-link txt-primary" id="modal-Shop-add-tab" data-bs-toggle="tab" href="#modal-Shop-add" role="tab" aria-controls="modal-Shop-add" aria-selected="false">
                                 <i class="fa fa-shopping-basket" aria-hidden="true"></i>Shop
                             </a>
@@ -406,11 +400,19 @@
                                                 </div>
                                                 <div class="mb-3 row">
                                                     <label class="col-sm-3 pt-0">Event type</label>
+
                                                     <div class="col-sm-5">
-                                                        <input class="form-control" type="text" placeholder="Event type name" id="txt-modal-new-event-type-name" maxlength="100">
+                                                        <select class="form-select" id="ddl-modal-new-event-type-id" onchange="updateColorByEventType()">
+                                                            <option value="" data-color="#808080">-- Select event type --</option>
+                                                            @foreach (var item in (List<GetDDLModel>)ViewBag.ListDDLEventType)
+                                                            {
+                                                                <option value="@item.ValueInt" data-color="@item.Color">@item.Text</option>
+                                                            }
+                                                        </select>
                                                     </div>
+
                                                     <div class="col-sm-2">
-                                                        <input class="form-control form-control-color" type="color" value="#006666" id="color-modal-new-event-type-color">
+                                                        <input class="form-control form-control-color" type="color" id="color-modal-new-event-type-color" value="#808080" disabled>
                                                     </div>
                                                 </div>
                                                 <div class="mb-3 row">
@@ -475,6 +477,19 @@
                                 <div class="row">
                                     <input type="hidden" id="hiddenEventID" value="0" />
                                     <div class="col-12">
+                                        <div class="card shadow-sm border rounded mb-3 checkbox-checked">
+                                            <div class="card-header bg-white fw-bold" style="font-size: 1rem;">
+                                                <i class="fa fa-building-o me-1 text-primary"></i> เลือกโครงการ
+                                            </div>
+                                            <div class="card-body py-3 d-flex flex-wrap gap-3">
+                                                <select id="ddl-modal-new-event-project-selected" class="form-select">
+                                                    <option value="10C001">เคฟ ซี๊ด เกษตร</option>
+                                                    <option value="400H006">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
                                         <div class="card shadow-sm border rounded mb-3">
                                             <div class="card-header bg-white fw-bold" style="font-size: 1rem;">
                                                 <i class="fa fa-calendar me-1 text-primary"></i> เลือกวันที่
@@ -489,7 +504,7 @@
                                                 <div class="carousel-viewport flex-grow-1">
                                                     <div class="carousel-track d-flex" id="calendarTrack">
                                                         <!-- Items -->
-                                                        @* <button class="calendar-item" onclick="selectCalendarItem(this)">(EXAMPLE)อ. 8 ก.ค. 2025</button> *@
+                   
                                                     </div>
                                                 </div>
 
@@ -502,19 +517,6 @@
                                                 <button class="btn btn-glow ms-3" onclick="selectAllDays()">
                                                     <i class="fa fa-check-circle me-1"></i> เลือกทุกวัน
                                                 </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="card shadow-sm border rounded mb-3 checkbox-checked">
-                                            <div class="card-header bg-white fw-bold" style="font-size: 1rem;">
-                                                <i class="fa fa-building-o me-1 text-primary"></i> เลือกโครงการที่ร่วมกิจกรรม
-                                            </div>
-                                            <div class="card-body py-3 d-flex flex-wrap gap-3">
-                                                <div class="form-check checkbox checkbox-primary mb-0">
-                                                    <input class="form-check-input" id="checkbox-primary-1" type="checkbox" checked="">
-                                                    <label class="form-check-label" for="checkbox-primary-1"> (EXAMPLE) มารูน รัชดา</label>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>

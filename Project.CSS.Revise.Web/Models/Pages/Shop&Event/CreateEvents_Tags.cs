@@ -3,7 +3,7 @@
     public class CreateEvents_Tags
     {
         public string? EventName { get; set; }
-        public string? EventType{ get; set; }
+        public int? EventType{ get; set; }
         public string? EventColor { get; set; }
         public string? EventLocation { get; set; }
         public List<TagModel>? TagItems { get; set; } // ใช้รับ tag แบบ value/label
@@ -21,6 +21,7 @@
     public class CreateEventsTagsResponse
     {
         public int? ID { get; set; }
+        public List<int>? EventIDs { get; set; }  // 🔁 เปลี่ยนจาก int? ID เป็น List<int>
         public string? Message { get; set; }
     }
 

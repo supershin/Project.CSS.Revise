@@ -45,6 +45,14 @@ namespace Project.CSS.Revise.Web.Controllers
             var Listtag = _masterService.GetlisDDl(filter);
             ViewBag.Listtag = Listtag;
 
+
+            var filterEventType = new GetDDLModel
+            {
+                Act = "DDLEventType"
+            };
+            var ListDDLEventType = _masterService.GetlisDDl(filterEventType);
+            ViewBag.ListDDLEventType = ListDDLEventType;
+
             return View();
         }
 
@@ -108,9 +116,9 @@ namespace Project.CSS.Revise.Web.Controllers
             {
                 return Json(new { success = false, id = 0, message = "Event name, location, and at least one tag are required." });
             }
-            if (string.IsNullOrEmpty(model.EventType) || string.IsNullOrEmpty(model.EventColor))
+            if (model.EventType < 0 )
             {
-                return Json(new { success = false, id = 0, message = "Event type and color are required." });
+                return Json(new { success = false, id = 0, message = "Event type is required." });
             }
             if (model.ProjectIds == null || model.ProjectIds.Count == 0)
             {
@@ -143,11 +151,11 @@ namespace Project.CSS.Revise.Web.Controllers
 
             var result = _shopAndEventService.CreateEventsAndTags(model);
 
-            return Json(new { success = result.ID > 0 , id = result.ID, message = result.Message });
+            return Json(new { success = result.ID > 0 , id = result.EventIDs, message = result.Message });
         }
 
         [HttpGet]
-        public JsonResult GetDataTabShopFromInsert(int EventID)
+        public JsonResult GetDataDateTabShopFromInsert(int EventID)
         {
 
             var filter = new GetDDLModel
@@ -159,26 +167,38 @@ namespace Project.CSS.Revise.Web.Controllers
 
             var filter2 = new GetDDLModel
             {
-                Act = "listEventProjectByID",
-                ID = EventID,
-            };
-            var listEventproject = _masterService.GetlisDDl(filter2);
-
-            var filter3 = new GetDDLModel
-            {
                 Act = "listShop"
             };
-            var listShop = _masterService.GetlisDDl(filter3);
+            var listShop = _masterService.GetlisDDl(filter2);
 
             var result = new
             {
                 EventDates = listEventdate,
-                EventProjects = listEventproject,
                 Shops = listShop
             };
 
             return Json(result);
         }
+
+        [HttpGet]
+        public JsonResult GetDataTabShopFromInsert(string EventID)
+        {
+            var filter = new GetDDLModel
+            {
+                Act = "listEventInID",
+                ValueString = EventID
+            };
+            var listProjectEvent = _masterService.GetlisDDl(filter);
+
+            var result = new
+            {
+                EventProjects = listProjectEvent // ✅ key ตรงกับ JS
+            };
+
+            return Json(result);
+        }
+
+
 
         [HttpPost]
         public IActionResult InsertNewEventsAndShops([FromBody] CreateEvent_Shops model)

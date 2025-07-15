@@ -139,6 +139,8 @@ public partial class CSSContext : DbContext
 
     public virtual DbSet<TR_DeviceSignIn> TR_DeviceSignIns { get; set; }
 
+    public virtual DbSet<TR_Event_EventType> TR_Event_EventTypes { get; set; }
+
     public virtual DbSet<TR_Letter> TR_Letters { get; set; }
 
     public virtual DbSet<TR_Letter_Attach> TR_Letter_Attaches { get; set; }
@@ -1009,6 +1011,19 @@ public partial class CSSContext : DbContext
             entity.Property(e => e.ID).ValueGeneratedNever();
 
             entity.HasOne(d => d.User).WithMany(p => p.TR_DeviceSignIns).HasConstraintName("FK_TR_DeviceSignIn_tm_User");
+        });
+
+        modelBuilder.Entity<TR_Event_EventType>(entity =>
+        {
+            entity.HasKey(e => e.ID).HasName("PK__TR_Event__3214EC27F35C3936");
+
+            entity.HasOne(d => d.Event).WithMany(p => p.TR_Event_EventTypes)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Event");
+
+            entity.HasOne(d => d.EventType).WithMany(p => p.TR_Event_EventTypes)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_EventType");
         });
 
         modelBuilder.Entity<TR_Letter>(entity =>
@@ -2019,8 +2034,6 @@ public partial class CSSContext : DbContext
             entity.HasKey(e => e.ID).HasName("PK__tm_Event__3214EC27DD2C84BB");
 
             entity.Property(e => e.FlagActive).HasDefaultValue(true);
-
-            entity.HasOne(d => d.Event).WithMany(p => p.tm_EventTypes).HasConstraintName("FK_tm_EventType_tm_Event");
         });
 
         modelBuilder.Entity<tm_Ext>(entity =>

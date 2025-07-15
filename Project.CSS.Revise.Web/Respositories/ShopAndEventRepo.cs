@@ -33,7 +33,6 @@ namespace Project.CSS.Revise.Web.Respositories
                 {
                     var newTagIds = new List<int>();
 
-                    // ✅ 1. ตรวจสอบและเพิ่ม Tag ใหม่
                     if (model.TagItems != null)
                     {
                         foreach (var tag in model.TagItems)
@@ -64,78 +63,65 @@ namespace Project.CSS.Revise.Web.Respositories
 
                     var eventIdsCreated = new List<int>(); // 👉 เก็บ EventID ที่ถูกสร้าง
 
-                    // ✅ 2. สร้าง Event เพียงครั้งเดียว
-                    var newEvent = new tm_Event
-                    {
-                        Name = model.EventName?.Trim(),
-                        Location = model.EventLocation?.Trim(),
-                        StartDate = Commond.FormatExtension.ToDateFromddmmyyy(model.StartDateTime!),
-                        EndDate = Commond.FormatExtension.ToDateFromddmmyyy(model.EndDateTime!),
-                        FlagActive = model.IsActive,
-                        CraeteDate = DateTime.Now,
-                        CreateBy = model.UserID,
-                        UpdateDate = DateTime.Now,
-                        UpdateBy = model.UserID
-                    };
-
-                    _context.tm_Events.Add(newEvent);
-                    _context.SaveChanges(); // 👈 Insert only once
-
-                    // ✅ 3. เพิ่มความสัมพันธ์ Project ↔ Event
                     if (model.ProjectIds != null && model.ProjectIds.Any())
                     {
                         foreach (var projectId in model.ProjectIds)
                         {
-                            var relation = new TR_ProjectEvent
+
+                            var newEvent = new tm_Event
                             {
-                                ProjectID = projectId,
-                                EventID = newEvent.ID,
-                                FlagActive = true,
-                                CreateDate = DateTime.Now,
+                                ProjectID = projectId, // 👈 ใส่ ProjectID ตรงนี้เลย
+                                Name = model.EventName?.Trim(),
+                                Location = model.EventLocation?.Trim(),
+                                StartDate = Commond.FormatExtension.ToDateFromddmmyyy(model.StartDateTime!),
+                                EndDate = Commond.FormatExtension.ToDateFromddmmyyy(model.EndDateTime!),
+                                FlagActive = model.IsActive,
+                                CraeteDate = DateTime.Now,
                                 CreateBy = model.UserID,
                                 UpdateDate = DateTime.Now,
                                 UpdateBy = model.UserID
                             };
-                            _context.TR_ProjectEvents.Add(relation);
+
+                            _context.tm_Events.Add(newEvent);
+                            _context.SaveChanges(); 
+
+                            eventIdsCreated.Add(newEvent.ID);
                         }
-                        _context.SaveChanges(); // save all TR_ProjectEvent records
                     }
 
-                    // ✅ 4. เพิ่มความสัมพันธ์ Tag ↔ Event
-                    foreach (var tagId in newTagIds)
+                    if (model.EventType.HasValue)
                     {
-                        var tagEvent = new TR_TagEvent
+                        foreach (var eventId in eventIdsCreated)
                         {
-                            EventID = newEvent.ID,
-                            TagID = tagId
-                        };
-                        _context.TR_TagEvents.Add(tagEvent);
+                            var eventTypeRelation = new TR_Event_EventType
+                            {
+                                EventID = eventId,
+                                EventTypeID = model.EventType.Value
+                            };
+
+                            _context.TR_Event_EventTypes.Add(eventTypeRelation);
+                        }
+                        _context.SaveChanges(); 
                     }
-                    _context.SaveChanges(); // save all TR_TagEvent
 
-
-
-                    // ✅ 5. เพิ่มความสัมพันธ์ EventType ↔ Event
-                    var NewEventType = new tm_EventType
+                    foreach (var eventId in eventIdsCreated)
                     {
-                        Name = model.EventType?.Trim(),
-                        EventID = newEvent.ID,
-                        ColorCode = model.EventColor?.Trim(),
-                        FlagActive = true,
-                        CraeteDate = DateTime.Now,
-                        CreateBy = model.UserID,
-                        UpdateDate = DateTime.Now,
-                        UpdateBy = model.UserID
+                        foreach (var tagId in newTagIds)
+                        {
+                            var tagEvent = new TR_TagEvent
+                            {
+                                EventID = eventId,
+                                TagID = tagId
+                            };
+                            _context.TR_TagEvents.Add(tagEvent);
+                        }
+                    }
+                    _context.SaveChanges(); 
 
-                    };
-                    _context.tm_EventTypes.Add(NewEventType);
-                    _context.SaveChanges();
-
-                    // ✅ 6. บันทึกการเปลี่ยนแปลงทั้งหมด
                     transaction.Commit();
 
-                    // ✅ 7. ส่งผลลัพธ์กลับ
-                    response.ID = newEvent.ID;
+                    response.ID = 1;
+                    response.EventIDs = eventIdsCreated; // ✅ ส่งคืนรายการ Event ID ที่สร้าง
                     response.Message = "Event and tags created successfully, and tag linkage completed.";
                 }
                 catch (Exception ex)
@@ -147,9 +133,7 @@ namespace Project.CSS.Revise.Web.Respositories
 
                     response.Message = $"An error occurred: {message}";
                 }
-
             }
-
             return response;
         }
 
@@ -306,6 +290,267 @@ namespace Project.CSS.Revise.Web.Respositories
             return response;
         }
 
+        //public List<GetListShopAndEventCalendar.ListData> GetListShopAndEventSCalendar(GetListShopAndEventCalendar.FilterData filter)
+        //{
+        //    List<GetListShopAndEventCalendar.ListData> result = new List<GetListShopAndEventCalendar.ListData>();
+        //    string connectionString = _context.Database.GetDbConnection().ConnectionString;
+
+        //    using (SqlConnection conn = new SqlConnection(connectionString))
+        //    {
+        //        conn.Open();
+
+        //        string sql = "";
+
+        //        if (filter.L_ShowBy == 1) // Show by ProjectID
+        //        {
+        //            sql = @"
+        //                    IF @L_Month = ''
+        //                    BEGIN
+        //                        SELECT 
+        //                               T1.[ID] AS EventID
+        //                              ,T2.[ProjectID]
+        //                              ,T3.[ProjectName]
+        //                              ,T3.[ProjectName_Eng]
+        //                              ,T1.[Name] AS EventName
+        //                        ,T4.[Name] AS EventType 
+        //                              ,T4.[ColorCode] AS EventColor
+        //                              ,T1.[Location]
+        //                        ,T5.TagNames
+        //                              ,T1.[StartDate]
+        //                              ,T1.[EndDate]
+        //                        FROM [tm_Event](NOLOCK) T1
+        //                             LEFT JOIN [TR_ProjectEvent] (NOLOCK) T2 ON T1.ID = T2.[EventID]
+        //                       LEFT JOIN [tm_Project] (NOLOCK) T3 ON T2.[ProjectID] = T3.ProjectID
+        //                       LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T1.[ID] = T4.EventID
+        //                       LEFT JOIN (
+        //                          SELECT 
+        //                           T1.EventID,
+        //                           STRING_AGG(T2.Name, ',') AS TagNames
+        //                          FROM [TR_TagEvent] (NOLOCK) T1
+        //                          LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
+        //                          GROUP BY T1.EventID
+        //                                 ) T5 ON T5.EventID = T1.ID
+        //                        WHERE 
+        //                            T1.FlagActive = 1
+        //                            AND T2.FlagActive = 1
+        //                            AND (
+        //                                @L_ProjectID = '' 
+        //                                OR (',' + @L_ProjectID + ',' LIKE '%,' + T2.ProjectID + ',%')
+        //                            )
+        //                            AND (
+        //                                YEAR(T1.StartDate) = @L_Year
+        //                                OR YEAR(T1.EndDate) = @L_Year
+        //                            )
+        //                        ORDER BY T1.StartDate;
+        //                    END
+        //                    ELSE
+        //                    BEGIN
+        //                        SELECT       
+        //                               T1.[ID] AS EventID
+        //                              ,T2.[ProjectID]
+        //                              ,T3.[ProjectName]
+        //                              ,T3.[ProjectName_Eng]
+        //                              ,T1.[Name] AS EventName
+        //                        ,T4.[Name] AS EventType 
+        //                              ,T4.[ColorCode] AS EventColor
+        //                              ,T1.[Location]
+        //                              ,T5.TagNames
+        //                              ,T1.[StartDate]
+        //                              ,T1.[EndDate]
+        //                        FROM [tm_Event](NOLOCK) T1
+        //                             LEFT JOIN [TR_ProjectEvent](NOLOCK) T2 ON T1.ID = T2.[EventID]
+        //                       LEFT JOIN [tm_Project] (NOLOCK) T3 ON T2.[ProjectID] = T3.ProjectID
+        //                       LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T1.[ID] = T4.EventID
+        //                       LEFT JOIN (
+        //                          SELECT 
+        //                           T1.EventID,
+        //                           STRING_AGG(T2.Name, ',') AS TagNames
+        //                          FROM [TR_TagEvent] (NOLOCK) T1
+        //                          LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
+        //                          GROUP BY T1.EventID
+        //                                 ) T5 ON T5.EventID = T1.ID
+        //                        WHERE 
+        //                            T1.FlagActive = 1
+        //                            AND T2.FlagActive = 1
+        //                            AND (
+        //                                @L_ProjectID = '' 
+        //                                OR (',' + @L_ProjectID + ',' LIKE '%,' + T2.ProjectID + ',%')
+        //                            )
+        //                            AND 
+        //                      (
+        //                                (
+        //                                    YEAR(T1.StartDate) = @L_Year
+        //                                    AND MONTH(T1.StartDate) = CAST(@L_Month AS INT)
+        //                                )
+        //                                OR (
+        //                                    YEAR(T1.EndDate) = @L_Year
+        //                                    AND MONTH(T1.EndDate) = CAST(@L_Month AS INT)
+        //                                )
+        //                                OR (
+        //                                    T1.StartDate <= EOMONTH(CONVERT(DATE, CAST(@L_Year AS NVARCHAR(4)) + '-' + @L_Month + '-01'))
+        //                                    AND T1.EndDate >= CONVERT(DATE, CAST(@L_Year AS NVARCHAR(4)) + '-' + @L_Month + '-01')
+        //                                )
+        //                            )
+        //                        ORDER BY T1.StartDate;
+        //                    END
+        //                   "
+        //            ;
+        //        }
+        //        else if (filter.L_ShowBy == 2) // Show by Event
+        //        {
+        //            sql = @"
+        //                    IF @L_Month = ''
+        //                    BEGIN
+        //                        SELECT 
+        //                               T1.[ID] AS EventID
+        //                              ,T1.[Name] AS EventName
+        //                        ,T4.[Name] AS EventType 
+        //                              ,T4.[ColorCode] AS EventColor
+        //                              ,T1.[Location]
+        //                        ,T5.TagNames
+        //                              ,T1.[StartDate]
+        //                              ,T1.[EndDate]
+        //                        FROM [tm_Event](NOLOCK) T1
+        //                       LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T1.[ID] = T4.EventID
+        //                       LEFT JOIN (
+        //                          SELECT 
+        //                           T1.EventID,
+        //                           STRING_AGG(T2.Name, ',') AS TagNames
+        //                          FROM [TR_TagEvent] (NOLOCK) T1
+        //                          LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
+        //                          GROUP BY T1.EventID
+        //                                 ) T5 ON T5.EventID = T1.ID
+        //                          INNER JOIN (
+        //                          SELECT 
+        //                             T1.EventID
+        //                          FROM [TR_ProjectEvent] (NOLOCK) T1
+        //                          WHERE T1.FlagActive = 1 
+        //                           AND (
+        //                            @L_ProjectID = '' 
+        //                            OR (',' + @L_ProjectID + ',' LIKE '%,' + T1.ProjectID + ',%')
+        //                           )
+        //                          GROUP BY T1.EventID 
+        //                          ) T3 ON T1.[ID] = T3.EventID
+        //                        WHERE 
+        //                            T1.FlagActive = 1
+        //                            AND (
+        //                                YEAR(T1.StartDate) = @L_Year
+        //                                OR YEAR(T1.EndDate) = @L_Year
+        //                            )
+        //                        ORDER BY T1.StartDate;
+        //                    END
+        //                    ELSE
+        //                    BEGIN
+        //                        SELECT       
+        //                               T1.[ID] AS EventID
+        //                              ,T1.[Name] AS EventName
+        //                        ,T4.[Name] AS EventType 
+        //                              ,T4.[ColorCode] AS EventColor
+        //                              ,T1.[Location]
+        //                              ,T5.TagNames
+        //                              ,T1.[StartDate]
+        //                              ,T1.[EndDate]
+        //                        FROM [tm_Event](NOLOCK) T1
+        //                      LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T1.[ID] = T4.EventID
+        //                      LEFT JOIN (
+        //                          SELECT 
+        //                           T1.EventID,
+        //                           STRING_AGG(T2.Name, ',') AS TagNames
+        //                          FROM [TR_TagEvent] (NOLOCK) T1
+        //                          LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
+        //                          GROUP BY T1.EventID
+        //                                 ) T5 ON T5.EventID = T1.ID
+        //                            INNER JOIN (
+        //                                SELECT 
+        //                                T1.EventID
+        //                                FROM [TR_ProjectEvent] (NOLOCK) T1
+        //                                WHERE T1.FlagActive = 1 
+        //                                    AND (
+        //                                        @L_ProjectID = '' 
+        //                                        OR (',' + @L_ProjectID + ',' LIKE '%,' + T1.ProjectID + ',%')
+        //                                    )
+        //                                GROUP BY T1.EventID 
+        //                            ) T3 ON T1.[ID] = T3.EventID
+        //                        WHERE 
+        //                            T1.FlagActive = 1
+        //                            AND 
+        //                      (
+        //                                (
+        //                                    YEAR(T1.StartDate) = @L_Year
+        //                                    AND MONTH(T1.StartDate) = CAST(@L_Month AS INT)
+        //                                )
+        //                                OR (
+        //                                    YEAR(T1.EndDate) = @L_Year
+        //                                    AND MONTH(T1.EndDate) = CAST(@L_Month AS INT)
+        //                                )
+        //                                OR (
+        //                                    T1.StartDate <= EOMONTH(CONVERT(DATE, CAST(@L_Year AS NVARCHAR(4)) + '-' + @L_Month + '-01'))
+        //                                    AND T1.EndDate >= CONVERT(DATE, CAST(@L_Year AS NVARCHAR(4)) + '-' + @L_Month + '-01')
+        //                                )
+        //                            )
+        //                        ORDER BY T1.StartDate;
+        //                    END
+        //                   "
+        //            ;
+        //        }
+
+        //        using (SqlCommand cmd = new SqlCommand(sql, conn))
+        //        {
+        //            cmd.Parameters.Add(new SqlParameter("@L_ProjectID", filter.L_ProjectID ?? ""));
+        //            cmd.Parameters.Add(new SqlParameter("@L_Month", filter.L_Month ?? ""));
+        //            cmd.Parameters.Add(new SqlParameter("@L_Year", filter.L_Year ?? 0));
+
+        //            using (SqlDataReader reader = cmd.ExecuteReader())
+        //            {
+        //                if (filter.L_ShowBy == 1)
+        //                {
+        //                    while (reader.Read())
+        //                    {
+        //                        result.Add(new GetListShopAndEventCalendar.ListData
+        //                        {
+        //                            title = "โครงการ: " + Commond.FormatExtension.NullToString(reader["ProjectName"]) + " " + "Event: " + Commond.FormatExtension.NullToString(reader["EventName"]) ,
+        //                            start = Commond.FormatExtension.NullToString(reader["StartDate"]),
+        //                            end = Commond.FormatExtension.NullToString(reader["EndDate"]),
+        //                            color = Commond.FormatExtension.NullToString(reader["EventColor"]),
+        //                            modaltype = 1, // 1 = Project
+
+        //                            EventID = Commond.FormatExtension.Nulltoint(reader["EventID"]),
+        //                            ProjectID = Commond.FormatExtension.NullToString(reader["ProjectID"]),
+        //                            Eventname = "โครงการ: " + Commond.FormatExtension.NullToString(reader["ProjectName"]) + " " + "Event: " + Commond.FormatExtension.NullToString(reader["EventName"]),
+        //                            Eventlocation = Commond.FormatExtension.NullToString(reader["Location"]),
+        //                            Eventtags = Commond.FormatExtension.NullToString(reader["TagNames"])
+        //                        });
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    while (reader.Read())
+        //                    {
+        //                        result.Add(new GetListShopAndEventCalendar.ListData
+        //                        {
+        //                            title = Commond.FormatExtension.NullToString(reader["EventName"]),
+        //                            start = Commond.FormatExtension.NullToString(reader["StartDate"]),
+        //                            end = Commond.FormatExtension.NullToString(reader["EndDate"]),
+        //                            color = Commond.FormatExtension.NullToString(reader["EventColor"]),
+        //                            modaltype = 2, // 2 = Event
+
+        //                            EventID = Commond.FormatExtension.Nulltoint(reader["EventID"]),
+        //                            Eventname = Commond.FormatExtension.NullToString(reader["EventName"]),
+        //                            Eventlocation = Commond.FormatExtension.NullToString(reader["Location"]),
+        //                            Eventtags = Commond.FormatExtension.NullToString(reader["TagNames"])
+        //                        });
+        //                    }
+        //                }
+
+        //            }
+        //        }
+        //    }
+
+
+        //    return result;
+        //}
+
+
         public List<GetListShopAndEventCalendar.ListData> GetListShopAndEventSCalendar(GetListShopAndEventCalendar.FilterData filter)
         {
             List<GetListShopAndEventCalendar.ListData> result = new List<GetListShopAndEventCalendar.ListData>();
@@ -316,42 +561,39 @@ namespace Project.CSS.Revise.Web.Respositories
                 conn.Open();
 
                 string sql = "";
-
-                if (filter.L_ShowBy == 1) // Show by ProjectID
-                {
-                    sql = @"
+                sql = @"
                             IF @L_Month = ''
                             BEGIN
-                                SELECT 
-                                       T1.[ID] AS EventID
-                                      ,T2.[ProjectID]
-                                      ,T3.[ProjectName]
-                                      ,T3.[ProjectName_Eng]
-                                      ,T1.[Name] AS EventName
-		                              ,T4.[Name] AS EventType 
-                                      ,T4.[ColorCode] AS EventColor
-                                      ,T1.[Location]
-		                              ,T5.TagNames
-                                      ,T1.[StartDate]
-                                      ,T1.[EndDate]
+	                            SELECT
+			                        T1.[ID] AS EventID
+		                            ,T1.ProjectID
+                                    ,T2.[ProjectName]
+                                    ,T2.[ProjectName_Eng]
+                                    ,T1.[Name] AS EventName
+                                    ,T4.[Name] AS EventType 
+                                    ,T4.[ColorCode] AS EventColor
+                                    ,T1.[Location]
+                                    ,T5.TagNames
+                                    ,T1.[StartDate]
+                                    ,T1.[EndDate]
                                 FROM [tm_Event](NOLOCK) T1
-                                     LEFT JOIN [TR_ProjectEvent] (NOLOCK) T2 ON T1.ID = T2.[EventID]
-		                             LEFT JOIN [tm_Project] (NOLOCK) T3 ON T2.[ProjectID] = T3.ProjectID
-		                             LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T1.[ID] = T4.EventID
-		                             LEFT JOIN (
-						                            SELECT 
-							                            T1.EventID,
-							                            STRING_AGG(T2.Name, ',') AS TagNames
-						                            FROM [TR_TagEvent] (NOLOCK) T1
-						                            LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
-						                            GROUP BY T1.EventID
-		                                       ) T5 ON T5.EventID = T1.ID
+                                    LEFT JOIN [tm_Project] (NOLOCK) T2 ON T1.[ProjectID] = T2.ProjectID
+			                        LEFT JOIN [TR_Event_EventType] (NOLOCK) T3 ON T1.ID = T3.EventID
+                                    LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T3.[EventTypeID] = T4.ID
+                                    LEFT JOIN (
+                                                    SELECT 
+	                                                    T1.EventID,
+	                                                    STRING_AGG(T2.Name, ',') AS TagNames
+                                                    FROM [TR_TagEvent] (NOLOCK) T1
+                                                    LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
+                                                    GROUP BY T1.EventID
+                                            ) T5 ON T5.EventID = T1.ID
                                 WHERE 
                                     T1.FlagActive = 1
                                     AND T2.FlagActive = 1
                                     AND (
                                         @L_ProjectID = '' 
-                                        OR (',' + @L_ProjectID + ',' LIKE '%,' + T2.ProjectID + ',%')
+                                        OR (',' + @L_ProjectID + ',' LIKE '%,' + T1.ProjectID + ',%')
                                     )
                                     AND (
                                         YEAR(T1.StartDate) = @L_Year
@@ -363,37 +605,36 @@ namespace Project.CSS.Revise.Web.Respositories
                             BEGIN
                                 SELECT       
                                        T1.[ID] AS EventID
-                                      ,T2.[ProjectID]
-                                      ,T3.[ProjectName]
-                                      ,T3.[ProjectName_Eng]
+                                      ,T1.[ProjectID]
+                                      ,T2.[ProjectName]
+                                      ,T2.[ProjectName_Eng]
                                       ,T1.[Name] AS EventName
-		                              ,T4.[Name] AS EventType 
+                                      ,T4.[Name] AS EventType 
                                       ,T4.[ColorCode] AS EventColor
                                       ,T1.[Location]
                                       ,T5.TagNames
                                       ,T1.[StartDate]
                                       ,T1.[EndDate]
                                 FROM [tm_Event](NOLOCK) T1
-                                     LEFT JOIN [TR_ProjectEvent](NOLOCK) T2 ON T1.ID = T2.[EventID]
-		                             LEFT JOIN [tm_Project] (NOLOCK) T3 ON T2.[ProjectID] = T3.ProjectID
-		                             LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T1.[ID] = T4.EventID
-		                             LEFT JOIN (
-						                            SELECT 
-							                            T1.EventID,
-							                            STRING_AGG(T2.Name, ',') AS TagNames
-						                            FROM [TR_TagEvent] (NOLOCK) T1
-						                            LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
-						                            GROUP BY T1.EventID
-		                                       ) T5 ON T5.EventID = T1.ID
+                                     LEFT JOIN [tm_Project] (NOLOCK) T2 ON T1.[ProjectID] = T2.ProjectID
+                                     LEFT JOIN [TR_Event_EventType] (NOLOCK) T3 ON T1.ID = T3.EventID
+                                     LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T3.[EventTypeID] = T3.EventID
+                                     LEFT JOIN (
+                                                    SELECT 
+                                                        T1.EventID,
+                                                        STRING_AGG(T2.Name, ',') AS TagNames
+                                                    FROM [TR_TagEvent] (NOLOCK) T1
+                                                    LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
+                                                    GROUP BY T1.EventID
+                                               ) T5 ON T5.EventID = T1.ID
                                 WHERE 
                                     T1.FlagActive = 1
-                                    AND T2.FlagActive = 1
                                     AND (
                                         @L_ProjectID = '' 
-                                        OR (',' + @L_ProjectID + ',' LIKE '%,' + T2.ProjectID + ',%')
+                                        OR (',' + @L_ProjectID + ',' LIKE '%,' + T1.ProjectID + ',%')
                                     )
                                     AND 
-		                            (
+                                    (
                                         (
                                             YEAR(T1.StartDate) = @L_Year
                                             AND MONTH(T1.StartDate) = CAST(@L_Month AS INT)
@@ -410,105 +651,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                 ORDER BY T1.StartDate;
                             END
                            "
-                    ;
-                }
-                else if (filter.L_ShowBy == 2) // Show by Event
-                {
-                    sql = @"
-                            IF @L_Month = ''
-                            BEGIN
-                                SELECT 
-                                       T1.[ID] AS EventID
-                                      ,T1.[Name] AS EventName
-		                              ,T4.[Name] AS EventType 
-                                      ,T4.[ColorCode] AS EventColor
-                                      ,T1.[Location]
-		                              ,T5.TagNames
-                                      ,T1.[StartDate]
-                                      ,T1.[EndDate]
-                                FROM [tm_Event](NOLOCK) T1
-		                             LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T1.[ID] = T4.EventID
-		                             LEFT JOIN (
-						                            SELECT 
-							                            T1.EventID,
-							                            STRING_AGG(T2.Name, ',') AS TagNames
-						                            FROM [TR_TagEvent] (NOLOCK) T1
-						                            LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
-						                            GROUP BY T1.EventID
-		                                       ) T5 ON T5.EventID = T1.ID
-	                                 INNER JOIN (
-		                                SELECT 
-		                                   T1.EventID
-		                                FROM [TR_ProjectEvent] (NOLOCK) T1
-		                                WHERE T1.FlagActive = 1 
-			                                AND (
-				                                @L_ProjectID = '' 
-				                                OR (',' + @L_ProjectID + ',' LIKE '%,' + T1.ProjectID + ',%')
-			                                )
-		                                GROUP BY T1.EventID 
-	                                 ) T3 ON T1.[ID] = T3.EventID
-                                WHERE 
-                                    T1.FlagActive = 1
-                                    AND (
-                                        YEAR(T1.StartDate) = @L_Year
-                                        OR YEAR(T1.EndDate) = @L_Year
-                                    )
-                                ORDER BY T1.StartDate;
-                            END
-                            ELSE
-                            BEGIN
-                                SELECT       
-                                       T1.[ID] AS EventID
-                                      ,T1.[Name] AS EventName
-		                              ,T4.[Name] AS EventType 
-                                      ,T4.[ColorCode] AS EventColor
-                                      ,T1.[Location]
-                                      ,T5.TagNames
-                                      ,T1.[StartDate]
-                                      ,T1.[EndDate]
-                                FROM [tm_Event](NOLOCK) T1
-		                            LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T1.[ID] = T4.EventID
-		                            LEFT JOIN (
-						                            SELECT 
-							                            T1.EventID,
-							                            STRING_AGG(T2.Name, ',') AS TagNames
-						                            FROM [TR_TagEvent] (NOLOCK) T1
-						                            LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
-						                            GROUP BY T1.EventID
-		                                       ) T5 ON T5.EventID = T1.ID
-                                    INNER JOIN (
-                                        SELECT 
-                                        T1.EventID
-                                        FROM [TR_ProjectEvent] (NOLOCK) T1
-                                        WHERE T1.FlagActive = 1 
-                                            AND (
-                                                @L_ProjectID = '' 
-                                                OR (',' + @L_ProjectID + ',' LIKE '%,' + T1.ProjectID + ',%')
-                                            )
-                                        GROUP BY T1.EventID 
-                                    ) T3 ON T1.[ID] = T3.EventID
-                                WHERE 
-                                    T1.FlagActive = 1
-                                    AND 
-		                            (
-                                        (
-                                            YEAR(T1.StartDate) = @L_Year
-                                            AND MONTH(T1.StartDate) = CAST(@L_Month AS INT)
-                                        )
-                                        OR (
-                                            YEAR(T1.EndDate) = @L_Year
-                                            AND MONTH(T1.EndDate) = CAST(@L_Month AS INT)
-                                        )
-                                        OR (
-                                            T1.StartDate <= EOMONTH(CONVERT(DATE, CAST(@L_Year AS NVARCHAR(4)) + '-' + @L_Month + '-01'))
-                                            AND T1.EndDate >= CONVERT(DATE, CAST(@L_Year AS NVARCHAR(4)) + '-' + @L_Month + '-01')
-                                        )
-                                    )
-                                ORDER BY T1.StartDate;
-                            END
-                           "
-                    ;
-                }
+                                    ;
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
@@ -518,46 +661,23 @@ namespace Project.CSS.Revise.Web.Respositories
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        if (filter.L_ShowBy == 1)
+                        while (reader.Read())
                         {
-                            while (reader.Read())
+                            result.Add(new GetListShopAndEventCalendar.ListData
                             {
-                                result.Add(new GetListShopAndEventCalendar.ListData
-                                {
-                                    title = "โครงการ: " + Commond.FormatExtension.NullToString(reader["ProjectName"]) + " " + "Event: " + Commond.FormatExtension.NullToString(reader["EventName"]) ,
-                                    start = Commond.FormatExtension.NullToString(reader["StartDate"]),
-                                    end = Commond.FormatExtension.NullToString(reader["EndDate"]),
-                                    color = Commond.FormatExtension.NullToString(reader["EventColor"]),
-                                    modaltype = 1, // 1 = Project
+                                title = "โครงการ: " + Commond.FormatExtension.NullToString(reader["ProjectName"]) + " " + "Event: " + Commond.FormatExtension.NullToString(reader["EventName"]),
+                                start = Commond.FormatExtension.NullToString(reader["StartDate"]),
+                                end = Commond.FormatExtension.NullToString(reader["EndDate"]),
+                                color = Commond.FormatExtension.NullToString(reader["EventColor"]),
+                                modaltype = 1, // 1 = Project
 
-                                    EventID = Commond.FormatExtension.Nulltoint(reader["EventID"]),
-                                    ProjectID = Commond.FormatExtension.NullToString(reader["ProjectID"]),
-                                    Eventname = "โครงการ: " + Commond.FormatExtension.NullToString(reader["ProjectName"]) + " " + "Event: " + Commond.FormatExtension.NullToString(reader["EventName"]),
-                                    Eventlocation = Commond.FormatExtension.NullToString(reader["Location"]),
-                                    Eventtags = Commond.FormatExtension.NullToString(reader["TagNames"])
-                                });
-                            }
+                                EventID = Commond.FormatExtension.Nulltoint(reader["EventID"]),
+                                ProjectID = Commond.FormatExtension.NullToString(reader["ProjectID"]),
+                                Eventname = "โครงการ: " + Commond.FormatExtension.NullToString(reader["ProjectName"]) + " " + "Event: " + Commond.FormatExtension.NullToString(reader["EventName"]),
+                                Eventlocation = Commond.FormatExtension.NullToString(reader["Location"]),
+                                Eventtags = Commond.FormatExtension.NullToString(reader["TagNames"])
+                            });
                         }
-                        else
-                        {
-                            while (reader.Read())
-                            {
-                                result.Add(new GetListShopAndEventCalendar.ListData
-                                {
-                                    title = Commond.FormatExtension.NullToString(reader["EventName"]),
-                                    start = Commond.FormatExtension.NullToString(reader["StartDate"]),
-                                    end = Commond.FormatExtension.NullToString(reader["EndDate"]),
-                                    color = Commond.FormatExtension.NullToString(reader["EventColor"]),
-                                    modaltype = 2, // 2 = Event
-
-                                    EventID = Commond.FormatExtension.Nulltoint(reader["EventID"]),
-                                    Eventname = Commond.FormatExtension.NullToString(reader["EventName"]),
-                                    Eventlocation = Commond.FormatExtension.NullToString(reader["Location"]),
-                                    Eventtags = Commond.FormatExtension.NullToString(reader["TagNames"])
-                                });
-                            }
-                        }
-
                     }
                 }
             }
@@ -574,7 +694,7 @@ namespace Project.CSS.Revise.Web.Respositories
                           from pe in peJoin.DefaultIfEmpty()
                           join p in _context.tm_Projects on pe.ProjectID equals p.ProjectID into pJoin
                           from p in pJoin.DefaultIfEmpty()
-                          join et in _context.tm_EventTypes on e.ID equals et.EventID into etJoin
+                          join et in _context.tm_EventTypes on e.ID equals et.ID into etJoin
                           from et in etJoin.DefaultIfEmpty()
                           where e.ID == filter.EventID && pe.ProjectID == filter.ProjectID
                           select new GetDataEditEvents.EditEventInProjectModel

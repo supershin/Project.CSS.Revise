@@ -201,8 +201,8 @@ function getEventFormData() {
     }));
 
     const eventName = $('#txt-modal-new-event-name').val().trim();
-    const eventType = $('#txt-modal-new-event-type-name').val().trim();
-    const eventColor = $('#color-modal-new-event-type-color').val().trim();
+    const eventType = $('#ddl-modal-new-event-type-id').val().trim();
+    /*const eventColor = $('#color-modal-new-event-type-color').val().trim();*/
     const eventLocation = $('#txt-modal-new-event-location').val().trim();
     const projectIds = $('#ddl-modal-new-event-projects').val();
     const start = $('#txt-modal-new-event-start-date-time').val();
@@ -212,7 +212,7 @@ function getEventFormData() {
     return {
         eventName,
         eventType,
-        eventColor,
+        /*eventColor,*/
         eventLocation,
         tagItems: tagifyRaw,
         projectIds,
@@ -226,7 +226,7 @@ $('#modal-new-event').on('show.bs.modal', function () {
     /*loadShopTabDataTest();*/
 
     // ✅ ซ่อนปุ่ม Tab <li> ทั้ง Shop แบบถูกต้อง (ไม่ใช่ .hide() แต่ใช้ d-none)
-    $('#li-tab-shop').addClass('d-none');
+    //$('#li-tab-shop').addClass('d-none');
     // ✅ Reset ไปที่ Event tab ทุกครั้งที่เปิด
     $('#modal-Event-add-tab').addClass('active');
     $('#modal-Event-add').addClass('show active');
@@ -250,7 +250,11 @@ $(document).on('submit', '.form.theme-form', function (e) {
         .then(res => res.json())
         .then(res => {
             if (res.success) {
-                document.getElementById('hiddenEventID').value = res.id;
+                const eventIDs = res.id; // [90,91]
+                const eventIDString = eventIDs.join(','); // ✅ ไม่มี , ข้างหน้า
+
+                document.getElementById('hiddenEventID').value = eventIDString;
+
                 Swal.fire({
                     icon: 'success',
                     title: 'สำเร็จ!',
@@ -258,14 +262,24 @@ $(document).on('submit', '.form.theme-form', function (e) {
                 }).then(() => {
                     $('#li-tab-shop').removeClass('d-none'); // แสดง Shop tab
                     const shopTab = new bootstrap.Tab(document.getElementById('modal-Shop-add-tab'));
-                    shopTab.show(); 
-                    fetch(baseUrl + 'OtherSettings/GetDataTabShopFromInsert?EventID=' + res.id)
+                    shopTab.show();
+
+                    // ✅ ไม่ต้อง encodeURIComponent เพราะ server รอ string ตรง ",90,91"
+                    fetch(baseUrl + 'OtherSettings/GetDataTabShopFromInsert?EventID=' + eventIDString)
                         .then(r => r.json())
                         .then(data => {
                             document.activeElement?.blur();
-                            renderEventDates(data.EventDates);
-                            renderEventProjects(data.EventProjects);
-                            renderShops(data.Shops);
+
+                            console.log('EventProjects:', data.EventProjects);
+
+                            renderDropdownOptions(
+                                'ddl-modal-new-event-project-selected',
+                                data.EventProjects,
+                                'เลือกโครงการ',
+                                function (EventID) {
+                                    fetchDataByProject(EventID);
+                                }
+                            );
                         });
                 });
             } else {
@@ -285,6 +299,58 @@ $(document).on('submit', '.form.theme-form', function (e) {
             });
         });
 });
+
+function renderDropdownOptions(selectElementId, items, placeholderText = 'เลือกข้อมูล', onChangeCallback = null) {
+    const select = document.getElementById(selectElementId);
+    if (!select) return;
+
+    // Clear old options
+    select.innerHTML = '';
+
+    // Add default option
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = placeholderText;
+    select.appendChild(defaultOption);
+
+    // Add each item
+    items.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.ValueInt;
+        option.textContent = item.Text ?? '';
+        select.appendChild(option);
+    });
+
+    // Attach onchange callback if needed
+    if (onChangeCallback) {
+        select.onchange = () => {
+            const selectedProjectID = select.value;
+            if (selectedProjectID) {
+                onChangeCallback(selectedProjectID);
+            }
+        };
+    }
+}
+
+function fetchDataByProject(EventID) {
+    fetch(baseUrl + 'OtherSettings/GetDataDateTabShopFromInsert?EventID=' + EventID)
+        .then(res => res.json())
+        .then(data => {
+            console.log('ข้อมูลวันที่ + ร้านค้า:', data);
+
+            if (data.EventDates) {
+                renderEventDates(data.EventDates);
+            }
+
+            if (data.Shops) {
+                renderShops(data.Shops);
+            }
+        })
+        .catch(err => {
+            console.error('เกิดข้อผิดพลาดในการโหลดข้อมูล:', err);
+        });
+}
+
 
 function renderEventDates(dates) {
     const track = document.getElementById("calendarTrack");
@@ -713,4 +779,22 @@ function saveShopTab() {
             });
         });
 }
+
+
+function updateColorByEventType() {
+    const ddl = document.getElementById('ddl-modal-new-event-type-id');
+    const colorInput = document.getElementById('color-modal-new-event-type-color');
+
+    const selectedIndex = ddl.selectedIndex;
+    if (selectedIndex === 0) {
+        // First item (placeholder)
+        colorInput.value = '#808080'; // grey
+        return;
+    }
+
+    const selectedOption = ddl.options[selectedIndex];
+    const color = selectedOption.getAttribute('data-color') || '#808080';
+    colorInput.value = color;
+}
+
 

@@ -11,6 +11,7 @@
         public int? ValueInt { get; set; }
         public string? ValueString { get; set; }
         public string? Text { get; set; }
+        public string? Color { get; set; }
         public bool IsActive { get; set; } = true;
         public bool IsDefault { get; set; } = false;
     }
