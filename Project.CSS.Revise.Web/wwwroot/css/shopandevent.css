@@ -50,6 +50,17 @@
     margin-right: 4px;
 }
 
+
+#ddl-project-shop-event {
+    width: 280px !important; /* ✅ Fix width ตามต้องการ */
+    min-width: 280px;
+}
+
+#project-dropdown-container .choices {
+    width: 280px !important;
+}
+
+
 .filter-bar .filter-item {
     min-width: 160px;
 }
@@ -112,77 +123,28 @@
 }
 
 
-/* ✅ Calendar container expands fully */
-#calendar {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: auto;
-    font-size: 0.9rem;
-}
-
-/* ✅ Calendar core element full width */
-.fc {
-    width: 100% !important;
-    max-width: 100%;
-    overflow-x: auto;
-}
-
-/* 💻 Default: Desktop toolbar layout */
-.fc-header-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-/* 📱 Mobile layout (<=576px) */
-@media (max-width: 576px) {
-    .fc-header-toolbar {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-
-    .fc-toolbar-chunk {
-        width: 100%;
-        display: flex;
-        justify-content: center !important;
-    }
-
-    .fc-toolbar-title {
-        margin-bottom: 0.5rem;
-        font-size: 1rem;
-    }
-}
-
-/* 🧩 iPad fix (768px–991.98px) */
-@media (max-width: 991.98px) and (min-width: 768px) {
-    .fc-header-toolbar {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-
-    .fc-toolbar-chunk {
-        width: 100%;
-        display: flex;
-        justify-content: center !important;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-
-    .fc-toolbar-title {
-        margin-bottom: 0.5rem;
-        font-size: 1rem;
-    }
-}
 
 .month-btn.active {
     background-color: #0d6efd;
     color: white;
     border-color: #0d6efd;
 }
+
+/* ✅ Style for "+n more" link in calendar */
+.fc-daygrid-more-link {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #0d6efd;
+    cursor: pointer;
+    margin-top: 2px;
+}
+
+.fc-daygrid-more-link:hover {
+    text-decoration: underline;
+}
+
+
 
 
 

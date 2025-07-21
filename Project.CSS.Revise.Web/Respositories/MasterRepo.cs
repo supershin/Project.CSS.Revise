@@ -283,7 +283,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                       select new GetDDLModel
                                       {
                                           ValueString = t1.ProjectID,
-                                          Text = "("+ t3.Name + ") " + t1.ProjectName
+                                          Text = t1.ProjectName
                                       };
 
                    return ListProject.ToList();

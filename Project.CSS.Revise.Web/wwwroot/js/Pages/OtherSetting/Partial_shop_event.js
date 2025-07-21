@@ -19,7 +19,9 @@ let firstDateValue = null;
 
 
 function LoadPartialshopevent(monthOverride = '') {
-    const projectId = $('#ddl-project-shop-event').val();
+    const projectIdList = $('#ddl-project-shop-event').val() || [];
+    const projectId = projectIdList.join(',');
+
     const year = $('#ddl-year-shop-event').val();
     const month = monthOverride || '';
     const showby = $('#ddl-showby-shop-event').val();
@@ -98,7 +100,7 @@ function initFullCalendarWithEvents(eventsRaw, onComplete, monthOverride = '') {
     }
 
     calendarInstance = new FullCalendar.Calendar(calendarEl, {
-        locale: 'en',
+        locale: 'th',
         dayHeaderFormat: { weekday: 'short' },
         titleFormat: { year: 'numeric', month: 'long' },
         initialView: 'dayGridMonth',
@@ -111,14 +113,23 @@ function initFullCalendarWithEvents(eventsRaw, onComplete, monthOverride = '') {
         },
         events: events,
         displayEventTime: false,
+        fixedWeekCount: true,
+        contentHeight: 850,  // ✅ ให้ปรับอัตโนมัติ หรือใช้ contentHeight: 700
+        dayMaxEvents: 3,     // จำกัด 3 event ต่อวัน, ที่เหลือจะโชว์ "+2 more"
+        views: {
+            timeGridWeek: {
+                dayHeaderFormat: { day: 'numeric', weekday: 'short' }  // 👉 1 จ., 2 อ.
+            },
+            timeGridDay: {
+                dayHeaderFormat: { day: 'numeric', weekday: 'short' }
+            }
+        },
         eventClick: function (info) {
             const modaltype = info.event.extendedProps.modaltype;
             if (modaltype === 1) {
                 EditEventProjectModal(info.event.extendedProps.originalData);
             } else if (modaltype === 2) {
                 EditEventModal(info.event.extendedProps.originalData);
-            } else {
-                console.warn('⚠️ Unknown modaltype:', modaltype);
             }
         },
         eventDidMount: function (info) {
@@ -131,21 +142,17 @@ function initFullCalendarWithEvents(eventsRaw, onComplete, monthOverride = '') {
             el.style.color = 'white';
         },
 
-        // ✅ จุดนี้จะถูกเรียกเมื่อกด prev/next/today
         datesSet: function (info) {
-            const currentDate = calendarInstance.getDate(); // ใช้วันที่ของเดือนจริง ๆ
+            const currentDate = calendarInstance.getDate();
             const month = currentDate.getMonth() + 1;
-
-            console.log('🗓️ datesSet: current date →', currentDate);
-            console.log('📅 month:', month);
 
             $('.month-btn').removeClass('active');
             $(`.month-btn[data-month="${month}"]`).addClass('active');
 
             updateMonthBadgesFromEventList(eventsRaw);
         }
-
     });
+
 
     calendarInstance.render();
 

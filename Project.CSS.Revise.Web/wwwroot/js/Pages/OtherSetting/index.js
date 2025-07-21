@@ -68,7 +68,7 @@ function loadBUOptions(callback) {
 
                         // 🔁 Re-init with empty Choices
                         projectChoices = new Choices(projectSelect, {
-                            removeItemButton: false,
+                            removeItemButton: true,
                             searchEnabled: true,         // ❌ ปิด search
                             itemSelectText: '',           // ❌ ไม่มี "Press to select"
                             placeholder: false,
@@ -131,7 +131,7 @@ function loadProjectOptions(buIds) {
 
             // ✅ Re-init Choices.js (no input style)
             projectChoices = new Choices(projectSelect, {
-                removeItemButton: false,
+                removeItemButton: true,
                 searchEnabled: true,     // ✅ ปิดช่องค้นหาเพื่อให้เหมือน <select> ปกติ
                 itemSelectText: '',       // ✅ เอา Press to select ออก
                 placeholder: false,       // ✅ ไม่ให้มี placeholder เด้งขึ้น
@@ -153,7 +153,7 @@ $(document).ready(function () {
     // ✅ 1. Init Choices เปล่าๆ ให้กับ Project ตอนโหลดหน้าเลย
     const projectShopSelect = document.getElementById('ddl-project-shop-event');
     projectChoices = new Choices(projectShopSelect, {
-        removeItemButton: false,
+        removeItemButton: true,   
         itemSelectText: '',
         searchEnabled: true,
         placeholder: true,
