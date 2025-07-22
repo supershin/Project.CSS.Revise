@@ -261,6 +261,8 @@ $('#form-new-event').on('submit', function (e) {
 
     const formData = getEventFormData();
 
+    showLoading();
+
     fetch(baseUrl + 'OtherSettings/InsertNewEventsAndtags', {
         method: 'POST',
         headers: {
@@ -270,6 +272,7 @@ $('#form-new-event').on('submit', function (e) {
     })
         .then(res => res.json())
         .then(res => {
+            hideLoading();
             if (res.success) {
                 const eventIDs = res.id; // [90,91]
                 const eventIDString = eventIDs.join(',');
@@ -316,6 +319,7 @@ $('#form-new-event').on('submit', function (e) {
             }
         })
         .catch(err => {
+            hideLoading();
             console.error('❌ Insert Error:', err);
             Swal.fire({
                 icon: 'error',
@@ -772,7 +776,8 @@ function saveShopTab() {
         ShopsItems: ShopsItems
     };
 
-    console.log("🧾 Sending Shop Data:", model);
+    /*console.log("🧾 Sending Shop Data:", model);*/
+    showLoading();
 
     fetch(baseUrl + 'OtherSettings/InsertNewEventsAndShops', {
         method: 'POST',
@@ -783,6 +788,7 @@ function saveShopTab() {
     })
         .then(res => res.json())
         .then(res => {
+            hideLoading();
             if (res.success) {
                 Swal.fire({
                     icon: 'success',
@@ -798,6 +804,7 @@ function saveShopTab() {
             }
         })
         .catch(err => {
+            hideLoading();
             console.error("❌ Error saving shop data:", err);
             Swal.fire({
                 icon: 'error',
@@ -857,7 +864,6 @@ document.getElementById('save-edit-event').addEventListener('click', function (e
         const unitQuota = parseInt(unitQuotaInput?.value) || 0;
         const shopQuota = parseInt(shopQuotaInput?.value) || 0;
 
-        console.log(name);
         if (name) {
             shopItems.push({
                 ID: shopID, // เพราะเพิ่มใหม่หรือไม่มีข้อมูล ID
@@ -876,6 +882,8 @@ document.getElementById('save-edit-event').addEventListener('click', function (e
         ShopsItems: shopItems
     };
 
+    showLoading();
+
     fetch(`${baseUrl}OtherSettings/InsertNewEventsAndShops`, {
         method: 'POST',
         headers: {
@@ -885,6 +893,7 @@ document.getElementById('save-edit-event').addEventListener('click', function (e
     })
         .then(res => res.json())
         .then(res => {
+            hideLoading();
             if (res.success === 1) {
                 Swal.fire({
                     icon: 'success',
@@ -900,6 +909,7 @@ document.getElementById('save-edit-event').addEventListener('click', function (e
             }
         })
         .catch(err => {
+            hideLoading();
             console.error('❌ Save Edit Error:', err);
             Swal.fire({
                 icon: 'error',
@@ -930,19 +940,21 @@ function UpdateDateTimeEvent() {
     formData.append('StartDate', startDate);
     formData.append('EndDate', endDate);
 
+    showLoading();
+
     fetch(baseUrl + 'OtherSettings/UpdateDateTimeEvent', {
         method: 'POST',
         body: formData
     })
         .then(res => res.json())
         .then(response => {
+            hideLoading();
             if (response.success) {
                 Swal.fire({
                     icon: 'success',
                     title: 'Success',
                     text: response.message
                 });
-                // Optionally refresh calendar or modal
                 openEditEventProjectModal(eventID, projectID);
             } else {
                 Swal.fire({
@@ -953,6 +965,7 @@ function UpdateDateTimeEvent() {
             }
         })
         .catch(error => {
+            hideLoading();
             console.error('Error:', error);
             Swal.fire({
                 icon: 'error',
@@ -980,6 +993,7 @@ function deleteEventInProject() {
         cancelButtonText: 'Cancel'
     }).then((result) => {
         if (result.isConfirmed) {
+            showLoading();
             const formData = new FormData();
             formData.append('EventID', eventID);
             formData.append('ProjectID', projectID);
@@ -990,6 +1004,7 @@ function deleteEventInProject() {
             })
                 .then(res => res.json())
                 .then(data => {
+                    hideLoading();
                     if (data.success) {
                         Swal.fire({
                             icon: 'success',
@@ -1005,6 +1020,7 @@ function deleteEventInProject() {
                     }
                 })
                 .catch(err => {
+                    hideLoading();
                     console.error('❌ Delete Error:', err);
                     Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถลบกิจกรรมได้', 'error');
                 });
