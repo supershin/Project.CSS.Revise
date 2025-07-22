@@ -252,7 +252,6 @@
                                                             </div> กำลังโหลด...
                                                         </div>
                                                         <select id="ddl-project-shop-event" class="form-select" multiple>
-                                                            <option value="">เลือกโครงการ</option>
                                                         </select>
                                                     </div>
 
@@ -260,13 +259,6 @@
                                                     <div class="filter-item">
                                                         <select id="ddl-year-shop-event" class="form-select">
                                                             <option value="">เลือกปี</option>
-                                                        </select>
-                                                    </div>
-
-                                                    <div class="filter-item">
-                                                        <select id="ddl-showby-shop-event" class="form-select">
-                                                            <option value="1">แสดงรายโครงการ</option>
-                                                            <option value="2">แสดงราย Event</option>
                                                         </select>
                                                     </div>
 
@@ -371,14 +363,14 @@
                                     <div class="card-body custom-input">
                                         <div class="row">
                                             <div class="col">
-                                                <div class="mb-3 row">
+@*                                                 <div class="mb-3 row">
                                                     <label class="col-sm-3">Event</label>
                                                     <div class="col-sm-9">
                                                         <input class="form-control" type="text" placeholder="Event name" id="txt-modal-new-event-name">
                                                     </div>
-                                                </div>
+                                                </div> *@
                                                 <div class="mb-3 row">
-                                                    <label class="col-sm-3 pt-0">Event type</label>
+                                                    <label class="col-sm-3 pt-0">Event Name</label>
 
                                                     <div class="col-sm-5">
                                                         <select class="form-select" id="ddl-modal-new-event-type-id" onchange="updateColorByEventType()">
@@ -572,19 +564,13 @@
                                 <input type="hidden" id="hiddenEditProjectID" value="0" />
                                 <div class="col-12">
                                     <div class="mb-3 row">
-                                        <label class="col-sm-3">Event</label>
-                                        <div class="col-sm-9">
-                                            <input class="form-control" type="text" placeholder="Event name" id="txt-modal-edit-event-in-project-name" disabled>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3 row">
                                         <label class="col-sm-3">Project</label>
                                         <div class="col-sm-9">
                                             <input class="form-control" type="text" placeholder="" id="txt-modal-edit-event-in-project-project" disabled>
                                         </div>
                                     </div>
                                     <div class="mb-3 row">
-                                        <label class="col-sm-3 pt-0">Event type</label>
+                                        <label class="col-sm-3 pt-0">Event</label>
                                         <div class="col-sm-5">
                                             <input class="form-control" type="text" placeholder="Event type name" id="txt-modal-edit-event-in-project-type-name" maxlength="100" disabled>
                                         </div>
@@ -596,6 +582,26 @@
                                         <label class="col-sm-3">Location</label>
                                         <div class="col-sm-9">
                                             <input class="form-control" type="text" placeholder="Location" id="txt-modal-edit-event-in-project-location" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3 row align-items-center">
+                                        <label class="col-sm-3">Date and Time</label>
+
+                                        <div class="col-sm-4">
+                                            <input class="form-control" id="txt-modal-edit-event-start-date-time" placeholder="Start DateTime">
+                                        </div>
+
+                                        <div class="col-sm-1 text-center fw-bold">-</div>
+
+                                        <div class="col-sm-4">
+                                            <input class="form-control" id="txt-modal-edit-event-end-date-time" placeholder="End DateTime">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3 row">
+                                        <div class="col-12 d-flex justify-content-center">
+                                            <button type="button" class="btn btn-primary px-4" onclick="saveEditEventInProject()">
+                                                🗓️ Save Changes Date Time
+                                            </button>
                                         </div>
                                     </div>
                                     <div class="mb-3 row">
@@ -719,6 +725,22 @@
         });
 
         flatpickr("#txt-modal-new-event-end-date-time", {
+            enableTime: true,
+            time_24hr: true,
+            dateFormat: "Y-m-d H:i",
+            defaultHour: 18,
+            defaultMinute: 0
+        });
+
+        flatpickr("#txt-modal-edit-event-start-date-time", {
+            enableTime: true,
+            time_24hr: true,
+            dateFormat: "Y-m-d H:i", // Example: 2025-06-30 13:45
+            defaultHour: 9,
+            defaultMinute: 0
+        });
+
+        flatpickr("#txt-modal-edit-event-end-date-time", {
             enableTime: true,
             time_24hr: true,
             dateFormat: "Y-m-d H:i",

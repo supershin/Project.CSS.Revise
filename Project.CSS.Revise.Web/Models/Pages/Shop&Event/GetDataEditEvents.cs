@@ -11,12 +11,13 @@
         {
             public int? EventID { get; set; }
             public string? ProjectID { get; set; }
-
             public string? EventName { get; set; }
             public string? EventType { get; set; }
             public string? EventColor { get; set; }
             public string? EventLocation { get; set; }
             public string? ProjectName { get; set; }
+            public string? StartDate { get; set; }
+            public string? EndDate { get; set; }
 
             public List<DateEventModel>? DateEvents { get; set; }
             public List<ListShopsModel>? ListShops { get; set; }

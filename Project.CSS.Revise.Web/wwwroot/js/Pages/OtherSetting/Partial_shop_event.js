@@ -24,7 +24,6 @@ function LoadPartialshopevent(monthOverride = '') {
 
     const year = $('#ddl-year-shop-event').val();
     const month = monthOverride || '';
-    const showby = $('#ddl-showby-shop-event').val();
 
     const $calendar = $('#calendar');
 
@@ -40,8 +39,7 @@ function LoadPartialshopevent(monthOverride = '') {
     $.getJSON(baseUrl + 'OtherSettings/GetEventsForCalendar', {
         projectID: projectId,
         year: year,
-        month: month,
-        showby: showby
+        month: month
     })
     .done(function (eventList) {
 
@@ -70,13 +68,7 @@ function initFullCalendarWithEvents(eventsRaw, onComplete, monthOverride = '') {
     // ✅ เตรียมแปลง event สำหรับ FullCalendar
     const events = eventsRaw.map(ev => {
         const startISO = parseToISO(ev.start);
-        let endISO = parseToISO(ev.end);
-
-        if (endISO) {
-            const end = new Date(endISO);
-            end.setDate(end.getDate() + 1);
-            endISO = end.toISOString();
-        }
+        const endISO = parseToISO(ev.end); // ❌ ไม่ต้องเพิ่มวัน
 
         return {
             title: ev.title,
@@ -85,10 +77,11 @@ function initFullCalendarWithEvents(eventsRaw, onComplete, monthOverride = '') {
             color: ev.color,
             extendedProps: {
                 modaltype: ev.modaltype,
-                originalData: ev // เก็บ event ทั้งตัว (ถ้าจะใช้ข้อมูลอื่นด้วย)
+                originalData: ev
             }
         };
     });
+
 
 
     const calendarEl = document.getElementById('calendar');
@@ -139,7 +132,7 @@ function initFullCalendarWithEvents(eventsRaw, onComplete, monthOverride = '') {
             el.style.padding = '2px 6px';
             el.style.fontWeight = 'bold';
             el.style.backgroundColor = info.event.backgroundColor || '#3498db';
-            el.style.color = 'white';
+            el.style.textShadow = '0 0 2px rgba(255,255,255,0.6)';
         },
 
         datesSet: function (info) {
@@ -241,9 +234,9 @@ function renderEventSummaryBox(eventList) {
                     const tagHtml = (ev.Eventtags ?? '')
                         .split(',')
                         .filter(t => t.trim())
-                        .map(t => `<span class="badge bg-warning text-white border">
-                                     <i class="fa fa-tag me-1"></i> ${t.trim()}
-                                   </span>`).join('');
+                        .map(t => `<span class="glam-tag"><i class="fa fa-tag me-1"></i>${t.trim()}</span>`)
+                        .join('');
+
 
                     html += `<li class="d-flex justify-content-between align-items-start mb-1">
                                 <div class="flex-grow-1 pe-3" style="min-width:0;">
@@ -301,11 +294,29 @@ function openEditEventProjectModal(EventID, ProjectID) {
         .then(data => {
             $('#hiddenEditEventID').val(data.EventID);
             $('#hiddenEditProjectID').val(data.ProjectID);
-            $('#txt-modal-edit-event-in-project-name').val(data.EventName);
+            /*$('#txt-modal-edit-event-in-project-name').val(data.EventName);*/
             $('#txt-modal-edit-event-in-project-project').val(data.ProjectName);
             $('#txt-modal-edit-event-in-project-type-name').val(data.EventType);
             $('#color-modal-edit-event-in-project-type-color').val(data.EventColor);
             $('#txt-modal-edit-event-in-project-location').val(data.EventLocation);
+
+            $('#txt-modal-edit-event-start-date-time').val(data.StartDate);
+            $('#txt-modal-edit-event-end-date-time').val(data.EndDate);
+
+            // ⭐️ เรียก flatpickr หลังจากใส่ค่าแล้ว
+            flatpickr("#txt-modal-edit-event-start-date-time", {
+                enableTime: true,
+                time_24hr: true,
+                dateFormat: "Y-m-d H:i",
+                defaultDate: data.StartDate
+            });
+
+            flatpickr("#txt-modal-edit-event-end-date-time", {
+                enableTime: true,
+                time_24hr: true,
+                dateFormat: "Y-m-d H:i",
+                defaultDate: data.EndDate
+            });
 
             const calendarTrack = document.getElementById('calendarTrackEditinProject');
             calendarTrack.innerHTML = '';

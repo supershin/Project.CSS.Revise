@@ -101,7 +101,7 @@ namespace Project.CSS.Revise.Web.Respositories
 
                             _context.TR_Event_EventTypes.Add(eventTypeRelation);
                         }
-                        _context.SaveChanges(); 
+                        _context.SaveChanges();
                     }
 
                     foreach (var eventId in eventIdsCreated)
@@ -769,7 +769,10 @@ namespace Project.CSS.Revise.Web.Respositories
                               EventName = e.Name,
                               EventType = et.Name,
                               EventColor = et.ColorCode,
-                              EventLocation = e.Location
+                              EventLocation = e.Location,
+                              StartDate = e.StartDate.HasValue ? e.StartDate.Value.ToString("yyyy-MM-dd HH:mm") : "",
+                              EndDate = e.EndDate.HasValue ? e.EndDate.Value.ToString("yyyy-MM-dd HH:mm") : ""
+
                           }).FirstOrDefault();
 
             var eventItem = _context.tm_Events.FirstOrDefault(e => e.ID == filter.EventID);
@@ -810,6 +813,47 @@ namespace Project.CSS.Revise.Web.Respositories
             return query;
         }
 
+        public bool UpdateDateTimeEvent(int EnventID, string ProjectID, string DateStart, string DateEnd, int UserID)
+        {
+            var response = false;
 
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+
+                    var existing = _context.tm_Events.FirstOrDefault(e =>e.ProjectID == ProjectID && e.ID == EnventID && e.FlagActive == true);
+
+                    if (existing != null)
+                    {
+                        // 🔄 UPDATE
+                        existing.StartDate = Commond.FormatExtension.ToDateFromddmmyyy(DateStart);
+                        existing.EndDate = Commond.FormatExtension.ToDateFromddmmyyy(DateEnd);
+                        existing.UpdateDate = DateTime.Now;
+                        existing.UpdateBy = UserID;
+
+                        _context.tm_Events.Update(existing);
+                    }
+
+                    _context.SaveChanges();
+
+ 
+                    transaction.Commit();
+
+                    response = true;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    var message = ex.InnerException != null
+                        ? $"INNER ERROR: {ex.InnerException.Message}"
+                        : $"ERROR: {ex.Message}";
+                    response = false;
+                }
+
+            }
+
+            return response;
+        }
     }
 }

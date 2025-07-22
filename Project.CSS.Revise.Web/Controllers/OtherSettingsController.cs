@@ -94,14 +94,13 @@ namespace Project.CSS.Revise.Web.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetEventsForCalendar(string projectID, string month, int year , int showby )
+        public JsonResult GetEventsForCalendar(string projectID, string month, int year)
         {
             var filter = new GetListShopAndEventCalendar.FilterData
             {
                 L_ProjectID = projectID,
                 L_Month = month,
                 L_Year = year,
-                L_ShowBy = showby
             };
 
             var listEvents = _shopAndEventService.GetListShopAndEventSCalendar(filter);
@@ -115,10 +114,6 @@ namespace Project.CSS.Revise.Web.Controllers
             if (string.IsNullOrEmpty(model.EventName) || string.IsNullOrEmpty(model.EventLocation) || model.TagItems == null || model.TagItems.Count == 0)
             {
                 return Json(new { success = false, id = 0, message = "Event name, location, and at least one tag are required." });
-            }
-            if (model.EventType < 0 )
-            {
-                return Json(new { success = false, id = 0, message = "Event type is required." });
             }
             if (model.ProjectIds == null || model.ProjectIds.Count == 0)
             {

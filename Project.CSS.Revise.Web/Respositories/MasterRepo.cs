@@ -75,7 +75,7 @@ namespace Project.CSS.Revise.Web.Respositories
                             result.Add(new ProjectModel
                             {
                                 ProjectID = reader["ProjectID"].ToString(),
-                                ProjectNameTH = reader["BUname"].ToString() + " - " + reader["ProjectName"].ToString(),
+                                ProjectNameTH = reader["ProjectName"].ToString(),
                                 ProjectNameEN = reader["ProjectName_Eng"].ToString()
                                 // BUname และ BUID สามารถเพิ่มได้ ถ้าอยากเก็บไว้ใน Model
                             });

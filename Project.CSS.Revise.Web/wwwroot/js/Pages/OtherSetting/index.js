@@ -60,7 +60,7 @@ function loadBUOptions(callback) {
                         projectSelect.innerHTML = ''; // clear <option> list
 
                         // ✅ Add default option manually
-                        const defaultOption = new Option('เลือกโครงการ', '', true, true);
+                        const defaultOption = new Option('เลือกโครงการ', '', false, false);
                         defaultOption.disabled = true;
                         defaultOption.hidden = true;
                         projectSelect.add(defaultOption);
@@ -69,8 +69,11 @@ function loadBUOptions(callback) {
                         // 🔁 Re-init with empty Choices
                         projectChoices = new Choices(projectSelect, {
                             removeItemButton: true,
-                            searchEnabled: true,         // ❌ ปิด search
-                            itemSelectText: '',           // ❌ ไม่มี "Press to select"
+                            searchEnabled: true,
+                            placeholderValue: 'เลือกโครงการ',     // ✅ เพิ่ม placeholder ตรงนี้
+                            noResultsText: 'ไม่พบโครงการ',
+                            noChoicesText: 'ไม่มีตัวเลือก',
+                            itemSelectText: '',
                             placeholder: false,
                             shouldSort: false
                         });
@@ -118,7 +121,7 @@ function loadProjectOptions(buIds) {
             projectSelect.innerHTML = '';
 
             // ✅ Add default option manually
-            const defaultOption = new Option('เลือกโครงการ', '', true, true); // selected & selectedIndex = 0
+            const defaultOption = new Option('เลือกโครงการ', '', false, false); // selected & selectedIndex = 0
             defaultOption.disabled = true;
             defaultOption.hidden = true;
             projectSelect.add(defaultOption);
@@ -132,9 +135,11 @@ function loadProjectOptions(buIds) {
             // ✅ Re-init Choices.js (no input style)
             projectChoices = new Choices(projectSelect, {
                 removeItemButton: true,
-                searchEnabled: true,     // ✅ ปิดช่องค้นหาเพื่อให้เหมือน <select> ปกติ
-                itemSelectText: '',       // ✅ เอา Press to select ออก
-                placeholder: false,       // ✅ ไม่ให้มี placeholder เด้งขึ้น
+                searchEnabled: true,
+                /*itemSelectText: '',*/
+                placeholderValue: 'เลือกโครงการ',
+                noResultsText: 'ไม่พบโครงการ',
+                noChoicesText: 'ไม่มีตัวเลือก',
                 shouldSort: false
             });
 
@@ -154,21 +159,32 @@ $(document).ready(function () {
     const projectShopSelect = document.getElementById('ddl-project-shop-event');
     projectChoices = new Choices(projectShopSelect, {
         removeItemButton: true,   
-        itemSelectText: '',
+        /*itemSelectText: '',*/
         searchEnabled: true,
-        placeholder: true,
+        placeholderValue: 'เลือกโครงการ',     // ✅ เพิ่ม placeholder ตรงนี้
+        noResultsText: 'ไม่พบโครงการ',
+        noChoicesText: 'ไม่มีตัวเลือก',
         shouldSort: false
     });
 
     // ✅ 2. Generate year options: current year -5 to +5
     const yearSelect = document.getElementById('ddl-year-shop-event');
     const currentYear = new Date().getFullYear();
-    for (let i = currentYear - 5; i <= currentYear + 5; i++) {
+
+    // ลูปสร้างปี -3 ถึง +3
+    for (let i = currentYear - 3; i <= currentYear + 3; i++) {
         const option = document.createElement('option');
         option.value = i;
         option.text = i;
+
+        // ✅ ทำให้ปีปัจจุบันถูกเลือก
+        if (i === currentYear) {
+            option.selected = true;
+        }
+
         yearSelect.appendChild(option);
     }
+
 
     // ✅ 3. Init Choices ใน Modal สำหรับ multi-select project
     const modalProjectSelect = document.getElementById('ddl-modal-new-event-projects');
@@ -200,7 +216,7 @@ function getEventFormData() {
         label: t.label || t.value
     }));
 
-    const eventName = $('#txt-modal-new-event-name').val().trim();
+    const eventName = $('#ddl-modal-new-event-type-id option:selected').text().trim(); // ✅ แก้ตรงนี้
     const eventType = $('#ddl-modal-new-event-type-id').val().trim();
     /*const eventColor = $('#color-modal-new-event-type-color').val().trim();*/
     const eventLocation = $('#txt-modal-new-event-location').val().trim();

@@ -3,8 +3,8 @@
     public class CreateEvents_Tags
     {
         public string? EventName { get; set; }
-        public int? EventType{ get; set; }
-        public string? EventColor { get; set; }
+        public int? EventType { get; set; }
+        //public string? EventColor { get; set; }
         public string? EventLocation { get; set; }
         public List<TagModel>? TagItems { get; set; } // ใช้รับ tag แบบ value/label
         public List<string>? ProjectIds { get; set; } // multiple select

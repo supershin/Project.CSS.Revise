@@ -31,3 +31,4 @@ function openViewer(imageSrc) {
 
     viewer.show();
 }
+
