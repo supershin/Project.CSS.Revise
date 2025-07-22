@@ -109,9 +109,9 @@
 
     <script>
         const images = [
-            "/assets/images/login/Atmoz-Flow-Minburi-2.jpg",
-            "/assets/images/login/Modiz_rhyme_ramkhamhaeng.jpg",
-            "/assets/images/login/Kave_playground.jpg"
+            '@Url.Content("~/assets/images/login/Atmoz-Flow-Minburi-2.jpg")',
+            '@Url.Content("~/assets/images/login/Modiz_rhyme_ramkhamhaeng.jpg")',
+            '@Url.Content("~/assets/images/login/Kave_playground.jpg")'
         ];
 
         let current = 0;
@@ -123,14 +123,14 @@
                 current = (current + 1) % images.length;
                 bg.style.backgroundImage = `url('${images[current]}')`;
                 bg.style.opacity = 1;
-            }, 800); // time to fade out
+            }, 800);
         }
 
         // Initial background
         bg.style.backgroundImage = `url('${images[0]}')`;
 
         // Loop every 6 seconds
-        setInterval(changeBackground, 6000);
+        setInterval(changeBackground, 9000);
     </script>
 
 </body>

@@ -4,6 +4,7 @@
 <div class="login-card">
     <div class="login-main">
         <form id="loginForm" class="theme-form">
+            @Html.AntiForgeryToken()
             <div>
                 <a class="logo" href="#">
                     <img class="img-fluid for-dark w-75" src="~/assets/images/logo/asw-logo-2.png" alt="loginpage">
@@ -54,58 +55,64 @@
     </div>
 
 </div>
-@section scripts{
+@section scripts {
     <script>
         async function submitLogin() {
-        const username = document.getElementById("username").value.trim();
-        const password = document.getElementById("password").value;
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value;
 
-        const alertBox = document.getElementById("loginAlert");
-        const btnLogin = document.getElementById("btnLogin");
-        const btnSpinner = document.getElementById("btnSpinner");
-        const btnText = document.getElementById("btnText");
+            const alertBox = document.getElementById("loginAlert");
+            const btnLogin = document.getElementById("btnLogin");
+            const btnSpinner = document.getElementById("btnSpinner");
+            const btnText = document.getElementById("btnText");
 
-        alertBox.classList.add("d-none");
-        alertBox.innerText = "";
+            alertBox.classList.add("d-none");
+            alertBox.innerText = "";
 
-        if (!username || !password) {
-            showError("Please enter both username and password.");
-            return;
-        }
-
-        // 🔄 Show loading
-        btnLogin.disabled = true;
-        btnSpinner.classList.remove("d-none");
-        btnText.innerText = "Signing in...";
-
-        const formData = new URLSearchParams();
-        formData.append("Username", username);
-        formData.append("Password", password);
-
-        try {
-            const response = await fetch("/Login/Login", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: formData.toString()
-            });
-
-            const result = await response.json();
-
-            if (result.status === 1) {
-                window.location.href = result.redirectUrl;
-            } else {
-                showError(result.message);
+            if (!username || !password) {
+                showError("Please enter both username and password.");
+                return;
             }
 
-        } catch (error) {
-            showError("Something went wrong. Please try again.");
-        } finally {
-            // ✅ Reset button state
-            btnLogin.disabled = false;
-            btnSpinner.classList.add("d-none");
-            btnText.innerText = "Sign in";
+            // 🔄 Show loading
+            btnLogin.disabled = true;
+            btnSpinner.classList.remove("d-none");
+            btnText.innerText = "Signing in...";
+
+            // 📌 Get Anti-Forgery Token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            const formData = new URLSearchParams();
+            formData.append("__RequestVerificationToken", token);
+            formData.append("Username", username);
+            formData.append("Password", password);
+
+            try {
+                const response = await fetch('@Url.Action("Login", "Login")', {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: formData.toString()
+                });
+
+                const result = await response.json();
+
+                if (result.status === 1) {
+                    window.location.href = result.redirectUrl;
+                } else {
+                    showError(result.message);
+                }
+
+            } catch (error) {
+                showError("Something went wrong. Please try again.");
+            } finally {
+                // ✅ Reset button state
+                btnLogin.disabled = false;
+                btnSpinner.classList.add("d-none");
+                btnText.innerText = "Sign in";
+            }
         }
-    }
 
         function showError(message) {
             const alertBox = document.getElementById("loginAlert");
@@ -122,6 +129,5 @@
             const passwordInput = document.getElementById("password");
             passwordInput.type = shouldShow ? "text" : "password";
         }
-
     </script>
 }

@@ -32,3 +32,11 @@ function openViewer(imageSrc) {
     viewer.show();
 }
 
+function showLoading() {
+    document.getElementById('global-loading-overlay').style.display = 'block';
+}
+
+function hideLoading() {
+    document.getElementById('global-loading-overlay').style.display = 'none';
+}
+

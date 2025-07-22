@@ -28,6 +28,7 @@ namespace Project.CSS.Revise.Web.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string Username, string Password)
         {
             try
