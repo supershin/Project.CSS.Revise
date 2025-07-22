@@ -11,30 +11,26 @@
     <div class="card shadow-sm border-0">
         <div class="card-header border-start border-3 border-primary">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
-
                 <!-- 🔘 Add Event Button -->
                 <button id="btn-add-event" type="button" class="btn btn-success rounded-pill px-4 d-flex align-items-center gap-2" onclick="openNewEventModal()">
                     <i class="fa fa-plus"></i>
                     <span>Add Event</span>
                 </button>
-
                 <!-- Month Buttons: Include inline onclick -->
                 <div class="d-flex flex-wrap justify-content-start gap-2">
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="1" onclick="LoadPartialshopevent('1')">Jan</button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="2" onclick="LoadPartialshopevent('2')">Feb</button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="3" onclick="LoadPartialshopevent('3')">Mar</button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="4" onclick="LoadPartialshopevent('4')">Apr</button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="5" onclick="LoadPartialshopevent('5')">May</button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="6" onclick="LoadPartialshopevent('6')">Jun</button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="7" onclick="LoadPartialshopevent('7')">Jul</button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="8" onclick="LoadPartialshopevent('8')">Aug</button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="9" onclick="LoadPartialshopevent('9')">Sep</button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="10" onclick="LoadPartialshopevent('10')">Oct</button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="11" onclick="LoadPartialshopevent('11')">Nov</button>
-                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="12" onclick="LoadPartialshopevent('12')">Dec</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="1" onclick="goToCalendarMonth(1)">Jan</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="2" onclick="goToCalendarMonth(2)">Feb</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="3" onclick="goToCalendarMonth(3)">Mar</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="4" onclick="goToCalendarMonth(4)">Apr</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="5" onclick="goToCalendarMonth(5)">May</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="6" onclick="goToCalendarMonth(6)">Jun</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="7" onclick="goToCalendarMonth(7)">Jul</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="8" onclick="goToCalendarMonth(8)">Aug</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="9" onclick="goToCalendarMonth(9)">Sep</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="10" onclick="goToCalendarMonth(10)">Oct</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="11" onclick="goToCalendarMonth(11)">Nov</button>
+                    <button class="btn btn-outline-primary position-relative rounded-pill px-3 month-btn" data-month="12" onclick="goToCalendarMonth(12)">Dec</button>
                 </div>
-
-
             </div>
         </div>
 

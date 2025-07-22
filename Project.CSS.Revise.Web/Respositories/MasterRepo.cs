@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models;
@@ -74,7 +75,7 @@ namespace Project.CSS.Revise.Web.Respositories
                             result.Add(new ProjectModel
                             {
                                 ProjectID = reader["ProjectID"].ToString(),
-                                ProjectNameTH = reader["BUname"].ToString() + " - " + reader["ProjectName"].ToString(),
+                                ProjectNameTH = reader["ProjectName"].ToString(),
                                 ProjectNameEN = reader["ProjectName_Eng"].ToString()
                                 // BUname และ BUID สามารถเพิ่มได้ ถ้าอยากเก็บไว้ใน Model
                             });
@@ -282,7 +283,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                       select new GetDDLModel
                                       {
                                           ValueString = t1.ProjectID,
-                                          Text = "("+ t3.Name + ") " + t1.ProjectName
+                                          Text = t1.ProjectName
                                       };
 
                    return ListProject.ToList();
@@ -297,6 +298,111 @@ namespace Project.CSS.Revise.Web.Respositories
                                       };
 
                     return ListAlltag.ToList();
+
+                case "listEventdateByID":
+                    var eventItem = _context.tm_Events.FirstOrDefault(e => e.ID == model.ID);
+
+                    if (eventItem != null)
+                    {
+                        if (eventItem?.StartDate == null || eventItem?.EndDate == null)
+                        {
+                            return new List<GetDDLModel>();
+                        }
+                        else
+                        {
+                            var dateList = Enumerable.Range(0, (eventItem.EndDate.Value.Date - eventItem.StartDate.Value.Date).Days + 1)
+                                        .Select(offset => eventItem.StartDate.Value.Date.AddDays(offset))
+                                        .Select(date => new GetDDLModel
+                                        {
+                                            Text = Commond.FormatExtension.FormatDateToThaiShortString(date),
+                                            ValueString = date.ToString("yyyy-MM-dd")
+                                        }).ToList();
+
+                            return dateList;
+                        }
+                    }
+                    return new List<GetDDLModel>();
+
+                case "listEventProjectByID":
+                    var EventProject = from t1 in _context.TR_ProjectEvents
+                                       join t2 in _context.tm_Projects on t1.ProjectID equals t2.ProjectID into joined
+                                       from t2 in joined.DefaultIfEmpty()
+                                       where t1.FlagActive == true && t1.EventID == model.ID
+                                       select new GetDDLModel
+                                      {
+                                          ValueString = t1.ProjectID,
+                                          Text = t2.ProjectName
+                                       };
+
+                    return EventProject.ToList();
+
+                case "listShop":
+                    var listShop = from t1 in _context.tm_Shops
+                                    where t1.FlagActive == true
+                                    select new GetDDLModel
+                                    {
+                                        ValueInt = t1.ID,
+                                        Text = t1.Name
+                                    };
+
+                    return listShop.ToList();
+
+                case "DDLEventType":
+                    var listEventType = from t1 in _context.tm_EventTypes
+                                        where t1.FlagActive == true
+                                   select new GetDDLModel
+                                   {
+                                       ValueInt = t1.ID,
+                                       Text = t1.Name,
+                                       Color = t1.ColorCode
+                                   };
+
+                    return listEventType.ToList();
+
+                case "listEventInID":
+                    {
+                        var valueString = model.ValueString?.Trim(',');
+                        if (string.IsNullOrWhiteSpace(valueString))
+                            return new List<GetDDLModel>();
+
+                        var result = new List<GetDDLModel>();
+                        var connectionString = _context.Database.GetDbConnection().ConnectionString;
+
+                        using (var conn = new SqlConnection(connectionString))
+                        {
+                            conn.Open();
+
+                            string sql = $@"
+                                            SELECT 
+                                                T1.[ID] AS EVENTID,
+                                                T1.[ProjectID],
+                                                T2.ProjectName
+                                            FROM [tm_Event] T1
+                                            LEFT JOIN [tm_Project] T2 ON T1.ProjectID = T2.[ProjectID]
+                                            WHERE T1.FlagActive = 1
+                                              AND T1.ID IN ({valueString})
+                                        ";
+
+                            using (var cmd = new SqlCommand(sql, conn))
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    result.Add(new GetDDLModel
+                                    {
+                                        ValueInt = Convert.ToInt32(reader["EVENTID"]),
+                                        ValueString = reader["ProjectID"].ToString(),
+                                        Text = reader["ProjectName"].ToString()
+                                    });
+                                }
+                            }
+                        }
+
+                        return result;
+                    }
+
+
+
 
                 default:
 

@@ -2,6 +2,201 @@
 @{
     Layout = "~/Views/Shared/_LayoutSite.cshtml";
 }
+<style>
+    .card-header {
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .date-day {
+        font-size: 14px;
+        color: #555;
+    }
+
+    .date-full {
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    .form-check {
+        min-width: max-content; /* ป้องกัน label ขึ้นบรรทัดเอง */
+    }
+
+    .form-check-label {
+        color: #000 !important; /* สีดำและบังคับ */
+    }
+
+    .btn-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        padding: 5px 0;
+        text-align: center;
+        font-size: 14px;
+    }
+
+</style>
+<style>
+    /* Main Layout */
+    .calendar-carousel {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(8px);
+        border-radius: 1rem;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        gap: 12px;
+    }
+
+    /* Arrow Buttons */
+    .arrow-btn {
+        background: transparent;
+        border: none;
+        font-size: 1.4rem;
+        color: #444;
+        padding: 6px 10px;
+        transition: 0.2s;
+    }
+
+    .arrow-btn:hover {
+        color: #006666;
+        transform: scale(1.2);
+    }
+
+    /* Viewport & Track */
+    .carousel-viewport {
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .carousel-track {
+        transition: transform 0.4s ease;
+    }
+
+    /* Calendar Item */
+    .calendar-item {
+        background: #f4f4f4;
+        border: none;
+        margin-right: 8px;
+        padding: 12px 16px;
+        min-width: 120px;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        color: #333;
+        font-weight: 500;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        transition: all 0.2s ease;
+    }
+
+    .calendar-item:hover {
+        background-color: #e8f9f8;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    /* Selected Style */
+    .calendar-item.selected {
+        background: linear-gradient(135deg, #006666, #009999);
+        color: white;
+        font-weight: bold;
+        transform: scale(1.05);
+    }
+
+    /* Select All Button */
+    .btn-glow {
+        background-color: #009999;
+        color: white;
+        border-radius: 0.75rem;
+        padding: 8px 16px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0, 153, 153, 0.3);
+        transition: all 0.25s ease;
+    }
+
+    .btn-glow:hover {
+        background-color: #007979;
+        box-shadow: 0 6px 16px rgba(0, 153, 153, 0.4);
+    }
+
+    .shop-item-card input[type="number"] {
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .shop-item-card input::placeholder {
+        font-weight: 400;
+        color: #bbb;
+    }
+
+    .card-header .btn i {
+        pointer-events: none;
+    }
+
+    .fw-bold.text-multiline-truncate {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .badge i.fa-tag {
+        font-size: 0.85em;
+    }
+
+
+</style>
+<style>
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 50px;
+        height: 50px;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        background-size: 60% 60%;
+    }
+
+    .carousel:hover .carousel-control-prev,
+    .carousel:hover .carousel-control-next {
+        opacity: 1;
+    }
+</style>
+<style>
+    .card-body.shop-list {
+        padding-bottom: 2rem; /* หรือ 32px */
+    }
+
+    .shop-item-card {
+        background-color: #fff;
+        transition: all 0.2s ease;
+        display: grid;
+        grid-template-columns: 32px 1.5fr 1fr 1fr 1fr 1.2fr;
+        gap: 1.2rem;
+        align-items: center;
+        width: 100%; /* ใช้เต็ม modal */
+    }
+
+
+
+    .shop-item-card:hover {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .form-check-input[type="checkbox"] {
+        transform: scale(1.2);
+    }
+
+    .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+</style>
+
+
 
 <div class="container-fluid">
     <div class="page-title">
@@ -56,8 +251,7 @@
                                                                 <span class="visually-hidden">Loading...</span>
                                                             </div> กำลังโหลด...
                                                         </div>
-                                                        <select id="ddl-project-shop-event" class="form-select">
-                                                            <option value="">เลือกโครงการ</option>
+                                                        <select id="ddl-project-shop-event" class="form-select" multiple>
                                                         </select>
                                                     </div>
 
@@ -76,12 +270,56 @@
                                                 </form>
                                             </div>
                                             <div class="col-12">
-                                                <div class="box-col-12" id="Box_show_partial">
-
+                                                <div id="carouselExampleControls" class="carousel slide" data-bs-interval="false">
+                                                    <div class="carousel-inner">
+                                                        <div class="carousel-item active">
+                                                            <div class="pt-4 px-2 px-md-3">
+                                                                <div class="col-xl-12 xl-60 order-xl-0 order-1 box-col-12" id="Box_show_partial">
+                                                                    @* Calendar *@
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="carousel-item">
+                                                            <div class="col-xl-12 xl-60 order-xl-0 order-1 box-col-12 learning-filter" id="Box_show_partial_event_in_year">
+                                                                <div class="md-sidebar">
+                                                                    <a class="btn btn-primary email-aside-toggle md-sidebar-toggle">Sumery in year.</a>
+                                                                    <div class="md-sidebar-aside job-sidebar">
+                                                                        <div class="default-according style-1 faq-accordion job-accordion" id="accordionoc">
+                                                                            <div class="row">
+                                                                                <div class="col-xl-12">
+                                                                                    <div class="card">
+                                                                                        <div class="card-header">
+                                                                                            <h5 class="mb-0">
+                                                                                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#collapseicon1" aria-expanded="true" aria-controls="collapseicon1">Events in year.</button>
+                                                                                            </h5>
+                                                                                        </div>
+                                                                                        <div class="collapse card-body px-0 show" id="collapseicon1" aria-labelledby="collapseicon1" data-bs-parent="#accordion">
+                                                                                            <div class="p-4 text-center text-muted">
+                                                                                                <i class="fa fa-calendar-times fa-2x mb-2"></i><br />
+                                                                                                <strong>ไม่มีข้อมูลกิจกรรม</strong><br />
+                                                                                                สำหรับปีที่เลือกไว้
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                        <span class="visually-hidden">Previous</span>
+                                                    </button>
+                                                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                        <span class="visually-hidden">Next</span>
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
-                                       
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="project-zone-filter" role="tabpanel" aria-labelledby="project-zone-tab">
@@ -92,6 +330,7 @@
                                         <li> <strong>Contact Number: </strong> (954) 357-7760</li>
                                     </ul>
                                 </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -99,202 +338,207 @@
         </div>
     </div>
 </div>
-    <div class="modal fade bd-example-modal-lg" id="modal-new-event" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModal" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="myExtraLargeModal">New Event</h4>
-                    <button class="btn-close py-0" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body dark-modal">
-                    <div class="card-body">
-                        <ul class="simple-wrapper nav nav-tabs" id="myTab" role="tablist">
-                            <li class="nav-item"><a class="nav-link active txt-primary" id="modal-Event-add-tab" data-bs-toggle="tab" href="#modal-Event-add" role="tab" aria-controls="modal-Event-add" aria-selected="true"><i class="fa fa-calendar" aria-hidden="true"></i>Event</a></li>
-                            <li class="nav-item"><a class="nav-link txt-primary" id="modal-Shop-add-tab" data-bs-toggle="tab" href="#modal-Shop-add" role="tab" aria-controls="modal-Shop-add" aria-selected="false"><i class="fa fa-shopping-basket" aria-hidden="true"></i>Shop</a></li>
-                        </ul>
-                        <div class="tab-content" id="myTabContent">
-                            <div class="tab-pane fade show active" id="modal-Event-add" role="tabpanel" aria-labelledby="modal-Event-add-tab">
-                                <div class="card-body custom-input p-3">
-                                    <form class="form theme-form">
-                                        <div class="card-body custom-input">
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div class="mb-3 row">
-                                                        <label class="col-sm-3">Event</label>
-                                                        <div class="col-sm-9">
-                                                            <input class="form-control" type="text" placeholder="Event name" id="txt-modal-new-event-name">
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3 row">
-                                                        <label class="col-sm-3">Location</label>
-                                                        <div class="col-sm-9">
-                                                            <input class="form-control" type="text" placeholder="Location" id="txt-modal-new-event-location">
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3 row">
-                                                        <label class="col-sm-3">Tag</label>
-                                                        <div class="col-sm-9">
-                                                            <input id="tags-modal-new-event-tags" class="form-control" placeholder="เพิ่มแท็กใหม่หรือเลือกจากรายการ"/>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3 row">
-                                                        <label class="col-sm-3 col-form-label fw-bold">Project</label>
-                                                        <div class="col-sm-9">
-                                                            <select id="ddl-modal-new-event-projects" class="form-control" multiple>
-                                                                @foreach (var item in ViewBag.listDDlAllProject)
-                                                                {
-                                                                    <option value="@item.ValueString">@item.Text</option>
-                                                                }
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3 row align-items-center">
-                                                        <label class="col-sm-3">Date and Time</label>
 
-                                                        <div class="col-sm-4">
-                                                            <input class="form-control" id="txt-modal-new-event-start-date-time" placeholder="Start DateTime">
-                                                        </div>
-
-                                                        <div class="col-sm-1 text-center fw-bold">-</div>
-
-                                                        <div class="col-sm-4">
-                                                            <input class="form-control" id="txt-modal-new-event-end-date-time" placeholder="End DateTime">
-                                                        </div>
+<div class="modal fade bd-example-modal-lg" id="modal-new-event" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModal" aria-hidden="true" data-bs-keyboard="false" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg">
+         <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myExtraLargeModal">New Event</h4>
+                <button class="btn-close py-0" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body dark-modal">
+                <div class="card-body">
+                    <ul class="simple-wrapper nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item"><a class="nav-link active txt-primary" id="modal-Event-add-tab" data-bs-toggle="tab" href="#modal-Event-add" role="tab" aria-controls="modal-Event-add" aria-selected="true"><i class="fa fa-calendar" aria-hidden="true"></i>Event</a></li>
+                        <li class="nav-item d-none" id="li-tab-shop">
+                            <a class="nav-link txt-primary" id="modal-Shop-add-tab" data-bs-toggle="tab" href="#modal-Shop-add" role="tab" aria-controls="modal-Shop-add" aria-selected="false">
+                                <i class="fa fa-shopping-basket" aria-hidden="true"></i>Shop
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="modal-Event-add" role="tabpanel" aria-labelledby="modal-Event-add-tab">
+                            <div class="card-body custom-input p-3">
+                                <form id="form-new-event" class="form theme-form">
+                                    <div class="card-body custom-input">
+                                        <div class="row">
+                                            <div class="col">
+@*                                                 <div class="mb-3 row">
+                                                    <label class="col-sm-3">Event</label>
+                                                    <div class="col-sm-9">
+                                                        <input class="form-control" type="text" placeholder="Event name" id="txt-modal-new-event-name">
                                                     </div>
-                                                    <div class="mb-3 row align-items-center">
-                                                        <label class="col-sm-3">สถานะการใช้งาน</label>
-                                                        <div class="col-sm-9">
-                                                            <div class="form-check form-switch">
-                                                                <input class="form-check-input" type="checkbox" id="tg-modal-new-event-status" checked>
-                                                                <label class="form-check-label" for="tg-modal-new-event-status">เปิดใช้งาน</label>
-                                                            </div>
+                                                </div> *@
+                                                <div class="mb-3 row">
+                                                    <label class="col-sm-3 pt-0">Event Name</label>
+
+                                                    <div class="col-sm-5">
+                                                        <select class="form-select" id="ddl-modal-new-event-type-id" onchange="updateColorByEventType()">
+                                                            <option value="" data-color="#808080">-- Select event type --</option>
+                                                            @foreach (var item in (List<GetDDLModel>)ViewBag.ListDDLEventType)
+                                                            {
+                                                                <option value="@item.ValueInt" data-color="@item.Color">@item.Text</option>
+                                                            }
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="col-sm-2">
+                                                        <input class="form-control form-control-color" type="color" id="color-modal-new-event-type-color" value="#808080" disabled>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3 row">
+                                                    <label class="col-sm-3">Location</label>
+                                                    <div class="col-sm-9">
+                                                        <input class="form-control" type="text" placeholder="Location" id="txt-modal-new-event-location">
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3 row">
+                                                    <label class="col-sm-3">Tag</label>
+                                                    <div class="col-sm-9">
+                                                        <input id="tags-modal-new-event-tags" class="form-control" placeholder="เพิ่มแท็กใหม่หรือเลือกจากรายการ"/>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3 row">
+                                                    <label class="col-sm-3 col-form-label fw-bold">Project</label>
+                                                    <div class="col-sm-9">
+                                                        <select id="ddl-modal-new-event-projects" class="form-control" multiple>
+                                                            @foreach (var item in ViewBag.listDDlAllProject)
+                                                            {
+                                                                <option value="@item.ValueString">@item.Text</option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3 row align-items-center">
+                                                    <label class="col-sm-3">Date and Time</label>
+
+                                                    <div class="col-sm-4">
+                                                        <input class="form-control" id="txt-modal-new-event-start-date-time" placeholder="Start DateTime">
+                                                    </div>
+
+                                                    <div class="col-sm-1 text-center fw-bold">-</div>
+
+                                                    <div class="col-sm-4">
+                                                        <input class="form-control" id="txt-modal-new-event-end-date-time" placeholder="End DateTime">
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3 row align-items-center">
+                                                    <label class="col-sm-3">สถานะการใช้งาน</label>
+                                                    <div class="col-sm-9">
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" id="tg-modal-new-event-status" checked disabled>
+                                                            <label class="form-check-label" for="tg-modal-new-event-status">เปิดใช้งาน</label>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="card-footer text-end">
-                                            <div class="col-sm-9 offset-sm-3">
-                                                <button class="btn btn-primary me-3" type="submit">Save</button>
-                                                <input class="btn btn-light" type="reset" value="Cancel">
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="modal-Shop-add" role="tabpanel" aria-labelledby="modal-Shop-add-tab">
-                                <div class="card-body custom-input p-3">
-                                    <div class="row">
-                                        <div class="col-12 row">
-                                            <div class="mb-3 row">
-                                                <label class="col-sm-3">Date</label>
-                                                <div class="col-sm-9">
-                                                    <input class="form-control" type="text" placeholder="Event name">
-                                                </div>
-                                            </div>
-                                            <div class="mb-3 row">
-                                                <label class="col-sm-3">Shop</label>
-                                                <div class="col-sm-9">
-                                                   @*  Make button +New shope here please !!! *@
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="table-responsive">
-                                        <table class="table table-bordered">
-                                            <thead class="table-light text-center">
-                                                <tr>
-                                                    <th><input type="checkbox" id="selectAllShop"></th>
-                                                    <th>Shop</th>
-                                                    <th>จำนวนโควต้า</th>
-                                                    <th>จำนวนสิทธิ์ต่อ Unit</th>
-                                                    <th>การใช้งาน</th>
-                                                    <th>Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="shopTableBody">
-                                                <tr>
-                                                    <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
-                                                    <td>บ้านไร่กาแฟ</td>
-                                                    <td><input type="number" class="form-control" value="150"></td>
-                                                    <td><input type="number" class="form-control" value="2"></td>
-                                                    <td class="text-center">
-                                                        <div class="form-check form-switch">
-                                                            <input class="form-check-input" type="checkbox" checked>
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
-                                                        <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
-                                                    <td>Egg Drop</td>
-                                                    <td><input type="number" class="form-control" value="100"></td>
-                                                    <td><input type="number" class="form-control" value="1"></td>
-                                                    <td class="text-center">
-                                                        <div class="form-check form-switch">
-                                                            <input class="form-check-input" type="checkbox" checked>
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
-                                                        <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
-                                                    <td>WorkShop</td>
-                                                    <td><input type="number" class="form-control" value="30"></td>
-                                                    <td><input type="number" class="form-control" value="1"></td>
-                                                    <td class="text-center">
-                                                        <div class="form-check form-switch">
-                                                            <input class="form-check-input" type="checkbox" checked>
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
-                                                        <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
-                                                    <td>กิจกรรมดูดวง</td>
-                                                    <td><input type="number" class="form-control" value="20"></td>
-                                                    <td><input type="number" class="form-control" value="1"></td>
-                                                    <td class="text-center">
-                                                        <div class="form-check form-switch">
-                                                            <input class="form-check-input" type="checkbox">
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
-                                                        <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-center"><input type="checkbox" class="shop-checkbox"></td>
-                                                    <td>บัวลอยไข่หวาน</td>
-                                                    <td><input type="number" class="form-control" value="50"></td>
-                                                    <td><input type="number" class="form-control" value="1"></td>
-                                                    <td class="text-center">
-                                                        <div class="form-check form-switch">
-                                                            <input class="form-check-input" type="checkbox" checked>
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <button class="btn btn-sm btn-primary me-1"><i class="fa fa-edit"></i></button>
-                                                        <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                                                    </td>
-                                                </tr>
-
-                                            </tbody>
-                                        </table>
                                     </div>
+                                    <div class="card-footer text-end">
+                                        <div class="col-sm-9 offset-sm-3">
+                                            <button class="btn btn-primary me-3" type="submit" id="btn-new-save-event">Save</button>
+                                            <input class="btn btn-light" type="reset" id="btn-cancel-new-event" value="Cancel">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="modal-Shop-add" role="tabpanel" aria-labelledby="modal-Shop-add-tab">
+                            <div class="card-body custom-input p-3">
+                                <div class="row">
+                                    <input type="hidden" id="hiddenEventID" value="0" />
+                                    <input type="hidden" id="hiddenProjectIDinSelected" value="0" />
+                                    <div class="col-12">
+                                        <div class="card shadow-sm border rounded mb-3 checkbox-checked">
+                                            <div class="card-header bg-white fw-bold" style="font-size: 1rem;">
+                                                <i class="fa fa-building-o me-1 text-primary"></i> เลือกโครงการ
+                                            </div>
+                                            <div class="card-body py-3 d-flex flex-wrap gap-3">
+                                                <select id="ddl-modal-new-event-project-selected" class="form-select">
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="card shadow-sm border rounded mb-3">
+                                            <div class="card-header bg-white fw-bold" style="font-size: 1rem;">
+                                                <i class="fa fa-calendar me-1 text-primary"></i> เลือกวันที่
+                                            </div>
+                                            <div class="calendar-carousel d-flex align-items-center rounded-3 shadow-sm p-3 bg-white">
+                                                <!-- Left Button -->
+                                                <button class="arrow-btn" onclick="slideLeft()">
+                                                    <i class="fa fa-chevron-left"></i>
+                                                </button>
+
+                                                <!-- Viewport -->
+                                                <div class="carousel-viewport flex-grow-1">
+                                                    <div class="carousel-track d-flex" id="calendarTrack">
+                                                        <!-- Items -->
+                   
+                                                    </div>
+                                                </div>
+
+                                                <!-- Right Button -->
+                                                <button class="arrow-btn" onclick="slideRight()">
+                                                    <i class="fa fa-chevron-right"></i>
+                                                </button>
+
+                                                <!-- Select All Button -->
+                    @*                             <button class="btn btn-glow ms-3" onclick="selectAllDays()">
+                                                    <i class="fa fa-check-circle me-1"></i> เลือกทุกวัน
+                                                </button> *@
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="card shadow border-0 rounded mb-3">
+                                            <div class="card-header bg-white fw-bold border-bottom d-flex justify-content-between align-items-center" style="font-size: 1.05rem;">
+                                                <!-- ซ้าย: ไอคอน + ชื่อ -->
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fa fa-cart-arrow-down me-2 text-primary"></i> รายการร้านค้า
+                                                </div>
+
+                                                <!-- ขวา: ปุ่มเพิ่มร้านค้า -->
+                                                <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" onclick="addNewShop()">
+                                                    <i class="fa fa-plus me-1"></i> เพิ่มร้านค้า
+                                                </button>
+                                            </div>
+                                            <div class="card-body pt-3 pb-4 px-3 d-flex flex-column gap-3">
+                                                <!-- HEADER ROW -->
+                                                <div class="shop-item-card d-grid align-items-center p-3 shadow-sm rounded-3 border position-relative"
+                                                     style="grid-template-columns: 32px 1.5fr 1fr 1fr 1fr 1.2fr; gap: 1.2rem; width: 100%;">
+
+                                                    <!-- Checkbox -->
+                                                    <div style="width: 32px;">
+                                                        <input class="form-check-input" type="checkbox" id="shopCheckall" onchange="toggleCheckAll(this)" />
+                                                    </div>
+
+                                                    <!-- ชื่อร้านค้า -->
+                                                    <div class="fw-bold text-dark">ชื่อร้านค้า</div>
+
+                                                    <!-- Quota -->
+                                                    <div class="fw-bold text-dark">Quota</div>
+
+                                                    <!-- Quota/Unit -->
+                                                    <div class="fw-bold text-dark">Quota/Unit</div>
+
+                                                    <!-- แก้ไขโควต้า -->
+                                                    <div class="fw-bold text-dark">แก้ไขโควต้า</div>
+
+                                                    <!-- Action -->
+                                                    <div class="fw-bold text-dark text-end pe-2">Action</div>
+                                                </div>
+
+
+                                            </div>
                                         </div>
                                     </div>
                                 </div>           
+                             </div>
+                            <div class="card-footer text-end" id="shop-save-footer">
+                                <div class="col-sm-9 offset-sm-3">
+                                    <button class="btn btn-primary me-3" type="button" onclick="saveShopTab()">Save</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -303,6 +547,150 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade bd-example-modal-lg" id="modal-edit-event-in-project" tabindex="-1" role="dialog" aria-labelledby="modalediteventinproject" aria-hidden="true" data-bs-keyboard="false" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalediteventinproject">Edit Event In Project</h4>
+                <button class="btn-close py-0" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body dark-modal">
+                <div class="card-body custom-input p-3">
+                    <form class="form theme-form">
+                        <div class="card-body custom-input">
+                            <div class="row">
+                                <input type="hidden" id="hiddenEditEventID" value="0" />
+                                <input type="hidden" id="hiddenEditProjectID" value="0" />
+                                <div class="col-12">
+                                    <div class="mb-3 row">
+                                        <label class="col-sm-3">Project</label>
+                                        <div class="col-sm-9">
+                                            <input class="form-control" type="text" placeholder="" id="txt-modal-edit-event-in-project-project" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3 row">
+                                        <label class="col-sm-3 pt-0">Event</label>
+                                        <div class="col-sm-5">
+                                            <input class="form-control" type="text" placeholder="Event type name" id="txt-modal-edit-event-in-project-type-name" maxlength="100" disabled>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <input class="form-control form-control-color" type="color" value="#006666" id="color-modal-edit-event-in-project-type-color" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3 row">
+                                        <label class="col-sm-3">Location</label>
+                                        <div class="col-sm-9">
+                                            <input class="form-control" type="text" placeholder="Location" id="txt-modal-edit-event-in-project-location" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3 row align-items-center">
+                                        <label class="col-sm-3">Date and Time</label>
+
+                                        <div class="col-sm-4">
+                                            <input class="form-control" id="txt-modal-edit-event-start-date-time" placeholder="Start DateTime">
+                                        </div>
+
+                                        <div class="col-sm-1 text-center fw-bold">-</div>
+
+                                        <div class="col-sm-4">
+                                            <input class="form-control" id="txt-modal-edit-event-end-date-time" placeholder="End DateTime">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3 row">
+                                        <div class="col-12 d-flex justify-content-center">
+                                            <button type="button" class="btn btn-primary px-4" onclick="UpdateDateTimeEvent()">
+                                                🗓️ Save Changes Date Time
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3 row">
+                                        <label class="col-sm-3">เลือกวันที่</label>
+                                        <div class="col-sm-12">
+                                            <div class="calendar-carousel d-flex align-items-center rounded-3 shadow-sm p-3 bg-white">
+                                                <!-- Left Button -->
+                                                <button class="arrow-btn" type="button" onclick="slideLeftEditinProject()">
+                                                    <i class="fa fa-chevron-left"></i>
+                                                </button>
+
+                                                <!-- Viewport -->
+                                                <div class="carousel-viewport flex-grow-1">
+                                                    <div class="carousel-track d-flex" id="calendarTrackEditinProject">
+                                                        <!-- Items -->
+                                                        @* <button class="calendar-item" onclick="selectCalendarItem(this)">อ. 8 ก.ค. 2025</button> *@
+                                                    </div>
+                                                </div>
+
+                                                <!-- Right Button -->
+                                                <button class="arrow-btn" type="button" onclick="slideRightEditinProject()">
+                                                    <i class="fa fa-chevron-right"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3 row">
+                                        <div class="col-sm-12">
+                                            <div class="card shadow border-0 rounded mb-3">
+                                                <div class="card-header bg-white fw-bold border-bottom d-flex justify-content-between align-items-center" style="font-size: 1.05rem;">
+                                                    <!-- ซ้าย: ไอคอน + ชื่อ -->
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="fa fa-cart-arrow-down me-2 text-primary"></i> รายการร้านค้า
+                                                    </div>
+
+                                                    <!-- ขวา: ปุ่มเพิ่มร้านค้า -->
+                                                    <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" onclick="addNewEditShop()">
+                                                        <i class="fa fa-plus me-1"></i> เพิ่มร้านค้า
+                                                    </button>
+
+                                                </div>
+                                                <div class="card-body pt-3 pb-4 px-3 d-flex flex-column gap-3">
+                                                    <!-- HEADER ROW -->
+                                                    <div class="shop-item-card d-grid align-items-center p-3 shadow-sm rounded-3 border position-relative"
+                                                         style="grid-template-columns: 32px 1.5fr 1fr 1fr 1fr 1.2fr; gap: 1.2rem; width: 100%;">
+
+                                                        <!-- Checkbox -->
+                                                        <div style="width: 32px;">
+                                                            <input class="form-check-input" type="checkbox" id="shopCheckall" onchange="toggleCheckAll(this)" />
+                                                        </div>
+
+                                                        <!-- ชื่อร้านค้า -->
+                                                        <div class="fw-bold text-dark">ชื่อร้านค้า</div>
+
+                                                        <!-- Quota -->
+                                                        <div class="fw-bold text-dark">Quota</div>
+
+                                                        <!-- Quota/Unit -->
+                                                        <div class="fw-bold text-dark">Quota/Unit</div>
+
+                                                        <!-- แก้ไขโควต้า -->
+                                                        <div class="fw-bold text-dark">แก้ไขโควต้า</div>
+
+                                                        <!-- Action -->
+                                                        <div class="fw-bold text-dark text-end pe-2">Action</div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-end">
+                            <div class="col-sm-9 offset-sm-3">
+                                <button class="btn btn-danger me-3" type="button" onclick="deleteEventInProject()">
+                                    🗑️ Delete
+                                </button>
+                                <button class="btn btn-primary" type="submit" id="save-edit-event">Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <!-- ✅ FullCalendar v6.1.10 + moment + ภาษาไทย -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
@@ -315,6 +703,13 @@
     <script src="~/js/Pages/OtherSetting/Partial_shop_event.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
+
+        const myCarousel = document.querySelector('#carouselExampleControls');
+        const carousel = new bootstrap.Carousel(myCarousel, {
+            interval: false,
+            ride: false
+        });
+
         flatpickr("#txt-modal-new-event-start-date-time", {
             enableTime: true,
             time_24hr: true,
@@ -331,14 +726,30 @@
             defaultMinute: 0
         });
 
+        flatpickr("#txt-modal-edit-event-start-date-time", {
+            enableTime: true,
+            time_24hr: true,
+            dateFormat: "Y-m-d H:i", // Example: 2025-06-30 13:45
+            defaultHour: 9,
+            defaultMinute: 0
+        });
+
+        flatpickr("#txt-modal-edit-event-end-date-time", {
+            enableTime: true,
+            time_24hr: true,
+            dateFormat: "Y-m-d H:i",
+            defaultHour: 18,
+            defaultMinute: 0
+        });
+
         let tagifyInstance;
 
         document.addEventListener('DOMContentLoaded', function () {
             const input = document.getElementById('tags-modal-new-event-tags');
 
             const whitelistFromServer = @Html.Raw(Json.Serialize(
-            ((List<GetDDLModel>)ViewBag.Listtag).Select(t => new { value = t.Text })
-        ));
+                ((List<GetDDLModel>)ViewBag.Listtag).Select(t => new { value = t.Text })
+            ));
 
             tagifyInstance = new Tagify(input, {
                 whitelist: whitelistFromServer,
@@ -360,8 +771,8 @@
             // ❌ ตัด AJAX add tag ทิ้ง เพราะจะบันทึกตอน submit แทน
             // tagifyInstance.on('add', function (e) {...});
         });
-
     </script>
+
 
 }
 

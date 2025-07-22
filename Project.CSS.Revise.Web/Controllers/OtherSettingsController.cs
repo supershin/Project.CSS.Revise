@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models;
@@ -17,6 +18,7 @@ namespace Project.CSS.Revise.Web.Controllers
         private readonly IMasterService _masterService;
 
         private readonly IShopAndEventService _shopAndEventService;
+
         public OtherSettingsController(IHttpContextAccessor httpContextAccessor, IMasterService masterService, IShopAndEventService shopAndEventService) : base(httpContextAccessor)
         {
             _masterService = masterService;
@@ -42,6 +44,14 @@ namespace Project.CSS.Revise.Web.Controllers
             };
             var Listtag = _masterService.GetlisDDl(filter);
             ViewBag.Listtag = Listtag;
+
+
+            var filterEventType = new GetDDLModel
+            {
+                Act = "DDLEventType"
+            };
+            var ListDDLEventType = _masterService.GetlisDDl(filterEventType);
+            ViewBag.ListDDLEventType = ListDDLEventType;
 
             return View();
         }
@@ -70,37 +80,6 @@ namespace Project.CSS.Revise.Web.Controllers
             return PartialView(viewName);
         }
 
-
-        [HttpGet]
-        public IActionResult LoadPartialshopevent(string projectID, string daterang)
-        {
-            string? startDate = null;
-            string? endDate = null;
-
-            //if (!string.IsNullOrWhiteSpace(daterang) && daterang.Contains(" - "))
-            //{
-            //    var parts = daterang.Split(" - ");
-            //    if (parts.Length == 2)
-            //    {
-            //        // 👇 แปลงเป็น yyyy-MM-dd เพื่อให้ SQL อ่านง่าย
-            //        startDate = DateTime.ParseExact(parts[0], "dd/MM/yyyy", null).ToString("yyyy-MM-dd");
-            //        endDate = DateTime.ParseExact(parts[1], "dd/MM/yyyy", null).ToString("yyyy-MM-dd");
-            //    }
-            //}
-
-            //var filter = new EventsModel
-            //{
-            //    L_ProjectID = projectID,
-            //    L_Startdate = startDate,
-            //    L_Enddate = endDate
-            //};
-
-            //var listEvents = _masterService.GetlistEvents(filter);
-
-            return PartialView("Partial_shop_event");
-
-        }
-
         [HttpGet]
         public JsonResult GetlistCountEventByMonth(string projectID, string year)
         {
@@ -115,16 +94,16 @@ namespace Project.CSS.Revise.Web.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetEventsForCalendar(string projectID, string month, string year)
+        public JsonResult GetEventsForCalendar(string projectID, string month, int year)
         {
-            var filter = new EventsModel
+            var filter = new GetListShopAndEventCalendar.FilterData
             {
                 L_ProjectID = projectID,
-                L_month = month,
-                L_year = year                
+                L_Month = month,
+                L_Year = year,
             };
 
-            var listEvents = _masterService.GetlistEvents(filter);
+            var listEvents = _shopAndEventService.GetListShopAndEventSCalendar(filter);
             return Json(listEvents);
         }
 
@@ -134,30 +113,30 @@ namespace Project.CSS.Revise.Web.Controllers
 
             if (string.IsNullOrEmpty(model.EventName) || string.IsNullOrEmpty(model.EventLocation) || model.TagItems == null || model.TagItems.Count == 0)
             {
-                return Json(new { success = false, message = "Event name, location, and at least one tag are required." });
+                return Json(new { success = false, id = 0, message = "Event name, location, and at least one tag are required." });
             }
             if (model.ProjectIds == null || model.ProjectIds.Count == 0)
             {
-                return Json(new { success = false, message = "At least one project must be selected." });
+                return Json(new { success = false, id = 0, message = "At least one project must be selected." });
             }
             if (string.IsNullOrEmpty(model.StartDateTime) || string.IsNullOrEmpty(model.EndDateTime))
             {
-                return Json(new { success = false, message = "Start and end date/time are required." });
+                return Json(new { success = false, id = 0, message = "Start and end date/time are required." });
             }
             if (DateTime.TryParse(model.StartDateTime, out DateTime startDate) && DateTime.TryParse(model.EndDateTime, out DateTime endDate))
             {
                 if (startDate >= endDate)
                 {
-                    return Json(new { success = false, message = "Start date/time must be before end date/time." });
+                    return Json(new { success = false, id = 0, message = "Start date/time must be before end date/time." });
                 }
             }
             else
             {
-                return Json(new { success = false, message = "Invalid date format." });
+                return Json(new { success = false, id = 0, message = "Invalid date format." });
             }
             if (model.TagItems.Any(tag => string.IsNullOrEmpty(tag.Value) || string.IsNullOrEmpty(tag.Label)))
             {
-                return Json(new { success = false, message = "All tags must have both value and label." });
+                return Json(new { success = false, id = 0 , message = "All tags must have both value and label." });
             }
 
             string LoginID = User.FindFirst("LoginID")?.Value;
@@ -167,9 +146,140 @@ namespace Project.CSS.Revise.Web.Controllers
 
             var result = _shopAndEventService.CreateEventsAndTags(model);
 
-            return Json(new { success = result.ID > 0, message = result.Message });
+            return Json(new { success = result.ID > 0 , id = result.EventIDs, message = result.Message });
+        }
+
+        [HttpGet]
+        public JsonResult GetDataDateTabShopFromInsert(int EventID)
+        {
+
+            var filter = new GetDDLModel
+            {
+                Act = "listEventdateByID",
+                ID = EventID,
+            };
+            var listEventdate = _masterService.GetlisDDl(filter);
+
+            var filter2 = new GetDDLModel
+            {
+                Act = "listShop"
+            };
+            var listShop = _masterService.GetlisDDl(filter2);
+
+            var result = new
+            {
+                EventDates = listEventdate,
+                Shops = listShop
+            };
+
+            return Json(result);
+        }
+
+        [HttpGet]
+        public JsonResult GetDataTabShopFromInsert(string EventID)
+        {
+            var filter = new GetDDLModel
+            {
+                Act = "listEventInID",
+                ValueString = EventID
+            };
+            var listProjectEvent = _masterService.GetlisDDl(filter);
+
+            var result = new
+            {
+                EventProjects = listProjectEvent // ✅ key ตรงกับ JS
+            };
+
+            return Json(result);
         }
 
 
+
+        [HttpPost]
+        public IActionResult InsertNewEventsAndShops([FromBody] CreateEvent_Shops model)
+        {
+            string LoginID = User.FindFirst("LoginID")?.Value;
+            string UserID = SecurityManager.DecodeFrom64(LoginID);
+            model.UserID = Commond.FormatExtension.Nulltoint(UserID);
+            var result = _shopAndEventService.CreateEventsAndShops(model);
+            return Json(new { success = result.ID, message = result.Message });
+        }
+
+        [HttpGet]
+        public JsonResult GetDataCreateEventsAndShops(int EventID , string EventDate, string ProjectID)
+        {
+            var DatalistShops = _shopAndEventService.GetDataTrEventsAndShopsinProject(EventID, ProjectID, EventDate);
+
+            return Json(DatalistShops);
+        }
+
+        [HttpGet]
+        public JsonResult GetDataModalEditEventInProject(int EventID, string ProjectID)
+        {
+
+            var filter = new GetDataEditEvents.GetEditEventInProjectFilterModel
+            {
+                EventID = EventID,
+                ProjectID = ProjectID,
+            };
+            var DataEditEventInProject = _shopAndEventService.GetDataEditEventInProject(filter);
+
+            return Json(DataEditEventInProject);
+        }
+
+        [HttpGet]
+        public JsonResult GetDataTrEventsAndShopsinProjects(int EventID, string projectID, string eventDate)
+        {
+
+            List<GetDataEditEvents.ListEditShopsModel> DataCreateEventShops = _shopAndEventService.GetDataTrEventsAndShopsinProject(EventID, projectID, eventDate);
+
+            return Json(DataCreateEventShops);
+        }
+
+        [HttpPost]
+        public IActionResult UpdateDateTimeEvent(int EventID, string ProjectID, string StartDate , string EndDate)
+        {
+            // Validate the input parameters
+            if (EventID <= 0 || string.IsNullOrEmpty(ProjectID) || string.IsNullOrEmpty(StartDate) || string.IsNullOrEmpty(EndDate))
+            {
+                return Json(new { success = false, message = "Invalid input parameters." });
+            }
+
+            string LoginID = User.FindFirst("LoginID")?.Value;
+            string UserID = SecurityManager.DecodeFrom64(LoginID);
+            int ID = Commond.FormatExtension.Nulltoint(UserID);
+
+            bool result = false;
+            result = _shopAndEventService.UpdateDateTimeEvent(EventID , ProjectID , StartDate , EndDate , ID);
+            if (!result)
+            {
+                return Json(new { success = false, message = "Failed to update event dates." });
+            }
+            // If the update is successful, return a success response
+            return Json(new { success = result , message = "Update is successful" });
+        }
+
+        [HttpPost]
+        public IActionResult InActiveEvent(int EventID, string ProjectID)
+        {
+            // Validate the input parameters
+            if (EventID <= 0 || string.IsNullOrEmpty(ProjectID))
+            {
+                return Json(new { success = false, message = "Invalid input parameters." });
+            }
+
+            string LoginID = User.FindFirst("LoginID")?.Value;
+            string UserID = SecurityManager.DecodeFrom64(LoginID);
+            int ID = Commond.FormatExtension.Nulltoint(UserID);
+
+            bool result = false;
+            result = _shopAndEventService.InActiveEvent(EventID, ProjectID,ID);
+            if (!result)
+            {
+                return Json(new { success = false, message = "Failed to update event dates." });
+            }
+
+            return Json(new { success = result, message = "Delete is successful" });
+        }
     }
 }
