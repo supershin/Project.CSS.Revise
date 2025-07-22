@@ -13,6 +13,8 @@ namespace Project.CSS.Revise.Web.Respositories
         public List<GetListShopAndEventCalendar.ListData> GetListShopAndEventSCalendar(GetListShopAndEventCalendar.FilterData filter);
         public GetDataEditEvents.EditEventInProjectModel GetDataEditEventInProject(GetDataEditEvents.GetEditEventInProjectFilterModel filter);
         public List<GetDataEditEvents.ListEditShopsModel> GetDataTrEventsAndShopsinProject(int enventID, string projectID, string eventDate);
+        public bool UpdateDateTimeEvent(int EnventID, string ProjectID, string DateStart, string DateEnd, int UserID);
+        public bool InActiveEvent(int EnventID, string ProjectID, int UserID);
     }
     public class ShopAndEventRepo : IShopAndEventRepo
     {
@@ -838,6 +840,48 @@ namespace Project.CSS.Revise.Web.Respositories
                     _context.SaveChanges();
 
  
+                    transaction.Commit();
+
+                    response = true;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    var message = ex.InnerException != null
+                        ? $"INNER ERROR: {ex.InnerException.Message}"
+                        : $"ERROR: {ex.Message}";
+                    response = false;
+                }
+
+            }
+
+            return response;
+        }
+
+        public bool InActiveEvent(int EnventID, string ProjectID, int UserID)
+        {
+            var response = false;
+
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+
+                    var existing = _context.tm_Events.FirstOrDefault(e => e.ProjectID == ProjectID && e.ID == EnventID && e.FlagActive == true);
+
+                    if (existing != null)
+                    {
+                        // 🔄 UPDATE
+                        existing.FlagActive = false;
+                        existing.UpdateDate = DateTime.Now;
+                        existing.UpdateBy = UserID;
+
+                        _context.tm_Events.Update(existing);
+                    }
+
+                    _context.SaveChanges();
+
+
                     transaction.Commit();
 
                     response = true;

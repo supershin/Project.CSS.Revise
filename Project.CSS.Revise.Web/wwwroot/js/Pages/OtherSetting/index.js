@@ -907,5 +907,106 @@ document.getElementById('save-edit-event').addEventListener('click', function (e
         });
 });
 
+function UpdateDateTimeEvent() {
+    const eventID = $('#hiddenEditEventID').val();
+    const projectID = $('#hiddenEditProjectID').val();
+    const startDate = $('#txt-modal-edit-event-start-date-time').val();
+    const endDate = $('#txt-modal-edit-event-end-date-time').val();
+
+    if (!eventID || !projectID || !startDate || !endDate) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Missing Information',
+            text: 'Please fill in all required fields before saving.'
+        });
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('EventID', eventID);
+    formData.append('ProjectID', projectID);
+    formData.append('StartDate', startDate);
+    formData.append('EndDate', endDate);
+
+    fetch(baseUrl + 'OtherSettings/UpdateDateTimeEvent', {
+        method: 'POST',
+        body: formData
+    })
+        .then(res => res.json())
+        .then(response => {
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: response.message
+                });
+                // Optionally refresh calendar or modal
+                openEditEventProjectModal(eventID, projectID);
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Update Failed',
+                    text: response.message
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An unexpected error occurred.'
+            });
+        });
+}
+
+function deleteEventInProject() {
+    const eventID = document.getElementById('hiddenEditEventID').value;
+    const projectID = document.getElementById('hiddenEditProjectID').value;
+
+    if (!eventID || !projectID) {
+        Swal.fire('Warning', 'Event or Project information not found!', 'warning');
+        return;
+    }
+
+    Swal.fire({
+        title: 'Are you sure you want to delete this event?',
+        text: 'This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const formData = new FormData();
+            formData.append('EventID', eventID);
+            formData.append('ProjectID', projectID);
+
+            fetch(baseUrl + 'OtherSettings/InActiveEvent', {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message
+                        });
+                        // Optionally refresh calendar or modal
+                        $('#modal-edit-event-in-project').modal('hide');
+                    } else {
+                        Swal.fire('เกิดข้อผิดพลาด', data.message, 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error('❌ Delete Error:', err);
+                    Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถลบกิจกรรมได้', 'error');
+                });
+        }
+    });
+}
+
 
 

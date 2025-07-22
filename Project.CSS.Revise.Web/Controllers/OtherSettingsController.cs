@@ -235,5 +235,51 @@ namespace Project.CSS.Revise.Web.Controllers
 
             return Json(DataCreateEventShops);
         }
+
+        [HttpPost]
+        public IActionResult UpdateDateTimeEvent(int EventID, string ProjectID, string StartDate , string EndDate)
+        {
+            // Validate the input parameters
+            if (EventID <= 0 || string.IsNullOrEmpty(ProjectID) || string.IsNullOrEmpty(StartDate) || string.IsNullOrEmpty(EndDate))
+            {
+                return Json(new { success = false, message = "Invalid input parameters." });
+            }
+
+            string LoginID = User.FindFirst("LoginID")?.Value;
+            string UserID = SecurityManager.DecodeFrom64(LoginID);
+            int ID = Commond.FormatExtension.Nulltoint(UserID);
+
+            bool result = false;
+            result = _shopAndEventService.UpdateDateTimeEvent(EventID , ProjectID , StartDate , EndDate , ID);
+            if (!result)
+            {
+                return Json(new { success = false, message = "Failed to update event dates." });
+            }
+            // If the update is successful, return a success response
+            return Json(new { success = result , message = "Update is successful" });
+        }
+
+        [HttpPost]
+        public IActionResult InActiveEvent(int EventID, string ProjectID)
+        {
+            // Validate the input parameters
+            if (EventID <= 0 || string.IsNullOrEmpty(ProjectID))
+            {
+                return Json(new { success = false, message = "Invalid input parameters." });
+            }
+
+            string LoginID = User.FindFirst("LoginID")?.Value;
+            string UserID = SecurityManager.DecodeFrom64(LoginID);
+            int ID = Commond.FormatExtension.Nulltoint(UserID);
+
+            bool result = false;
+            result = _shopAndEventService.InActiveEvent(EventID, ProjectID,ID);
+            if (!result)
+            {
+                return Json(new { success = false, message = "Failed to update event dates." });
+            }
+
+            return Json(new { success = result, message = "Delete is successful" });
+        }
     }
 }
