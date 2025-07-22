@@ -16,15 +16,13 @@
 
 let calendarInstance = null;
 let firstDateValue = null;
+let MonthSeletedBTN = null;
 
-
-function LoadPartialshopevent(monthOverride = '') {
+function LoadPartialshopevent() {
     const projectIdList = $('#ddl-project-shop-event').val() || [];
     const projectId = projectIdList.join(',');
 
     const year = $('#ddl-year-shop-event').val();
-    const month = monthOverride || '';
-
     const $calendar = $('#calendar');
 
     if ($calendar.length) {
@@ -39,26 +37,70 @@ function LoadPartialshopevent(monthOverride = '') {
     $.getJSON(baseUrl + 'OtherSettings/GetEventsForCalendar', {
         projectID: projectId,
         year: year,
-        month: month
+        month: '' // ส่งค่าว่างเพื่อดึงทั้งปี
     })
-    .done(function (eventList) {
+        .done(function (eventList) {
 
-        // 1️⃣  FullCalendar
-        initFullCalendarWithEvents(eventList, function () {
-            updateMonthBadgesFromEventList(eventList);
-        }, monthOverride);
+            initFullCalendarWithEvents(eventList, function () {
+                updateMonthBadgesFromEventList(eventList);
 
-        // 2️⃣  Sidebar refresh
-        renderEventSummaryBox(eventList);
+                // ✅ เพิ่มตรงนี้ให้เลื่อนไปยังเดือนที่เคยเลือก
+                if (MonthSeletedBTN) {
+                    goToCalendarMonth(MonthSeletedBTN);
+                }
+            });
 
-    })
-    .fail(function (xhr) {
-        console.error('❌ โหลด Event ไม่สำเร็จ:', xhr);
-        $calendar.html('<div class="alert alert-danger">โหลดปฏิทินไม่สำเร็จ</div>');
-    });
+            renderEventSummaryBox(eventList);
 
-
+        })
+        .fail(function (xhr) {
+            console.error('❌ โหลด Event ไม่สำเร็จ:', xhr);
+            $calendar.html('<div class="alert alert-danger">โหลดปฏิทินไม่สำเร็จ</div>');
+        });
 }
+
+
+//function LoadPartialshopevent(monthOverride = '') {
+//    const projectIdList = $('#ddl-project-shop-event').val() || [];
+//    const projectId = projectIdList.join(',');
+
+//    const year = $('#ddl-year-shop-event').val();
+//    const month = monthOverride || '';
+
+//    const $calendar = $('#calendar');
+
+//    if ($calendar.length) {
+//        $calendar.html(`
+//            <div class="text-center p-3">
+//                <div class="spinner-border text-primary" role="status"></div>
+//                <div>กำลังโหลดปฏิทิน...</div>
+//            </div>
+//        `);
+//    }
+
+//    $.getJSON(baseUrl + 'OtherSettings/GetEventsForCalendar', {
+//        projectID: projectId,
+//        year: year,
+//        month: month
+//    })
+//    .done(function (eventList) {
+
+//        // 1️⃣  FullCalendar
+//        initFullCalendarWithEvents(eventList, function () {
+//            updateMonthBadgesFromEventList(eventList);
+//        }, monthOverride);
+
+//        // 2️⃣  Sidebar refresh
+//        renderEventSummaryBox(eventList);
+
+//    })
+//    .fail(function (xhr) {
+//        console.error('❌ โหลด Event ไม่สำเร็จ:', xhr);
+//        $calendar.html('<div class="alert alert-danger">โหลดปฏิทินไม่สำเร็จ</div>');
+//    });
+
+
+//}
 
 function initFullCalendarWithEvents(eventsRaw, onComplete, monthOverride = '') {
     const selectedYear = $('#ddl-year-shop-event').val();
@@ -555,11 +597,14 @@ function goToCalendarMonth(month) {
     if (calendarInstance) {
         calendarInstance.gotoDate(date);
     }
-
+    MonthSeletedBTN = month;
     // ปรับปุ่ม active
     $('.month-btn').removeClass('active');
     $(`.month-btn[data-month="${month}"]`).addClass('active');
 }
+
+
+
 
 
 

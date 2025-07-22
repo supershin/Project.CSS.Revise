@@ -201,6 +201,7 @@ $(document).ready(function () {
     // ✅ 4. โหลด BU และ Partial
     loadBUOptions(() => { });
     loadPartial('Partial_shop_event');
+    LoadPartialshopevent();
 });
 
 function openNewEventModal() {
@@ -300,7 +301,8 @@ $('#form-new-event').on('submit', function (e) {
                                 'เลือกโครงการ',
                                 function (EventID) {
                                     console.log("Selected ProjectID:", EventID);
-                                    fetchDataByProject(EventID);
+                                    fetchDataByProject(EventID);    
+                                    LoadPartialshopevent();
                                 }
                             );
                         });
@@ -995,6 +997,8 @@ function deleteEventInProject() {
                             text: data.message
                         });
                         // Optionally refresh calendar or modal
+                        LoadPartialshopevent();
+                        /*goToCalendarMonth(MonthSeletedBTN);*/
                         $('#modal-edit-event-in-project').modal('hide');
                     } else {
                         Swal.fire('เกิดข้อผิดพลาด', data.message, 'error');
