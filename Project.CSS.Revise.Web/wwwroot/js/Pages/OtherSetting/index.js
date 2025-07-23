@@ -634,7 +634,7 @@ function addNewShop() {
     newRow.innerHTML = `
         <!-- Checkbox -->
         <div class="form-check m-0">
-            <input class="form-check-input" type="checkbox" id="check--99" />
+            <input class="form-check-input" type="checkbox" id="check--99" checked/>
         </div>
 
         <!-- ชื่อร้านค้า (text input) -->
@@ -847,26 +847,31 @@ document.getElementById('save-edit-event').addEventListener('click', function (e
         return;
     }
 
-    const rows = document.querySelectorAll('#modal-edit-event-in-project .shop-item-card:not(:first-child)');
+    const rows = document.querySelectorAll('#modal-edit-event-in-project .shop-item-card');
     const shopItems = [];
 
-    rows.forEach(row => {
+    rows.forEach((row, index) => {
+        if (index === 0) return;
+
         const checkbox = row.querySelector('input[type="checkbox"]');
         const isUsed = checkbox?.checked || false;
+
         const idStr = checkbox?.id?.split('-')[1] || "-1";
         const shopID = parseInt(idStr) || -99;
+
         const unitQuotaInput = row.querySelector('input[placeholder="Quota"]');
         const shopQuotaInput = row.querySelector('input[placeholder="Quota/Unit"]');
 
-        const nameDiv = row.querySelector('div.fw-semibold.fs-6.text-dark');
-        const name = nameDiv?.innerText?.trim();
+        // ✅ รองรับทั้ง input และ div
+        const nameInputOrDiv = row.querySelector('input[type="text"], div.fw-semibold.fs-6.text-dark');
+        const name = nameInputOrDiv?.value?.trim() || nameInputOrDiv?.innerText?.trim();
 
         const unitQuota = parseInt(unitQuotaInput?.value) || 0;
         const shopQuota = parseInt(shopQuotaInput?.value) || 0;
 
         if (name) {
             shopItems.push({
-                ID: shopID, // เพราะเพิ่มใหม่หรือไม่มีข้อมูล ID
+                ID: shopID,
                 Name: name,
                 UnitQuota: unitQuota,
                 ShopQuota: shopQuota,
@@ -874,6 +879,8 @@ document.getElementById('save-edit-event').addEventListener('click', function (e
             });
         }
     });
+
+
 
     const model = {
         EventID: parseInt(eventID),

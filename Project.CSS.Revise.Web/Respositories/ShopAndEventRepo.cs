@@ -605,9 +605,14 @@ namespace Project.CSS.Revise.Web.Respositories
                                                     LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
                                                     GROUP BY T1.EventID
                                             ) T5 ON T5.EventID = T1.ID
+                                    LEFT JOIN [tm_BUProject_Mapping] (NOLOCK) T6 ON T6.[ProjectID] = T2.ProjectID
                                 WHERE 
                                     T1.FlagActive = 1
                                     AND T2.FlagActive = 1
+                                    AND (
+                                        @L_Bu = '' 
+                                        OR (',' + @L_Bu + ',' LIKE '%,' + CONVERT(varchar, T6.BUID) + ',%')
+                                    )
                                     AND (
                                         @L_ProjectID = '' 
                                         OR (',' + @L_ProjectID + ',' LIKE '%,' + T1.ProjectID + ',%')
@@ -644,11 +649,16 @@ namespace Project.CSS.Revise.Web.Respositories
                                                     LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
                                                     GROUP BY T1.EventID
                                                ) T5 ON T5.EventID = T1.ID
+                                    LEFT JOIN [tm_BUProject_Mapping] (NOLOCK) T6 ON T6.[ProjectID] = T2.ProjectID
                                 WHERE 
                                     T1.FlagActive = 1
                                     AND (
                                         @L_ProjectID = '' 
                                         OR (',' + @L_ProjectID + ',' LIKE '%,' + T1.ProjectID + ',%')
+                                    )
+                                    AND (
+                                        @L_Bu = '' 
+                                        OR (',' + @L_Bu + ',' LIKE '%,' + CONVERT(varchar, T6.BUID) + ',%')
                                     )
                                     AND 
                                     (
@@ -672,6 +682,7 @@ namespace Project.CSS.Revise.Web.Respositories
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
+                    cmd.Parameters.Add(new SqlParameter("@L_Bu", filter.L_Bu ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_ProjectID", filter.L_ProjectID ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_Month", filter.L_Month ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_Year", filter.L_Year ?? 0));

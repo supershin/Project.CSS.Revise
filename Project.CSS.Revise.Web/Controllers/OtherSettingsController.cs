@@ -94,10 +94,11 @@ namespace Project.CSS.Revise.Web.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetEventsForCalendar(string projectID, string month, int year)
+        public JsonResult GetEventsForCalendar(string Buid, string projectID, string month, int year)
         {
             var filter = new GetListShopAndEventCalendar.FilterData
             {
+                L_Bu = Buid,
                 L_ProjectID = projectID,
                 L_Month = month,
                 L_Year = year,
