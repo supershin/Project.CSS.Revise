@@ -19,6 +19,8 @@ let firstDateValue = null;
 let MonthSeletedBTN = null;
 
 function LoadPartialshopevent() {
+
+    const Buid = $('#ddl-bu-shop-event').val();
     const projectIdList = $('#ddl-project-shop-event').val() || [];
     const projectId = projectIdList.join(',');
 
@@ -35,6 +37,7 @@ function LoadPartialshopevent() {
     }
 
     $.getJSON(baseUrl + 'OtherSettings/GetEventsForCalendar', {
+        Buid: Buid,
         projectID: projectId,
         year: year,
         month: '' // ส่งค่าว่างเพื่อดึงทั้งปี
@@ -282,9 +285,16 @@ function renderEventSummaryBox(eventList) {
 
                     html += `<li class="d-flex justify-content-between align-items-start mb-1">
                                 <div class="flex-grow-1 pe-3" style="min-width:0;">
-                                    <div class="fw-bold text-truncate">${ev.Eventname}</div>
+                                    <div class="fw-bold text-truncate">
+                                        <a href="javascript:void(0)" onclick="OpenEditEventModalFormSummeryYearBox('${ev.EventID}', '${ev.ProjectID}')" class="text-decoration-none">
+                                            ${ev.Eventname}
+                                        </a>
+                                    </div>
                                     <div class="text-muted small">
-                                        Location in <a href="#">${ev.Eventlocation}</a>
+                                        Location in 
+                                        <a href="javascript:void(0)" onclick="OpenEditEventModalFormSummeryYearBox('${ev.EventID}', '${ev.ProjectID}')" class="text-decoration-underline">
+                                            ${ev.Eventlocation}
+                                        </a>
                                     </div>
                                     <div class="d-flex flex-wrap gap-1 small">${tagHtml}</div>
                                 </div>
@@ -292,7 +302,8 @@ function renderEventSummaryBox(eventList) {
                                     <h6 class="text-primary mb-0">${range}</h6>
                                     <small class="text-muted">${monthLabel}</small>
                                 </div>
-                              </li>`;
+                            </li>`;
+
                 });
 
                 html += '</ul></div>';
@@ -321,6 +332,10 @@ function parseToISO(dateStr) {
 function EditEventProjectModal(event) {
     console.log('📘 Open Project Modal', event);
     openEditEventProjectModal(event.EventID, event.ProjectID);
+    $('#modal-edit-event-in-project').modal('show');
+}
+function OpenEditEventModalFormSummeryYearBox(EventID, ProjectID ){
+    openEditEventProjectModal(EventID, ProjectID);
     $('#modal-edit-event-in-project').modal('show');
 }
 
@@ -479,11 +494,9 @@ function addNewEditShop() {
     newRow.style.gridTemplateColumns = '22px 140px 100px 100px 100px 1fr';
     newRow.style.gap = '1rem';
 
-    const newID = `new-${Date.now()}`; // ให้ ID ชั่วคราว (เผื่อใช้ตอนบันทึก)
-
     newRow.innerHTML = `
         <div class="form-check m-0">
-            <input class="form-check-input" type="checkbox" id="check-${newID}" />
+            <input class="form-check-input" type="checkbox" id="check--99" check/>
         </div>
 
         <input type="text" class="form-control form-control-sm fw-semibold text-dark"

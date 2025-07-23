@@ -6,10 +6,10 @@ namespace Project.CSS.Revise.Web.Models.Pages.Shop_Event
     {
         public class FilterData
         {
+            public string? L_Bu { get; set; }
             public string? L_ProjectID { get; set; }
             public int? L_Year { get; set; }
-            public string? L_Month { get; set; }
-            public int? L_ShowBy { get; set; }
+            public string? L_Month { get; set; }       
         }
         public class ListData
         {
