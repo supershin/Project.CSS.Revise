@@ -353,7 +353,7 @@ function openEditEventProjectModal(EventID, ProjectID) {
             $('#hiddenEditProjectID').val(data.ProjectID);
             /*$('#txt-modal-edit-event-in-project-name').val(data.EventName);*/
             $('#txt-modal-edit-event-in-project-project').val(data.ProjectName);
-            $('#txt-modal-edit-event-in-project-type-name').val(data.EventType);
+            $('#txt-modal-edit-event-in-project-type-name').val(data.EventName);
             $('#color-modal-edit-event-in-project-type-color').val(data.EventColor);
             $('#txt-modal-edit-event-in-project-location').val(data.EventLocation);
 
