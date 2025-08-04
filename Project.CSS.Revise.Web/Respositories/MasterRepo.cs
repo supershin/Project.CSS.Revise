@@ -77,7 +77,6 @@ namespace Project.CSS.Revise.Web.Respositories
                                 ProjectID = reader["ProjectID"].ToString(),
                                 ProjectNameTH = reader["ProjectName"].ToString(),
                                 ProjectNameEN = reader["ProjectName_Eng"].ToString()
-                                // BUname และ BUID สามารถเพิ่มได้ ถ้าอยากเก็บไว้ใน Model
                             });
                         }
                     }
@@ -263,7 +262,8 @@ namespace Project.CSS.Revise.Web.Respositories
             {
                 case "Ext":
                     var extQuery = from ext in _context.tm_Exts
-                                   where ext.ExtTypeID == model.ID && ext.FlagActive == true
+                                   where ext.FlagActive == true
+                                      && (model.ID == -1 || ext.ExtTypeID == model.ID)
                                    orderby ext.LineOrder
                                    select new GetDDLModel
                                    {

@@ -17,15 +17,6 @@
         font-weight: bold;
     }
 
-    /* 🔥 Fixed Column - ทำทั้งแถว (Project) ให้พื้นหลังแน่น */
-    .fixed-col {
-        position: sticky;
-        left: 0;
-        background-color: #f8f9fa; /* พื้นหลังแน่นๆ */
-        z-index: 2;
-        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05); /* เงาขวาดูนุ่มๆ */
-    }
-
     /* 🔥 Extra: ทำแถว Project ทั้งหมดให้พื้นหลัง */
     .highlight-table tbody tr td:first-child {
         background-color: #ffffff; /* แถวข้อมูล background ขาว (หรือสีตามต้องการ) */
@@ -91,13 +82,7 @@
                                         <div class="row">
                                             <div class="job-filter mb-3 col-4">
                                                 <label for="ddl_year" class="form-label fw-bold">Year</label>
-                                                <select id="ddl_year" class="form-control multi-select" multiple>
-                                                    <option value="2023">2023</option>
-                                                    <option value="2024">2024</option>
-                                                    <option value="2025">2025</option>
-                                                    <option value="2026">2025</option>
-                                                    <option value="2027">2027</option>
-                                                </select>
+                                                <select id="ddl_year" class="form-control multi-select" multiple></select>
                                             </div>
                                             <div class="job-filter mb-3 col-4">
                                                 <label for="ddl_quarter" class="form-label fw-bold">Quarter</label>
@@ -128,96 +113,36 @@
                                             <div class="job-filter mb-3 col-4">
                                                 <label for="ddl_plantype" class="form-label fw-bold">Plan Type</label>
                                                 <select id="ddl_plantype" class="form-control" multiple>
-                                                    <option value="181">Target</option>
-                                                    <option value="2">Rolling</option>
-                                                    <option value="3">Actual</option>
-                                                    <option value="4">Working Target</option>
-                                                    <option value="5">Working Rolling</option>
-                                                    <option value="6">MLL</option>
+                                                    @if (ViewBag.ListPlanType != null)
+                                                    {
+                                                        foreach (var item in ViewBag.ListPlanType)
+                                                        {
+                                                            <option value="@item.ValueInt">@item.Text</option>
+                                                        }
+                                                    }
                                                 </select>
                                             </div>
+
                                             <div class="job-filter mb-3 col-4">
                                                 <label for="ddl_bug" class="form-label fw-bold">BUG</label>
                                                 <select id="ddl_bug" class="form-control" multiple>
-                                                    <option value="181">Bu1</option>
-                                                    <option value="2">Bu2</option>
-                                                    <option value="3">Bu3</option>
-                                                    <option value="4">Bu4</option>
-                                                    <option value="5">Bu5</option>
-                                                    <option value="6">SE</option>
+                                                    @if (ViewBag.listBu != null)
+                                                    {
+                                                        foreach (var item in ViewBag.listBu)
+                                                        {
+                                                            <option value="@item.ID">@item.Name</option>
+                                                        }
+                                                    }
                                                 </select>
                                             </div>
+
                                             <div class="job-filter mb-3 col-4">
                                                 <label for="ddl_project" class="form-label fw-bold">Project</label>
                                                 <select id="ddl_project" class="form-control" multiple>
-                                                    <option value="181">Project 1</option>
-                                                    <option value="2">Project 2</option>
-                                                    <option value="3">Project 3</option>
-                                                    <option value="4">Project 4</option>
-                                                    <option value="5">Project 5</option>
-                                                    <option value="6">Project 6</option>
+
                                                 </select>
                                             </div>
                                         </div>
-
-
-@*                                         <!-- 🏢 โครงการ -->
-                                        <div class="job-filter mb-3">
-                                            <label for="projectSelect" class="form-label fw-bold">โครงการที่รับผิดชอบ</label>
-                                            <select id="projectSelect" class="form-control searchable-select">
-                                                <option value="1">มารูน รัชดา</option>
-                                                <option value="2">เคฟ ป๊อป ศาลายา</option>
-                                                <option value="3">เคฟ วันเดอร์แลนด์</option>
-                                                <option value="4">เคฟ ลูมินัส บางมด</option>
-                                                <option value="5">แอทโมซ เดอ โซล ทิพวัล สเตชั่น</option>
-                                                <option value="6">เคฟ เอ็มบริโอ รังสิต</option>
-                                                <option value="7">แอทโมซ แคนวาส ระยอง</option>
-                                                <option value="8">เคฟ ทาวน์ ไอส์แลนด์</option>
-                                                <option value="9">โมดิซ โวยาจ ศรีนครินทร์</option>
-                                                <option value="10">เคฟ ซี๊ด เกษตร</option>
-                                                <option value="11">แอทโมซ ซีซั่น ลาดกระบัง</option>
-                                                <option value="12">โมดิซ วอลท์ เกษตร - ศรีปทุม</option>
-                                                <option value="13">แอทโมซ พาลาซิโอ ลาดพร้าว-วังหิน</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- 🏢 อาคาร -->
-                                        <div class="job-filter mb-3">
-                                            <label for="buildingMultiSelect" class="form-label fw-bold">อาคาร</label>
-                                            <select id="buildingMultiSelect" class="form-control multi-select" multiple>
-                                                <option value="1">A</option>
-                                                <option value="2">B</option>
-                                                <option value="3">C</option>
-                                                <option value="4">D</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- 🧱 ชั้น -->
-                                        <div class="job-filter mb-3">
-                                            <label for="floorMultiSelect" class="form-label fw-bold">ชั้น</label>
-                                            <select id="floorMultiSelect" class="form-control multi-select" multiple>
-                                                <option value="B2">B2</option>
-                                                <option value="B1">B1</option>
-                                                <option value="G">G</option>
-                                                @for (int i = 1; i <= 100; i++)
-                                                {
-                                                    <option value="@i">@i</option>
-                                                }
-                                            </select>
-                                        </div>
-
-                                        <!-- 🚪 ห้อง -->
-                                        <div class="job-filter mb-3">
-                                            <label for="roomMultiSelect" class="form-label fw-bold">ห้อง</label>
-                                            <select id="roomMultiSelect" class="form-control multi-select" multiple>
-                                                @for (int i = 1; i <= 300; i++)
-                                                {
-                                                    <option value="@i">Room @i</option>
-                                                }
-                                            </select>
-                                        </div> *@
-
-                                        <!-- 🔎 ปุ่มค้นหา -->
                                         <button class="btn btn-primary text-center" type="button">Search 🔍 </button>
                                     </div>
                                 </div>
@@ -427,125 +352,75 @@
         </div>
     </div>
 </div>
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        new Choices('#ddl_year', {
-            removeItemButton: true,
-            placeholderValue: 'เลือกปีได้มากกว่า 1',
-            searchEnabled: true,
-            itemSelectText: '',
-            shouldSort: false
-        });
-    });
-
-    document.addEventListener("DOMContentLoaded", function () {
-        new Choices('#ddl_quarter', {
-            removeItemButton: true,
-            placeholderValue: 'เลือกไตรมาสได้มากกว่า 1',
-            searchEnabled: true,
-            itemSelectText: '',
-            shouldSort: false
-        });
-    });
-
-    document.addEventListener("DOMContentLoaded", function () {
-        new Choices('#ddl_month', {
-            removeItemButton: true,
-            placeholderValue: 'เลือกเดือนได้มากกว่า 1',
-            searchEnabled: true,
-            itemSelectText: '',
-            shouldSort: false
-        });
-    });
-
-    document.addEventListener("DOMContentLoaded", function () {
-        new Choices('#ddl_plantype', {
-            removeItemButton: true,
-            placeholderValue: 'เลือกประเภทแผนได้มากกว่า 1',
-            searchEnabled: true,
-            itemSelectText: '',
-            shouldSort: false
-        });
-    });
-
-     document.addEventListener("DOMContentLoaded", function () {
-        new Choices('#ddl_bug', {
-            removeItemButton: true,
-            placeholderValue: 'เลือกกลุ่มธุรกิจได้มากกว่า 1',
-            searchEnabled: true,
-            itemSelectText: '',
-            shouldSort: false
-        });
-    });
-
-    document.addEventListener("DOMContentLoaded", function () {
-        new Choices('#ddl_project', {
-            removeItemButton: true,
-            placeholderValue: 'เลือกโครงการได้มากกว่า 1',
-            searchEnabled: true,
-            itemSelectText: '',
-            shouldSort: false
-        });
-    });
-
-     Dropzone.autoDiscover = false;
-
-    const myDropzone = new Dropzone("#myDropzone", {
-        url: "/upload",   // <-- พ่อใหญ่เปลี่ยน URL ตรงนี้
-        maxFiles: 1,
-        maxFilesize: 5,  // MB
-        acceptedFiles: ".xls,.xlsx,.csv",
-        dictDefaultMessage: "📎 Drag & Drop file here or click to upload",
-        init: function() {
-            this.on("success", function(file, response) {
-                console.log("Uploaded successfully", response);
-            });
-        }
-    });
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const table = document.getElementById('highlightTable');
-
-        table.addEventListener('mouseover', function (e) {
-            const cell = e.target.closest('td');
-            if (!cell || !table.contains(cell)) return;
-
-            const row = cell.parentNode;
-            const allRows = Array.from(table.querySelectorAll('tbody tr'));
-
-            // หา index ของ cell ที่ hover
-            const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
-
-            // ล้าง highlight เดิม
-            table.querySelectorAll('td').forEach(el => {
-                el.classList.remove('hover', 'active-cell');
-            });
-
-            // Highlight ทั้งแถว (เฉพาะ td)
-            row.querySelectorAll('td').forEach(td => td.classList.add('hover'));
-
-            // Highlight ทั้งคอลัมน์ (เฉพาะ td)
-            allRows.forEach(tr => {
-                const tds = tr.querySelectorAll('td');
-                if (tds[cellIndex]) {
-                    tds[cellIndex].classList.add('hover');
-                }
-            });
-
-            // Highlight cell ปัจจุบัน
-            cell.classList.add('active-cell');
-        });
-
-        table.addEventListener('mouseleave', function () {
-            table.querySelectorAll('td').forEach(el => {
-                el.classList.remove('hover', 'active-cell');
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
+    <script src="~/js/Pages/ProjectTargetRolling/index.js?ver=@DateTime.Now.Ticks.ToString()"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            new Choices('#ddl_project', {
+                removeItemButton: true,
+                placeholderValue: 'เลือกโครงการได้มากกว่า 1',
+                searchEnabled: true,
+                itemSelectText: '',
+                shouldSort: false
             });
         });
-    });
-</script>
 
+        Dropzone.autoDiscover = false;
+
+        const myDropzone = new Dropzone("#myDropzone", {
+            url: "/upload",   // <-- พ่อใหญ่เปลี่ยน URL ตรงนี้
+            maxFiles: 1,
+            maxFilesize: 5,  // MB
+            acceptedFiles: ".xls,.xlsx,.csv",
+            dictDefaultMessage: "📎 Drag & Drop file here or click to upload",
+            init: function() {
+                this.on("success", function(file, response) {
+                    console.log("Uploaded successfully", response);
+                });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const table = document.getElementById('highlightTable');
+
+            table.addEventListener('mouseover', function (e) {
+                const cell = e.target.closest('td');
+                if (!cell || !table.contains(cell)) return;
+
+                const row = cell.parentNode;
+                const allRows = Array.from(table.querySelectorAll('tbody tr'));
+
+                // หา index ของ cell ที่ hover
+                const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
+
+                // ล้าง highlight เดิม
+                table.querySelectorAll('td').forEach(el => {
+                    el.classList.remove('hover', 'active-cell');
+                });
+
+                // Highlight ทั้งแถว (เฉพาะ td)
+                row.querySelectorAll('td').forEach(td => td.classList.add('hover'));
+
+                // Highlight ทั้งคอลัมน์ (เฉพาะ td)
+                allRows.forEach(tr => {
+                    const tds = tr.querySelectorAll('td');
+                    if (tds[cellIndex]) {
+                        tds[cellIndex].classList.add('hover');
+                    }
+                });
+
+                // Highlight cell ปัจจุบัน
+                cell.classList.add('active-cell');
+            });
+
+            table.addEventListener('mouseleave', function () {
+                table.querySelectorAll('td').forEach(el => {
+                    el.classList.remove('hover', 'active-cell');
+                });
+            });
+        });
+    </script>
+}
 
 
