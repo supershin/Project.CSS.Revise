@@ -30,6 +30,8 @@ builder.Services.AddScoped<IMasterRepo, MasterRepo>();
 builder.Services.AddScoped<IMasterService, MasterService>();
 builder.Services.AddScoped<IShopAndEventRepo, ShopAndEventRepo>();
 builder.Services.AddScoped<IShopAndEventService, ShopAndEventService>();
+builder.Services.AddScoped<IProjectAndTargetRollingRepo, ProjectAndTargetRollingRepo>();
+builder.Services.AddScoped<IProjectAndTargetRollingService, ProjectAndTargetRollingService>();
 
 // Add Rate Limiting Middleware
 builder.Services.AddMemoryCache();

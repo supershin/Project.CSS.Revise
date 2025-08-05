@@ -1,0 +1,77 @@
+﻿.table-wrapper {
+    max-height: 600px;
+    overflow: auto;
+}
+
+#rollingPlanTable thead th {
+    position: sticky;
+    top: 0;
+    background: #f8f8f8;
+    z-index: 3;
+}
+
+
+/* Table base */
+#rollingPlanTable {
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 1200px;
+    width: max-content;
+}
+
+    /* Cells */
+    #rollingPlanTable th,
+    #rollingPlanTable td {
+        white-space: nowrap;
+        text-align: center;
+        padding: 6px 12px;
+        vertical-align: middle;
+        border: 1px solid #ddd;
+        background: white;
+    }
+
+    /* Header Sticky (Y scroll) */
+    #rollingPlanTable thead th {
+        position: sticky;
+        top: 0;
+        background: #f8f8f8;
+        z-index: 3;
+    }
+
+    /* Sticky Column 1 (ProjectName) */
+    #rollingPlanTable th:nth-child(1),
+    #rollingPlanTable td:nth-child(1) {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background: #fff;
+        min-width: 200px;
+        text-align: left;
+    }
+
+    /* Sticky Column 2 (PlanTypeName) */
+    #rollingPlanTable th:nth-child(2),
+    #rollingPlanTable td:nth-child(2) {
+        position: sticky;
+        left: 200px;
+        z-index: 2;
+        background: #fff;
+        min-width: 160px;
+    }
+
+    /* Sticky Column 3 (Year) */
+    #rollingPlanTable th:nth-child(3),
+    #rollingPlanTable td:nth-child(3) {
+        position: sticky;
+        left: 360px;
+        z-index: 2;
+        background: #fff;
+        min-width: 80px;
+        text-align: center;
+    }
+
+    /* Ensure sticky header on top of sticky cols */
+    #rollingPlanTable thead th:nth-child(-n+3) {
+        z-index: 4;
+    }
+

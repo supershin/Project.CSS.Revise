@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.CSS.Revise.Web.Models.Master;
+using Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling;
 using Project.CSS.Revise.Web.Service;
 
 namespace Project.CSS.Revise.Web.Controllers
@@ -10,11 +11,12 @@ namespace Project.CSS.Revise.Web.Controllers
     public class ProjecttargetrollingController : BaseController
     {
         private readonly IMasterService _masterService;
-        public ProjecttargetrollingController(IHttpContextAccessor httpContextAccessor, IMasterService masterService) : base(httpContextAccessor)
+        private readonly IProjectAndTargetRollingService _projectAndTargetRollingService;
+        public ProjecttargetrollingController(IHttpContextAccessor httpContextAccessor, IMasterService masterService, IProjectAndTargetRollingService projectAndTargetRollingService) : base(httpContextAccessor)
         {
             _masterService = masterService;
+            _projectAndTargetRollingService = projectAndTargetRollingService;
         }
-
 
         public IActionResult Index()
         {
@@ -39,5 +41,13 @@ namespace Project.CSS.Revise.Web.Controllers
             var result = _masterService.GetlistPrject(model);
             return Json(new { success = true, data = result });
         }
+
+        [HttpPost]
+        public JsonResult GetDataTableProjectAndTargetRolling([FromForm] RollingPlanSummaryModel model)
+        {
+            var result = _projectAndTargetRollingService.GetListTargetRollingPlan(model);
+            return Json(new { success = true, data = result });
+        }
+
     }
 }

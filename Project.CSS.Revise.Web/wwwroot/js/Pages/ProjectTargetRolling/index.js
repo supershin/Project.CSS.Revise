@@ -192,3 +192,128 @@ function initAllDropdowns() {
 
 // 🔥 เรียกเลยโดยไม่ต้องใช้ DOMContentLoaded
 initAllDropdowns();
+
+
+
+// ------------------------ SEARCH TABLE ------------------------
+function collectRollingPlanFilters() {
+    return {
+        L_Year: $('#ddl_year').val().join(','),
+        L_Quarter: choicesQuarter.getValue(true).join(','),
+        L_Month: choicesMonth.getValue(true).join(','),
+        L_PlanTypeID: $('#ddl_plantype').val() ? $('#ddl_plantype').val().join(',') : '',
+        L_Bu: $('#ddl_bug').val() ? $('#ddl_bug').val().join(',') : '',
+        L_ProjectID: $('#ddl_project').val() ? $('#ddl_project').val().join(',') : ''
+    };
+}
+
+function searchRollingPlanData() {
+    const filter = collectRollingPlanFilters();
+
+    const formData = new FormData();
+    for (const key in filter) {
+        formData.append(key, filter[key]);
+    }
+
+    fetch(baseUrl + 'Projecttargetrolling/GetDataTableProjectAndTargetRolling', {
+        method: 'POST',
+        body: formData
+    })
+        .then(res => res.json())
+        .then(json => {
+            if (json.success) {
+                renderTableFromJson(json.data);
+            }
+        })
+        .catch(err => {
+            console.error('Error fetching data:', err);
+        });
+}
+
+function renderTableFromJson(data) {
+    let html = `
+        <table id="rollingPlanTable" class="table table-bordered table-striped w-auto">
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Plan Type Name</th>
+                    <th>Year</th>
+                    <th>Jan_Unit</th>
+                    <th>Jan_Value</th>
+                    <th>Feb_Unit</th>
+                    <th>Feb_Value</th>
+                    <th>Mar_Unit</th>
+                    <th>Mar_Value</th>
+                    <th>Apr_Unit</th>
+                    <th>Apr_Value</th>
+                    <th>May_Unit</th>
+                    <th>May_Value</th>
+                    <th>Jun_Unit</th>
+                    <th>Jun_Value</th>
+                    <th>Jul_Unit</th>
+                    <th>Jul_Value</th>
+                    <th>Aug_Unit</th>
+                    <th>Aug_Value</th>
+                    <th>Sep_Unit</th>
+                    <th>Sep_Value</th>
+                    <th>Oct_Unit</th>
+                    <th>Oct_Value</th>
+                    <th>Nov_Unit</th>
+                    <th>Nov_Value</th>
+                    <th>Dec_Unit</th>
+                    <th>Dec_Value</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    if (data.length > 0) {
+        data.forEach(row => {
+            html += `<tr>
+               
+                <td>${row.ProjectName ?? ''}</td>
+                <td>${row.PlanTypeName ?? ''}</td>
+                <td>${row.PlanYear ?? ''}</td>
+                <td>${row.Jan_Unit ?? '-'}</td>
+                <td>${row.Jan_Value ?? '-'}</td>
+                <td>${row.Feb_Unit ?? '-'}</td>
+                <td>${row.Feb_Value ?? '-'}</td>
+                <td>${row.Mar_Unit ?? '-'}</td>
+                <td>${row.Mar_Value ?? '-'}</td>
+                <td>${row.Apr_Unit ?? '-'}</td>
+                <td>${row.Apr_Value ?? '-'}</td>
+                <td>${row.May_Unit ?? '-'}</td>
+                <td>${row.May_Value ?? '-'}</td>
+                <td>${row.Jun_Unit ?? '-'}</td>
+                <td>${row.Jun_Value ?? '-'}</td>
+                <td>${row.Jul_Unit ?? '-'}</td>
+                <td>${row.Jul_Value ?? '-'}</td>
+                <td>${row.Aug_Unit ?? '-'}</td>
+                <td>${row.Aug_Value ?? '-'}</td>
+                <td>${row.Sep_Unit ?? '-'}</td>
+                <td>${row.Sep_Value ?? '-'}</td>
+                <td>${row.Oct_Unit ?? '-'}</td>
+                <td>${row.Oct_Value ?? '-'}</td>
+                <td>${row.Nov_Unit ?? '-'}</td>
+                <td>${row.Nov_Value ?? '-'}</td>
+                <td>${row.Dec_Unit ?? '-'}</td>
+                <td>${row.Dec_Value ?? '-'}</td>
+            </tr>`;
+        });
+    } else {
+        html += `<tr><td colspan="28" class="text-center">ไม่พบข้อมูล</td></tr>`;
+    }
+
+    html += `
+            </tbody>
+        </table>
+    `;
+
+    $('#rolling-plan-container').html(html); // ✅ direct to wrapper
+}
+
+
+$('button:contains("Search")').on('click', function () {
+    searchRollingPlanData();
+});
+

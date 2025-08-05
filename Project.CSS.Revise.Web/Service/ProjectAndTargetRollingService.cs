@@ -1,0 +1,25 @@
+﻿using Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling;
+using Project.CSS.Revise.Web.Respositories;
+
+namespace Project.CSS.Revise.Web.Service
+{
+    public interface IProjectAndTargetRollingService
+    {
+        public List<RollingPlanSummaryModel> GetListTargetRollingPlan(RollingPlanSummaryModel filter);
+    }
+    public class ProjectAndTargetRollingService : IProjectAndTargetRollingService
+    {
+        private readonly IProjectAndTargetRollingRepo _ProjectAndTargetRollingRepoRepo;
+
+        public ProjectAndTargetRollingService(IProjectAndTargetRollingRepo ProjectAndTargetRollingRepoRepo)
+        {
+            _ProjectAndTargetRollingRepoRepo = ProjectAndTargetRollingRepoRepo;
+        }
+
+        public List<RollingPlanSummaryModel> GetListTargetRollingPlan(RollingPlanSummaryModel filter)
+        {
+            List<RollingPlanSummaryModel> resp = _ProjectAndTargetRollingRepoRepo.GetListTargetRollingPlan(filter);
+            return resp;
+        }
+    }
+}
