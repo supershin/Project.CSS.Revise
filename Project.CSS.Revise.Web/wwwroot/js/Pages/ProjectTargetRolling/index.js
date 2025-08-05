@@ -238,30 +238,47 @@ function renderTableFromJson(data) {
                     <th>Project Name</th>
                     <th>Plan Type Name</th>
                     <th>Year</th>
-                    <th>Jan_Unit</th>
-                    <th>Jan_Value</th>
-                    <th>Feb_Unit</th>
-                    <th>Feb_Value</th>
-                    <th>Mar_Unit</th>
-                    <th>Mar_Value</th>
-                    <th>Apr_Unit</th>
-                    <th>Apr_Value</th>
-                    <th>May_Unit</th>
-                    <th>May_Value</th>
-                    <th>Jun_Unit</th>
-                    <th>Jun_Value</th>
-                    <th>Jul_Unit</th>
-                    <th>Jul_Value</th>
-                    <th>Aug_Unit</th>
-                    <th>Aug_Value</th>
-                    <th>Sep_Unit</th>
-                    <th>Sep_Value</th>
-                    <th>Oct_Unit</th>
-                    <th>Oct_Value</th>
-                    <th>Nov_Unit</th>
-                    <th>Nov_Value</th>
-                    <th>Dec_Unit</th>
-                    <th>Dec_Value</th>
+                    <th colspan="2">Jan</th>
+                    <th colspan="2">Feb</th>
+                    <th colspan="2">Mar</th>
+                    <th colspan="2">Apr</th>
+                    <th colspan="2">May</th>
+                    <th colspan="2">Jun</th>
+                    <th colspan="2">Jul</th>
+                    <th colspan="2">Aug</th>
+                    <th colspan="2">Sep</th>
+                    <th colspan="2">Oct</th>
+                    <th colspan="2">Nov</th>
+                    <th colspan="2">Dec</th>
+                </tr>
+                <tr>
+                <th> </th>
+                <th> </th>
+                <th> </th>
+                    <th>Unit &nbsp; &nbsp; </th>
+                    <th>Value &nbsp; &nbsp; </th>
+                    <th>Unit &nbsp; &nbsp; </th>
+                    <th>Value &nbsp; &nbsp; </th>
+                    <th>Unit &nbsp; &nbsp; </th>
+                    <th>Value &nbsp; &nbsp; </th>
+                    <th>Unit &nbsp; &nbsp; </th>
+                    <th>Value &nbsp; &nbsp; </th>
+                    <th>Unit &nbsp; &nbsp; </th>
+                    <th>Value &nbsp; &nbsp; </th>
+                    <th>Unit &nbsp; &nbsp; </th>
+                    <th>Value &nbsp; &nbsp; </th>
+                    <th>Unit &nbsp; &nbsp; </th>
+                    <th>Value &nbsp; &nbsp; </th>
+                    <th>Unit &nbsp; &nbsp; </th>
+                    <th>Value &nbsp; &nbsp; </th>
+                    <th>Unit &nbsp; &nbsp; </th>
+                    <th>Value &nbsp; &nbsp; </th>
+                    <th>Unit &nbsp; &nbsp; </th>
+                    <th>Value &nbsp; &nbsp; </th>
+                    <th>Unit &nbsp; &nbsp; </th>
+                    <th>Value &nbsp; &nbsp; </th>
+                    <th>Unit &nbsp; &nbsp; </th>
+                    <th>Value &nbsp; &nbsp; </th>
                 </tr>
             </thead>
             <tbody>

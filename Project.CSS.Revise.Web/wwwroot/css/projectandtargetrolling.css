@@ -1,17 +1,9 @@
 ﻿.table-wrapper {
     max-height: 600px;
     overflow: auto;
+    position: relative;
 }
 
-#rollingPlanTable thead th {
-    position: sticky;
-    top: 0;
-    background: #f8f8f8;
-    z-index: 3;
-}
-
-
-/* Table base */
 #rollingPlanTable {
     border-collapse: separate;
     border-spacing: 0;
@@ -19,7 +11,9 @@
     width: max-content;
 }
 
-    /* Cells */
+    /* =============================
+   Base Cell Style
+============================= */
     #rollingPlanTable th,
     #rollingPlanTable td {
         white-space: nowrap;
@@ -28,50 +22,70 @@
         vertical-align: middle;
         border: 1px solid #ddd;
         background: white;
+        height: 40px; /* Ensure same height across rows */
     }
 
-    /* Header Sticky (Y scroll) */
-    #rollingPlanTable thead th {
+    /* =============================
+   Sticky Header Rows
+============================= */
+
+    /* Header row 1 (Month groups like Jan, Feb...) */
+    #rollingPlanTable thead tr:nth-child(1) th {
         position: sticky;
         top: 0;
-        background: #f8f8f8;
-        z-index: 3;
+        z-index: 1;
+        background: #f1f1f1;
     }
 
-    /* Sticky Column 1 (ProjectName) */
+    /* Header row 2 (Unit / Value under each month) */
+    #rollingPlanTable thead tr:nth-child(2) th {
+        position: sticky;
+        top: 40px; /* Must match height of row 1 */
+        z-index: 1;
+        background: #f9f9f9;
+    }
+
+    /* =============================
+   Sticky First 3 Columns
+============================= */
+
+    /* Column 1: Project Name */
     #rollingPlanTable th:nth-child(1),
     #rollingPlanTable td:nth-child(1) {
         position: sticky;
         left: 0;
-        z-index: 2;
+        z-index: 3;
         background: #fff;
         min-width: 200px;
         text-align: left;
     }
 
-    /* Sticky Column 2 (PlanTypeName) */
+    /* Column 2: Plan Type Name */
     #rollingPlanTable th:nth-child(2),
     #rollingPlanTable td:nth-child(2) {
         position: sticky;
         left: 200px;
-        z-index: 2;
+        z-index: 3;
         background: #fff;
         min-width: 160px;
     }
 
-    /* Sticky Column 3 (Year) */
+    /* Column 3: Year */
     #rollingPlanTable th:nth-child(3),
     #rollingPlanTable td:nth-child(3) {
         position: sticky;
         left: 360px;
-        z-index: 2;
+        z-index: 3;
         background: #fff;
         min-width: 80px;
-        text-align: center;
     }
 
-    /* Ensure sticky header on top of sticky cols */
-    #rollingPlanTable thead th:nth-child(-n+3) {
-        z-index: 4;
-    }
+    /* =============================
+   Fix z-index for sticky intersections
+============================= */
 
+    /* Header cells in sticky columns (row 1 & row 2) must be on top */
+    #rollingPlanTable thead tr:nth-child(1) th:nth-child(-n+3),
+    #rollingPlanTable thead tr:nth-child(2) th:nth-child(-n+3) {
+        z-index: 99;
+    }
