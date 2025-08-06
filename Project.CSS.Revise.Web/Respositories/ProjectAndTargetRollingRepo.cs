@@ -9,6 +9,7 @@ namespace Project.CSS.Revise.Web.Respositories
     public interface IProjectAndTargetRollingRepo
     {
         public List<RollingPlanSummaryModel> GetListTargetRollingPlan(RollingPlanSummaryModel filter);
+        public List<RollingPlanTotalModel> GetDataTotalTargetRollingPlan(RollingPlanTotalModel filter);
     }
     public class ProjectAndTargetRollingRepo : IProjectAndTargetRollingRepo
     {
@@ -31,6 +32,15 @@ namespace Project.CSS.Revise.Web.Respositories
 
                 string sql = "";
                 sql = @"
+                        -- ===== TEST CASE =====
+                        --DECLARE @L_Year NVARCHAR(50) = '2024,2025';
+                        --DECLARE @L_Quarter NVARCHAR(100) = '';
+                        --DECLARE @L_Month NVARCHAR(100) = '';
+                        --DECLARE @L_ProjectID NVARCHAR(100) = '102C028';
+                        --DECLARE @L_Bu NVARCHAR(100) = '';
+                        --DECLARE @L_PlanTypeID NVARCHAR(100) = '181,182,395,396';
+                        -- ===== TEST CASE =====
+
                             SELECT
                                  T1.ProjectID
                                 ,P.ProjectName
@@ -178,6 +188,110 @@ namespace Project.CSS.Revise.Web.Respositories
             return result;
         }
 
+        public List<RollingPlanTotalModel> GetDataTotalTargetRollingPlan(RollingPlanTotalModel filter)
+        {
+            List<RollingPlanTotalModel> result = new List<RollingPlanTotalModel>();
+            string connectionString = _context.Database.GetDbConnection().ConnectionString;
 
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                string sql = "";
+                sql = @"
+                        -- ===== TEST CASE =====
+                        --DECLARE @L_Year NVARCHAR(50) = '2024,2025';
+                        --DECLARE @L_Quarter NVARCHAR(100) = '';
+                        --DECLARE @L_Month NVARCHAR(100) = '';
+                        --DECLARE @L_ProjectID NVARCHAR(100) = '102C028';
+                        --DECLARE @L_Bu NVARCHAR(100) = '';
+                        --DECLARE @L_PlanTypeID NVARCHAR(100) = '181,182,395,396';
+                        -- ===== TEST CASE =====
+
+                        SELECT
+                              T3.[Name] AS PlanTypeName 
+	                         ,T2.[Name] AS PlanAmountName 
+	                         ,SUB1.TOTAL
+                        FROM (
+		                        SELECT T1.[PlanTypeID]
+			                          ,T1.[PlanAmountID]
+			                          ,SUM(T1.[Amount]) AS TOTAL
+		                        FROM [TR_TargetRollingPlan] T1 WITH (NOLOCK)
+		                        LEFT JOIN tm_BUProject_Mapping BPM WITH (NOLOCK) ON T1.ProjectID = BPM.ProjectID
+		                        WHERE T1.FlagActive = 1
+		                          AND T1.PlanAmountID IN (183, 184)
+		                          -- ===== YEAR FILTER =====
+		                          AND (
+				                        @L_Year = ''
+				                        OR (',' + @L_Year + ',' LIKE '%,' + CAST(YEAR(T1.MonthlyDate) AS NVARCHAR) + ',%')
+			                          )
+		                          -- ===== PLAN TYPE FILTER =====
+		                          AND (
+				                        @L_PlanTypeID = ''
+				                        OR (',' + @L_PlanTypeID + ',' LIKE '%,' + CONVERT(VARCHAR, T1.PlanTypeID) + ',%')
+			                          )
+		                          -- ===== BU FILTER =====
+		                          AND (
+				                        @L_Bu = ''
+				                        OR (',' + @L_Bu + ',' LIKE '%,' + CONVERT(VARCHAR, BPM.BUID) + ',%')
+			                          )
+		                          -- ===== PROJECT FILTER =====
+		                          AND (
+				                        @L_ProjectID = ''
+				                        OR (',' + @L_ProjectID + ',' LIKE '%,' + T1.ProjectID + ',%')
+			                          )
+		                          -- ===== QUARTER FILTER =====
+		                          AND (
+				                        @L_Quarter = ''
+				                        OR (
+					                        (',' + @L_Quarter + ',' LIKE '%,Q1,%' AND MONTH(T1.MonthlyDate) IN (1,2,3)) OR
+					                        (',' + @L_Quarter + ',' LIKE '%,Q2,%' AND MONTH(T1.MonthlyDate) IN (4,5,6)) OR
+					                        (',' + @L_Quarter + ',' LIKE '%,Q3,%' AND MONTH(T1.MonthlyDate) IN (7,8,9)) OR
+					                        (',' + @L_Quarter + ',' LIKE '%,Q4,%' AND MONTH(T1.MonthlyDate) IN (10,11,12))
+				                        )
+			                          )
+		                          -- ===== MONTH FILTER =====
+		                        AND (
+			                        @L_Month = ''
+			                        OR ',' + @L_Month + ',' LIKE '%,' + CAST(MONTH(T1.MonthlyDate) AS VARCHAR) + ',%'
+		                        )
+		                        GROUP BY T1.PlanTypeID
+				                        ,T1.[PlanAmountID]
+	                          ) SUB1 
+                        LEFT JOIN [tm_Ext] T2 WITH (NOLOCK) ON SUB1.PlanAmountID = T2.ID
+                        LEFT JOIN [tm_Ext] T3 WITH (NOLOCK) ON SUB1.PlanTypeID = T3.ID
+                        ORDER BY SUB1.PlanTypeID
+                                ,SUB1.PlanAmountID
+
+                       "
+                                    ;
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.Add(new SqlParameter("@L_Year", filter.L_Year ?? "2025"));
+                    cmd.Parameters.Add(new SqlParameter("@L_Quarter", filter.L_Quarter ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_Month", filter.L_Month ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_ProjectID", filter.L_ProjectID ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_Bu", filter.L_Bu ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_PlanTypeID", filter.L_PlanTypeID ?? ""));
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            result.Add(new RollingPlanTotalModel
+                            {
+                                PlanTypeName = Commond.FormatExtension.NullToString(reader["PlanTypeName"]),
+                                PlanAmountName = Commond.FormatExtension.NullToString(reader["PlanAmountName"]),
+                                TOTAL = Commond.FormatExtension.ConvertToShortUnit(reader["TOTAL"]),
+                            });
+                        }
+                    }
+                }
+            }
+
+
+            return result;
+        }
     }
 }

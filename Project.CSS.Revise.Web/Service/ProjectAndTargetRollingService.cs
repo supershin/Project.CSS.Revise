@@ -6,6 +6,7 @@ namespace Project.CSS.Revise.Web.Service
     public interface IProjectAndTargetRollingService
     {
         public List<RollingPlanSummaryModel> GetListTargetRollingPlan(RollingPlanSummaryModel filter);
+        public List<RollingPlanTotalModel> GetDataTotalTargetRollingPlan(RollingPlanTotalModel filter);
     }
     public class ProjectAndTargetRollingService : IProjectAndTargetRollingService
     {
@@ -19,6 +20,11 @@ namespace Project.CSS.Revise.Web.Service
         public List<RollingPlanSummaryModel> GetListTargetRollingPlan(RollingPlanSummaryModel filter)
         {
             List<RollingPlanSummaryModel> resp = _ProjectAndTargetRollingRepoRepo.GetListTargetRollingPlan(filter);
+            return resp;
+        }
+        public List<RollingPlanTotalModel> GetDataTotalTargetRollingPlan(RollingPlanTotalModel filter)
+        {
+            List<RollingPlanTotalModel> resp = _ProjectAndTargetRollingRepoRepo.GetDataTotalTargetRollingPlan(filter);
             return resp;
         }
     }
