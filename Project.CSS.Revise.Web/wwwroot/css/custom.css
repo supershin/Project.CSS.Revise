@@ -65,4 +65,61 @@
 }
 
 
+/* ✅ Make Choices.js dropdown match form-control look */
+.choices__inner {
+    min-height: 48px;
+    border-radius: 12px;
+    padding: 6px 12px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    box-shadow: none;
+    transition: all 0.2s ease-in-out;
+}
+
+/* ✅ Focus style for Choices */
+.choices.is-focused .choices__inner {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.15rem rgba(0,123,255,0.25);
+}
+
+/* ✅ Placeholder font */
+.choices__placeholder {
+    color: #888;
+    font-style: italic;
+}
+
+/* ✅ Force dropdown menu of Choices to show on top */
+.choices__list--dropdown,
+.choices__list[aria-expanded] {
+    z-index: 9999 !important;
+}
+
+/* ✅ Remove margin below Choices container */
+.choices {
+    margin-bottom: 0 !important;
+}
+
+/* ✅ Fix height of search inside dropdown */
+.choices__input {
+    font-size: 0.95rem;
+    padding: 6px 0;
+    background-color: #fff !important; /* ✅ เพิ่มบรรทัดนี้ */
+    color: #000; /* ✅ เพิ่มให้แน่ใจว่า font ก็สีดำ */
+    border: none !important; /* ✅ เอาเส้นขอบจาง ๆ ออก */
+    box-shadow: none !important; /* ✅ ไม่ให้มีเงา */
+}
+
+
+/* ✅ Match multi-select item style if needed */
+.choices__list--multiple .choices__item {
+    background-color: #0d6efd;
+    color: #fff;
+    border-radius: 16px;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    margin-right: 4px;
+}
+
+
 

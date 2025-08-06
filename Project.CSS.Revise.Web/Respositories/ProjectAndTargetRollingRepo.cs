@@ -62,6 +62,9 @@ namespace Project.CSS.Revise.Web.Respositories
                                 ,MAX(CASE WHEN MONTH(T1.MonthlyDate) = 11 AND T1.PlanAmountID = 184 THEN T1.Amount END) AS Nov_Value
                                 ,MAX(CASE WHEN MONTH(T1.MonthlyDate) = 12 AND T1.PlanAmountID = 183 THEN T1.Amount END) AS Dec_Unit
                                 ,MAX(CASE WHEN MONTH(T1.MonthlyDate) = 12 AND T1.PlanAmountID = 184 THEN T1.Amount END) AS Dec_Value
+                                -- ===== TOTALS =====
+                                ,SUM(CASE WHEN T1.PlanAmountID = 183 THEN T1.Amount ELSE 0 END) AS Total_Unit
+                                ,SUM(CASE WHEN T1.PlanAmountID = 184 THEN T1.Amount ELSE 0 END) AS Total_Value
                             FROM TR_TargetRollingPlan T1 WITH (NOLOCK)
                             LEFT JOIN tm_Project P WITH (NOLOCK) ON T1.ProjectID = P.ProjectID
                             LEFT JOIN tm_Ext PT WITH (NOLOCK) ON T1.PlanTypeID = PT.ID
@@ -99,10 +102,10 @@ namespace Project.CSS.Revise.Web.Respositories
                                     )
                                   )
                               -- ===== MONTH FILTER =====
-                              AND (
+                                AND (
                                     @L_Month = ''
-                                    OR (',' + @L_Month + ',' LIKE '%,' + RIGHT('00' + CAST(MONTH(T1.MonthlyDate) AS VARCHAR), 2) + ',%')
-                                  )
+                                    OR ',' + @L_Month + ',' LIKE '%,' + CAST(MONTH(T1.MonthlyDate) AS VARCHAR) + ',%'
+                                )
                             GROUP BY
                                  T1.ProjectID
                                 ,P.ProjectName
@@ -162,6 +165,9 @@ namespace Project.CSS.Revise.Web.Respositories
                                 Nov_Value = Commond.FormatExtension.ConvertToShortUnit(reader["Nov_Value"]),
                                 Dec_Unit = Commond.FormatExtension.ConvertToShortUnit(reader["Dec_Unit"]),
                                 Dec_Value = Commond.FormatExtension.ConvertToShortUnit(reader["Dec_Value"]),
+
+                                Total_Unit = Commond.FormatExtension.ConvertToShortUnit(reader["Total_Unit"]),
+                                Total_Value = Commond.FormatExtension.ConvertToShortUnit(reader["Total_Value"]),
                             });
                         }
                     }

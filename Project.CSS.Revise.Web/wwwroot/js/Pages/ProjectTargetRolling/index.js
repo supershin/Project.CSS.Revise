@@ -207,9 +207,146 @@ function collectRollingPlanFilters() {
     };
 }
 
+//function searchRollingPlanData() {
+//    const filter = collectRollingPlanFilters();
+
+//    const formData = new FormData();
+//    for (const key in filter) {
+//        formData.append(key, filter[key]);
+//    }
+
+//    fetch(baseUrl + 'Projecttargetrolling/GetDataTableProjectAndTargetRolling', {
+//        method: 'POST',
+//        body: formData
+//    })
+//        .then(res => res.json())
+//        .then(json => {
+//            if (json.success) {
+//                renderTableFromJson(json.data);
+//            }
+//        })
+//        .catch(err => {
+//            console.error('Error fetching data:', err);
+//        });
+//}
+
+//function renderTableFromJson(data) {
+//    let html = `
+//        <table id="rollingPlanTable" class="table table-bordered table-striped w-auto">
+//            <thead>
+//                <tr>
+//                    <th>Project Name</th>
+//                    <th>Plan Type Name</th>
+//                    <th>Year</th>
+//                    <th colspan="2">Jan</th>
+//                    <th colspan="2">Feb</th>
+//                    <th colspan="2">Mar</th>
+//                    <th colspan="2">Apr</th>
+//                    <th colspan="2">May</th>
+//                    <th colspan="2">Jun</th>
+//                    <th colspan="2">Jul</th>
+//                    <th colspan="2">Aug</th>
+//                    <th colspan="2">Sep</th>
+//                    <th colspan="2">Oct</th>
+//                    <th colspan="2">Nov</th>
+//                    <th colspan="2">Dec</th>
+//                </tr>
+//                <tr>
+//                <th> </th>
+//                <th> </th>
+//                <th> </th>
+//                    <th>Unit &nbsp; &nbsp; </th>
+//                    <th>Value &nbsp; &nbsp; </th>
+//                    <th>Unit &nbsp; &nbsp; </th>
+//                    <th>Value &nbsp; &nbsp; </th>
+//                    <th>Unit &nbsp; &nbsp; </th>
+//                    <th>Value &nbsp; &nbsp; </th>
+//                    <th>Unit &nbsp; &nbsp; </th>
+//                    <th>Value &nbsp; &nbsp; </th>
+//                    <th>Unit &nbsp; &nbsp; </th>
+//                    <th>Value &nbsp; &nbsp; </th>
+//                    <th>Unit &nbsp; &nbsp; </th>
+//                    <th>Value &nbsp; &nbsp; </th>
+//                    <th>Unit &nbsp; &nbsp; </th>
+//                    <th>Value &nbsp; &nbsp; </th>
+//                    <th>Unit &nbsp; &nbsp; </th>
+//                    <th>Value &nbsp; &nbsp; </th>
+//                    <th>Unit &nbsp; &nbsp; </th>
+//                    <th>Value &nbsp; &nbsp; </th>
+//                    <th>Unit &nbsp; &nbsp; </th>
+//                    <th>Value &nbsp; &nbsp; </th>
+//                    <th>Unit &nbsp; &nbsp; </th>
+//                    <th>Value &nbsp; &nbsp; </th>
+//                    <th>Unit &nbsp; &nbsp; </th>
+//                    <th>Value &nbsp; &nbsp; </th>
+//                </tr>
+//            </thead>
+//            <tbody>
+//    `;
+
+//    if (data.length > 0) {
+//        data.forEach(row => {
+//            html += `<tr>
+
+//                <td>${row.ProjectName ?? ''}</td>
+//                <td>${row.PlanTypeName ?? ''}</td>
+//                <td>${row.PlanYear ?? ''}</td>
+//                <td>${row.Jan_Unit ?? '-'}</td>
+//                <td>${row.Jan_Value ?? '-'}</td>
+//                <td>${row.Feb_Unit ?? '-'}</td>
+//                <td>${row.Feb_Value ?? '-'}</td>
+//                <td>${row.Mar_Unit ?? '-'}</td>
+//                <td>${row.Mar_Value ?? '-'}</td>
+//                <td>${row.Apr_Unit ?? '-'}</td>
+//                <td>${row.Apr_Value ?? '-'}</td>
+//                <td>${row.May_Unit ?? '-'}</td>
+//                <td>${row.May_Value ?? '-'}</td>
+//                <td>${row.Jun_Unit ?? '-'}</td>
+//                <td>${row.Jun_Value ?? '-'}</td>
+//                <td>${row.Jul_Unit ?? '-'}</td>
+//                <td>${row.Jul_Value ?? '-'}</td>
+//                <td>${row.Aug_Unit ?? '-'}</td>
+//                <td>${row.Aug_Value ?? '-'}</td>
+//                <td>${row.Sep_Unit ?? '-'}</td>
+//                <td>${row.Sep_Value ?? '-'}</td>
+//                <td>${row.Oct_Unit ?? '-'}</td>
+//                <td>${row.Oct_Value ?? '-'}</td>
+//                <td>${row.Nov_Unit ?? '-'}</td>
+//                <td>${row.Nov_Value ?? '-'}</td>
+//                <td>${row.Dec_Unit ?? '-'}</td>
+//                <td>${row.Dec_Value ?? '-'}</td>
+//            </tr>`;
+//        });
+//    } else {
+//        html += `<tr><td colspan="28" class="text-center">ไม่พบข้อมูล</td></tr>`;
+//    }
+
+//    html += `
+//            </tbody>
+//        </table>
+//    `;
+
+//    $('#rolling-plan-container').html(html); // ✅ direct to wrapper
+//}
+
 function searchRollingPlanData() {
     const filter = collectRollingPlanFilters();
 
+    // ⛳ ตรวจสอบเดือนที่เลือก
+    let selectedMonths = $('#ddl_month').val()?.map(Number) || [];
+
+    // ❗ ถ้าไม่ได้เลือกเดือน → ใช้ quarter แทน
+    if (selectedMonths.length === 0) {
+        const selectedQuarters = choicesQuarter.getValue(true); // ['Q1', 'Q2',...]
+        selectedMonths = selectedQuarters.flatMap(q => monthMap[q] || []);
+    }
+
+    // 🧼 ถ้ายังไม่มีอะไรเลย → โชว์ทุกเดือน
+    if (selectedMonths.length === 0) {
+        selectedMonths = Array.from({ length: 12 }, (_, i) => i + 1);
+    }
+
+    // ส่งค่า filter ไปยัง API
     const formData = new FormData();
     for (const key in filter) {
         formData.append(key, filter[key]);
@@ -222,7 +359,7 @@ function searchRollingPlanData() {
         .then(res => res.json())
         .then(json => {
             if (json.success) {
-                renderTableFromJson(json.data);
+                renderTableFromJson(json.data, selectedMonths); // ✅ ส่ง selectedMonths
             }
         })
         .catch(err => {
@@ -230,103 +367,123 @@ function searchRollingPlanData() {
         });
 }
 
-function renderTableFromJson(data) {
+//function renderTableFromJson(data, selectedMonths) {
+//    const monthLabels = {
+//        1: "Jan", 2: "Feb", 3: "Mar",
+//        4: "Apr", 5: "May", 6: "Jun",
+//        7: "Jul", 8: "Aug", 9: "Sep",
+//        10: "Oct", 11: "Nov", 12: "Dec"
+//    };
+
+//    let html = `
+//        <table id="rollingPlanTable" class="table table-bordered table-striped w-auto">
+//            <thead>
+//                <tr>
+//                    <th>Project Name</th>
+//                    <th>Plan Type Name</th>
+//                    <th>Year</th>`;
+
+//    // ➕ Header เดือน
+//    selectedMonths.forEach(m => {
+//        html += `<th colspan="2">${monthLabels[m]}</th>`;
+//    });
+
+//    html += `</tr><tr>
+//        <th></th><th></th><th></th>`; // dummy cell 3 ช่อง
+
+//    // ➕ Subheader Unit/Value
+//    selectedMonths.forEach(() => {
+//        html += `<th>Unit</th><th>Value (MB)</th>`;
+//    });
+
+//    html += `</tr></thead><tbody>`;
+
+//    // 🔁 สร้าง rows
+//    if (data.length > 0) {
+//        data.forEach(row => {
+//            html += `<tr>
+//                <td>${row.ProjectName ?? ''}</td>
+//                <td>${row.PlanTypeName ?? ''}</td>
+//                <td>${row.PlanYear ?? ''}</td>`;
+
+//            selectedMonths.forEach(m => {
+//                const key = monthLabels[m]; // Jan, Feb,...
+//                html += `<td>${row[`${key}_Unit`] ?? '-'}</td>`;
+//                html += `<td>${row[`${key}_Value`] ?? '-'}</td>`;
+//            });
+
+//            html += `</tr>`;
+//        });
+//    } else {
+//        html += `<tr><td colspan="${3 + selectedMonths.length * 2}" class="text-center">ไม่พบข้อมูล</td></tr>`;
+//    }
+
+//    html += `</tbody></table>`;
+//    $('#rolling-plan-container').html(html);
+//}
+
+function renderTableFromJson(data, selectedMonths) {
+    const monthLabels = {
+        1: "Jan", 2: "Feb", 3: "Mar",
+        4: "Apr", 5: "May", 6: "Jun",
+        7: "Jul", 8: "Aug", 9: "Sep",
+        10: "Oct", 11: "Nov", 12: "Dec"
+    };
+
     let html = `
         <table id="rollingPlanTable" class="table table-bordered table-striped w-auto">
             <thead>
                 <tr>
                     <th>Project Name</th>
                     <th>Plan Type Name</th>
-                    <th>Year</th>
-                    <th colspan="2">Jan</th>
-                    <th colspan="2">Feb</th>
-                    <th colspan="2">Mar</th>
-                    <th colspan="2">Apr</th>
-                    <th colspan="2">May</th>
-                    <th colspan="2">Jun</th>
-                    <th colspan="2">Jul</th>
-                    <th colspan="2">Aug</th>
-                    <th colspan="2">Sep</th>
-                    <th colspan="2">Oct</th>
-                    <th colspan="2">Nov</th>
-                    <th colspan="2">Dec</th>
-                </tr>
-                <tr>
-                <th> </th>
-                <th> </th>
-                <th> </th>
-                    <th>Unit &nbsp; &nbsp; </th>
-                    <th>Value &nbsp; &nbsp; </th>
-                    <th>Unit &nbsp; &nbsp; </th>
-                    <th>Value &nbsp; &nbsp; </th>
-                    <th>Unit &nbsp; &nbsp; </th>
-                    <th>Value &nbsp; &nbsp; </th>
-                    <th>Unit &nbsp; &nbsp; </th>
-                    <th>Value &nbsp; &nbsp; </th>
-                    <th>Unit &nbsp; &nbsp; </th>
-                    <th>Value &nbsp; &nbsp; </th>
-                    <th>Unit &nbsp; &nbsp; </th>
-                    <th>Value &nbsp; &nbsp; </th>
-                    <th>Unit &nbsp; &nbsp; </th>
-                    <th>Value &nbsp; &nbsp; </th>
-                    <th>Unit &nbsp; &nbsp; </th>
-                    <th>Value &nbsp; &nbsp; </th>
-                    <th>Unit &nbsp; &nbsp; </th>
-                    <th>Value &nbsp; &nbsp; </th>
-                    <th>Unit &nbsp; &nbsp; </th>
-                    <th>Value &nbsp; &nbsp; </th>
-                    <th>Unit &nbsp; &nbsp; </th>
-                    <th>Value &nbsp; &nbsp; </th>
-                    <th>Unit &nbsp; &nbsp; </th>
-                    <th>Value &nbsp; &nbsp; </th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
+                    <th>Year</th>`;
 
+    // ➕ Header เดือน
+    selectedMonths.forEach(m => {
+        html += `<th colspan="2">${monthLabels[m]}</th>`;
+    });
+
+    // ➕ Header Total
+    html += `<th colspan="2">Total</th>`;
+
+    html += `</tr><tr>
+        <th></th><th></th><th></th>`; // dummy cell 3 ช่อง
+
+    // ➕ Subheader Unit/Value
+    selectedMonths.forEach(() => {
+        html += `<th>Unit</th><th>Value (M)</th>`;
+    });
+
+    // ➕ Subheader Total
+    html += `<th>Unit</th><th>Value (M)</th>`;
+
+    html += `</tr></thead><tbody>`;
+
+    // 🔁 สร้าง rows
     if (data.length > 0) {
         data.forEach(row => {
             html += `<tr>
-               
                 <td>${row.ProjectName ?? ''}</td>
                 <td>${row.PlanTypeName ?? ''}</td>
-                <td>${row.PlanYear ?? ''}</td>
-                <td>${row.Jan_Unit ?? '-'}</td>
-                <td>${row.Jan_Value ?? '-'}</td>
-                <td>${row.Feb_Unit ?? '-'}</td>
-                <td>${row.Feb_Value ?? '-'}</td>
-                <td>${row.Mar_Unit ?? '-'}</td>
-                <td>${row.Mar_Value ?? '-'}</td>
-                <td>${row.Apr_Unit ?? '-'}</td>
-                <td>${row.Apr_Value ?? '-'}</td>
-                <td>${row.May_Unit ?? '-'}</td>
-                <td>${row.May_Value ?? '-'}</td>
-                <td>${row.Jun_Unit ?? '-'}</td>
-                <td>${row.Jun_Value ?? '-'}</td>
-                <td>${row.Jul_Unit ?? '-'}</td>
-                <td>${row.Jul_Value ?? '-'}</td>
-                <td>${row.Aug_Unit ?? '-'}</td>
-                <td>${row.Aug_Value ?? '-'}</td>
-                <td>${row.Sep_Unit ?? '-'}</td>
-                <td>${row.Sep_Value ?? '-'}</td>
-                <td>${row.Oct_Unit ?? '-'}</td>
-                <td>${row.Oct_Value ?? '-'}</td>
-                <td>${row.Nov_Unit ?? '-'}</td>
-                <td>${row.Nov_Value ?? '-'}</td>
-                <td>${row.Dec_Unit ?? '-'}</td>
-                <td>${row.Dec_Value ?? '-'}</td>
-            </tr>`;
+                <td>${row.PlanYear ?? ''}</td>`;
+
+            selectedMonths.forEach(m => {
+                const key = monthLabels[m];
+                html += `<td>${row[`${key}_Unit`] ?? '-'}</td>`;
+                html += `<td>${row[`${key}_Value`] ?? '-'}</td>`;
+            });
+
+            // ➕ ดึง Total col จาก Model
+            html += `<td>${row.Total_Unit ?? '-'}</td><td>${row.Total_Value ?? '-'}</td>`;
+
+            html += `</tr>`;
         });
     } else {
-        html += `<tr><td colspan="28" class="text-center">ไม่พบข้อมูล</td></tr>`;
+        html += `<tr><td colspan="${3 + selectedMonths.length * 2 + 2}" class="text-center">ไม่พบข้อมูล</td></tr>`;
     }
 
-    html += `
-            </tbody>
-        </table>
-    `;
-
-    $('#rolling-plan-container').html(html); // ✅ direct to wrapper
+    html += `</tbody></table>`;
+    $('#rolling-plan-container').html(html);
 }
 
 

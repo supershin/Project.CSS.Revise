@@ -51,5 +51,8 @@
 
         public string? Dec_Unit { get; set; }
         public string? Dec_Value { get; set; }
+
+        public string? Total_Unit { get; set; }
+        public string? Total_Value { get; set; }
     }
 }

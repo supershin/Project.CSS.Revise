@@ -278,20 +278,20 @@ namespace Project.CSS.Revise.Web.Commond
         }
 
         /// <summary>
-        /// ConvertToShortUnit
+        /// ConvertToShortNameUnit
         /// ใช้สำหรับแปลงค่าตัวเลขเป็นหน่วยย่อ เช่น 1,000 = 1.00 K, 1,000,000 = 1.00 MB
         /// </summary>
         /// <param name="obj">Object ที่เป็นตัวเลข</param>
         /// <param name="defaultString">ค่าที่คืนถ้า null หรือไม่ใช่ตัวเลข</param>
-        /// <returns>string เช่น "16.85 MB" หรือ "500"</returns>
-        public static string ConvertToShortUnit(object obj, string defaultString = " - ")
+        /// <returns>string เช่น "16.85 M" หรือ "500"</returns>
+        public static string ConvertToShortNameUnit(object obj, string defaultString = " - ")
         {
             string str = NullToAnyString(obj, defaultString);
 
             if (decimal.TryParse(str, out decimal number))
             {
                 if (number >= 1_000_000)
-                    return (number / 1_000_000M).ToString("0.##") + " MB";
+                    return (number / 1_000_000M).ToString("0.##") + " M";
                 else if (number >= 1_000)
                     return (number / 1_000M).ToString("0.##") + " K";
                 else
@@ -300,6 +300,24 @@ namespace Project.CSS.Revise.Web.Commond
 
             return defaultString;
         }
+
+        public static string ConvertToShortUnit(object obj, string defaultString = " - ")
+        {
+            string str = NullToAnyString(obj, defaultString);
+
+            if (decimal.TryParse(str, out decimal number))
+            {
+                if (number >= 1_000_000)
+                    return (number / 1_000_000M).ToString("0.##"); // No " MB"
+                else if (number >= 1_000)
+                    return (number / 1_000M).ToString("0.##");     // No " K"
+                else
+                    return number.ToString("0.##");
+            }
+
+            return defaultString;
+        }
+
 
 
         public static string ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(object dateObject)
