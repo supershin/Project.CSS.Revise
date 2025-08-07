@@ -9,9 +9,9 @@
         public string? L_Bu { get; set; }
         public string? L_PlanTypeID { get; set; }
 
-
         public string? PlanTypeName { get; set; }
         public string? PlanAmountName { get; set; }
         public string? TOTAL { get; set; }
+        public string? COLORS { get; set; }
     }
 }

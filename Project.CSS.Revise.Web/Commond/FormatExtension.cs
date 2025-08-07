@@ -291,15 +291,16 @@ namespace Project.CSS.Revise.Web.Commond
             if (decimal.TryParse(str, out decimal number))
             {
                 if (number >= 1_000_000)
-                    return (number / 1_000_000M).ToString("0.##") + " M";
+                    return (number / 1_000_000M).ToString("#,0.##") + " M";
                 else if (number >= 1_000)
-                    return (number / 1_000M).ToString("0.##") + " K";
+                    return (number / 1_000M).ToString("#,0.##") + " K";
                 else
-                    return number.ToString("0.##");
+                    return number.ToString("#,0.##");
             }
 
             return defaultString;
         }
+
 
         public static string ConvertToShortUnit(object obj, string defaultString = " - ")
         {

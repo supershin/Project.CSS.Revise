@@ -212,6 +212,15 @@ namespace Project.CSS.Revise.Web.Respositories
                               T3.[Name] AS PlanTypeName 
 	                         ,T2.[Name] AS PlanAmountName 
 	                         ,SUB1.TOTAL
+                             ,CASE 
+                                WHEN T3.[Name] LIKE '%Target%' THEN '#0d6efd'            -- Bootstrap primary
+                                WHEN T3.[Name] LIKE '%Rolling%' THEN '#dc3545'          -- Bootstrap danger
+                                WHEN T3.[Name] LIKE '%Actual%' THEN '#ffc107'           -- Bootstrap warning
+                                WHEN T3.[Name] LIKE '%Working Target%' THEN '#0d6efd'
+                                WHEN T3.[Name] LIKE '%Working Rolling%' THEN '#dc3545'
+                                WHEN T3.[Name] LIKE '%MLL%' THEN '#0d6efd'
+                                ELSE '#6c757d'                                          -- default = text-secondary
+                              END AS COLORS
                         FROM (
 		                        SELECT T1.[PlanTypeID]
 			                          ,T1.[PlanAmountID]
@@ -225,11 +234,11 @@ namespace Project.CSS.Revise.Web.Respositories
 				                        @L_Year = ''
 				                        OR (',' + @L_Year + ',' LIKE '%,' + CAST(YEAR(T1.MonthlyDate) AS NVARCHAR) + ',%')
 			                          )
-		                          -- ===== PLAN TYPE FILTER =====
-		                          AND (
-				                        @L_PlanTypeID = ''
-				                        OR (',' + @L_PlanTypeID + ',' LIKE '%,' + CONVERT(VARCHAR, T1.PlanTypeID) + ',%')
-			                          )
+		        -- ===== PLAN TYPE FILTER (Not use now ^_^)=====
+		        -- AND (
+				-- @L_PlanTypeID = ''
+				-- OR (',' + @L_PlanTypeID + ',' LIKE '%,' + CONVERT(VARCHAR, T1.PlanTypeID) + ',%')
+			    -- )
 		                          -- ===== BU FILTER =====
 		                          AND (
 				                        @L_Bu = ''
@@ -283,7 +292,8 @@ namespace Project.CSS.Revise.Web.Respositories
                             {
                                 PlanTypeName = Commond.FormatExtension.NullToString(reader["PlanTypeName"]),
                                 PlanAmountName = Commond.FormatExtension.NullToString(reader["PlanAmountName"]),
-                                TOTAL = Commond.FormatExtension.ConvertToShortUnit(reader["TOTAL"]),
+                                TOTAL = Commond.FormatExtension.ConvertToShortNameUnit(reader["TOTAL"]),
+                                COLORS = Commond.FormatExtension.NullToString(reader["COLORS"]),
                             });
                         }
                     }

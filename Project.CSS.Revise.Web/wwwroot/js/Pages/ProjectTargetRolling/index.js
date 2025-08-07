@@ -193,8 +193,6 @@ function initAllDropdowns() {
 // 🔥 เรียกเลยโดยไม่ต้องใช้ DOMContentLoaded
 initAllDropdowns();
 
-
-
 // ------------------------ SEARCH TABLE ------------------------
 function collectRollingPlanFilters() {
     return {
@@ -206,128 +204,6 @@ function collectRollingPlanFilters() {
         L_ProjectID: $('#ddl_project').val() ? $('#ddl_project').val().join(',') : ''
     };
 }
-
-//function searchRollingPlanData() {
-//    const filter = collectRollingPlanFilters();
-
-//    const formData = new FormData();
-//    for (const key in filter) {
-//        formData.append(key, filter[key]);
-//    }
-
-//    fetch(baseUrl + 'Projecttargetrolling/GetDataTableProjectAndTargetRolling', {
-//        method: 'POST',
-//        body: formData
-//    })
-//        .then(res => res.json())
-//        .then(json => {
-//            if (json.success) {
-//                renderTableFromJson(json.data);
-//            }
-//        })
-//        .catch(err => {
-//            console.error('Error fetching data:', err);
-//        });
-//}
-
-//function renderTableFromJson(data) {
-//    let html = `
-//        <table id="rollingPlanTable" class="table table-bordered table-striped w-auto">
-//            <thead>
-//                <tr>
-//                    <th>Project Name</th>
-//                    <th>Plan Type Name</th>
-//                    <th>Year</th>
-//                    <th colspan="2">Jan</th>
-//                    <th colspan="2">Feb</th>
-//                    <th colspan="2">Mar</th>
-//                    <th colspan="2">Apr</th>
-//                    <th colspan="2">May</th>
-//                    <th colspan="2">Jun</th>
-//                    <th colspan="2">Jul</th>
-//                    <th colspan="2">Aug</th>
-//                    <th colspan="2">Sep</th>
-//                    <th colspan="2">Oct</th>
-//                    <th colspan="2">Nov</th>
-//                    <th colspan="2">Dec</th>
-//                </tr>
-//                <tr>
-//                <th> </th>
-//                <th> </th>
-//                <th> </th>
-//                    <th>Unit &nbsp; &nbsp; </th>
-//                    <th>Value &nbsp; &nbsp; </th>
-//                    <th>Unit &nbsp; &nbsp; </th>
-//                    <th>Value &nbsp; &nbsp; </th>
-//                    <th>Unit &nbsp; &nbsp; </th>
-//                    <th>Value &nbsp; &nbsp; </th>
-//                    <th>Unit &nbsp; &nbsp; </th>
-//                    <th>Value &nbsp; &nbsp; </th>
-//                    <th>Unit &nbsp; &nbsp; </th>
-//                    <th>Value &nbsp; &nbsp; </th>
-//                    <th>Unit &nbsp; &nbsp; </th>
-//                    <th>Value &nbsp; &nbsp; </th>
-//                    <th>Unit &nbsp; &nbsp; </th>
-//                    <th>Value &nbsp; &nbsp; </th>
-//                    <th>Unit &nbsp; &nbsp; </th>
-//                    <th>Value &nbsp; &nbsp; </th>
-//                    <th>Unit &nbsp; &nbsp; </th>
-//                    <th>Value &nbsp; &nbsp; </th>
-//                    <th>Unit &nbsp; &nbsp; </th>
-//                    <th>Value &nbsp; &nbsp; </th>
-//                    <th>Unit &nbsp; &nbsp; </th>
-//                    <th>Value &nbsp; &nbsp; </th>
-//                    <th>Unit &nbsp; &nbsp; </th>
-//                    <th>Value &nbsp; &nbsp; </th>
-//                </tr>
-//            </thead>
-//            <tbody>
-//    `;
-
-//    if (data.length > 0) {
-//        data.forEach(row => {
-//            html += `<tr>
-
-//                <td>${row.ProjectName ?? ''}</td>
-//                <td>${row.PlanTypeName ?? ''}</td>
-//                <td>${row.PlanYear ?? ''}</td>
-//                <td>${row.Jan_Unit ?? '-'}</td>
-//                <td>${row.Jan_Value ?? '-'}</td>
-//                <td>${row.Feb_Unit ?? '-'}</td>
-//                <td>${row.Feb_Value ?? '-'}</td>
-//                <td>${row.Mar_Unit ?? '-'}</td>
-//                <td>${row.Mar_Value ?? '-'}</td>
-//                <td>${row.Apr_Unit ?? '-'}</td>
-//                <td>${row.Apr_Value ?? '-'}</td>
-//                <td>${row.May_Unit ?? '-'}</td>
-//                <td>${row.May_Value ?? '-'}</td>
-//                <td>${row.Jun_Unit ?? '-'}</td>
-//                <td>${row.Jun_Value ?? '-'}</td>
-//                <td>${row.Jul_Unit ?? '-'}</td>
-//                <td>${row.Jul_Value ?? '-'}</td>
-//                <td>${row.Aug_Unit ?? '-'}</td>
-//                <td>${row.Aug_Value ?? '-'}</td>
-//                <td>${row.Sep_Unit ?? '-'}</td>
-//                <td>${row.Sep_Value ?? '-'}</td>
-//                <td>${row.Oct_Unit ?? '-'}</td>
-//                <td>${row.Oct_Value ?? '-'}</td>
-//                <td>${row.Nov_Unit ?? '-'}</td>
-//                <td>${row.Nov_Value ?? '-'}</td>
-//                <td>${row.Dec_Unit ?? '-'}</td>
-//                <td>${row.Dec_Value ?? '-'}</td>
-//            </tr>`;
-//        });
-//    } else {
-//        html += `<tr><td colspan="28" class="text-center">ไม่พบข้อมูล</td></tr>`;
-//    }
-
-//    html += `
-//            </tbody>
-//        </table>
-//    `;
-
-//    $('#rolling-plan-container').html(html); // ✅ direct to wrapper
-//}
 
 function searchRollingPlanData() {
     const filter = collectRollingPlanFilters();
@@ -360,67 +236,13 @@ function searchRollingPlanData() {
         .then(json => {
             if (json.success) {
                 renderTableFromJson(json.data, selectedMonths); // ✅ ส่ง selectedMonths
+                renderSummaryCards(json.datasum); // <<--- เพิ่มตรงนี้
             }
         })
         .catch(err => {
             console.error('Error fetching data:', err);
         });
 }
-
-//function renderTableFromJson(data, selectedMonths) {
-//    const monthLabels = {
-//        1: "Jan", 2: "Feb", 3: "Mar",
-//        4: "Apr", 5: "May", 6: "Jun",
-//        7: "Jul", 8: "Aug", 9: "Sep",
-//        10: "Oct", 11: "Nov", 12: "Dec"
-//    };
-
-//    let html = `
-//        <table id="rollingPlanTable" class="table table-bordered table-striped w-auto">
-//            <thead>
-//                <tr>
-//                    <th>Project Name</th>
-//                    <th>Plan Type Name</th>
-//                    <th>Year</th>`;
-
-//    // ➕ Header เดือน
-//    selectedMonths.forEach(m => {
-//        html += `<th colspan="2">${monthLabels[m]}</th>`;
-//    });
-
-//    html += `</tr><tr>
-//        <th></th><th></th><th></th>`; // dummy cell 3 ช่อง
-
-//    // ➕ Subheader Unit/Value
-//    selectedMonths.forEach(() => {
-//        html += `<th>Unit</th><th>Value (MB)</th>`;
-//    });
-
-//    html += `</tr></thead><tbody>`;
-
-//    // 🔁 สร้าง rows
-//    if (data.length > 0) {
-//        data.forEach(row => {
-//            html += `<tr>
-//                <td>${row.ProjectName ?? ''}</td>
-//                <td>${row.PlanTypeName ?? ''}</td>
-//                <td>${row.PlanYear ?? ''}</td>`;
-
-//            selectedMonths.forEach(m => {
-//                const key = monthLabels[m]; // Jan, Feb,...
-//                html += `<td>${row[`${key}_Unit`] ?? '-'}</td>`;
-//                html += `<td>${row[`${key}_Value`] ?? '-'}</td>`;
-//            });
-
-//            html += `</tr>`;
-//        });
-//    } else {
-//        html += `<tr><td colspan="${3 + selectedMonths.length * 2}" class="text-center">ไม่พบข้อมูล</td></tr>`;
-//    }
-
-//    html += `</tbody></table>`;
-//    $('#rolling-plan-container').html(html);
-//}
 
 function renderTableFromJson(data, selectedMonths) {
     const monthLabels = {
@@ -486,8 +308,96 @@ function renderTableFromJson(data, selectedMonths) {
     $('#rolling-plan-container').html(html);
 }
 
+function renderSummaryCards(datasum) {
+    const container = document.getElementById('cardContainer');
+    if (!container || !Array.isArray(datasum)) return;
+
+    container.innerHTML = '';
+
+    datasum.forEach(item => {
+        const name = item.PlanTypeName || '';
+        const unit = item.Unit?.toLocaleString() || '0';
+        const value = item.Value?.toLocaleString(undefined, { minimumFractionDigits: 2 });
+        const color = item.ColorClass || 'text-muted';
+
+        const card = document.createElement('div');
+        card.className = 'card small-widget flex-shrink-0 company-card clickable-card';
+        card.style.minWidth = '300px';
+
+        card.innerHTML = `
+            <div class="card o-hidden small-widget">
+                <div class="card-body total-project border-b-primary border-2">
+                    <span class="f-light f-w-500 f-14">${name}</span>
+                    <div class="project-details">
+                        <div class="project-counter">
+                            <div class="card-body d-flex justify-content-around align-items-center py-0">
+                                <div>
+                                    <h4 class="fw-semibold mb-0" style="color: ${color}">${unit}</h4>
+                                    <div class="text-muted small">Unit</div>
+                                </div>
+                                <div class="vr mx-3"></div>
+                                <div>
+                                    <h4 class="fw-semibold mb-0" style="color: ${color}">${value}</h4>
+                                    <div class="text-muted small">Value</div>
+                                </div>
+                            </div>
+                        </div>
+                        <ul class="bubbles">
+                            ${'<li class="bubble"></li>'.repeat(9)}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
 
 $('button:contains("Search")').on('click', function () {
     searchRollingPlanData();
 });
 
+initImportExcelHandler();
+
+function initImportExcelHandler() {
+    const form = document.getElementById('form-import-project-target-rolling');
+
+    if (!form) return;
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const fileInput = document.getElementById('excelFile');
+        if (!fileInput || !fileInput.files.length) {
+            Swal.fire('No File', 'Please select a file to upload.', 'warning');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        fetch(baseUrl + 'Projecttargetrolling/ImportExcel', {
+            method: 'POST',
+            body: formData
+        })
+            .then(res => res.json())
+            .then(res => {
+                if (res.success) {
+                    Swal.fire('Success', `Imported ${res.count} rows successfully.`, 'success');
+                    const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalImportTargetRolling'));
+                    modal.hide();
+
+                    // ⏬ reload function ถ้ามีตาราง
+                    // loadTableProjectAndTargetRolling(); 
+                } else {
+                    Swal.fire('Error', 'Something went wrong during import.', 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire('Error', 'An error occurred.', 'error');
+            });
+    });
+}
