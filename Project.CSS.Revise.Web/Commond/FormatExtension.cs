@@ -301,7 +301,6 @@ namespace Project.CSS.Revise.Web.Commond
             return defaultString;
         }
 
-
         public static string ConvertToShortUnit(object obj, string defaultString = " - ")
         {
             string str = NullToAnyString(obj, defaultString);
@@ -318,8 +317,6 @@ namespace Project.CSS.Revise.Web.Commond
 
             return defaultString;
         }
-
-
 
         public static string ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(object dateObject)
         {

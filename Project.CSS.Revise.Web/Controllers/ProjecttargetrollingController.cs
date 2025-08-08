@@ -5,7 +5,7 @@ using OfficeOpenXml;
 using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling;
 using Project.CSS.Revise.Web.Service;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using Project.CSS.Revise.Web.Commond;
 
 namespace Project.CSS.Revise.Web.Controllers
 {
@@ -151,13 +151,21 @@ namespace Project.CSS.Revise.Web.Controllers
                 }
             }
 
-            // ✅ Insert data
-            //foreach (var item in list)
-            //{
-            //    await _yourService.InsertFromExcelAsync(item); // ปรับชื่อฟังก์ชันให้ตรงกับของพ่อใหญ่
-            //}
+            string LoginID = User.FindFirst("LoginID")?.Value;
+            string UserID = SecurityManager.DecodeFrom64(LoginID);
+            int currentUserId = Commond.FormatExtension.Nulltoint(UserID);
 
-            return Ok(new { success = true, count = list.Count });
+            var Listdatainsert = BuildTargetRollingPlanList(list , currentUserId);
+
+            var result = _projectAndTargetRollingService.UpsertTargetRollingPlans(Listdatainsert);
+
+            if (result == null)
+            {
+                return BadRequest("Failed to insert data.");
+            }
+            // ✅ Return success response with count of inserted records
+
+            return Ok(new { success = true, message = result.Message, count = list.Count });
         }
 
         // 🔧 Helper สำหรับแปลง string เป็น decimal แบบปลอดภัย
@@ -167,6 +175,116 @@ namespace Project.CSS.Revise.Web.Controllers
                 return result;
             return null;
         }
+
+        public List<TargetRollingPlanInsertModel> BuildTargetRollingPlanList(List<ImportDataProjectTargetRolling> importList, int currentUserId)
+        {
+            var result = new List<TargetRollingPlanInsertModel>();
+
+            foreach (var row in importList)
+            {
+                // Map PlanType text to ID
+                int PlanTypeID = GetPlanTypeId(row.ProjectPlanType);
+
+                for (int month = 1; month <= 12; month++)
+                {
+                    // Unit
+                    decimal? unit = GetMonthUnit(row, month);
+                    if (unit.HasValue)
+                    {
+                        result.Add(new TargetRollingPlanInsertModel
+                        {
+                            ProjectID = row.ProjectID,
+                            PlanTypeID = PlanTypeID,
+                            PlanAmountID = Constants.Ext.Unit,
+                            MonthlyDate = new DateTime(row.Year, month, 1),
+                            Amount = unit.Value,
+                            FlagActive = true,
+                            CreateBy = currentUserId,
+                            UpdateBy = currentUserId
+                        });
+                    }
+
+                    // Value
+                    decimal? value = GetMonthValue(row, month);
+                    if (value.HasValue)
+                    {
+                        result.Add(new TargetRollingPlanInsertModel
+                        {
+                            ProjectID = row.ProjectID,
+                            PlanTypeID = PlanTypeID,
+                            PlanAmountID = Constants.Ext.Value,
+                            MonthlyDate = new DateTime(row.Year, month, 1),
+                            Amount = value.Value,
+                            FlagActive = true,
+                            CreateBy = currentUserId,
+                            UpdateBy = currentUserId
+                        });
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private int GetPlanTypeId(string? planTypeName)
+        {
+            if (string.IsNullOrWhiteSpace(planTypeName))
+                return 0;
+
+            switch (planTypeName.Trim())
+            {
+                case "Target":
+                    return Constants.Ext.Target;
+                case "Rolling":
+                    return Constants.Ext.Rolling;
+                case "Actual":
+                    return Constants.Ext.Actual;
+                case "Working Target":
+                    return Constants.Ext.WorkingTarget;
+                case "Working Rolling":
+                    return Constants.Ext.WorkingRolling;
+                case "MLL":
+                    return Constants.Ext.MLL;
+                default:
+                    return 0; // unknown
+            }
+        }
+
+        private decimal? GetMonthUnit(ImportDataProjectTargetRolling r, int month) =>
+            month switch
+            {
+                1 => r.Jan_Unit,
+                2 => r.Feb_Unit,
+                3 => r.Mar_Unit,
+                4 => r.Apr_Unit,
+                5 => r.May_Unit,
+                6 => r.Jun_Unit,
+                7 => r.Jul_Unit,
+                8 => r.Aug_Unit,
+                9 => r.Sep_Unit,
+                10 => r.Oct_Unit,
+                11 => r.Nov_Unit,
+                12 => r.Dec_Unit,
+                _ => null
+            };
+
+        private decimal? GetMonthValue(ImportDataProjectTargetRolling r, int month) =>
+            month switch
+            {
+                1 => r.Jan_Value,
+                2 => r.Feb_Value,
+                3 => r.Mar_Value,
+                4 => r.Apr_Value,
+                5 => r.May_Value,
+                6 => r.Jun_Value,
+                7 => r.Jul_Value,
+                8 => r.Aug_Value,
+                9 => r.Sep_Value,
+                10 => r.Oct_Value,
+                11 => r.Nov_Value,
+                12 => r.Dec_Value,
+                _ => null
+            };
 
 
     }

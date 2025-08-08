@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling;
-using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
+using Microsoft.EntityFrameworkCore;
 
 namespace Project.CSS.Revise.Web.Respositories
 {
@@ -10,6 +10,7 @@ namespace Project.CSS.Revise.Web.Respositories
     {
         public List<RollingPlanSummaryModel> GetListTargetRollingPlan(RollingPlanSummaryModel filter);
         public List<RollingPlanTotalModel> GetDataTotalTargetRollingPlan(RollingPlanTotalModel filter);
+        public TargetRollingPlanInsertModel UpsertTargetRollingPlans(List<TargetRollingPlanInsertModel> plans);
     }
     public class ProjectAndTargetRollingRepo : IProjectAndTargetRollingRepo
     {
@@ -303,5 +304,100 @@ namespace Project.CSS.Revise.Web.Respositories
 
             return result;
         }
+
+        public TargetRollingPlanInsertModel UpsertTargetRollingPlans(List<TargetRollingPlanInsertModel> plans)
+        {
+            var result = new TargetRollingPlanInsertModel();
+
+            if (plans == null || plans.Count == 0)
+            {
+                result.Message = "No data to import.";
+                return result;
+            }
+
+            using (var tx = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    foreach (var p in plans)
+                    {
+                        // guard bad rows
+                        if (string.IsNullOrWhiteSpace(p.ProjectID) || p.PlanTypeID <= 0 || p.MonthlyDate == default)
+                        {
+                            result.Skipped++;
+                            continue;
+                        }
+
+                        var projectId = p.ProjectID.Trim();
+                        if (projectId.Length > 50) projectId = projectId.Substring(0, 50); // adjust to your column length
+
+                        var monthDate = p.MonthlyDate.Date;
+                        var amount = Math.Round(p.Amount, 2); // if column is DECIMAL(18,2)
+
+                        // 🔎 WHERE: find existing row by key
+                        var row = _context.TR_TargetRollingPlans.FirstOrDefault(x =>
+                            x.ProjectID == projectId &&
+                            x.PlanTypeID == p.PlanTypeID &&
+                            x.PlanAmountID == p.PlanAmountID &&
+                            x.MonthlyDate == monthDate);
+
+                        if (row != null)
+                        {
+                            // UPDATE
+                            row.Amount = amount;
+                            row.FlagActive = p.FlagActive;
+                            row.UpdateBy = p.UpdateBy;
+                            row.UpdateDate = DateTime.Now;
+                            result.Updated++;
+                        }
+                        else
+                        {
+                            // INSERT
+                            var newRow = new TR_TargetRollingPlan
+                            {
+                                ProjectID = projectId,
+                                PlanTypeID = p.PlanTypeID,
+                                PlanAmountID = p.PlanAmountID,
+                                MonthlyDate = monthDate,
+                                Amount = amount,
+                                FlagActive = p.FlagActive,
+                                CreateBy = p.CreateBy,
+                                CreateDate = DateTime.Now,
+                                UpdateBy = p.UpdateBy,
+                                UpdateDate = DateTime.Now
+                            };
+
+                            _context.TR_TargetRollingPlans.Add(newRow);
+                            result.Inserted++;
+                        }
+                    }
+
+                    _context.SaveChanges();
+                    tx.Commit();
+
+                    result.Message = $"Upsert OK. Inserted: {result.Inserted}, Updated: {result.Updated}, Skipped: {result.Skipped}";
+                }
+                catch (DbUpdateException ex)
+                {
+                    tx.Rollback();
+
+                    var root = ex.InnerException?.Message
+                               ?? ex.GetBaseException().Message
+                               ?? ex.Message;
+
+                    result.Message = $"Upsert failed: {root}";
+                }
+                catch (Exception ex)
+                {
+                    tx.Rollback();
+                    result.Message = $"Upsert failed: {ex.Message}";
+                }
+            }
+
+            return result;
+        }
+
+
+
     }
 }

@@ -206,6 +206,7 @@ function collectRollingPlanFilters() {
 }
 
 function searchRollingPlanData() {
+    showLoading();
     const filter = collectRollingPlanFilters();
 
     // ⛳ ตรวจสอบเดือนที่เลือก
@@ -237,9 +238,11 @@ function searchRollingPlanData() {
             if (json.success) {
                 renderTableFromJson(json.data, selectedMonths); // ✅ ส่ง selectedMonths
                 renderSummaryCards(json.datasum); // <<--- เพิ่มตรงนี้
+                hideLoading()
             }
         })
         .catch(err => {
+            hideLoading()
             console.error('Error fetching data:', err);
         });
 }
@@ -385,7 +388,10 @@ function initImportExcelHandler() {
             .then(res => res.json())
             .then(res => {
                 if (res.success) {
-                    Swal.fire('Success', `Imported ${res.count} rows successfully.`, 'success');
+                    Swal.fire('Success'
+                             /*, `Imported ${res.count} rows successfully.`*/
+                             , `${res.message}`
+                             , 'success');
                     const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalImportTargetRolling'));
                     modal.hide();
 

@@ -2,6 +2,20 @@
 {
     public static class Constants
     {
+        public static class Ext
+        {
+            public static readonly int Target = 181;
+            public static readonly int Rolling = 182;
+            public static readonly int Actual = 185;
+            public static readonly int WorkingTarget = 395;
+            public static readonly int WorkingRolling = 396;
+            public static readonly int MLL = 452;
+
+
+            public static readonly int Unit = 183;
+            public static readonly int Value = 184;
+        }
+
         public static class ExtType
         {
             public static readonly int QCStatus = 1;
