@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling;
-using Microsoft.EntityFrameworkCore;
 
 namespace Project.CSS.Revise.Web.Respositories
 {
