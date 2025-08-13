@@ -129,7 +129,6 @@
 
 <div class="container-fluid">
     <div class="card">
-        <!-- Search Bar -->
         <div class="card-header card-no-border total-revenue">
             <h4 class="m-0">Summery</h4>
         </div>
@@ -143,12 +142,24 @@
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
-            <div id="rolling-plan-container" class="table-wrapper">
-                <!-- table will be injected here -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="flex-grow-1">
+                    <!-- Any title or filters here -->
+                </div>
+                <div>
+                    <button id="btnEdit" class="btn btn-primary btn-sm">
+                        <i class="mdi mdi-pencil"></i> Edit
+                    </button>
+                    <button id="btnCancelEdit" class="btn btn-outline-secondary btn-sm d-none">
+                        Cancel
+                    </button>
+                </div>
             </div>
+            <div id="rolling-plan-container" class="table-wrapper"><!-- table injected here --></div>
         </div>
     </div>
 </div>
+
 
 <!-- Modal import data -->
 <div class="modal fade" id="modalImportTargetRolling" tabindex="-1" aria-labelledby="modalImportLabel" aria-hidden="true">

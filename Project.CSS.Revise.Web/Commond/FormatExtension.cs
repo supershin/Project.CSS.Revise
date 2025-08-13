@@ -318,6 +318,18 @@ namespace Project.CSS.Revise.Web.Commond
             return defaultString;
         }
 
+        public static string ConvertToMoney(object obj, string defaultString = " - ")
+        {
+            if (obj == null || obj == DBNull.Value)
+                return defaultString;
+
+            if (decimal.TryParse(obj.ToString(), out decimal number))
+                return number.ToString("#,##0.00"); // comma separator, 2 decimals
+
+            return defaultString;
+        }
+
+
         public static string ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(object dateObject)
         {
             if (dateObject == null || dateObject == DBNull.Value)

@@ -8,6 +8,7 @@ namespace Project.CSS.Revise.Web.Service
         public List<RollingPlanSummaryModel> GetListTargetRollingPlan(RollingPlanSummaryModel filter);
         public List<RollingPlanTotalModel> GetDataTotalTargetRollingPlan(RollingPlanTotalModel filter);
         public TargetRollingPlanInsertModel UpsertTargetRollingPlans(List<TargetRollingPlanInsertModel> plans);
+        public List<RollingPlanSummaryModel> GetListDataExportTargetRollingPlan(RollingPlanSummaryModel filter);
     }
     public class ProjectAndTargetRollingService : IProjectAndTargetRollingService
     {
@@ -32,6 +33,12 @@ namespace Project.CSS.Revise.Web.Service
         public TargetRollingPlanInsertModel UpsertTargetRollingPlans(List<TargetRollingPlanInsertModel> plans)
         {
             return _ProjectAndTargetRollingRepoRepo.UpsertTargetRollingPlans(plans);
+        }
+
+        public List<RollingPlanSummaryModel> GetListDataExportTargetRollingPlan(RollingPlanSummaryModel filter)
+        {
+            List<RollingPlanSummaryModel> resp = _ProjectAndTargetRollingRepoRepo.GetListDataExportTargetRollingPlan(filter);
+            return resp;
         }
     }
 }

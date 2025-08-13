@@ -1,4 +1,37 @@
-﻿// ------------------------ YEAR DROPDOWN ------------------------
+﻿// ===== Edit mode globals =====
+let isEditMode = false;                       // toggle by Edit/Cancel
+/*const pendingEdits = window.pendingEdits || []; // keep your array*/
+
+// format helpers
+const toLocaleInt = n => Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 });
+const toLocaleMoney = n => Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+// mimic your C# ConvertToShortUnit for display mode (K/M)
+function formatShort(n) {
+    if (n == null || isNaN(n)) return '';
+    const x = Number(n);
+    const abs = Math.abs(x);
+    let out;
+    if (abs >= 1_000_000) out = (x / 1_000_000).toFixed(2);
+    else if (abs >= 1_000) out = (x / 1_000).toFixed(2);
+    else out = x.toFixed(2);
+    return out.replace(/\.?0+$/, ''); // trim .00 / trailing zeros
+}
+
+// sanitize pasted numeric text
+function sanitizeNumericText(t) {
+    if (t == null) return '';
+    const plain = String(t).replace(/<[^>]*>/g, '');
+    const cleaned = plain.replace(/[^\d.\-]/g, '');
+    let sign = cleaned.startsWith('-') ? '-' : '';
+    let body = cleaned.replace(/^-/, '');
+    let parts = body.split('.');
+    if (parts.length > 2) body = parts.shift() + '.' + parts.join('');
+    return sign + body;
+}
+
+
+// ------------------------ YEAR DROPDOWN ------------------------
 
 function populateYearDropdown() {
     const ddlYear = document.getElementById('ddl_year');
@@ -203,6 +236,9 @@ function collectRollingPlanFilters() {
         L_Quarter: choicesQuarter.getValue(true).join(','),
         L_Month: choicesMonth.getValue(true).join(','),
         L_PlanTypeID: $('#ddl_plantype').val() ? $('#ddl_plantype').val().join(',') : '',
+        L_PlanTypeName: $('#ddl_plantype option:selected').map(function () {
+            return $(this).text();
+        }).get().join(','), // ✅ ดึงเฉพาะ text ของตัวที่เลือก
         L_Bu: $('#ddl_bug').val() ? $('#ddl_bug').val().join(',') : '',
         L_ProjectID: $('#ddl_project').val() ? $('#ddl_project').val().join(',') : ''
     };
@@ -250,16 +286,20 @@ function searchRollingPlanData() {
         });
 }
 
+searchRollingPlanData();
+
 const pendingEdits = []; // {ProjectID, PlanTypeID, Year, Month, PlanAmountID, OldValue, NewValue}
 
 function renderTableFromJson(data, selectedMonths) {
+    const dec = s => (s ?? '').toString().replace(/,/g, ''); // "10,760,000.00" -> "10760000.00"
+
     let html = `
-        <table id="rollingPlanTable" class="table table-bordered table-striped w-auto">
-            <thead>
-                <tr>
-                    <th>Project Name</th>
-                    <th>Plan Type Name</th>
-                    <th>Year</th>`;
+    <table id="rollingPlanTable" class="table table-bordered table-striped w-auto">
+      <thead>
+        <tr>
+          <th>Project</th>
+          <th>Plan Type</th>
+          <th>Year</th>`;
 
     selectedMonths.forEach(m => {
         html += `<th colspan="2">${monthLabels[m]}</th>`;
@@ -268,7 +308,7 @@ function renderTableFromJson(data, selectedMonths) {
     html += `<th colspan="2">Total</th>`;
 
     html += `</tr><tr>
-        <th></th><th></th><th></th>`;
+      <th></th><th></th><th></th>`;
 
     selectedMonths.forEach(() => {
         html += `<th>Unit</th><th>Value (M)</th>`;
@@ -276,41 +316,59 @@ function renderTableFromJson(data, selectedMonths) {
 
     html += `<th>Unit</th><th>Value (M)</th></tr></thead><tbody>`;
 
-    if (data?.length) {
+    if (Array.isArray(data) && data.length) {
         data.forEach(row => {
-            // we'll need hidden identifiers for updates
             const pid = row.ProjectID ?? '';
             const ptypeId = row.PlanTypeID ?? 0;
             const year = Number(row.PlanYear ?? 0);
 
             html += `<tr data-projectid="${pid}" data-plantypeid="${ptypeId}" data-year="${year}">
-                <td>${row.ProjectName ?? ''}</td>
-                <td>${row.PlanTypeName ?? ''}</td>
-                <td>${row.PlanYear ?? ''}</td>`;
+        <td>${row.ProjectName ?? ''}</td>
+        <td>${row.PlanTypeName ?? ''}</td>
+        <td>${row.PlanYear ?? ''}</td>`;
 
             selectedMonths.forEach(m => {
-                const key = monthLabels[m]; // e.g. Jan
-                const unitVal = row[`${key}_Unit`] ?? '';
-                const moneyVal = row[`${key}_Value`] ?? '';
+                const key = monthLabels[m]; // e.g. "Jan"
 
-                // editable cells with metadata for later updates
+                // short display (1, 1.2, etc.)
+                const unitShort = row[`${key}_Unit`] ?? '';
+                const valueShort = row[`${key}_Value`] ?? '';
+
+                // full with commas ("10,760,000.00"), convert to RAW numeric string for editing
+                const unitComma = row[`${key}_Unit_comma`] ?? '';
+                const valueComma = row[`${key}_Value_comma`] ?? '';
+
+                const unitRaw = dec(unitComma);   // "10760000.00"
+                const valueRaw = dec(valueComma);  // "10760000.00"
+
                 html += `
-                    <td class="editable" contenteditable="true"
-                        data-field="${key}_Unit"
-                        data-month="${m}"
-                        data-planamountid="183"
-                        data-old="${unitVal}">${unitVal}</td>
-                    <td class="editable" contenteditable="true"
-                        data-field="${key}_Value"
-                        data-month="${m}"
-                        data-planamountid="184"
-                        data-old="${moneyVal}">${moneyVal}</td>`;
+          <td class="editable"
+              contenteditable="false"
+              data-field="${key}_Unit"
+              data-month="${m}"
+              data-planamountid="183"
+              data-raw="${unitRaw}"
+              data-old="${unitRaw}">${unitShort}</td>
+
+          <td class="editable"
+              contenteditable="false"
+              data-field="${key}_Value"
+              data-month="${m}"
+              data-planamountid="184"
+              data-raw="${valueRaw}"
+              data-old="${valueRaw}">${valueShort}</td>`;
             });
 
-            // Totals shown, not editable
-            html += `<td class="total-unit">${row.Total_Unit ?? '-'}</td>
-                     <td class="total-value">${row.Total_Value ?? '-'}</td>
-            </tr>`;
+            // Totals (show short, keep raw on attrs too for later if needed)
+            const totalUnitShort = row.Total_Unit ?? '-';
+            const totalValueShort = row.Total_Value ?? '-';
+            const totalUnitRaw = dec(row.Total_Unit_comma ?? '');
+            const totalValueRaw = dec(row.Total_Value_comma ?? '');
+
+            html += `
+        <td class="total-unit"  data-raw="${totalUnitRaw}">${totalUnitShort}</td>
+        <td class="total-value" data-raw="${totalValueRaw}">${totalValueShort}</td>
+      </tr>`;
         });
     } else {
         html += `<tr><td colspan="${3 + selectedMonths.length * 2 + 2}" class="text-center">ไม่พบข้อมูล</td></tr>`;
@@ -319,8 +377,13 @@ function renderTableFromJson(data, selectedMonths) {
     html += `</tbody></table>`;
     $('#rolling-plan-container').html(html);
 
-    // Attach editing behaviors after render
+    // (Re)bind editing behaviors
     bindEditableHandlers();
+
+    // Initial totals recompute (uses data-raw if your recompute function reads from data-raw)
+    $('#rollingPlanTable tbody tr').each(function () {
+        recomputeRowTotals($(this));
+    });
 }
 
 function bindEditableHandlers() {
@@ -328,6 +391,7 @@ function bindEditableHandlers() {
 
     // highlight row when any editable cell focused
     table.on('focus', 'td.editable', function () {
+        if (!isEditMode) { this.blur(); return; }
         $(this).closest('tr').addClass('row-editing');
     });
     table.on('blur', 'td.editable', function () {
@@ -336,54 +400,71 @@ function bindEditableHandlers() {
 
     // Restrict input to numeric (allow dot, minus, backspace, arrows, tab, delete)
     table.on('keydown', 'td.editable', function (e) {
+        if (!isEditMode) { e.preventDefault(); return; }
+        const meta = e.ctrlKey || e.metaKey;
         const allowedKeys = [
             8, 9, 13, 27, 37, 38, 39, 40, 46, // control keys
-            110, 190, // dot on numpad / main keyboard
-            189 // minus
+            110, 190, 189                      // dot (numpad/main), minus
         ];
-        if (allowedKeys.includes(e.keyCode)) return;
+        if (allowedKeys.includes(e.keyCode) || (meta && ['a', 'c', 'v', 'x', 'z', 'y'].includes(e.key.toLowerCase()))) return;
         if (e.key >= '0' && e.key <= '9') return;
-        if (e.ctrlKey || e.metaKey) return;
         e.preventDefault();
+    });
+
+    // Enter commits (blur)
+    table.on('keydown', 'td.editable', function (e) {
+        if (!isEditMode) return;
+        if (e.key === 'Enter') { e.preventDefault(); $(this).blur(); }
+    });
+
+    // Paste sanitize → numeric only
+    table.on('paste', 'td.editable', function (e) {
+        if (!isEditMode) { e.preventDefault(); return; }
+        e.preventDefault();
+        const clipboard = (e.originalEvent || e).clipboardData.getData('text') || '';
+        const cleaned = sanitizeNumericText(clipboard);
+        document.execCommand('insertText', false, cleaned);
     });
 
     // Detect changes while typing (real-time)
     table.on('input', 'td.editable', function () {
+        if (!isEditMode) return;
         const $cell = $(this);
         let newVal = $cell.text().replace(/,/g, '').trim();
-        const oldVal = ($cell.data('old') ?? '').toString();
+        const oldVal = ($cell.data('raw') ?? '').toString(); // compare against RAW
 
         if (newVal !== '' && !/^-?\d*\.?\d*$/.test(newVal)) {
-            // Not numeric → revert to old
-            $cell.text(oldVal);
+            // Not numeric → revert to previous formatted RAW
+            const pid = Number($cell.data('planamountid')); // 183 / 184
+            const prev = $cell.data('raw');
+            $cell.text(prev == null || prev === '' ? '' : (pid === 184 ? toLocaleMoney(prev) : toLocaleInt(prev)));
             return;
         }
-
-        if (newVal !== oldVal) {
-            $cell.addClass('dirty');
-        } else {
-            $cell.removeClass('dirty');
-        }
+        $cell.toggleClass('dirty', newVal !== oldVal);
     });
 
-    // When editing finished → validate, save change, auto-save to server
+    // Commit on blur: update data-raw, format display for edit mode, stage change
     table.on('blur', 'td.editable', function () {
+        if (!isEditMode) return;
+
         const $cell = $(this);
         let newVal = $cell.text().replace(/,/g, '').trim();
         if (newVal === '' || newVal === '-') newVal = '';
 
-        // if invalid number → revert
+        // invalid number → revert
         if (newVal !== '' && isNaN(newVal)) {
-            $cell.text($cell.data('old'));
+            const pid = Number($cell.data('planamountid'));
+            const prev = $cell.data('raw');
+            $cell.text(prev == null || prev === '' ? '' : (pid === 184 ? toLocaleMoney(prev) : toLocaleInt(prev)));
             $cell.removeClass('dirty');
             return;
         }
 
-        const oldVal = ($cell.data('old') ?? '').toString();
-        if (oldVal === newVal) {
-            $cell.removeClass('dirty');
-            return;
-        }
+        const oldRawStr = ($cell.data('raw') ?? '').toString();
+        if (oldRawStr === newVal) { $cell.removeClass('dirty'); return; }
+
+        const newRaw = newVal === '' ? null : Number(newVal);
+        const oldRaw = oldRawStr === '' ? null : Number(oldRawStr);
 
         const $row = $cell.closest('tr');
         const payload = {
@@ -392,26 +473,72 @@ function bindEditableHandlers() {
             Year: Number($row.data('year') || 0),
             Month: Number($cell.data('month')),
             PlanAmountID: Number($cell.data('planamountid')),
-            OldValue: oldVal === '' ? null : Number(oldVal),
-            NewValue: newVal === '' ? null : Number(newVal)
+            OldValue: oldRaw,
+            NewValue: newRaw
         };
 
-        const isValue = payload.PlanAmountID === 184;
+        // render formatted RAW (we are in edit mode)
+        const pid = payload.PlanAmountID;
         $cell.text(
-            newVal === ''
-                ? ''
-                : isValue
-                    ? Number(newVal).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                    : Number(newVal).toLocaleString()
+            newRaw == null ? '' : (pid === 184 ? toLocaleMoney(newRaw) : toLocaleInt(newRaw))
         );
+
+        // keep RAW in data- attributes for later save / cancel
+        $cell.data('raw', newRaw == null ? '' : newRaw);
+        $cell.removeClass('dirty');
 
         upsertPendingEdit(payload);
         recomputeRowTotals($row);
 
-        // **Auto-save when change is confirmed**
-        savePendingEdits();
+        // ❌ No autosave & no success Swal here (you said confirm before save later)
+        savePendingEdits(); // <-- disable for now
     });
 }
+
+function setEditMode(on) {
+    isEditMode = !!on;
+
+    // toggle buttons
+    $('#btnEdit').toggleClass('d-none', isEditMode);
+    $('#btnCancelEdit').toggleClass('d-none', !isEditMode);
+
+    const $table = $('#rollingPlanTable');
+    if (!$table.length) return;
+
+    // switch each editable cell between short display and RAW display
+    $table.find('td.editable').each(function () {
+        const $cell = $(this);
+        const raw = $cell.data('raw');
+        const pid = Number($cell.data('planamountid')); // 183 Unit, 184 Value
+
+        if (isEditMode) {
+            // Show RAW with thousand separators; enable editing
+            const txt = (raw == null || raw === '') ? '' : (pid === 184 ? toLocaleMoney(raw) : toLocaleInt(raw));
+            $cell.text(txt);
+            this.setAttribute('contenteditable', 'true');
+        } else {
+            // Back to short; disable editing
+            const shortTxt = (raw == null || raw === '') ? '' : formatShort(raw);
+            $cell.text(shortTxt);
+            this.setAttribute('contenteditable', 'false');
+            $cell.removeClass('dirty row-editing');
+        }
+    });
+
+    // refresh totals with current mode
+    $table.find('tbody tr').each(function () { recomputeRowTotals($(this)); });
+    $table.toggleClass('editing-active', isEditMode);
+}
+
+function cancelEditMode() {
+    // discard staged changes
+    pendingEdits.length = 0;
+    setEditMode(false);
+}
+
+// wire buttons
+$(document).on('click', '#btnEdit', () => setEditMode(true));
+$(document).on('click', '#btnCancelEdit', cancelEditMode);
 
 
 function upsertPendingEdit(change) {
@@ -429,111 +556,107 @@ function upsertPendingEdit(change) {
     }
 }
 
-// Sum the editable cells in the row to update totals live
 function recomputeRowTotals($row) {
     let totalUnit = 0, totalValue = 0;
 
     $row.find('td.editable').each(function () {
-        const pid = Number($(this).data('planamountid')); // 183 unit / 184 value
-        const raw = $(this).text().replace(/,/g, '').trim();
-        if (raw === '' || isNaN(raw)) return;
+        const raw = $(this).data('raw');
+        if (raw === '' || raw == null || isNaN(raw)) return;
         const n = Number(raw);
-        if (pid === 183) totalUnit += n;
-        else if (pid === 184) totalValue += n;
+        const pid = Number($(this).data('planamountid')); // 183 unit / 184 value
+        if (pid === 183) totalUnit += n; else if (pid === 184) totalValue += n;
     });
 
-    // write totals
-    $row.find('td.total-unit').text(totalUnit ? totalUnit.toLocaleString() : '-');
-    $row.find('td.total-value').text(totalValue ? totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-');
+    // In edit mode show full numbers; in view mode show short (K/M)
+    $row.find('td.total-unit').text(
+        isEditMode ? (totalUnit ? toLocaleInt(totalUnit) : '-') : (totalUnit ? formatShort(totalUnit) : '-')
+    );
+    $row.find('td.total-value').text(
+        isEditMode ? (totalValue ? toLocaleMoney(totalValue) : '-') : (totalValue ? formatShort(totalValue) : '-')
+    );
 }
+
 
 function savePendingEdits() {
     if (!pendingEdits.length) {
         Swal.fire('Nothing to save', '', 'info');
         return;
     }
-    fetch(baseUrl + 'Projecttargetrolling/UpsertEdits', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(pendingEdits)
-    })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success) {
-                pendingEdits.length = 0;
-                $('#rollingPlanTable td.editable.dirty').removeClass('dirty');
-                Swal.fire('Saved!', 'Changes have been applied.', 'success');
-            } else {
-                Swal.fire('Error', res.message || 'Save failed', 'error');
-            }
+
+    Swal.fire({
+        title: 'Confirm Save',
+        text: 'Do you want to save the changes?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, save it',
+        cancelButtonText: 'Cancel'
+    }).then(result => {
+        if (!result.isConfirmed) return;
+
+        // take a snapshot so we can commit UI precisely
+        const batch = pendingEdits.splice(0, pendingEdits.length);
+
+        fetch(baseUrl + 'Projecttargetrolling/UpsertEdits', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(batch)
         })
-        .catch(e => Swal.fire('Error', e.message, 'error'));
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    // commit UI: set data-old to NewValue and clear dirty flags
+                    batch.forEach(ch => {
+                        const sel = `tr[data-projectid="${ch.ProjectID}"][data-plantypeid="${ch.PlanTypeID}"][data-year="${ch.Year}"] td.editable[data-month="${ch.Month}"][data-planamountid="${ch.PlanAmountID}"]`;
+                        const $cell = $(sel);
+                        const committed = ch.NewValue == null ? '' : ch.NewValue;
+                        $cell.data('old', committed);
+                        $cell.removeClass('dirty');
+                    });
+
+                    // ✅ refresh summary cards from server
+                    refreshSummaryCards();
+
+                    // top-right toast
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Changes saved successfully',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                } else {
+                    // put them back so user can retry
+                    pendingEdits.unshift(...batch);
+                    Swal.fire('Error', res.message || 'Save failed', 'error');
+                }
+            })
+            .catch(e => {
+                pendingEdits.unshift(...batch);
+                Swal.fire('Error', e.message || 'Save failed', 'error');
+            });
+    });
 }
 
 
-//function renderTableFromJson(data, selectedMonths) {
-//    const monthLabels = {
-//        1: "Jan", 2: "Feb", 3: "Mar",
-//        4: "Apr", 5: "May", 6: "Jun",
-//        7: "Jul", 8: "Aug", 9: "Sep",
-//        10: "Oct", 11: "Nov", 12: "Dec"
-//    };
+function refreshSummaryCards() {
+    const filter = collectRollingPlanFilters();
+    const formData = new FormData();
+    for (const k in filter) formData.append(k, filter[k]);
 
-//    let html = `
-//        <table id="rollingPlanTable" class="table table-bordered table-striped w-auto">
-//            <thead>
-//                <tr>
-//                    <th>Project Name</th>
-//                    <th>Plan Type Name</th>
-//                    <th>Year</th>`;
+    // reuse the same endpoint; we'll only use `datasum`
+    fetch(baseUrl + 'Projecttargetrolling/GetDataTableProjectAndTargetRolling', {
+        method: 'POST',
+        body: formData
+    })
+        .then(r => r.json())
+        .then(json => {
+            if (json?.success) renderSummaryCards(json.datasum || []);
+        })
+        .catch(() => {/* silently ignore */ });
+}
 
-//    // ➕ Header เดือน
-//    selectedMonths.forEach(m => {
-//        html += `<th colspan="2">${monthLabels[m]}</th>`;
-//    });
-
-//    // ➕ Header Total
-//    html += `<th colspan="2">Total</th>`;
-
-//    html += `</tr><tr>
-//        <th></th><th></th><th></th>`; // dummy cell 3 ช่อง
-
-//    // ➕ Subheader Unit/Value
-//    selectedMonths.forEach(() => {
-//        html += `<th>Unit</th><th>Value (M)</th>`;
-//    });
-
-//    // ➕ Subheader Total
-//    html += `<th>Unit</th><th>Value (M)</th>`;
-
-//    html += `</tr></thead><tbody>`;
-
-//    // 🔁 สร้าง rows
-//    if (data.length > 0) {
-//        data.forEach(row => {
-//            html += `<tr>
-//                <td>${row.ProjectName ?? ''}</td>
-//                <td>${row.PlanTypeName ?? ''}</td>
-//                <td>${row.PlanYear ?? ''}</td>`;
-
-//            selectedMonths.forEach(m => {
-//                const key = monthLabels[m];
-//                html += `<td>${row[`${key}_Unit`] ?? '-'}</td>`;
-//                html += `<td>${row[`${key}_Value`] ?? '-'}</td>`;
-//            });
-
-//            // ➕ ดึง Total col จาก Model
-//            html += `<td>${row.Total_Unit ?? '-'}</td><td>${row.Total_Value ?? '-'}</td>`;
-
-//            html += `</tr>`;
-//        });
-//    } else {
-//        html += `<tr><td colspan="${3 + selectedMonths.length * 2 + 2}" class="text-center">ไม่พบข้อมูล</td></tr>`;
-//    }
-
-//    html += `</tbody></table>`;
-//    $('#rolling-plan-container').html(html);
-//}
 
 function renderSummaryCards(datasum) {
     const container = document.getElementById('cardContainer');
@@ -549,7 +672,7 @@ function renderSummaryCards(datasum) {
 
         const card = document.createElement('div');
         card.className = 'card small-widget flex-shrink-0 company-card clickable-card';
-        card.style.minWidth = '300px';
+        card.style.minWidth = '75px';
 
         card.innerHTML = `
             <div class="card o-hidden small-widget">
@@ -569,9 +692,6 @@ function renderSummaryCards(datasum) {
                                 </div>
                             </div>
                         </div>
-                        <ul class="bubbles">
-                            ${'<li class="bubble"></li>'.repeat(9)}
-                        </ul>
                     </div>
                 </div>
             </div>
@@ -583,20 +703,37 @@ function renderSummaryCards(datasum) {
 
 
 $('button:contains("Search")').on('click', function () {
+    // Always reset button state before searching
+    $('#btnEdit').removeClass('d-none');
+    $('#btnCancelEdit').addClass('d-none');
     searchRollingPlanData();
 });
+
 
 initImportExcelHandler();
 
 function initImportExcelHandler() {
     const form = document.getElementById('form-import-project-target-rolling');
-
     if (!form) return;
+
+    const modalEl = document.getElementById('modalImportTargetRolling');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const fileInput = document.getElementById('excelFile');
+
+    const setImportLoading = (on) => {
+        if (!submitBtn) return;
+        submitBtn.disabled = on;
+        if (on) {
+            submitBtn.dataset.originalHtml = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Uploading...';
+        } else {
+            submitBtn.innerHTML = submitBtn.dataset.originalHtml || '<i class="fa fa-upload me-1"></i> Upload & Save';
+        }
+    };
 
     form.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        const fileInput = document.getElementById('excelFile');
         if (!fileInput || !fileInput.files.length) {
             Swal.fire('No File', 'Please select a file to upload.', 'warning');
             return;
@@ -605,6 +742,10 @@ function initImportExcelHandler() {
         const formData = new FormData();
         formData.append('file', fileInput.files[0]);
 
+        // start loading
+        setImportLoading(true);
+        if (typeof showLoading === 'function') showLoading();
+
         fetch(baseUrl + 'Projecttargetrolling/ImportExcel', {
             method: 'POST',
             body: formData
@@ -612,25 +753,43 @@ function initImportExcelHandler() {
             .then(res => res.json())
             .then(res => {
                 if (res.success) {
-                    Swal.fire('Success'
-                             /*, `Imported ${res.count} rows successfully.`*/
-                             , `${res.message}`
-                             , 'success');
-                    const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalImportTargetRolling'));
+                    // success toast (top-right) – optional: keep your modal version if you prefer
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: res.message || 'Imported successfully',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+
+                    // close modal
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
                     modal.hide();
 
-                    // ⏬ reload function ถ้ามีตาราง
-                    // loadTableProjectAndTargetRolling(); 
+                    // ✅ clear file input & form
+                    form.reset();
+                    // also clear the file input explicitly for older browsers
+                    fileInput.value = '';
+
+                    // (optional) refresh table & summary after import
+                    // searchRollingPlanData();
                 } else {
-                    Swal.fire('Error', 'Something went wrong during import.', 'error');
+                    Swal.fire('Error', res.message || 'Something went wrong during import.', 'error');
                 }
             })
             .catch(err => {
                 console.error(err);
                 Swal.fire('Error', 'An error occurred.', 'error');
+            })
+            .finally(() => {
+                setImportLoading(false);
+                if (typeof hideLoading === 'function') hideLoading();
             });
     });
 }
+
 
 
 window.exportExcelProjectAndTargetRolling = function () {
@@ -661,22 +820,28 @@ window.exportExcelProjectAndTargetRolling = function () {
         body: formData
     })
         .then(response => {
-            if (!response.ok) {
-                throw new Error("Excel export failed.");
-            }
-            return response.blob();
+            if (!response.ok) throw new Error("Excel export failed.");
+
+            // read filename from Content-Disposition
+            const dispo = response.headers.get('content-disposition') || "";
+            let serverFileName = "export.xlsx";
+            const m = dispo.match(/filename\*=UTF-8''([^;]+)|filename="?([^"]+)"?/i);
+            if (m) serverFileName = decodeURIComponent(m[1] || m[2]);
+
+            return response.blob().then(blob => ({ blob, serverFileName }));
         })
-        .then(blob => {
+        .then(({ blob, serverFileName }) => {
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            const fileName = `ProjectAndTargetRollin_${new Date().toISOString().slice(0, 10)}.xlsx`;
-            link.download = fileName;
+            link.download = serverFileName;   // ✅ use name returned by IActionResult
             document.body.appendChild(link);
             link.click();
             link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 0);
         })
         .catch(error => {
             Swal.fire("Error", error.message, "error");
         });
+
 };
