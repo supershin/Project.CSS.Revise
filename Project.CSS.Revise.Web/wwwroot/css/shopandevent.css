@@ -166,6 +166,86 @@
 }
 
 
+/* ให้ container วาง overlay ทับได้ */
+.project-field {
+    position: relative;
+}
+
+/* overlay แบบโปร + เบลอฉากหลัง */
+.loading-overlay {
+    position: absolute;
+    inset: 0;
+    display: none; /* JS จะสลับเป็น flex ระหว่างโหลด */
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,.55);
+    backdrop-filter: blur(3px); /* glass effect */
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 2;
+}
+
+/* การ์ดข้อความโหลดเล็กๆ โค้งมน */
+.loader-card {
+    display: inline-flex;
+    align-items: center;
+    padding: .4rem .6rem;
+    border-radius: .75rem;
+    background: rgba(255,255,255,.9);
+    border: 1px solid rgba(0,0,0,.06);
+    font-size: .9rem;
+}
+
+/* เอฟเฟกต์สเกเลตันเสริม (แสดงบนพื้นที่ select) */
+.project-field.loading .choices,
+.project-field.loading select.form-control {
+    opacity: .6;
+    filter: grayscale(.2);
+}
+
+/* แถบวิ่งบางๆ ด้านบนเวลากำลังโหลด */
+.project-field.loading::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(13,110,253,.5), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 1s linear infinite;
+    z-index: 3;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+
+/* ปุ่ม Search */
+#btnSearchCounter {
+    min-height: 48px;
+    border-radius: 12px;
+    padding: 6px 12px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+}
+
+
+#btnCreateCounter {
+    min-height: 48px;
+    border-radius: 12px;
+    padding: 6px 12px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+}
+
+
 
 
 

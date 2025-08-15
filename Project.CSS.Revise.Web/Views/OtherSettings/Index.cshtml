@@ -196,8 +196,6 @@
 
 </style>
 
-
-
 <div class="container-fluid">
     <div class="page-title">
         <div class="row">
@@ -231,7 +229,48 @@
                             </ul>
                             <div class="tab-content" id="Other-Settings-Tab-filter-Content">
                                 <div class="tab-pane fade" id="counter-filter" role="tabpanel" aria-labelledby="counter-tab">
-                                    <p class="pt-3">Tabs have long been used to show alternative views of the same group of information tabs in software. Known as<em class="txt-danger"> “module tabs”</em>, these are still used today in web sites. For instance, airline companies such as Ryanair, easyJet and AirMalta use module tabs to enable the user to switch between bookings for flights, hotels and car hire.</p>
+                                    <div class="pt-4 px-2 px-md-3">
+                                        <div class="row align-items-end">
+                                            <!-- BU -->
+                                            <div class="job-filter mb-3 col-12 col-sm-6 col-md-4 col-lg-2">
+                                                <label for="ddl_BUG_counter" class="form-label fw-bold">BUG</label>
+                                                <select id="ddl_BUG_counter" class="form-control multi-select"></select>
+                                            </div>
+
+                                            <!-- Project -->
+                                            <div class="job-filter mb-3 col-12 col-sm-6 col-md-8 col-lg-4 project-field" id="project_dropdown_container_counter">
+                                                <label for="ddl_PROJECT_counter" class="form-label fw-bold">โครงการ</label>
+                                                <!-- Glass overlay + mini loader card -->
+                                                <div id="project_loading_counter" class="loading-overlay" style="display:none" aria-hidden="true">
+                                                    <div class="loader-card shadow-sm">
+                                                        <div class="spinner-border spinner-border-sm" role="status" aria-label="Loading"></div>
+                                                        <span class="ms-2">กำลังโหลดโครงการ…</span>
+                                                    </div>
+                                                </div>
+                                                <select id="ddl_PROJECT_counter" class="form-control" multiple></select>
+                                            </div>
+
+                                            <!-- Counter Type -->
+                                            <div class="job-filter mb-3 col-12 col-sm-6 col-md-4 col-lg-3">
+                                                <label for="ddl_counter_type" class="form-label fw-bold">Counter</label>
+                                                <select id="ddl_counter_type" class="form-control">
+                                                    <option value="48">Bank Pre-Approve (สินเชื่อ)</option>
+                                                    <option value="49">Inspect (รับมอบห้อง)</option>
+                                                </select>
+                                            </div>
+
+                                            <!-- Action Buttons -->
+                                            <div class="mb-3 col-12 col-sm-6 col-md-8 col-lg-3 d-flex gap-2">
+                                                <button id="btnSearchCounter" class="btn btn-primary btn-lg shadow-sm flex-fill">
+                                                    <i class="bi bi-search"></i> Search
+                                                </button>
+                                                <button id="btnCreateCounter" class="btn btn-success btn-lg shadow-sm flex-fill">
+                                                    <i class="bi bi-plus-circle"></i> Counter
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <partial name="Partial_counter"/>
                                 </div>
                                 <div class="tab-pane fade show active" id="shop-event-filter" role="tabpanel" aria-labelledby="shop-event-tab">
                                     <div class="pt-4 px-2 px-md-3">
@@ -245,14 +284,15 @@
                                                     </div>
 
                                                     <!-- Project -->
-                                                    <div class="filter-item" id="project-dropdown-container">
-                                                        <div id="project-loading" style="display: none;">
-                                                            <div class="spinner-border text-primary spinner-border-sm" role="status">
-                                                                <span class="visually-hidden">Loading...</span>
-                                                            </div> กำลังโหลด...
+                                                    <div class="filter-item project-field" id="project-dropdown-container">
+                                                        <div id="project_loading" class="loading-overlay" style="display:none" aria-hidden="true">
+                                                            <div class="loader-card shadow-sm">
+                                                                <div class="spinner-border spinner-border-sm" role="status" aria-label="Loading"></div>
+                                                                <span class="ms-2">กำลังโหลดโครงการ…</span>
+                                                            </div>
                                                         </div>
-                                                        <select id="ddl-project-shop-event" class="form-select" multiple>
-                                                        </select>
+
+                                                        <select id="ddl-project-shop-event" class="form-select" multiple></select>
                                                     </div>
 
                                                     <!-- Year -->

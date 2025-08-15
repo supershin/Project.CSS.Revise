@@ -1,6 +1,9 @@
 ﻿let buChoices = null;
 let projectChoices = null;
 
+let buChoices_Counter = null;
+let projectChoices_Counter = null;
+
 function loadBUOptions(callback) {
     $('.loader-wrapper').show();
 
@@ -95,14 +98,108 @@ function loadBUOptions(callback) {
     });
 }
 
-function loadProjectOptions(buIds) {
-    /*console.log("🔍 BU ที่เลือก:", buIds);*/
+function loadBUCounterOptions(callback) {
+    $('.loader-wrapper').show();
 
+    $.ajax({
+        url: baseUrl + 'OtherSettings/Page_Load',
+        type: 'POST',
+        dataType: 'json',
+        success: function (res) {
+            if (res.success && res.buList?.length) {
+                const buSelect = document.getElementById('ddl_BUG_counter');
+
+                // Reset old Choices
+                if (buChoices_Counter) {
+                    buChoices_Counter.destroy();
+                }
+
+                // Clear old options
+                buSelect.innerHTML = '';
+
+                // ✅ Add default option manually
+                const defaultOption = new Option('เลือก BU', '', true, true); // <-- selected: true
+                defaultOption.disabled = true;
+                defaultOption.hidden = true;
+                buSelect.add(defaultOption);
+
+
+                // Populate new options
+                res.buList.forEach(x => {
+                    const option = new Option(x.Name, x.ID, false, false);
+                    buSelect.add(option);
+                });
+
+                // Init Choices.js
+                buChoices_Counter = new Choices(buSelect, {
+                    removeItemButton: true,
+                    itemSelectText: '',           // ❌ ไม่แสดง "Press to select"
+                    searchEnabled: true,
+                    placeholder: true,
+                    shouldSort: false
+                });
+
+                // ✅ Force clear selection (no auto-select)
+                buChoices_Counter.setChoiceByValue('');
+
+
+                // ✅ ถ้าเปลี่ยน BU → ต้องโหลด Project หรือเคลียร์ Project ถ้าไม่มี BU
+                buSelect.addEventListener('change', function () {
+                    const selectedBU = Array.from(buSelect.selectedOptions).map(opt => opt.value).join(',');
+
+                    if (selectedBU === '') {
+                        // 🧹 Hard reset Project dropdown
+                        if (projectChoices_Counter) {
+                            projectChoices_Counter.destroy();
+                        }
+
+                        const projectSelect = document.getElementById('ddl_PROJECT_counter');
+                        projectSelect.innerHTML = ''; // clear <option> list
+
+                        // ✅ Add default option manually
+                        const defaultOption = new Option('เลือกโครงการ', '', false, false);
+                        defaultOption.disabled = true;
+                        defaultOption.hidden = true;
+                        projectSelect.add(defaultOption);
+
+
+                        // 🔁 Re-init with empty Choices
+                        projectChoices_Counter = new Choices(projectSelect, {
+                            removeItemButton: true,
+                            searchEnabled: true,
+                            placeholderValue: 'เลือกโครงการ',     // ✅ เพิ่ม placeholder ตรงนี้
+                            noResultsText: 'ไม่พบโครงการ',
+                            noChoicesText: 'ไม่มีตัวเลือก',
+                            itemSelectText: '',
+                            placeholder: false,
+                            shouldSort: false
+                        });
+
+                    } else {
+                        loadProjectCounterOptions(selectedBU);
+                    }
+                });
+
+                if (typeof callback === 'function') callback();
+            }
+        },
+        error: function () {
+            console.error("โหลด BU ไม่สำเร็จ");
+        },
+        complete: function () {
+            $('.loader-wrapper').fadeOut();
+        }
+    });
+}
+
+function loadProjectOptions(buIds) {
     const projectContainer = document.getElementById('project-dropdown-container');
     const projectSelect = document.getElementById('ddl-project-shop-event');
+    const overlay = document.getElementById('project_loading');
 
-    // Show loader
-    projectContainer.querySelector('#project-loading').style.display = 'flex';
+    // show overlay + shimmer
+    overlay.style.display = 'flex';
+    projectContainer.classList.add('loading');
 
     $.ajax({
         url: baseUrl + 'OtherSettings/GetProjectListByBU',
@@ -110,62 +207,145 @@ function loadProjectOptions(buIds) {
         dataType: 'json',
         data: { L_BUID: buIds },
         success: function (res) {
-            /*console.log("✅ Project Response:", res);*/
+            if (projectChoices) projectChoices.destroy();
 
-            // ✅ Destroy old Choices.js
-            if (projectChoices) {
-                projectChoices.destroy();
-            }
+            const items = (res && res.success && Array.isArray(res.data)) ? res.data : [];
 
-            // ✅ Clear old options
+            // reset options + placeholder
             projectSelect.innerHTML = '';
+            const def = new Option('เลือกโครงการ', '', false, false);
+            def.disabled = true; def.hidden = true;
+            projectSelect.add(def);
 
-            // ✅ Add default option manually
-            const defaultOption = new Option('เลือกโครงการ', '', false, false); // selected & selectedIndex = 0
-            defaultOption.disabled = true;
-            defaultOption.hidden = true;
-            projectSelect.add(defaultOption);
-
-            // ✅ Add dynamic options
-            res.data.forEach(x => {
-                const option = new Option(x.ProjectNameTH, x.ProjectID, false, false); // <-- not selected
-                projectSelect.add(option);
+            // add options
+            items.forEach(x => {
+                projectSelect.add(new Option(x.ProjectNameTH, x.ProjectID, false, false));
             });
 
-            // ✅ Re-init Choices.js (no input style)
+            // re-init Choices
             projectChoices = new Choices(projectSelect, {
                 removeItemButton: true,
                 searchEnabled: true,
-                /*itemSelectText: '',*/
                 placeholderValue: 'เลือกโครงการ',
                 noResultsText: 'ไม่พบโครงการ',
                 noChoicesText: 'ไม่มีตัวเลือก',
+                itemSelectText: '',
                 shouldSort: false
             });
-
         },
         error: function (xhr, status, error) {
-   /*         console.error("❌ โหลด Project ไม่สำเร็จ:", error);*/
+            console.error('❌ โหลด Project ไม่สำเร็จ:', error);
+            projectSelect.innerHTML = '';
+            const def = new Option('เลือกโครงการ', '', false, false);
+            def.disabled = true; def.hidden = true;
+            projectSelect.add(def);
+            projectChoices = new Choices(projectSelect, {
+                removeItemButton: true,
+                searchEnabled: true,
+                placeholderValue: 'เลือกโครงการ',
+                noResultsText: 'ไม่พบโครงการ',
+                noChoicesText: 'ไม่มีตัวเลือก',
+                itemSelectText: '',
+                shouldSort: false
+            });
         },
         complete: function () {
-            //console.log("✅ โหลด Project เสร็จสมบูรณ์");
-            projectContainer.querySelector('#project-loading').style.display = 'none';
+            // hide overlay + shimmer
+            overlay.style.display = 'none';
+            projectContainer.classList.remove('loading');
         }
     });
 }
+
+
+function loadProjectCounterOptions(buIds) {
+    const projectContainer = document.getElementById('project_dropdown_container_counter');
+    const projectSelect = document.getElementById('ddl_PROJECT_counter');
+    const overlay = document.getElementById('project_loading_counter');
+
+    // ✅ แสดง overlay + ใส่ state "loading" ให้ container
+    overlay.style.display = 'flex';
+    projectContainer.classList.add('loading');
+
+    $.ajax({
+        url: baseUrl + 'OtherSettings/GetProjectListByBU',
+        type: 'POST',
+        dataType: 'json',
+        data: { L_BUID: buIds },
+        success: function (res) {
+            if (projectChoices_Counter) projectChoices_Counter.destroy();
+
+            // ปลอดภัยก่อนใช้ res.data
+            const items = (res && res.success && Array.isArray(res.data)) ? res.data : [];
+
+            // เคลียร์ + ใส่ placeholder ใหม่
+            projectSelect.innerHTML = '';
+            const def = new Option('เลือกโครงการ', '', false, false);
+            def.disabled = true; def.hidden = true;
+            projectSelect.add(def);
+
+            // เติมรายการ
+            items.forEach(x => {
+                projectSelect.add(new Option(x.ProjectNameTH, x.ProjectID, false, false));
+            });
+
+            // Re-init Choices
+            projectChoices_Counter = new Choices(projectSelect, {
+                removeItemButton: true,
+                searchEnabled: true,
+                placeholderValue: 'เลือกโครงการ',
+                noResultsText: 'ไม่พบโครงการ',
+                noChoicesText: 'ไม่มีตัวเลือก',
+                itemSelectText: '',
+                shouldSort: false
+            });
+        },
+        error: function (xhr, status, error) {
+            console.error("❌ โหลด Project ไม่สำเร็จ:", error);
+        },
+        complete: function () {
+            // ✅ ซ่อน overlay + เอา state loading ออก
+            overlay.style.display = 'none';
+            projectContainer.classList.remove('loading');
+        }
+    });
+}
+
 
 $(document).ready(function () {
     // ✅ 1. Init Choices เปล่าๆ ให้กับ Project ตอนโหลดหน้าเลย
     const projectShopSelect = document.getElementById('ddl-project-shop-event');
     projectChoices = new Choices(projectShopSelect, {
         removeItemButton: true,   
-        /*itemSelectText: '',*/
         searchEnabled: true,
         placeholderValue: 'เลือกโครงการ',     // ✅ เพิ่ม placeholder ตรงนี้
         noResultsText: 'ไม่พบโครงการ',
         noChoicesText: 'ไม่มีตัวเลือก',
         shouldSort: false
     });
+
+    const projectcounterSelect = document.getElementById('ddl_PROJECT_counter');
+    projectChoices_Counter = new Choices(projectcounterSelect, {
+        removeItemButton: true,
+        searchEnabled: true,
+        placeholderValue: 'เลือกโครงการ',     // ✅ เพิ่ม placeholder ตรงนี้
+        noResultsText: 'ไม่พบโครงการ',
+        noChoicesText: 'ไม่มีตัวเลือก',
+        shouldSort: false
+    });
+
+    const ddlcountertype = document.getElementById('ddl_counter_type');
+    if (ddlcountertype) {
+        new Choices(ddlcountertype, {
+            removeItemButton: true,
+            searchEnabled: true,
+            placeholderValue: 'ทั้งหมด',     // ✅ เพิ่ม placeholder ตรงนี้
+            noResultsText: 'ไม่พบประเภทจุดให้บริการ',
+            noChoicesText: 'ไม่มีตัวเลือก',
+            shouldSort: false
+        });
+    }
+
 
     // ✅ 2. Generate year options: current year -5 to +5
     const yearSelect = document.getElementById('ddl-year-shop-event');
@@ -200,6 +380,7 @@ $(document).ready(function () {
 
     // ✅ 4. โหลด BU และ Partial
     loadBUOptions(() => { });
+    loadBUCounterOptions(() => { });
     loadPartial('Partial_shop_event');
     LoadPartialshopevent();
 });
