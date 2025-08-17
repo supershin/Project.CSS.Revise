@@ -7,6 +7,7 @@ using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Master;
+using Project.CSS.Revise.Web.Models.Pages.ProjectCounter;
 using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
 using Project.CSS.Revise.Web.Service;
 
@@ -19,10 +20,13 @@ namespace Project.CSS.Revise.Web.Controllers
 
         private readonly IShopAndEventService _shopAndEventService;
 
-        public OtherSettingsController(IHttpContextAccessor httpContextAccessor, IMasterService masterService, IShopAndEventService shopAndEventService) : base(httpContextAccessor)
+        private readonly IProjectCounterService _projectCounterService;
+
+        public OtherSettingsController(IHttpContextAccessor httpContextAccessor, IMasterService masterService, IShopAndEventService shopAndEventService, IProjectCounterService projectCounterService) : base(httpContextAccessor)
         {
             _masterService = masterService;
             _shopAndEventService = shopAndEventService;
+            _projectCounterService = projectCounterService;
         }
 
         public IActionResult Index()
@@ -281,6 +285,21 @@ namespace Project.CSS.Revise.Web.Controllers
             }
 
             return Json(new { success = result, message = "Delete is successful" });
+        }
+
+        [HttpGet]
+        public JsonResult GetListProjectCounter(string? Bu, string? ProjectID , int QueueType)
+        {
+
+            var filter = new ProjectCounterMappingModel.FilterData
+            {
+                L_Bu = Bu,
+                L_ProjectID = ProjectID,
+                L_QueueType = -1
+            };
+
+            var result = _projectCounterService.GetListsProjectCounterMapping(filter);
+            return Json(result);
         }
     }
 }
