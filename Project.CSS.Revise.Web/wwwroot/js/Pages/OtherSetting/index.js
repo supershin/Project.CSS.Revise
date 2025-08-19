@@ -257,7 +257,6 @@ function loadProjectOptions(buIds) {
     });
 }
 
-
 function loadProjectCounterOptions(buIds) {
     const projectContainer = document.getElementById('project_dropdown_container_counter');
     const projectSelect = document.getElementById('ddl_PROJECT_counter');
@@ -310,7 +309,6 @@ function loadProjectCounterOptions(buIds) {
         }
     });
 }
-
 
 $(document).ready(function () {
     // ✅ 1. Init Choices เปล่าๆ ให้กับ Project ตอนโหลดหน้าเลย

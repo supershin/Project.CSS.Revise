@@ -198,8 +198,6 @@ namespace Project.CSS.Revise.Web.Controllers
             return Json(result);
         }
 
-
-
         [HttpPost]
         public IActionResult InsertNewEventsAndShops([FromBody] CreateEvent_Shops model)
         {
@@ -295,7 +293,7 @@ namespace Project.CSS.Revise.Web.Controllers
             {
                 L_Bu = Bu,
                 L_ProjectID = ProjectID,
-                L_QueueType = -1
+                L_QueueType = QueueType
             };
 
             var result = _projectCounterService.GetListsProjectCounterMapping(filter);

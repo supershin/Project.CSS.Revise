@@ -60,7 +60,6 @@ function buildBankCard(row) {
   </div>`;
 }
 
-
 function buildInspectCard(row) {
     const title = escapeHtml(row.ProjectName || row.ProjectID || '');
     const subtype = escapeHtml(row.QueueTypeName || 'Inspect (รับมอบห้อง)');
@@ -107,9 +106,15 @@ function renderCounters(data) {
 async function fetchProjectCounters() {
     const bu = getMultiSelectValues('#ddl_BUG_counter');            // ex. ['1','3']
     const prj = getMultiSelectValues('#ddl_PROJECT_counter');       // ex. ['102C028','102C029']
-    const queueType = Number(document.getElementById('ddl_counter_type')?.value ?? -1);
+    let rawValue = document.getElementById('ddl_counter_type')?.value ?? "-1";
 
+    // ถ้า clear แล้ว rawValue จะเป็น "" => แก้ให้เป็น "-1"
+    if (rawValue === "" || rawValue === null) {
+        rawValue = "-1";
+    }
+    const queueType = Number(rawValue);
     console.log('ddl_counter_type : ' + queueType);
+
     const params = new URLSearchParams({
         Bu: toCommaList(bu, { trailing: false }),                      // "1,3"
         ProjectID: toCommaList(prj, { trailing: true }),               // "102C028,102C029," สำหรับ logic LIKE ฝั่ง SQL

@@ -73,9 +73,9 @@
     margin-right: 10px; /* เพิ่มระยะห่างระหว่างปุ่ม */
 }
 
-    .month-btn:last-child {
-        margin-right: 0; /* ป้องกันปุ่มสุดท้ายล้น */
-    }
+.month-btn:last-child {
+    margin-right: 0; /* ป้องกันปุ่มสุดท้ายล้น */
+}
 
 
 .month-btn.active {
@@ -83,6 +83,22 @@
     color: white;
     border-color: #0d6efd;
 }
+
+/* Force show toolbar + allow wrapping on small widths */
+#calendar .fc-header-toolbar {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: .5rem;
+}
+
+/* ลดขนาด title บนจอเล็กให้ไม่ดันหาย */
+@media (max-width: 992px) {
+    #calendar .fc-toolbar-title {
+        font-size: 1.05rem;
+        line-height: 1.2;
+    }
+}
+
 
 /* ✅ Style for "+n more" link in calendar */
 .fc-daygrid-more-link {

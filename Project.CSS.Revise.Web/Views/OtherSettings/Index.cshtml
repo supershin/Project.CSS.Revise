@@ -1,7 +1,7 @@
-﻿@using Project.CSS.Revise.Web.Models.Master
-@{
+﻿@{
     Layout = "~/Views/Shared/_LayoutSite.cshtml";
 }
+@using Project.CSS.Revise.Web.Models.Master
 <style>
     .card-header {
         border-bottom: 1px solid #dee2e6;
@@ -254,6 +254,7 @@
                                             <div class="job-filter mb-3 col-12 col-sm-6 col-md-4 col-lg-3">
                                                 <label for="ddl_counter_type" class="form-label fw-bold">Counter</label>
                                                 <select id="ddl_counter_type" class="form-control">
+                                                    <option value="-1" selected>ทั้งหมด</option>
                                                     <option value="48">Bank Pre-Approve (สินเชื่อ)</option>
                                                     <option value="49">Inspect (รับมอบห้อง)</option>
                                                 </select>
@@ -264,7 +265,7 @@
                                                 <button id="btnSearchCounter" class="btn btn-primary btn-lg shadow-sm flex-fill">
                                                     <i class="bi bi-search"></i> Search
                                                 </button>
-                                                <button id="btnCreateCounter" class="btn btn-success btn-lg shadow-sm flex-fill">
+                                                <button id="btnCreateCounter" class="btn btn-success btn-lg shadow-sm flex-fill" onclick="openCounterModalMock()">
                                                     <i class="bi bi-plus-circle"></i> Counter
                                                 </button>
                                             </div>
@@ -321,7 +322,7 @@
                                                             </div>
                                                         </div>
                                                         <div class="carousel-item">
-                                                            <div class="col-xl-12 xl-60 order-xl-0 order-1 box-col-12 learning-filter" id="Box_show_partial_event_in_year">
+                                                            <div class="col-xl-12 learning-filter" id="Box_show_partial_event_in_year">
                                                                 <div class="md-sidebar">
                                                                     <a class="btn btn-primary email-aside-toggle md-sidebar-toggle">Sumery in year.</a>
                                                                     <div class="md-sidebar-aside job-sidebar">
