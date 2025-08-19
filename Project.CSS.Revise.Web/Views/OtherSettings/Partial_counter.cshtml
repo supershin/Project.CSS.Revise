@@ -168,11 +168,11 @@
             </div>
 
             <!-- Body -->
-            <div class="modal-body pt-3 pb-0" style="max-height:70vh; overflow:auto;">
+            <div class="modal-body pt-3 pb-0" style="max-height:70vh;">
                 <ul class="simple-wrapper nav nav-tabs" id="modal-add-counter" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active txt-primary" id="details-tab" data-bs-toggle="tab" data-bs-target="#details-pane" type="button" role="tab" aria-controls="details-pane" aria-selected="true">
-                            <i class="icofont icofont-cube"></i> Detail
+                            <i class="icofont icofont-list"></i> Detail
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -189,8 +189,42 @@
                     <div class="tab-pane fade show active" id="details-pane" role="tabpanel" aria-labelledby="details-tab">
                         <!-- 🟢 Content for Detail -->
                         <div class="p-3">
-                            <p class="text-muted">Detail content goes here…</p>
+                            <h6 class="sub-title">
+                                Counter <span class="text-danger">*</span>
+                            </h6>
+                            <label class="d-block" for="chk-md-add-counter-bank"></label>
+                            <input class="checkbox_animated" id="chk-md-add-counter-bank" type="checkbox" checked=""> <span class="badge badge-success"><i class="fa fa-bank"></i> Bank Pre-Approve (สินเชื่อ)</span>
+                            <label class="d-block" for="chk-md-add-counter-inspect"></label>
+                            <input class="checkbox_animated" id="chk-md-add-counter-inspect" type="checkbox"> <span class="badge badge-warning"><i class="fa fa-search"></i> Event Inspect (ตรวจรับมอบห้อง)</span>
                         </div>
+                        <!-- Inside details-pane -->
+                        <div class="p-3">
+                            <h6 class="sub-title">
+                                Project (mapping) <span class="text-danger">*</span>
+                            </h6>
+                            <select id="ddl_project_counter_mapping" multiple></select>
+                            <div id="project_mapping_loading" class="form-text text-muted d-none">Loading…</div>
+                        </div>
+                        <div class="row p-3">
+                            <!-- จำนวนเคาน์เตอร์ -->
+                            <div class="col-md-6">
+                                <h6 class="sub-title">
+                                    จำนวนเคาน์เตอร์ <span class="text-danger">*</span>
+                                </h6>
+                                <input type="number" class="form-control" id="counterQty" value="20" placeholder="ใส่จำนวน…">
+                            </div>
+
+                            <!-- อัตราดอกเบี้ยพิเศษ -->
+                            <div class="col-md-6">
+                                <h6 class="sub-title">
+                                    อัตราดอกเบี้ยพิเศษ <span class="text-danger">*</span>
+                                </h6>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="specialRateFile" value="20" placeholder="ใส่จำนวน…">
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                     <!-- TAB 2 -->
@@ -213,11 +247,4 @@
     </div>
 </div>
 
-<script>
-    function openCounterModalMock() {
-      const modalEl = document.getElementById('counterModal');
-      const modal = new bootstrap.Modal(modalEl);
-      modal.show();
-    }
-</script>
 

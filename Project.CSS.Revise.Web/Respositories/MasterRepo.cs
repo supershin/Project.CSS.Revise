@@ -360,48 +360,89 @@ namespace Project.CSS.Revise.Web.Respositories
                     return listEventType.ToList();
 
                 case "listEventInID":
+                {
+                    var valueString = model.ValueString?.Trim(',');
+                    if (string.IsNullOrWhiteSpace(valueString))
+                        return new List<GetDDLModel>();
+
+                    var result = new List<GetDDLModel>();
+                    var connectionString = _context.Database.GetDbConnection().ConnectionString;
+
+                    using (var conn = new SqlConnection(connectionString))
                     {
-                        var valueString = model.ValueString?.Trim(',');
-                        if (string.IsNullOrWhiteSpace(valueString))
-                            return new List<GetDDLModel>();
+                        conn.Open();
 
-                        var result = new List<GetDDLModel>();
-                        var connectionString = _context.Database.GetDbConnection().ConnectionString;
+                        string sql = $@"
+                                        SELECT 
+                                            T1.[ID] AS EVENTID,
+                                            T1.[ProjectID],
+                                            T2.ProjectName
+                                        FROM [tm_Event] T1
+                                        LEFT JOIN [tm_Project] T2 ON T1.ProjectID = T2.[ProjectID]
+                                        WHERE T1.FlagActive = 1
+                                            AND T1.ID IN ({valueString})
+                                    ";
 
-                        using (var conn = new SqlConnection(connectionString))
+                        using (var cmd = new SqlCommand(sql, conn))
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            conn.Open();
-
-                            string sql = $@"
-                                            SELECT 
-                                                T1.[ID] AS EVENTID,
-                                                T1.[ProjectID],
-                                                T2.ProjectName
-                                            FROM [tm_Event] T1
-                                            LEFT JOIN [tm_Project] T2 ON T1.ProjectID = T2.[ProjectID]
-                                            WHERE T1.FlagActive = 1
-                                              AND T1.ID IN ({valueString})
-                                        ";
-
-                            using (var cmd = new SqlCommand(sql, conn))
-                            using (var reader = cmd.ExecuteReader())
+                            while (reader.Read())
                             {
-                                while (reader.Read())
+                                result.Add(new GetDDLModel
                                 {
-                                    result.Add(new GetDDLModel
-                                    {
-                                        ValueInt = Convert.ToInt32(reader["EVENTID"]),
-                                        ValueString = reader["ProjectID"].ToString(),
-                                        Text = reader["ProjectName"].ToString()
-                                    });
-                                }
+                                    ValueInt = Convert.ToInt32(reader["EVENTID"]),
+                                    ValueString = reader["ProjectID"].ToString(),
+                                    Text = reader["ProjectName"].ToString()
+                                });
                             }
                         }
-
-                        return result;
                     }
+                    return result;
+                }
 
+                case "ListProjectCounterMapping":
+                {
+                    var result = new List<GetDDLModel>();
+                    var connectionString = _context.Database.GetDbConnection().ConnectionString;
 
+                    using (var conn = new SqlConnection(connectionString))
+                    {
+                        conn.Open();
+
+                        string sql = $@"
+                                        SELECT P.ProjectID
+                                                , P.ProjectName
+                                        FROM tm_Project AS P WITH (NOLOCK)
+                                        WHERE NOT (
+                                            EXISTS (
+                                                SELECT 1
+                                                FROM TR_ProjectCounter_Mapping AS M WITH (NOLOCK)
+                                                WHERE M.ProjectID = P.ProjectID AND M.QueueTypeID = 48
+                                            )
+                                            AND
+                                            EXISTS (
+                                                SELECT 1
+                                                FROM TR_ProjectCounter_Mapping AS M WITH (NOLOCK)
+                                                WHERE M.ProjectID = P.ProjectID AND M.QueueTypeID = 49
+                                            )
+                                        )
+                                        ";
+
+                        using (var cmd = new SqlCommand(sql, conn))
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                result.Add(new GetDDLModel
+                                {
+                                    ValueString = reader["ProjectID"].ToString(),
+                                    Text = reader["ProjectName"].ToString()
+                                });
+                            }
+                        }
+                    }
+                    return result;
+                }
 
 
                 default:

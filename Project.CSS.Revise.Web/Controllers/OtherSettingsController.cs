@@ -299,5 +299,16 @@ namespace Project.CSS.Revise.Web.Controllers
             var result = _projectCounterService.GetListsProjectCounterMapping(filter);
             return Json(result);
         }
+
+        [HttpGet]
+        public JsonResult GetListProjectCounterMapping()
+        {
+            var filter = new GetDDLModel
+            {
+                Act = "ListProjectCounterMapping"
+            };
+            var result = _masterService.GetlisDDl(filter);
+            return Json(result);
+        }
     }
 }

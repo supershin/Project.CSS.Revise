@@ -90,9 +90,16 @@
 }
 
 /* ✅ Force dropdown menu of Choices to show on top */
-.choices__list--dropdown,
-.choices__list[aria-expanded] {
-    z-index: 9999 !important;
+.modal .choices__list--dropdown,
+.modal .choices__list[aria-expanded] {
+    z-index: 2000 !important; /* higher than bootstrap modal */
+}
+
+/* ✅ Prevent clipping inside modal */
+.modal .choices,
+.modal .card,
+.modal .card-body {
+    overflow: visible;
 }
 
 /* ✅ Remove margin below Choices container */
@@ -104,22 +111,82 @@
 .choices__input {
     font-size: 0.95rem;
     padding: 6px 0;
-    background-color: #fff !important; /* ✅ เพิ่มบรรทัดนี้ */
-    color: #000; /* ✅ เพิ่มให้แน่ใจว่า font ก็สีดำ */
-    border: none !important; /* ✅ เอาเส้นขอบจาง ๆ ออก */
-    box-shadow: none !important; /* ✅ ไม่ให้มีเงา */
+    background-color: #fff !important;
+    color: #000;
+    border: none !important;
+    box-shadow: none !important;
 }
 
-
-/* ✅ Match multi-select item style if needed */
+/* ✅ Multi-select chip style */
 .choices__list--multiple .choices__item {
     background-color: #0d6efd;
     color: #fff;
     border-radius: 16px;
     padding: 4px 10px;
     font-size: 0.85rem;
-    margin-right: 4px;
+    margin: 0 4px 4px 0;
 }
+
+.choices__list--multiple {
+    gap: 4px;
+}
+
+    .choices__list--multiple .choices__item .choices__button {
+        border: none;
+        opacity: .85;
+        margin-left: 6px;
+    }
+
+/* ✅ Dropdown usability */
+.choices__list--dropdown {
+    max-height: 280px;
+    overflow: auto;
+}
+
+    .choices__list--dropdown .choices__item--selectable:hover,
+    .choices__list--dropdown .choices__item--selectable.is-highlighted {
+        background: #f1f5ff;
+    }
+
+    .choices__list--dropdown .choices__item.is-selected::after {
+        content: "✓";
+        float: right;
+        color: #0d6efd;
+        font-weight: 700;
+    }
+
+/* ✅ Placeholder alignment */
+.choices__inner .choices__list--single .choices__placeholder {
+    opacity: .7;
+}
+
+.choices[data-type*='select-multiple'] .choices__input {
+    margin: 4px 0 0 0;
+}
+
+/* ✅ Bootstrap validation states */
+.is-invalid .choices__inner {
+    border-color: #dc3545 !important;
+    box-shadow: none !important;
+}
+
+.is-valid .choices__inner {
+    border-color: #198754 !important;
+    box-shadow: none !important;
+}
+
+/* ✅ Small screens */
+@media (max-width: 576px) {
+    .choices__inner {
+        min-height: 40px;
+        padding: 4px 10px;
+    }
+
+    .choices__list--multiple .choices__item {
+        font-size: .8rem;
+    }
+}
+
 
 
 

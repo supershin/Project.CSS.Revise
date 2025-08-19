@@ -151,3 +151,63 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+let counterModalInstance = null;
+let projectMapChoices = null;
+
+async function loadProjectCounterMapping(forceReload = false) {
+    const loadingEl = document.getElementById('project_mapping_loading');
+    const selectEl = document.getElementById('ddl_project_counter_mapping');
+
+    // show loading
+    loadingEl?.classList.remove('d-none');
+
+    try {
+        const res = await fetch(baseUrl + 'OtherSettings/GetListProjectCounterMapping', { method: 'GET' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json(); // expect [{ ValueString, Text }, ...]
+
+        // map to Choices format
+        const choicesData = (data || []).map(x => ({
+            value: x.ValueString,
+            label: x.Text
+        }));
+
+        // init or refresh Choices
+        if (!projectMapChoices) {
+            projectMapChoices = new Choices(selectEl, {
+                removeItemButton: true,
+                searchEnabled: true,
+                placeholder: true,
+                placeholderValue: 'เลือกโปรเจกต์…',
+                shouldSort: false,
+                allowHTML: false
+            });
+        }
+
+        // clear & set fresh items every open
+        projectMapChoices.clearStore();
+        projectMapChoices.setChoices(choicesData, 'value', 'label', true);
+        projectMapChoices.removeActiveItems(); // no preselected items
+    } catch (err) {
+        console.error('loadProjectCounterMapping error:', err);
+        // fallback UI
+        selectEl.innerHTML = '';
+        if (projectMapChoices) projectMapChoices.clearStore();
+    } finally {
+        loadingEl?.classList.add('d-none');
+    }
+}
+
+async function openCounterModalMock() {
+    const modalEl = document.getElementById('counterModal');
+    if (!counterModalInstance) {
+        counterModalInstance = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+    }
+
+    // load list EVERY time before showing (so it's always fresh)
+    await loadProjectCounterMapping(true);
+
+    // show modal
+    counterModalInstance.show();
+}
