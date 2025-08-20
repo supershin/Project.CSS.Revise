@@ -128,6 +128,8 @@
     .btn-row {
         gap: .5rem;
     }
+
+
 </style>
 <div class="container py-4 py-lg-5">
     <!-- ===================== Bank Pre-Approve ===================== -->
@@ -230,9 +232,59 @@
                     <!-- TAB 2 -->
                     <div class="tab-pane fade" id="staffs-pane" role="tabpanel" aria-labelledby="staffs-tab">
                         <!-- 🟢 Content for Staff -->
-                        <div class="p-3">
-                            <p class="text-muted">Staff content goes here…</p>
+                        <div class="card shadow-sm border-0 rounded-3 mb-3">
+                            <div class="card-body py-3">
+                                <div class="d-flex align-items-center justify-content-between gap-3">
+                                    <!-- Left: Logo + Bank Name -->
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="bank-logo">
+                                            <img src="../image/ThaiBankicon/BBL.png"
+                                                 class="rounded-circle border p-1 img-50"
+                                                 alt="Bangkok Bank Logo">
+                                        </div>
+                                        <div class="bank-info">
+                                            <span class="fw-bold text-dark">ธนาคารกรุงเทพ จำกัด (มหาชน)</span>
+                                        </div>
+                                    </div>
+                                    <!-- Right: Checkbox + Input -->
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="form-check me-2">
+                                            <input class="form-check-input" type="checkbox" id="bblCheck">
+                                        </div>
+                                        <input type="number" class="form-control form-control-sm w-75"
+                                               id="bblvalue" value="5" placeholder="จำนวน…">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <div class="card shadow-sm border-0 rounded-3 mb-3">
+                            <div class="card-body py-3">
+                                <div class="d-flex align-items-center justify-content-between gap-3">
+                                    <!-- Left: Logo + Bank Name -->
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="bank-logo">
+                                            <img src="../image/ThaiBankicon/KBANK.png"
+                                                 class="rounded-circle border p-1 img-50"
+                                                 alt="Kasikorn Bank Logo">
+                                        </div>
+                                        <div class="bank-info">
+                                            <span class="fw-bold text-dark">ธนาคารกสิกรไทย จำกัด (มหาชน)</span>
+                                        </div>
+                                    </div>
+                                    <!-- Right: Checkbox + Input -->
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="form-check me-2">
+                                            <input class="form-check-input" type="checkbox" id="kbankCheck">
+                                        </div>
+                                        <input type="number" class="form-control form-control-sm w-75"
+                                               id="kbankvalue" value="0" placeholder="จำนวน…">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div>
 
                 </div>
