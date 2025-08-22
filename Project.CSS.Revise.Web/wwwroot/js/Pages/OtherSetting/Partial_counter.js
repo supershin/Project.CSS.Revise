@@ -199,6 +199,205 @@ async function loadProjectCounterMapping(forceReload = false) {
     }
 }
 
+// Load banks (keep server order by LineOrder) and render cards into #bankGrid
+async function loadAndRenderBanks(containerId = 'bankGrid') {
+    const grid = document.getElementById(containerId);
+    if (!grid) return;
+
+    // persist user toggles across reloads (one global map)
+    window.__bankSelectionState = window.__bankSelectionState || new Map();
+
+    // Build logo base URL (no Razor "~/" needed)
+    const ROOT = (document.querySelector('base')?.href || window.location.origin + '/');
+    const BANK_LOGO_BASE = new URL('image/ThaiBankicon/', ROOT).href;
+
+    // filename is BankCode + ".png"
+    const bankLogoSrc = (code) => `${BANK_LOGO_BASE}${code}.png`;
+
+    // dedupe but KEEP INPUT ORDER (server already orders by LineOrder)
+    const dedupeBy = (arr, key) => {
+        const seen = new Set();
+        const out = [];
+        for (const o of arr || []) {
+            const k = o?.[key];
+            if (!k || seen.has(k)) continue;
+            seen.add(k);
+            out.push(o);
+        }
+        return out;
+    };
+
+    const escapeHtml = (s) => (s ?? '').toString()
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+    function wireCardBehaviour(card) {
+        const chk = card.querySelector('.bank-check');
+        const qty = card.querySelector('.bank-qty');
+        const code = card.getAttribute('data-bank');
+
+        const sync = () => {
+            qty.disabled = !chk.checked;
+            window.__bankSelectionState.set(code, { checked: chk.checked, qty: Number(qty.value) || 0 });
+        };
+
+        chk.addEventListener('change', () => { sync(); recalcBankQuota(); });
+        qty.addEventListener('input', () => { sync(); recalcBankQuota(qty); });
+
+        sync();
+    }
+
+
+    const renderCard = ({ ValueInt: id, ValueString: code, Text: name }) => {
+        const prev = window.__bankSelectionState.get(code) || { checked: false, qty: 0 };
+        const col = document.createElement('div');
+        col.className = 'col-12 col-md-6 col-xl-4';
+        col.innerHTML = `<div class="card h-100 border-0 shadow-sm" data-bank="${escapeHtml(code)}" data-bank-id="${id}">
+                              <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                                  <div class="d-flex align-items-center gap-3 flex-grow-1">
+                                    <img src="${bankLogoSrc(code)}" alt="${escapeHtml(code)}" class="rounded-circle border" style="width:44px;height:44px;">
+                                    <div>
+                                      <div class="fw-semibold text-wrap">${escapeHtml(code)} - ${escapeHtml(name)}</div>
+                                    </div>
+                                  </div>
+                                  <div class="d-flex align-items-center gap-2">
+                                    <div class="form-check form-switch m-0">
+                                      <input class="form-check-input bank-check" type="checkbox" ${prev.checked ? 'checked' : ''}>
+                                    </div>
+                                    <input type="number" class="form-control form-control-sm bank-qty" placeholder="จำนวน…" min="0" value="${prev.qty || 0}" style="width:110px;">
+                                  </div>
+                                </div>
+                              </div>
+                           </div>`;
+        wireCardBehaviour(col.querySelector('.card'));
+        return col;
+    };
+
+
+    // Loading state
+    grid.innerHTML = `
+    <div class="col-12">
+      <div class="d-flex align-items-center text-muted small px-2">
+        <i class="fa fa-spinner fa-spin me-2"></i>Loading banks…
+      </div>
+    </div>`;
+
+    try {
+        const res = await fetch(baseUrl + 'OtherSettings/GetListBank', { method: 'GET' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        // expect server already ordered by LineOrder
+        let data = await res.json(); // [{ ValueString: BankCode, Text: BankName }]
+
+        // keep server order, just dedupe by code
+        data = dedupeBy(data, 'ValueString');
+
+        // render
+        grid.innerHTML = '';
+        const frag = document.createDocumentFragment();
+        data.forEach(item => frag.appendChild(renderCard(item)));
+        grid.appendChild(frag);
+
+        // Select all / Clear (if buttons exist)
+        document.getElementById('btnSelectAllBanks')?.addEventListener('click', () => {
+            grid.querySelectorAll('.bank-check').forEach(chk => {
+                if (!chk.checked) { chk.checked = true; chk.dispatchEvent(new Event('change')); }
+            });
+        });
+        document.getElementById('btnClearBanks')?.addEventListener('click', () => {
+            grid.querySelectorAll('.bank-check').forEach(chk => {
+                if (chk.checked) { chk.checked = false; chk.dispatchEvent(new Event('change')); }
+            });
+        });
+
+    } catch (err) {
+        console.error('loadAndRenderBanks error:', err);
+        grid.innerHTML = `
+      <div class="col-12">
+        <div class="alert alert-warning mb-0">ไม่สามารถโหลดรายชื่อธนาคารได้</div>
+      </div>`;
+    }
+}
+
+// ---- QUOTA ENFORCER ----
+function ensureQuotaHint() {
+    const qty = document.getElementById('counterQty');
+    if (!qty) return null;
+    // add a small hint element under the input if missing
+    let hint = document.getElementById('quotaRemainingHint');
+    if (!hint) {
+        hint = document.createElement('div');
+        hint.id = 'quotaRemainingHint';
+        hint.className = 'small mt-1 text-muted';
+        qty.insertAdjacentElement('afterend', hint);
+    }
+    return hint;
+}
+
+function sumCheckedBankQty() {
+    return Array.from(document.querySelectorAll('#bankGrid .card')).reduce((acc, card) => {
+        const chk = card.querySelector('.bank-check');
+        const qty = card.querySelector('.bank-qty');
+        if (chk && chk.checked && qty) acc += Number(qty.value) || 0;
+        return acc;
+    }, 0);
+}
+
+/**
+ * Recalculate remaining quota and clamp last changed input if over cap.
+ * @param {HTMLInputElement|null} lastQtyInput - pass the qty input that changed (for clamping)
+ */
+function recalcBankQuota(lastQtyInput = null) {
+    const saveBtn = document.getElementById('btnSaveCounter');
+    const hint = ensureQuotaHint();
+    const cap = Number(document.getElementById('counterQty')?.value) || 0;
+
+    // If we need to clamp, compute "others" then force this input to fit.
+    if (lastQtyInput) {
+        const cards = Array.from(document.querySelectorAll('#bankGrid .card'));
+        const codeOfLast = lastQtyInput.closest('.card')?.getAttribute('data-bank');
+        const sumOthers = cards.reduce((acc, card) => {
+            const chk = card.querySelector('.bank-check');
+            const qty = card.querySelector('.bank-qty');
+            const code = card.getAttribute('data-bank');
+            if (!chk || !qty) return acc;
+            if (chk.checked && code !== codeOfLast) acc += Number(qty.value) || 0;
+            return acc;
+        }, 0);
+
+        const maxForThis = Math.max(0, cap - sumOthers);
+        const cur = Number(lastQtyInput.value) || 0;
+        if (cur > maxForThis) {
+            lastQtyInput.value = String(maxForThis);
+            showWarning("กรุณาตรวจสอบจำนวนเคาน์เตอร์", 2000);
+        }
+    }
+
+    const total = sumCheckedBankQty();
+    const remaining = Math.max(0, cap - total);
+
+    // hint UI
+    if (hint) {
+        hint.textContent = `คงเหลือ: ${remaining}`;
+        hint.classList.toggle('text-danger', total > cap);
+        hint.classList.toggle('text-muted', total <= cap);
+    }
+
+    // disable save if over (defensive)
+    if (saveBtn) saveBtn.disabled = total > cap;
+
+    // 🔔 show warning if over cap, but throttle so it doesn't spam
+    if (total > cap) {
+        console.log('total > cap');
+        if (!window.__quotaWarnCooldown) {
+            showWarning("จำนวนสตาฟรวมเกินกว่าโควต้าที่กำหนด", 60 * 1000); // 1 minute
+            window.__quotaWarnCooldown = true;
+            setTimeout(() => { window.__quotaWarnCooldown = false; }, 10000); // 10s cooldown
+        }
+    }
+}
+
+
 async function openCounterModalMock() {
     const modalEl = document.getElementById('counterModal');
     if (!counterModalInstance) {
@@ -208,6 +407,97 @@ async function openCounterModalMock() {
     // load list EVERY time before showing (so it's always fresh)
     await loadProjectCounterMapping(true);
 
+    await loadAndRenderBanks(); 
     // show modal
     counterModalInstance.show();
 }
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const chkBank = document.getElementById('chk-md-add-counter-bank');
+    const staffTabLi = document.getElementById('staffs-tab-li');
+
+    if (!chkBank || !staffTabLi) return;
+
+    const toggleStaffTab = () => {
+        if (chkBank.checked) {
+            staffTabLi.classList.remove('d-none');
+        } else {
+            // Hide tab + reset active if currently selected
+            staffTabLi.classList.add('d-none');
+
+            const staffTabBtn = document.getElementById('staffs-tab');
+            const staffPane = document.getElementById('staffs-pane');
+            if (staffTabBtn?.classList.contains('active')) {
+                // Force switch back to details tab if Staff was active
+                document.getElementById('details-tab')?.click();
+            }
+        }
+    };
+
+    // Run once on load
+    toggleStaffTab();
+
+    // Update on checkbox change
+    chkBank.addEventListener('change', toggleStaffTab);
+});
+
+document.getElementById('counterQty')?.addEventListener('input', () => recalcBankQuota());
+recalcBankQuota(); 
+
+// ---- Collect payload for CreateCounterRequest ----
+function collectCreateCounterPayload() {
+    const types = Array.from(document.querySelectorAll('#details-pane .form-check-input[type="checkbox"]:checked'))
+        .map(chk => Number(chk.value))
+        .filter(v => !Number.isNaN(v));
+
+    const counterQty = Number(document.getElementById('counterQty')?.value) || 0;
+
+    const projectIds = Array.from(document.querySelector('#ddl_project_counter_mapping')?.selectedOptions || [])
+        .map(o => o.value)
+        .filter(Boolean);
+
+    const banks = Array.from(document.querySelectorAll('#bankGrid .card')).map(card => ({
+        bankId: Number(card.getAttribute('data-bank-id')) || 0,     // NEW
+        code: card.getAttribute('data-bank') || '',
+        checked: !!card.querySelector('.bank-check')?.checked,
+        qty: Number(card.querySelector('.bank-qty')?.value) || 0
+    }));
+
+    return {
+        counterTypeIds: types,
+        counterQty: counterQty,
+        projectIds: projectIds,
+        banks: banks
+    };
+}
+
+
+// ---- Post payload to server ----
+document.getElementById('btnSaveCounter')?.addEventListener('click', async () => {
+    const payload = collectCreateCounterPayload();
+
+    try {
+        const res = await fetch(baseUrl + 'OtherSettings/CreateCounter', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        const json = await res.json();
+        console.log('Server response:', json);
+
+        // show success feedback
+        showWarning('บันทึกสำเร็จ', 2000);
+        // close modal
+        document.querySelector('#counterModal [data-bs-dismiss="modal"]')?.click();
+
+    } catch (err) {
+        console.error('CreateCounter error:', err);
+        showWarning('บันทึกล้มเหลว', 3000);
+    }
+});

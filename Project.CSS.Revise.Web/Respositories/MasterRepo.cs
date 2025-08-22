@@ -444,6 +444,18 @@ namespace Project.CSS.Revise.Web.Respositories
                     return result;
                 }
 
+                case "listAllBank":
+                    var listAllBank = from t1 in _context.tm_Banks
+                                      where t1.FlagActive == true
+                                      orderby t1.LineOrder
+                                     select new GetDDLModel
+                                     {
+                                         ValueInt = t1.ID,
+                                         ValueString = t1.BankCode,
+                                         Text = t1.BankName
+                                     };
+
+                    return listAllBank.ToList();
 
                 default:
 

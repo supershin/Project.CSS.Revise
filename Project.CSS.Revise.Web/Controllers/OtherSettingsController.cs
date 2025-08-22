@@ -2,10 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Project.CSS.Revise.Web.Commond;
-using Project.CSS.Revise.Web.Data;
-using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Models.Pages.ProjectCounter;
 using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
@@ -309,6 +306,24 @@ namespace Project.CSS.Revise.Web.Controllers
             };
             var result = _masterService.GetlisDDl(filter);
             return Json(result);
+        }
+
+        public JsonResult GetListBank()
+        {
+            var filter = new GetDDLModel
+            {
+                Act = "listAllBank"
+            };
+            var result = _masterService.GetlisDDl(filter);
+            return Json(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateCounter([FromBody] CreateCounterRequest dto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            
+            return Ok(new { ok = true });
         }
     }
 }

@@ -40,3 +40,29 @@ function hideLoading() {
     document.getElementById('global-loading-overlay').style.display = 'none';
 }
 
+/**
+ * Show a warning alert top-right that auto hides after duration
+ * @param {string} message - the text to show
+ * @param {number} durationMs - how long before hide (default 60000 = 1 min)
+ */
+function showWarning(message, durationMs = 60000) {
+    const container = document.getElementById('alertContainer');
+    if (!container) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = "alert alert-warning alert-dismissible fade show shadow-sm";
+    wrapper.role = "alert";
+    wrapper.innerHTML = `
+    <div><i class="fa-solid fa-triangle-exclamation me-2"></i>${message}</div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  `;
+
+    container.appendChild(wrapper);
+
+    // auto remove after duration
+    setTimeout(() => {
+        const alert = bootstrap.Alert.getOrCreateInstance(wrapper);
+        alert.close();
+    }, durationMs);
+}
+

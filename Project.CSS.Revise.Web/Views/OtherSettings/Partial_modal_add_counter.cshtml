@@ -1,0 +1,288 @@
+﻿
+<style>
+    /* ============================
+       Compact Modern Modal (scoped)
+       Target: #counterModal only
+       ============================ */
+
+    #counterModal {
+        --cm-bg: #0f172a; /* slate-900 */
+        --cm-surface: #ffffff; /* card bg */
+        --cm-border: #e8edf2; /* light border */
+        --cm-muted: #6b7280; /* slate-500 */
+        --cm-primary: #0ea5e9; /* sky-500 */
+        --cm-radius: 14px;
+        --cm-shadow: 0 10px 30px rgba(2, 6, 23, .12);
+        --cm-ring: 0 0 0 .2rem rgba(14,165,233,.15);
+    }
+
+        /* ---------- Shell ---------- */
+        #counterModal .modal-content {
+            border-radius: var(--cm-radius);
+            border: 1px solid var(--cm-border);
+            box-shadow: var(--cm-shadow);
+            overflow: hidden;
+            background: var(--cm-surface);
+        }
+
+        /* Header */
+        #counterModal .modal-header {
+            background: linear-gradient(180deg,#f8fafc,#f3f6fb);
+            border-bottom: 1px solid var(--cm-border);
+        }
+
+        #counterModal .modal-title {
+            font-weight: 800;
+            letter-spacing: .2px;
+        }
+
+        /* Footer */
+        #counterModal .modal-footer {
+            background: #fbfdff;
+            border-top: 1px solid var(--cm-border);
+        }
+
+        /* ---------- Tabs ---------- */
+        #counterModal .nav-tabs {
+            border-bottom: 1px solid var(--cm-border);
+            gap: .35rem;
+        }
+
+            #counterModal .nav-tabs .nav-link {
+                border: 1px solid transparent;
+                border-top-left-radius: 10px;
+                border-top-right-radius: 10px;
+                color: var(--cm-muted);
+                font-weight: 600;
+            }
+
+                #counterModal .nav-tabs .nav-link:hover {
+                    background: #f8fafc;
+                }
+
+                #counterModal .nav-tabs .nav-link.active {
+                    color: #0f172a;
+                    background: #fff;
+                    border-color: var(--cm-border) var(--cm-border) #fff;
+                    box-shadow: 0 8px 20px rgba(2,6,23,.06);
+                }
+
+        /* ---------- “Cards” (the bordered blocks) ---------- */
+        #counterModal .border.rounded-3 {
+            border-color: var(--cm-border) !important;
+            background: #fff;
+        }
+
+        #counterModal small.fw-semibold {
+            color: #0f172a;
+        }
+
+        /* ---------- Form controls ---------- */
+        #counterModal .form-control,
+        #counterModal .form-select {
+            border-radius: 10px;
+            border-color: var(--cm-border);
+            background: #ffffff;
+        }
+
+            #counterModal .form-control:focus,
+            #counterModal .form-select:focus {
+                border-color: var(--cm-primary);
+                box-shadow: var(--cm-ring);
+            }
+
+        #counterModal .input-group-text {
+            border-color: var(--cm-border);
+            background: #f8fafc;
+            font-weight: 600;
+        }
+
+        /* Compact checkboxes/switches line up nicely */
+        #counterModal .form-check-input {
+            cursor: pointer;
+        }
+
+        #counterModal .form-check-label {
+            cursor: pointer;
+        }
+
+        /* ---------- Staff grid cards ---------- */
+        #counterModal #bankGrid .card {
+            border: 1px solid var(--cm-border) !important;
+            border-radius: 12px;
+            transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+        }
+
+            #counterModal #bankGrid .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 28px rgba(2,6,23,.08);
+                border-color: #dfe7ef !important;
+            }
+
+        #counterModal #bankGrid .card-body {
+            padding: .9rem 1rem;
+        }
+
+        /* Logo ring look (works with your round images) */
+        #counterModal #bankGrid img.rounded-circle {
+            box-shadow: inset 0 0 0 2px #fff, 0 0 0 2px #eef3f8;
+        }
+
+        /* Name + sublabel */
+        #counterModal #bankGrid .fw-semibold {
+            line-height: 1.15;
+        }
+
+        #counterModal #bankGrid .small.text-muted {
+            color: var(--cm-muted) !important;
+        }
+
+        /* Right-side controls keep steady width */
+        #counterModal #bankGrid .bank-qty {
+            width: 110px !important;
+        }
+
+        /* ---------- Helpers ---------- */
+        #counterModal .modal-body .row.g-2 {
+            --bs-gutter-y: .6rem;
+            --bs-gutter-x: .6rem;
+        }
+
+        #counterModal .btn-close {
+            transform: scale(.9);
+            opacity: .7;
+        }
+
+            #counterModal .btn-close:hover {
+                opacity: 1;
+            }
+
+    /* ---------- Responsive tweaks ---------- */
+        #counterModal .modal-body .row.g-2 {
+            --bs-gutter-y: .6rem;
+            --bs-gutter-x: .6rem;
+        }
+
+    #counterModal #bankGrid .card-body {
+        padding: .85rem;
+    }
+
+    
+</style>
+
+
+<div class="modal fade" id="counterModal" tabindex="-1" aria-hidden="true">
+    <!-- smaller + scrollable -->
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-sm">
+
+            <!-- HEADER (compact) -->
+            <div class="modal-header py-2">
+                <h6 class="modal-title mb-0">New Counter</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- BODY (compact) -->
+            <div class="modal-body p-3">
+                <!-- Tabs (compact) -->
+                <ul class="nav nav-tabs" id="modal-add-counter" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active py-2 px-3" id="details-tab" data-bs-toggle="tab" data-bs-target="#details-pane" type="button" role="tab">Details</button>
+                    </li>
+                    <!-- Staff tab (hidden by default) -->
+                    <li class="nav-item d-none" role="presentation" id="staffs-tab-li">
+                        <button class="nav-link py-2 px-3" id="staffs-tab"
+                                data-bs-toggle="tab" data-bs-target="#staffs-pane"
+                                type="button" role="tab">
+                            Staff
+                        </button>
+                    </li>
+
+                </ul>
+
+                <div class="tab-content pt-3" id="modal-add-counter-content">
+
+                    <!-- ================= DETAILS (tight) ================= -->
+                    <div class="tab-pane fade show active" id="details-pane" role="tabpanel" aria-labelledby="details-tab">
+                        <div class="container-fluid px-0">
+                            <div class="row g-2">
+
+                                <!-- Counter types (two checkboxes inline) -->
+                                <div class="col-8">
+                                    <div class="border rounded-3 p-2">
+                                        <small class="fw-semibold d-block mb-2">Counter <span class="text-danger">*</span></small>
+                                        <div class="d-flex flex-wrap align-items-center gap-4">
+                                            <div class="form-check m-0">
+                                                <input class="form-check-input" type="checkbox" id="chk-md-add-counter-bank" value="48">
+                                                <label class="form-check-label" for="chk-md-add-counter-bank">
+                                                    <i class="fa-solid fa-building-columns me-1"></i>Bank
+                                                </label>
+                                            </div>
+                                            <div class="form-check m-0">
+                                                <input class="form-check-input" type="checkbox" id="chk-md-add-counter-inspect" value="49">
+                                                <label class="form-check-label" for="chk-md-add-counter-inspect">
+                                                    <i class="fa-solid fa-magnifying-glass me-1"></i>Inspect
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Numbers row (tight 2 cols) -->
+                                <div class="col-4">
+                                    <div class="border rounded-3 p-2 h-100">
+                                        <small class="fw-semibold d-block mb-2">จำนวนเคาน์เตอร์ <span class="text-danger">*</span></small>
+                                        <input type="number" class="form-control form-control-sm" id="counterQty" value="20" min="0" placeholder="ใส่จำนวน…">
+                                    </div>
+                                </div>
+
+                                <!-- Project mapping (full width, compact) -->
+                                <div class="col-12">
+                                    <div class="border rounded-3 p-2">
+                                        <small class="fw-semibold d-block mb-2">Project (mapping) <span class="text-danger">*</span></small>
+                                        <select id="ddl_project_counter_mapping" class="form-select form-select-sm" multiple>
+                                        </select>
+                                        <div id="project_mapping_loading" class="small text-muted mt-2 d-none">
+                                            <i class="fa-solid fa-spinner fa-spin me-1"></i>Loading…
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STAFFS PANE -->
+                    <div class="tab-pane fade" id="staffs-pane" role="tabpanel" aria-labelledby="staffs-tab">
+                        <div class="container-fluid px-0">
+                            <!-- Controls -->
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-12 col-md">
+                                    <div class="small text-muted"><i class="fa-regular fa-circle-question me-1"></i>เลือกธนาคารและกำหนดจำนวนสตาฟต่อธนาคาร</div>
+                                </div>
+                                <div class="col-12 col-md-auto d-flex gap-2">
+                                    <button class="btn btn-outline-secondary btn-sm" id="btnSelectAllBanks"><i class="fa-regular fa-square-check me-1"></i>Select all</button>
+                                    <button class="btn btn-outline-secondary btn-sm" id="btnClearBanks"><i class="fa-regular fa-square me-1"></i>Clear</button>
+                                </div>
+                            </div>
+
+                            <!-- Grid -->
+                            <div class="row g-3" id="bankGrid">
+                                <!-- /row -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- FOOTER (compact) -->
+            <div class="modal-footer py-2">
+                <small class="me-auto text-muted"><i class="fa-regular fa-lightbulb me-1"></i>ตรวจสอบข้อมูลให้ครบก่อนกดบันทึก</small>
+                <button class="btn btn-success btn-sm px-3" id="btnSaveCounter"><i class="fa-solid fa-floppy-disk me-1"></i>Save</button>
+                <button class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">Cancel</button>
+            </div>
+
+        </div>
+    </div>
+</div>
