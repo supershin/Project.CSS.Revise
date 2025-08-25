@@ -12,6 +12,7 @@
 
         // Only needed if 48 (Bank) is selected
         public List<BankStaffItem> Banks { get; set; } = new();  // ordered by LineOrder from your fetch
+        public int UserID { get; set; }
 
         public sealed class BankStaffItem
         {
@@ -19,6 +20,12 @@
             public string Code { get; set; } = "";   // BankCode, e.g. "BBL"
             public bool Checked { get; set; }        // whether user enabled this bank
             public int Qty { get; set; }             // staff count for that bank (0..N)
+        }
+
+        public class Response
+        {
+            public int? ID { get; set; }
+            public string? Message { get; set; }
         }
 
     }

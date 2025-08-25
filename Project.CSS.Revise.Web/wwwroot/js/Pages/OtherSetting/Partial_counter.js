@@ -37,7 +37,12 @@ function buildBankCard(row) {
 
     return `
   <div class="col-12 col-md-6">
-    <div class="proj-card d-flex flex-column">
+    <div class="proj-card d-flex flex-column"
+         role="button" tabindex="0" style="cursor:pointer"
+         data-id="${row.ID}"
+         data-project="${escapeHtml(row.ProjectID)}"
+         data-queue="48"
+         data-end="${row.EndCounter}">
       <div class="d-flex justify-content-between align-items-start">
         <div>
           <h3 class="site-name">${title}</h3>
@@ -46,12 +51,12 @@ function buildBankCard(row) {
         <span class="count-badge">${units} หน่วย</span>
       </div>
       <div class="mt-auto pt-3 d-flex justify-content-between align-items-center flex-wrap btn-row">
-        <button class="action-btn"><i class="fa-solid fa-qrcode me-1"></i>Download QR</button>
+        <button class="action-btn" onclick="event.stopPropagation()"><i class="fa-solid fa-qrcode me-1"></i>Download QR</button>
         <div class="d-flex btn-row">
-          <button class="icon-btn" title="Staff count">
+          <button class="icon-btn" title="Staff count" onclick="event.stopPropagation()">
             <i class="fa-solid fa-user"></i>Staff ${staffCount}
           </button>
-          <button class="icon-btn" title="Bank count">
+          <button class="icon-btn" title="Bank count" onclick="event.stopPropagation()">
             <i class="fa-solid fa-landmark"></i>Bank ${bankCount}
           </button>
         </div>
@@ -67,7 +72,12 @@ function buildInspectCard(row) {
 
     return `
   <div class="col-12 col-md-6">
-    <div class="proj-card d-flex flex-column">
+    <div class="proj-card d-flex flex-column"
+         role="button" tabindex="0" style="cursor:pointer"
+         data-id="${row.ID}"
+         data-project="${escapeHtml(row.ProjectID)}"
+         data-queue="49"
+         data-end="${row.EndCounter}">
       <div class="d-flex justify-content-between align-items-start">
         <div>
           <h3 class="site-name">${title}</h3>
@@ -76,11 +86,49 @@ function buildInspectCard(row) {
         <span class="count-badge" style="background:#f0e8ff;color:#6f3acb;">${units} หน่วย</span>
       </div>
       <div class="mt-auto pt-3 d-flex justify-content-between align-items-center flex-wrap btn-row">
-        <button class="action-btn"><i class="fa-solid fa-qrcode me-1"></i>Download QR</button>
+        <button class="action-btn" onclick="event.stopPropagation()"><i class="fa-solid fa-qrcode me-1"></i>Download QR</button>
       </div>
     </div>
   </div>`;
 }
+
+function bindCardClickHandlers() {
+    const openFromCard = (card) => {
+        if (!card) return;
+        const queue = Number(card.dataset.queue);
+        const end = Number(card.dataset.end || 0);
+        const proj = card.dataset.project;
+
+        // keep currently selected project for save payloads
+        window.__selectedProjectIds = proj ? [proj] : [];
+
+        // open the right modal (48 = bank, 49 = non-bank)
+        showQueueTypeModal(queue, end);
+    };
+
+    const containerClick = (e) => {
+        const card = e.target.closest('.proj-card[role="button"]');
+        if (!card) return;
+        // ignore clicks from inner buttons
+        if (e.target.closest('button')) return;
+        openFromCard(card);
+    };
+
+    const containerKey = (e) => {
+        const card = e.target.closest('.proj-card[role="button"]');
+        if (!card) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openFromCard(card);
+        }
+    };
+
+    document.getElementById('bank_cards')?.addEventListener('click', containerClick);
+    document.getElementById('inspect_cards')?.addEventListener('click', containerClick);
+    document.getElementById('bank_cards')?.addEventListener('keydown', containerKey);
+    document.getElementById('inspect_cards')?.addEventListener('keydown', containerKey);
+}
+
 
 // -------- Render --------
 function renderCounters(data) {
@@ -100,7 +148,11 @@ function renderCounters(data) {
 
     if (bankWrap) bankWrap.innerHTML = bank.length ? bank.map(buildBankCard).join('') : emptyCard('ไม่พบข้อมูล Bank Pre-Approve');
     if (inspectWrap) inspectWrap.innerHTML = inspect.length ? inspect.map(buildInspectCard).join('') : '';
+
+    // 👉 enable click-to-edit
+    bindCardClickHandlers();
 }
+
 
 // -------- Fetch --------
 async function fetchProjectCounters() {
@@ -501,3 +553,93 @@ document.getElementById('btnSaveCounter')?.addEventListener('click', async () =>
         showWarning('บันทึกล้มเหลว', 3000);
     }
 });
+
+
+// hydrate selection from server VM (Banks[])
+function hydrateBankSelectionFromVm(banks) {
+    window.__bankSelectionState = new Map();
+    (banks || []).forEach(b => {
+        const code = b.BankCode;                  // from VM
+        const qty = Number(b.Staff) || 0;
+        const checked = (b.FlagActive === true) && qty > 0;
+        if (code) window.__bankSelectionState.set(code, { checked, qty });
+    });
+}
+
+// after loadAndRenderBanks(), sync check/qty on the rendered cards to __bankSelectionState
+function applyBankStateToGrid(containerId = 'bankGrid') {
+    const grid = document.getElementById(containerId);
+    if (!grid) return;
+    grid.querySelectorAll('.card[data-bank]').forEach(card => {
+        const code = card.getAttribute('data-bank');
+        const s = window.__bankSelectionState?.get(code);
+        const chk = card.querySelector('.bank-check');
+        const qty = card.querySelector('.bank-qty');
+        if (s) {
+            chk.checked = !!s.checked;
+            qty.value = s.qty ?? 0;
+            qty.disabled = !chk.checked;
+        } else {
+            chk.checked = false;
+            qty.value = 0;
+            qty.disabled = true;
+        }
+        // ensure state + total refresh
+        chk.dispatchEvent(new Event('change'));
+    });
+    recalcBankQuota();
+}
+
+// open edit by mapping id (calls your API, fills modal by type)
+async function openEditById(id, queueTypeId) {
+    try {
+        console.log(id);
+        const res = await fetch(`${baseUrl}OtherSettings/GetProjectCounterDetail?id=${encodeURIComponent(id)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const { data } = await res.json(); // ← matches Controller action below
+
+        if (queueTypeId === 48) {
+            document.getElementById('counterQty48').value = Number(data?.EndCounter) || 0;
+            // pre-hydrate bank state from server
+            hydrateBankSelectionFromVm(data?.Banks);
+            // render bank grid, then apply state and show
+            await loadAndRenderBanks('bankGrid');
+            applyBankStateToGrid('bankGrid');
+
+            const m = new bootstrap.Modal(document.getElementById('modalQueue48'));
+            m.show();
+        } else {
+            // 49
+            document.getElementById('counterQty49').value = Number(data?.EndCounter) || 0;
+            const m = new bootstrap.Modal(document.getElementById('modalQueue49'));
+            m.show();
+        }
+    } catch (err) {
+        console.error('openEditById error:', err);
+        // (optional) toast/alert
+    }
+}
+
+// If you previously wired clicks, switch them to use openEditById:
+function bindCardClickHandlers() {
+    const onClick = (e) => {
+        const card = e.target.closest('.proj-card[role="button"]');
+        if (!card || e.target.closest('button')) return;
+        const id = Number(card.dataset.id);
+        const queue = Number(card.dataset.queue);
+        // keep current project id(s) for save payloads if you need them later
+        const proj = card.dataset.project;
+        window.__selectedProjectIds = proj ? [proj] : [];
+        openEditById(id, queue);
+    };
+    const onKey = (e) => {
+        const card = e.target.closest('.proj-card[role="button"]');
+        if (!card) return;
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(e); }
+    };
+
+    document.getElementById('bank_cards')?.addEventListener('click', onClick);
+    document.getElementById('inspect_cards')?.addEventListener('click', onClick);
+    document.getElementById('bank_cards')?.addEventListener('keydown', onKey);
+    document.getElementById('inspect_cards')?.addEventListener('keydown', onKey);
+}

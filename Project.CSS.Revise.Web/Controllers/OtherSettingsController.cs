@@ -319,11 +319,60 @@ namespace Project.CSS.Revise.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCounter([FromBody] CreateCounterRequest dto)
+        public IActionResult CreateCounter([FromBody] CreateCounterRequest dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            
-            return Ok(new { ok = true });
+
+            try
+            {
+                string LoginID = User.FindFirst("LoginID")?.Value;
+                string UserID = SecurityManager.DecodeFrom64(LoginID);
+                dto.UserID = Commond.FormatExtension.Nulltoint(UserID);
+
+                var res = _projectCounterService.CreateEventsAndShops(dto);
+
+                // ถ้า service ส่งข้อความ error style เดิม กลับมา → 400
+                if (res?.Message?.StartsWith("An error occurred") == true)
+                {
+                    return BadRequest(new { ok = false, message = res.Message });
+                }
+                    
+
+                return Ok(new
+                {
+                    ok = true,
+                    id = res?.ID,
+                    message = res?.Message ?? "Inserted successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.InnerException?.Message ?? ex.Message;
+                return BadRequest(new { ok = false, message = msg });
+            }
         }
+
+
+        [HttpGet]
+        public JsonResult GetProjectCounterDetail(int id)
+        {
+            try
+            {
+                // block on the async service (you said no async in IAction)
+                var vm = _projectCounterService.GetProjectCounterDetailAsync(id).GetAwaiter().GetResult();
+
+                if (vm == null)
+                    return Json(new { ok = false, message = "Not found" });
+
+                return Json(new { ok = true, data = vm });
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.InnerException?.Message ?? ex.Message;
+                Response.StatusCode = 500;
+                return Json(new { ok = false, message = msg });
+            }
+        }
+
     }
 }

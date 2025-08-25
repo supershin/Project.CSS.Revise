@@ -1,13 +1,17 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Project.CSS.Revise.Web.Data;
+using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Pages.ProjectCounter;
+using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
 
 namespace Project.CSS.Revise.Web.Respositories
 {
     public interface IProjectCounterRepo
     {
         public List<ProjectCounterMappingModel.ListData> GetListsProjectCounterMapping(ProjectCounterMappingModel.FilterData filter);
+        public CreateCounterRequest.Response CreateEventsAndShops(CreateCounterRequest model);
+        Task<GetdataEditProjectCounter.ProjectCounterDetailVm?> GetProjectCounterDetailAsync(int id);
     }
     public class ProjectCounterRepo : IProjectCounterRepo
     {
@@ -95,5 +99,190 @@ namespace Project.CSS.Revise.Web.Respositories
 
             return result;
         }
+
+        public CreateCounterRequest.Response CreateEventsAndShops(CreateCounterRequest model)
+        {
+            var response = new CreateCounterRequest.Response();
+
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    // ✅ validate ขั้นต้น
+                    if (model == null) throw new ArgumentNullException(nameof(model));
+                    if (model.ProjectIds == null || model.ProjectIds.Count == 0)
+                        throw new ArgumentException("ProjectIds is required.");
+                    if (model.CounterTypeIds == null || model.CounterTypeIds.Count == 0)
+                        throw new ArgumentException("CounterTypeIds is required.");
+                    if (model.CounterTypeIds.Any(x => x != 48 && x != 49))
+                        throw new ArgumentException("CounterTypeIds must be only 48 or 49.");
+                    if (model.CounterQty < 0)
+                        throw new ArgumentException("CounterQty must be >= 0.");
+
+                    var now = DateTime.Now;
+
+                    // ✅ วน ProjectIds × CounterTypeIds แล้ว INSERT
+                    foreach (var projectId in model.ProjectIds)
+                    {
+                        foreach (var queueTypeId in model.CounterTypeIds)
+                        {
+                            if (_context.TR_ProjectCounter_Mappings.Any(e => e.ProjectID == projectId && e.QueueTypeID == queueTypeId && e.FlagActive == true))
+                                continue;
+
+                            var row = new TR_ProjectCounter_Mapping
+                            {
+                                ProjectID = projectId,
+                                QueueTypeID = queueTypeId,  // 48 หรือ 49
+                                StartCounter = 1,
+                                EndCounter = model.CounterQty,
+                                FlagActive = true,
+                                CreateDate = now,
+                                CreateBy = model.UserID,
+                                UpdateDate = now,
+                                UpdateBy = model.UserID
+                            };
+
+                            _context.TR_ProjectCounter_Mappings.Add(row);
+                        }
+                    }
+
+                    if (model.CounterTypeIds.Contains(48))
+                    {
+                        if (model == null)
+                        {
+                            throw new ArgumentNullException(nameof(model));
+                        }
+                        if (model.ProjectIds == null || model.ProjectIds.Count == 0)
+                        {
+                            throw new ArgumentException("ProjectIds is required.");
+                        }                       
+                        if (model.Banks == null || model.Banks.Count == 0)
+                        {
+                            throw new ArgumentException("Banks is required.");
+                        }
+
+                        // ใช้เฉพาะธนาคารที่ติ๊ก Checked
+                        var enabledBanks = model.Banks.Where(b => b.Checked).ToList();
+
+                        // (ออปชัน) รวมยอดต้องไม่เกิน CounterQty
+                        var sumStaff = enabledBanks.Sum(b => b.Qty);
+                        if (sumStaff > model.CounterQty)
+                        {
+                            throw new ArgumentException($"Sum of bank staff ({sumStaff}) must be <= CounterQty ({model.CounterQty}).");
+                        }
+
+                        foreach (var projectId in model.ProjectIds)
+                        {
+                            foreach (var bank in enabledBanks)
+                            {
+                                // กันซ้ำ: ถ้ามีคู่ (ProjectID, BankID, FlagActive=1) แล้ว ให้ข้าม
+                                if (_context.TR_Register_ProjectBankStaffs.Any(e => e.ProjectID == projectId && e.BankID == bank.BankId && e.FlagActive == true))
+                                {
+                                    continue;
+                                }
+
+                                var row = new TR_Register_ProjectBankStaff
+                                {
+                                    ProjectID = projectId,
+                                    BankID = bank.BankId,
+                                    Staff = bank.Qty,
+                                    FlagActive = bank.Qty > 0,
+                                    CreateDate = now,
+                                    CreateBy = model.UserID,
+                                    UpdateDate = now,
+                                    updateBy = model.UserID
+                                };
+
+                                _context.TR_Register_ProjectBankStaffs.Add(row);
+
+                            }
+                        }
+                    }
+
+                    _context.SaveChanges();
+                    transaction.Commit();
+
+                    response.ID = 1;
+                    response.Message = $"Inserted Project Counter is successfully.";
+
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    var message = ex.InnerException != null
+                        ? $"INNER ERROR: {ex.InnerException.Message}"
+                        : $"ERROR: {ex.Message}";
+
+                    response.Message = $"An error occurred: {message}";
+                }
+            }
+
+            return response;
+        }
+
+        public async Task<GetdataEditProjectCounter.ProjectCounterDetailVm?> GetProjectCounterDetailAsync(int id)
+        {
+            // 1) main row
+            var main = await (
+                from t1 in _context.TR_ProjectCounter_Mappings.AsNoTracking()
+                join t2 in _context.tm_Projects.AsNoTracking()
+                    on t1.ProjectID equals t2.ProjectID into pj
+                from t2 in pj.DefaultIfEmpty()
+                join t3 in _context.tm_Exts.AsNoTracking()
+                    on t1.QueueTypeID equals t3.ID into ex
+                from t3 in ex.DefaultIfEmpty()
+                    // if UpdateBy (string) vs tm_User.ID (int) mismatch, use: on t1.UpdateBy equals t4.ID.ToString()
+                join t4 in _context.tm_Users.AsNoTracking()
+                    on t1.UpdateBy equals t4.ID into us
+                from t4 in us.DefaultIfEmpty()
+                where t1.ID == id
+                select new
+                {
+                    Vm = new GetdataEditProjectCounter.ProjectCounterDetailVm
+                    {
+                        ID = t1.ID.ToString(),
+                        ProjectName = t2.ProjectName,
+                        QueueType = t3.Name,
+                        EndCounter = t1.EndCounter.ToString(),
+                        UpdateDate = (t1.UpdateDate.HasValue ? t1.UpdateDate.Value.ToString("dd/MM/yyyy HH:mm") : null),
+                        UpdateName = ((t4.FirstName ?? "") + (string.IsNullOrEmpty(t4.LastName) ? "" : " " + t4.LastName))
+                    },
+                    t1.ProjectID,
+                    t1.QueueTypeID
+                }
+            ).FirstOrDefaultAsync();
+
+            if (main == null) return null;
+
+            // 2) banks only when QueueTypeID = 48
+            if (main.QueueTypeID == 48)
+            {
+                var banks = await (
+                    from t1 in _context.TR_ProjectCounter_Mappings.AsNoTracking()
+                    join t2 in _context.TR_Register_ProjectBankStaffs.AsNoTracking()
+                        on t1.ProjectID equals t2.ProjectID into bs
+                    from t2 in bs.DefaultIfEmpty()
+                    join t3 in _context.tm_Banks.AsNoTracking()
+                        on t2.BankID equals t3.ID into bk
+                    from t3 in bk.DefaultIfEmpty()
+                    where t1.ID == id
+                    select new GetdataEditProjectCounter.BankStaffVm
+                    {
+                        BankID = (t2 != null ? t2.BankID.ToString() : null),
+                        BankCode = t3 != null ? t3.BankCode : null,
+                        BankName = t3 != null ? t3.BankName : null,
+                        Staff = (t2 != null ? t2.Staff.ToString() : "0"),
+                        // per your SQL: use mapping’s FlagActive/UpdateDate
+                        FlagActive = t1.FlagActive,
+                        UpdateDate = (t1.UpdateDate.HasValue ? t1.UpdateDate.Value.ToString("dd/MM/yyyy HH:mm") : null)
+                    }
+                ).ToListAsync();
+
+                main.Vm.Banks = banks.Where(b => !string.IsNullOrEmpty(b.BankID)).ToList();
+            }
+
+            return main.Vm;
+        }
+
     }
 }

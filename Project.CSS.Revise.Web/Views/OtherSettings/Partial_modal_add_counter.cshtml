@@ -286,3 +286,81 @@
         </div>
     </div>
 </div>
+
+<!-- ========= QueueType 48: BANK ========= -->
+<div class="modal fade" id="modalQueue48" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Queue Type: <span class="badge bg-primary">48 – Bank</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row g-3 align-items-end mb-2">
+                    <div class="col-12 col-md-auto">
+                        <label for="counterQty48" class="form-label fw-bold">Counter Qty (EndCounter)</label>
+                        <input type="number" class="form-control" id="counterQty48" min="0" value="0" />
+                    </div>
+
+                    <div class="col-12 col-md-auto">
+                        <div class="small text-muted">Bank staff total</div>
+                        <div class="fw-semibold">
+                            <span id="bankStaffTotal">0</span> / <span id="bankStaffLimit">0</span>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-auto ms-auto d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnClearBanks">
+                            Clear
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="btnSelectAllBanks">
+                            Select all
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row g-3" id="bankGrid"><!-- cards render here --></div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveQueue48">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========= QueueType 49: NON-BANK ========= -->
+<div class="modal fade" id="modalQueue49" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Queue Type: <span class="badge bg-secondary">49 – Non-Bank</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <label for="counterQty49" class="form-label fw-bold">Counter Qty (EndCounter)</label>
+                        <input type="number" class="form-control" id="counterQty49" min="0" value="0" />
+                        <div class="form-text">StartCounter จะเป็น 1 เสมอ</div>
+                    </div>
+                    <!-- ใส่ฟิลด์อื่น ๆ เพิ่มได้ถ้าต้องการ -->
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSaveQueue49">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

@@ -6,6 +6,8 @@ namespace Project.CSS.Revise.Web.Service
     public interface IProjectCounterService
     {
         public List<ProjectCounterMappingModel.ListData> GetListsProjectCounterMapping(ProjectCounterMappingModel.FilterData filter);
+        public CreateCounterRequest.Response CreateEventsAndShops(CreateCounterRequest model);
+        Task<GetdataEditProjectCounter.ProjectCounterDetailVm?> GetProjectCounterDetailAsync(int id);
     }
     public class ProjectCounterService : IProjectCounterService
     {
@@ -16,10 +18,22 @@ namespace Project.CSS.Revise.Web.Service
             _projectCounterRepo = ProjectCounterRepo;
         }
 
+        public CreateCounterRequest.Response CreateEventsAndShops(CreateCounterRequest model)
+        {
+            return _projectCounterRepo.CreateEventsAndShops(model);
+        }
+
         public List<ProjectCounterMappingModel.ListData> GetListsProjectCounterMapping(ProjectCounterMappingModel.FilterData filter)
         {
             List<ProjectCounterMappingModel.ListData> resp = _projectCounterRepo.GetListsProjectCounterMapping(filter);
             return resp;
         }
+
+        public async Task<GetdataEditProjectCounter.ProjectCounterDetailVm?> GetProjectCounterDetailAsync(int id)
+        {
+            var resp = await _projectCounterRepo.GetProjectCounterDetailAsync(id);
+            return resp;
+        }
+
     }
 }
