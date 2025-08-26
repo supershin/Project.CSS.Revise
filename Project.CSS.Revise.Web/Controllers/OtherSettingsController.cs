@@ -352,7 +352,6 @@ namespace Project.CSS.Revise.Web.Controllers
             }
         }
 
-
         [HttpGet]
         public JsonResult GetProjectCounterDetail(int id)
         {
@@ -362,8 +361,10 @@ namespace Project.CSS.Revise.Web.Controllers
                 var vm = _projectCounterService.GetProjectCounterDetailAsync(id).GetAwaiter().GetResult();
 
                 if (vm == null)
+                {
                     return Json(new { ok = false, message = "Not found" });
-
+                }
+                    
                 return Json(new { ok = true, data = vm });
             }
             catch (Exception ex)
@@ -374,5 +375,72 @@ namespace Project.CSS.Revise.Web.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult UpdateCounterBank([FromBody] UpdateCounterBankRequest dto)
+        {
+            try
+            {
+                if (dto == null) return Json(new { ok = false, message = "Invalid payload." });
+                if (dto.ID <= 0) return Json(new { ok = false, message = "Invalid ID." });
+                if (dto.CounterQty < 0) return Json(new { ok = false, message = "CounterQty must be >= 0." });
+
+                // (defensive) ensure sum of checked bank qty <= CounterQty
+                var sum = (dto.Banks ?? new List<UpdateCounterBankRequest.BankEditItem>())
+                            .Where(b => b.Checked)
+                            .Sum(b => Math.Max(0, b.Qty));
+
+                if (sum > dto.CounterQty)
+                {
+                    return Json(new { ok = false, message = $"Sum of staff ({sum}) exceeds counter quota ({dto.CounterQty})." });
+                }
+
+                string LoginID = User.FindFirst("LoginID")?.Value;
+                string UserID = SecurityManager.DecodeFrom64(LoginID);
+                dto.UserID = Commond.FormatExtension.Nulltoint(UserID);
+
+                //// delegate to service (your repo will do the actual DB update inside a transaction)
+                var result = _projectCounterService.UpdateCounterBank(dto);   // returns CreateCounterRequest.Response or similar
+
+                var ok = (result?.ID ?? 0) == 1;
+
+                //var ok = true;
+                if (!ok)
+                {
+                    Response.StatusCode = 400;
+                    return Json(new { ok = false, message =  "Update failed." });
+                }
+
+                return Json(new { ok = true, message =  "Updated." });
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.InnerException?.Message ?? ex.Message;
+                Response.StatusCode = 500;
+                return Json(new { ok = false, message = msg });
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> UpdateCounterInspect([FromBody] UpdateCounterInspectDto dto)
+        {
+            try
+            {
+                if (dto == null) return Json(new { ok = false, message = "invalid payload" });
+                if (dto.QueueTypeId != 49) return Json(new { ok = false, message = "queueTypeId must be 49" });
+
+                string LoginID = User.FindFirst("LoginID")?.Value;
+                string UserID = SecurityManager.DecodeFrom64(LoginID);
+                dto.UserID = Commond.FormatExtension.Nulltoint(UserID);
+
+                var resp = await _projectCounterService.UpdateCounterInspectAsync(dto);
+                return Json(new { ok = resp.Ok, message = resp.Message });
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.InnerException?.Message ?? ex.Message;
+                Response.StatusCode = 500;
+                return Json(new { ok = false, message = msg });
+            }
+        }
     }
 }

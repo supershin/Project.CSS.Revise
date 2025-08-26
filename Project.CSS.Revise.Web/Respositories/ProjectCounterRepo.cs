@@ -4,6 +4,7 @@ using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Pages.ProjectCounter;
 using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
+using System.Linq;
 
 namespace Project.CSS.Revise.Web.Respositories
 {
@@ -12,6 +13,8 @@ namespace Project.CSS.Revise.Web.Respositories
         public List<ProjectCounterMappingModel.ListData> GetListsProjectCounterMapping(ProjectCounterMappingModel.FilterData filter);
         public CreateCounterRequest.Response CreateEventsAndShops(CreateCounterRequest model);
         Task<GetdataEditProjectCounter.ProjectCounterDetailVm?> GetProjectCounterDetailAsync(int id);
+        public UpdateCounterBankRequest.Response UpdateCounterBank(UpdateCounterBankRequest dto);
+        Task<BasicResponse> UpdateCounterInspectAsync(UpdateCounterInspectDto dto);
     }
     public class ProjectCounterRepo : IProjectCounterRepo
     {
@@ -56,7 +59,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                     SELECT 
                                          RPS.[ProjectID]
                                         ,COUNT(RPS.[BankID])  AS COUNT_Bank
-                                        ,COUNT(RPS.[Staff])   AS COUNT_Staff
+                                        ,SUM(RPS.[Staff])   AS COUNT_Staff
                                     FROM [TR_Register_ProjectBankStaff] AS RPS WITH (NOLOCK)
                                     GROUP BY RPS.[ProjectID]
                                 ) AS SubBankStaff
@@ -282,6 +285,153 @@ namespace Project.CSS.Revise.Web.Respositories
             }
 
             return main.Vm;
+        }
+
+        public UpdateCounterBankRequest.Response UpdateCounterBank(UpdateCounterBankRequest dto)
+        {
+            var resp = new UpdateCounterBankRequest.Response();
+
+            using var tx = _context.Database.BeginTransaction();
+            try
+            {
+                if (dto == null)
+                {
+                    throw new ArgumentNullException(nameof(dto));
+                }
+                if (dto.ID <= 0)
+                {
+                    throw new ArgumentException("Invalid ID.");
+                }
+                if (dto.CounterQty < 0)
+                {
+                    throw new ArgumentException("CounterQty must be >= 0.");
+                }
+                   
+                // 0) Validate total staff <= counter
+                var sumChecked = (dto.Banks ?? new List<UpdateCounterBankRequest.BankEditItem>()).Where(b => b.Checked).Sum(b => Math.Max(0, b.Qty));
+
+                if (sumChecked > dto.CounterQty)
+                {
+                    throw new ArgumentException($"Sum of staff ({sumChecked}) exceeds counter quota ({dto.CounterQty}).");
+                }
+                    
+                var now = DateTime.Now;
+
+                // 1) Load mapping (must be QueueTypeID = 48)
+                var mapping = _context.TR_ProjectCounter_Mappings.FirstOrDefault(x => x.ID == dto.ID);
+
+                if (mapping == null)
+                {
+                    throw new InvalidOperationException("Mapping not found.");
+                }
+                if (mapping.QueueTypeID != 48)
+                {
+                    throw new InvalidOperationException("Mapping is not Bank (QueueTypeID != 48).");
+                }
+
+                // 2) Update mapping EndCounter
+                mapping.EndCounter = dto.CounterQty;
+                mapping.UpdateDate = now;
+                mapping.UpdateBy = dto.UserID;
+                _context.TR_ProjectCounter_Mappings.Update(mapping);
+
+                // 3) Upsert bank staff by (ProjectID, BankID)
+                var projectId = mapping.ProjectID;
+                var existing = _context.TR_Register_ProjectBankStaffs.Where(e => e.ProjectID == projectId).ToList();
+
+                var incomingIds = new HashSet<int?>(
+                    (dto.Banks ?? new List<UpdateCounterBankRequest.BankEditItem>())
+                        .Select(b => (int?)b.BankId)
+                );
+
+                foreach (var b in dto.Banks ?? Enumerable.Empty<UpdateCounterBankRequest.BankEditItem>())
+                {
+                    var isActive = b.Checked && b.Qty > 0;
+                    var row = existing.FirstOrDefault(e => e.BankID == b.BankId);
+
+                    if (row == null)
+                    {
+                        // create only if active (avoid cluttering with zero/inactive rows)
+                        if (!isActive) continue;
+
+                        row = new TR_Register_ProjectBankStaff
+                        {
+                            ProjectID = projectId,
+                            BankID = b.BankId,
+                            Staff = Math.Max(0, b.Qty),
+                            FlagActive = true,
+                            CreateDate = now,
+                            CreateBy = dto.UserID,
+                            UpdateDate = now,
+                            updateBy = dto.UserID
+                        };
+                        _context.TR_Register_ProjectBankStaffs.Add(row);
+                    }
+                    else
+                    {
+                        // update existing
+                        row.Staff = Math.Max(0, b.Qty);
+                        row.FlagActive = isActive;
+                        row.UpdateDate = now;
+                        row.updateBy = dto.UserID;
+                        _context.TR_Register_ProjectBankStaffs.Update(row);
+                    }
+                }
+
+                // 4) Any existing rows NOT in payload → set inactive (do not delete)
+                foreach (var row in existing.Where(r => !incomingIds.Contains(r.BankID)))
+                {
+                    if (row.FlagActive == true)
+                    {
+                        row.FlagActive = false;
+                        row.UpdateDate = now;
+                        row.updateBy = dto.UserID;
+                        _context.TR_Register_ProjectBankStaffs.Update(row);
+                    }
+                }
+
+                _context.SaveChanges();
+                tx.Commit();
+
+                resp.ID = 1;
+                resp.Message = "Updated bank counters successfully.";
+            }
+            catch (Exception ex)
+            {
+                tx.Rollback();
+                var msg = ex.InnerException?.Message ?? ex.Message;
+                resp.Message = $"An error occurred: {msg}";
+            }
+
+            return resp;
+        }
+
+        public async Task<BasicResponse> UpdateCounterInspectAsync(UpdateCounterInspectDto dto)
+        {
+            var resp = new BasicResponse { Ok = false };
+
+            if (dto == null) { resp.Message = "invalid payload"; return resp; }
+            if (dto.QueueTypeId != 49) { resp.Message = "queueTypeId must be 49"; return resp; }
+            if (dto.CounterQty < 0) { resp.Message = "CounterQty must be >= 0"; return resp; }
+
+            var row = await _context.TR_ProjectCounter_Mappings.FirstOrDefaultAsync(x => x.ID == dto.Id && x.QueueTypeID == 49);
+
+            if (row == null)
+            {
+                resp.Message = "Mapping not found.";
+                return resp;
+            }
+
+            var now = DateTime.Now;
+            row.EndCounter = dto.CounterQty;
+            row.UpdateDate = now;
+            row.UpdateBy = dto.UserID;   // or set from server-side auth
+
+            await _context.SaveChangesAsync();
+
+            resp.Ok = true;
+            resp.Message = "Updated.";
+            return resp;
         }
 
     }

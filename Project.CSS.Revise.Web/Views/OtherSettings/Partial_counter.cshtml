@@ -1,7 +1,4 @@
 ﻿
-<!-- Font Awesome (icons) -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
-
 <style>
     :root {
         --brand-green: #c9f0cf;
@@ -36,8 +33,17 @@
         color: var(--brand-purple-text);
     }
 
+    /* Yellow / warning pill (uses your existing variables) */
+    .pill-amber {
+        background: var(--chip-amber);
+        color: var(--chip-amber-text);
+        border: 1px solid #ffe29a; /* optional subtle edge */
+    }
+
+
     /* Cards */
     .proj-card {
+        position: relative;
         border: 1px solid var(--card-border);
         border-radius: 14px;
         padding: 1.25rem 1.25rem 1rem;
@@ -50,6 +56,24 @@
         box-shadow: 0 8px 20px rgba(0,0,0,.06);
         transform: translateY(-1px);
     }
+
+    /* top-right placement + color variants for your existing .count-badge */
+    .count-badge.is-top-right {
+        position: absolute;
+        top: 10px;
+        right: 12px;
+    }
+
+    .count-badge.is-purple {
+        background: var(--brand-purple);
+        color: var(--brand-purple-text);
+    }
+    /* purple */
+    .count-badge.is-amber {
+        background: var(--chip-amber);
+        color: var(--chip-amber-text);
+    }
+    /* warning */
 
     .site-name {
         font-weight: 800;
@@ -142,7 +166,7 @@
 
     <!-- ===================== Inspect ===================== -->
     <div class="mt-5 mb-3">
-        <span class="section-pill pill-purple">Inspect (รับมอบห้อง)</span>
+        <span class="section-pill pill-amber">Inspect (รับมอบห้อง)</span>
     </div>
     <div class="row g-4" id="inspect_cards">
         <!-- dynamic -->

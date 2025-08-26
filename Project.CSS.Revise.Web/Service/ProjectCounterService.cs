@@ -8,6 +8,8 @@ namespace Project.CSS.Revise.Web.Service
         public List<ProjectCounterMappingModel.ListData> GetListsProjectCounterMapping(ProjectCounterMappingModel.FilterData filter);
         public CreateCounterRequest.Response CreateEventsAndShops(CreateCounterRequest model);
         Task<GetdataEditProjectCounter.ProjectCounterDetailVm?> GetProjectCounterDetailAsync(int id);
+        public UpdateCounterBankRequest.Response UpdateCounterBank(UpdateCounterBankRequest dto);
+        Task<BasicResponse> UpdateCounterInspectAsync(UpdateCounterInspectDto dto);
     }
     public class ProjectCounterService : IProjectCounterService
     {
@@ -35,5 +37,11 @@ namespace Project.CSS.Revise.Web.Service
             return resp;
         }
 
+        public UpdateCounterBankRequest.Response UpdateCounterBank(UpdateCounterBankRequest dto)
+        {
+            return _projectCounterRepo.UpdateCounterBank(dto);
+        }
+
+        public Task<BasicResponse> UpdateCounterInspectAsync(UpdateCounterInspectDto dto) => _projectCounterRepo.UpdateCounterInspectAsync(dto);
     }
 }

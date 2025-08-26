@@ -170,8 +170,192 @@
     
 </style>
 
+<style>
+    /* ============================
+           Compact Modern Modal (scoped)
+           Target: #modalQueue48 only
+           ============================ */
 
-<div class="modal fade" id="counterModal" tabindex="-1" aria-hidden="true">
+    #modalQueue48 {
+        --cm-bg: #0f172a; /* slate-900 */
+        --cm-surface: #ffffff; /* card bg */
+        --cm-border: #e8edf2; /* light border */
+        --cm-muted: #6b7280; /* slate-500 */
+        --cm-primary: #0ea5e9; /* sky-500 */
+        --cm-radius: 14px;
+        --cm-shadow: 0 10px 30px rgba(2, 6, 23, .12);
+        --cm-ring: 0 0 0 .2rem rgba(14,165,233,.15);
+    }
+
+        /* ---------- Shell ---------- */
+        #modalQueue48 .modal-content {
+            border-radius: var(--cm-radius);
+            border: 1px solid var(--cm-border);
+            box-shadow: var(--cm-shadow);
+            overflow: hidden;
+            background: var(--cm-surface);
+        }
+
+        /* Header */
+        #modalQueue48 .modal-header {
+            background: linear-gradient(180deg,#f8fafc,#f3f6fb);
+            border-bottom: 1px solid var(--cm-border);
+        }
+
+        #modalQueue48 .modal-title {
+            font-weight: 800;
+            letter-spacing: .2px;
+        }
+
+        /* Footer */
+        #modalQueue48 .modal-footer {
+            background: #fbfdff;
+            border-top: 1px solid var(--cm-border);
+        }
+
+        /* ---------- Tabs ---------- */
+        #modalQueue48 .nav-tabs {
+            border-bottom: 1px solid var(--cm-border);
+            gap: .35rem;
+        }
+
+            #modalQueue48 .nav-tabs .nav-link {
+                border: 1px solid transparent;
+                border-top-left-radius: 10px;
+                border-top-right-radius: 10px;
+                color: var(--cm-muted);
+                font-weight: 600;
+            }
+
+                #modalQueue48 .nav-tabs .nav-link:hover {
+                    background: #f8fafc;
+                }
+
+                #modalQueue48 .nav-tabs .nav-link.active {
+                    color: #0f172a;
+                    background: #fff;
+                    border-color: var(--cm-border) var(--cm-border) #fff;
+                    box-shadow: 0 8px 20px rgba(2,6,23,.06);
+                }
+
+        /* ---------- “Cards” (the bordered blocks) ---------- */
+        #modalQueue48 .border.rounded-3 {
+            border-color: var(--cm-border) !important;
+            background: #fff;
+        }
+
+        #modalQueue48 small.fw-semibold {
+            color: #0f172a;
+        }
+
+        /* ---------- Form controls ---------- */
+        #modalQueue48 .form-control,
+        #modalQueue48 .form-select {
+            border-radius: 10px;
+            border-color: var(--cm-border);
+            background: #ffffff;
+        }
+
+            #modalQueue48 .form-control:focus,
+            #modalQueue48 .form-select:focus {
+                border-color: var(--cm-primary);
+                box-shadow: var(--cm-ring);
+            }
+
+        #modalQueue48 .input-group-text {
+            border-color: var(--cm-border);
+            background: #f8fafc;
+            font-weight: 600;
+        }
+
+        /* Compact checkboxes/switches line up nicely */
+        #modalQueue48 .form-check-input {
+            cursor: pointer;
+        }
+
+        #modalQueue48 .form-check-label {
+            cursor: pointer;
+        }
+
+        /* ---------- Staff grid cards ---------- */
+        #modalQueue48 #bankGridEdit .card {
+            border: 1px solid var(--cm-border) !important;
+            border-radius: 12px;
+            transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+        }
+
+            #modalQueue48 #bankGridEdit .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 28px rgba(2,6,23,.08);
+                border-color: #dfe7ef !important;
+            }
+
+        #modalQueue48 #bankGridEdit .card-body {
+            padding: .9rem 1rem;
+        }
+
+        /* Logo ring look (works with your round images) */
+        #modalQueue48 #bankGridEdit img.rounded-circle {
+            box-shadow: inset 0 0 0 2px #fff, 0 0 0 2px #eef3f8;
+        }
+
+        /* Name + sublabel */
+        #modalQueue48 #bankGridEdit .fw-semibold {
+            line-height: 1.15;
+        }
+
+        #modalQueue48 #bankGridEdit .small.text-muted {
+            color: var(--cm-muted) !important;
+        }
+
+        /* Right-side controls keep steady width */
+        #modalQueue48 #bankGridEdit .bank-qty {
+            width: 110px !important;
+        }
+
+        /* ---------- Helpers ---------- */
+        #modalQueue48 .modal-body .row.g-2 {
+            --bs-gutter-y: .6rem;
+            --bs-gutter-x: .6rem;
+        }
+
+        #modalQueue48 .btn-close {
+            transform: scale(.9);
+            opacity: .7;
+        }
+
+        #modalQueue48 .btn-close:hover {
+            opacity: 1;
+        }
+
+        /* ---------- Responsive tweaks ---------- */
+        #modalQueue48 .modal-body .row.g-2 {
+            --bs-gutter-y: .6rem;
+            --bs-gutter-x: .6rem;
+        }
+
+        #modalQueue48 #bankGridEdit .card-body {
+            padding: .85rem;
+        }
+    /* always show Bootstrap focus blue on this input */
+    #counterQty48 {
+        border-color: #0d6efd !important; /* blue border */
+        box-shadow: 0 0 0 .2rem rgba(13,110,253,.25) !important; /* blue glow */
+        outline: 0 !important;
+        caret-color: #0d6efd; /* blue caret */
+    }
+
+        /* keep it blue even if Bootstrap tries to mark valid/invalid */
+        #counterQty48.is-valid,
+        #counterQty48.is-invalid {
+            border-color: #0d6efd !important;
+            box-shadow: 0 0 0 .2rem rgba(13,110,253,.25) !important;
+        }
+
+
+</style>
+
+<div class="modal fade" id="counterModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
     <!-- smaller + scrollable -->
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-sm">
@@ -215,13 +399,13 @@
                                             <div class="form-check m-0">
                                                 <input class="form-check-input" type="checkbox" id="chk-md-add-counter-bank" value="48">
                                                 <label class="form-check-label" for="chk-md-add-counter-bank">
-                                                    <i class="fa-solid fa-building-columns me-1"></i>Bank
+                                                    <i class="bi bi-bank me-1"></i>Bank
                                                 </label>
                                             </div>
                                             <div class="form-check m-0">
                                                 <input class="form-check-input" type="checkbox" id="chk-md-add-counter-inspect" value="49">
                                                 <label class="form-check-label" for="chk-md-add-counter-inspect">
-                                                    <i class="fa-solid fa-magnifying-glass me-1"></i>Inspect
+                                                    <i class="mdi mdi-clipboard-check-outline me-2"></i>Inspect
                                                 </label>
                                             </div>
                                         </div>
@@ -288,76 +472,96 @@
 </div>
 
 <!-- ========= QueueType 48: BANK ========= -->
-<div class="modal fade" id="modalQueue48" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
+<div class="modal fade" id="modalQueue48"
+     data-bs-backdrop="static"
+     data-bs-keyboard="false"
+     tabindex="-1" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-sm">
+            <div class="modal-header py-2">
                 <h5 class="modal-title">
-                    Queue Type: <span class="badge bg-primary">48 – Bank</span>
+                    <i class="bi bi-bank me-1"></i> Bank
                 </h5>
+                <input type="hidden" class="form-control" id="hdmdIDprojectcounterbankedit" value="" />
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
             </div>
 
-            <div class="modal-body">
+            <div class="modal-body  p-3">
                 <div class="row g-3 align-items-end mb-2">
-                    <div class="col-12 col-md-auto">
-                        <label for="counterQty48" class="form-label fw-bold">Counter Qty (EndCounter)</label>
+                    <div class="col-6">
+                        <label for="Projectnamebank" class="form-label">Project</label>
+                        <input type="text" class="form-control" id="Projectnamebank" value="" disabled />
+                    </div>
+                    <div class="col-6">
+                        <label for="counterQty48" class="form-label">Counter Qty <span class="text-danger">*</span></label>
                         <input type="number" class="form-control" id="counterQty48" min="0" value="0" />
                     </div>
-
-                    <div class="col-12 col-md-auto">
-                        <div class="small text-muted">Bank staff total</div>
-                        <div class="fw-semibold">
-                            <span id="bankStaffTotal">0</span> / <span id="bankStaffLimit">0</span>
-                        </div>
+                </div>
+                <div class="row g-3 align-items-end mb-2">
+                    <div class="col-6">
+                        <label for="Updatedatebank" class="form-label">Update date</label>
+                        <input type="text" class="form-control" id="Updatedatebank" value="" disabled />
                     </div>
-
-                    <div class="col-12 col-md-auto ms-auto d-flex gap-2">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnClearBanks">
-                            Clear
-                        </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm" id="btnSelectAllBanks">
-                            Select all
-                        </button>
+                    <div class="col-6">
+                        <label for="Updatebybank" class="form-label">Update by</label>
+                        <input type="text" class="form-control" id="Updatebybank" value="" disabled />
                     </div>
                 </div>
 
-                <div class="row g-3" id="bankGrid"><!-- cards render here --></div>
+                <!-- Grid -->
+                <label for="bankGridEdit" class="form-label">Bank Staff</label>
+                <div class="row g-3 align-items-end mb-2" id="bankGridEdit">
+                    <!-- /row -->
+                </div>
             </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer  py-2">
                 <button type="button" class="btn btn-primary" id="btnSaveQueue48">Save</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- ========= QueueType 49: NON-BANK ========= -->
-<div class="modal fade" id="modalQueue49" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalQueue49" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    Queue Type: <span class="badge bg-secondary">49 – Non-Bank</span>
+                    <i class="mdi mdi-clipboard-check-outline me-2"></i> Inspect
                 </h5>
+                <input type="hidden" class="form-control" id="hdmdIDprojectcounterInspectedit" value="" />
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
             </div>
 
-            <div class="modal-body">
-                <div class="row g-3">
-                    <div class="col-12 col-md-6">
-                        <label for="counterQty49" class="form-label fw-bold">Counter Qty (EndCounter)</label>
-                        <input type="number" class="form-control" id="counterQty49" min="0" value="0" />
-                        <div class="form-text">StartCounter จะเป็น 1 เสมอ</div>
+            <div class="modal-body  p-3">
+                <div class="row g-3 align-items-end mb-2">
+                    <div class="col-6">
+                        <label for="ProjectnameInspect" class="form-label">Project</label>
+                        <input type="text" class="form-control" id="ProjectnameInspect" value="" disabled />
                     </div>
-                    <!-- ใส่ฟิลด์อื่น ๆ เพิ่มได้ถ้าต้องการ -->
+                    <div class="col-6">
+                        <label for="counterQty49" class="form-label">Counter Qty <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="counterQty49" min="0" value="0" />
+                    </div>
+                </div>
+                <div class="row g-3 align-items-end mb-2">
+                    <div class="col-6">
+                        <label for="UpdatedateInspect" class="form-label">Update date</label>
+                        <input type="text" class="form-control" id="UpdatedateInspect" value="" disabled />
+                    </div>
+                    <div class="col-6">
+                        <label for="UpdatebyInspect" class="form-label">Update by</label>
+                        <input type="text" class="form-control" id="UpdatebyInspect" value="" disabled />
+                    </div>
                 </div>
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="btnSaveQueue49">Save</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

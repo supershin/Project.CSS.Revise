@@ -36,101 +36,66 @@ function buildBankCard(row) {
     const bankCount = Number(row.COUNT_Bank) || 0;
 
     return `
-  <div class="col-12 col-md-6">
-    <div class="proj-card d-flex flex-column"
-         role="button" tabindex="0" style="cursor:pointer"
-         data-id="${row.ID}"
-         data-project="${escapeHtml(row.ProjectID)}"
-         data-queue="48"
-         data-end="${row.EndCounter}">
-      <div class="d-flex justify-content-between align-items-start">
-        <div>
-          <h3 class="site-name">${title}</h3>
-          <div class="mt-1"><span class="subtype">${subtype}</span></div>
-        </div>
-        <span class="count-badge">${units} หน่วย</span>
-      </div>
-      <div class="mt-auto pt-3 d-flex justify-content-between align-items-center flex-wrap btn-row">
-        <button class="action-btn" onclick="event.stopPropagation()"><i class="fa-solid fa-qrcode me-1"></i>Download QR</button>
-        <div class="d-flex btn-row">
-          <button class="icon-btn" title="Staff count" onclick="event.stopPropagation()">
-            <i class="fa-solid fa-user"></i>Staff ${staffCount}
-          </button>
-          <button class="icon-btn" title="Bank count" onclick="event.stopPropagation()">
-            <i class="fa-solid fa-landmark"></i>Bank ${bankCount}
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>`;
+            <div class="col-4">
+            <div class="proj-card d-flex flex-column"
+                    role="button" tabindex="0" style="cursor:pointer"
+                    data-id="${row.ID}"
+                    data-project="${escapeHtml(row.ProjectID)}"
+                    data-queue="48"
+                    data-end="${row.EndCounter}">
+                <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h3 class="site-name">${title}</h3>
+                </div>
+                <span class="count-badge is-top-right is-green">${units} หน่วย</span>
+                </div>
+                <div class="mt-auto pt-3 d-flex justify-content-between align-items-center flex-wrap btn-row">
+                <button class="action-btn" onclick="event.stopPropagation()">
+                    <i class="bi bi-qr-code me-1"></i>Download QR
+                </button>
+                <div class="d-flex btn-row">
+                    <button class="icon-btn" title="Staff count" onclick="event.stopPropagation()">
+                    <i class="bi bi-person me-1"></i>Staff ${staffCount}
+                    </button>
+                    <button class="icon-btn" title="Bank count" onclick="event.stopPropagation()">
+                    <i class="bi bi-bank me-1"></i>Bank ${bankCount}
+                    </button>
+                </div>
+                </div>
+            </div>
+            </div>`;
+
 }
 
 function buildInspectCard(row) {
     const title = escapeHtml(row.ProjectName || row.ProjectID || '');
-    const subtype = escapeHtml(row.QueueTypeName || 'Inspect (รับมอบห้อง)');
     const units = positionCountInclusive(row.StartCounter, row.EndCounter);
 
     return `
-  <div class="col-12 col-md-6">
-    <div class="proj-card d-flex flex-column"
-         role="button" tabindex="0" style="cursor:pointer"
-         data-id="${row.ID}"
-         data-project="${escapeHtml(row.ProjectID)}"
-         data-queue="49"
-         data-end="${row.EndCounter}">
-      <div class="d-flex justify-content-between align-items-start">
-        <div>
-          <h3 class="site-name">${title}</h3>
-          <div class="mt-1"><span class="subtype">${subtype}</span></div>
-        </div>
-        <span class="count-badge" style="background:#f0e8ff;color:#6f3acb;">${units} หน่วย</span>
-      </div>
-      <div class="mt-auto pt-3 d-flex justify-content-between align-items-center flex-wrap btn-row">
-        <button class="action-btn" onclick="event.stopPropagation()"><i class="fa-solid fa-qrcode me-1"></i>Download QR</button>
-      </div>
-    </div>
-  </div>`;
+              <div class="col-3">
+                <div class="proj-card d-flex flex-column"
+                     role="button" tabindex="0" style="cursor:pointer"
+                     data-id="${row.ID}"
+                     data-project="${escapeHtml(row.ProjectID)}"
+                     data-queue="49"
+                     data-end="${row.EndCounter}">
+
+                  <!-- top-right pill using your .count-badge -->
+                  <span class="count-badge is-top-right is-amber">${units} หน่วย</span>
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div><h3 class="site-name">${title}</h3></div>
+                  </div>
+
+                  <div class="mt-auto pt-3 d-flex justify-content-between align-items-center flex-wrap btn-row">
+                    <button class="action-btn" onclick="event.stopPropagation()">
+                      <i class="bi bi-bank me-1"></i>Download QR
+                    </button>
+                  </div>
+                </div>
+              </div>`;
 }
 
-function bindCardClickHandlers() {
-    const openFromCard = (card) => {
-        if (!card) return;
-        const queue = Number(card.dataset.queue);
-        const end = Number(card.dataset.end || 0);
-        const proj = card.dataset.project;
-
-        // keep currently selected project for save payloads
-        window.__selectedProjectIds = proj ? [proj] : [];
-
-        // open the right modal (48 = bank, 49 = non-bank)
-        showQueueTypeModal(queue, end);
-    };
-
-    const containerClick = (e) => {
-        const card = e.target.closest('.proj-card[role="button"]');
-        if (!card) return;
-        // ignore clicks from inner buttons
-        if (e.target.closest('button')) return;
-        openFromCard(card);
-    };
-
-    const containerKey = (e) => {
-        const card = e.target.closest('.proj-card[role="button"]');
-        if (!card) return;
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            openFromCard(card);
-        }
-    };
-
-    document.getElementById('bank_cards')?.addEventListener('click', containerClick);
-    document.getElementById('inspect_cards')?.addEventListener('click', containerClick);
-    document.getElementById('bank_cards')?.addEventListener('keydown', containerKey);
-    document.getElementById('inspect_cards')?.addEventListener('keydown', containerKey);
-}
-
-
-// -------- Render --------
+// -------- Render Counters--------
 function renderCounters(data) {
     const bankWrap = document.getElementById('bank_cards');
     const inspectWrap = document.getElementById('inspect_cards');
@@ -150,11 +115,39 @@ function renderCounters(data) {
     if (inspectWrap) inspectWrap.innerHTML = inspect.length ? inspect.map(buildInspectCard).join('') : '';
 
     // 👉 enable click-to-edit
-    bindCardClickHandlers();
+    /*bindCardClickHandlers();*/
 }
 
+// attach ONCE
+document.addEventListener('DOMContentLoaded', () => {
+    const handleCardActivate = (e) => {
+        // only inside our two containers
+        const scope = e.target.closest('#bank_cards, #inspect_cards');
+        if (!scope) return;
 
-// -------- Fetch --------
+        // keyboard support
+        if (e.type === 'keydown' && !['Enter', ' '].includes(e.key)) return;
+        if (e.type === 'keydown') e.preventDefault();
+
+        // ignore clicks on buttons inside the card
+        if (e.target.closest('button')) return;
+
+        const card = e.target.closest('.proj-card[role="button"]');
+        if (!card) return;
+
+        const id = Number(card.dataset.id) || 0;
+        const queue = Number(card.dataset.queue) || 0;
+        const proj = card.dataset.project || '';
+
+        window.__selectedProjectIds = proj ? [proj] : [];
+        openEditById(id, queue);
+    };
+
+    document.addEventListener('click', handleCardActivate);
+    document.addEventListener('keydown', handleCardActivate);
+});
+
+// -------- Fetch list Counters project--------
 async function fetchProjectCounters() {
     const bu = getMultiSelectValues('#ddl_BUG_counter');            // ex. ['1','3']
     const prj = getMultiSelectValues('#ddl_PROJECT_counter');       // ex. ['102C028','102C029']
@@ -387,7 +380,8 @@ function ensureQuotaHint() {
 }
 
 function sumCheckedBankQty() {
-    return Array.from(document.querySelectorAll('#bankGrid .card')).reduce((acc, card) => {
+    const cards = document.querySelectorAll('#bankGrid .card, #bankGridEdit .card');
+    return Array.from(cards).reduce((acc, card) => {
         const chk = card.querySelector('.bank-check');
         const qty = card.querySelector('.bank-qty');
         if (chk && chk.checked && qty) acc += Number(qty.value) || 0;
@@ -395,20 +389,32 @@ function sumCheckedBankQty() {
     }, 0);
 }
 
-/**
- * Recalculate remaining quota and clamp last changed input if over cap.
- * @param {HTMLInputElement|null} lastQtyInput - pass the qty input that changed (for clamping)
- */
 function recalcBankQuota(lastQtyInput = null) {
-    const saveBtn = document.getElementById('btnSaveCounter');
-    const hint = ensureQuotaHint();
-    const cap = Number(document.getElementById('counterQty')?.value) || 0;
+    // detect which UI is active (add vs edit)
 
-    // If we need to clamp, compute "others" then force this input to fit.
+    const inEdit = !!(
+        (lastQtyInput && lastQtyInput.closest('#bankGridEdit')) ||
+        (window.__activeBankGridId === 'bankGridEdit') ||
+        document.getElementById('modalQueue48')?.classList.contains('show')
+    );
+
+    // use the right cap input
+    const cap = inEdit
+        ? (Number(document.getElementById('counterQty48')?.value) || 0)   // EDIT modal
+        : (Number(document.getElementById('counterQty')?.value) || 0);  // ADD modal
+
+    // choose the right save button to disable/enable
+    const saveBtn = inEdit ? document.getElementById('btnSaveQueue48')
+                           : document.getElementById('btnSaveCounter');
+
+    // only show the remaining-hint for ADD modal (keep old behavior)
+    const hint = inEdit ? null : ensureQuotaHint();
+
+    // when clamping, consider cards across BOTH grids
     if (lastQtyInput) {
-        const cards = Array.from(document.querySelectorAll('#bankGrid .card'));
+        const allCards = Array.from(document.querySelectorAll('#bankGrid .card, #bankGridEdit .card'));
         const codeOfLast = lastQtyInput.closest('.card')?.getAttribute('data-bank');
-        const sumOthers = cards.reduce((acc, card) => {
+        const sumOthers = allCards.reduce((acc, card) => {
             const chk = card.querySelector('.bank-check');
             const qty = card.querySelector('.bank-qty');
             const code = card.getAttribute('data-bank');
@@ -425,43 +431,66 @@ function recalcBankQuota(lastQtyInput = null) {
         }
     }
 
-    const total = sumCheckedBankQty();
+    // total from both grids
+    const total = sumCheckedBankQty();                 // you already updated this to both grids
     const remaining = Math.max(0, cap - total);
 
-    // hint UI
+    // hint (ADD modal only)
     if (hint) {
         hint.textContent = `คงเหลือ: ${remaining}`;
         hint.classList.toggle('text-danger', total > cap);
         hint.classList.toggle('text-muted', total <= cap);
     }
+}
 
-    // disable save if over (defensive)
-    if (saveBtn) saveBtn.disabled = total > cap;
+function resetAddCounterModalUI() {
+    // Uncheck counter type checkboxes
+    const chkBank = document.getElementById('chk-md-add-counter-bank');
+    const chkInspect = document.getElementById('chk-md-add-counter-inspect');
+    if (chkBank) chkBank.checked = false;
+    if (chkInspect) chkInspect.checked = false;
 
-    // 🔔 show warning if over cap, but throttle so it doesn't spam
-    if (total > cap) {
-        console.log('total > cap');
-        if (!window.__quotaWarnCooldown) {
-            showWarning("จำนวนสตาฟรวมเกินกว่าโควต้าที่กำหนด", 60 * 1000); // 1 minute
-            window.__quotaWarnCooldown = true;
-            setTimeout(() => { window.__quotaWarnCooldown = false; }, 10000); // 10s cooldown
-        }
+    // Default qty = 20
+    const qty = document.getElementById('counterQty');
+    if (qty) qty.value = 20;
+
+    // Clear project mapping selection (Choices.js aware)
+    const sel = document.getElementById('ddl_project_counter_mapping');
+    if (window.projectMapChoices) {
+        projectMapChoices.removeActiveItems(); // clears selected items
+    } else if (sel) {
+        Array.from(sel.options).forEach(o => (o.selected = false));
     }
+
+    // Clear bank selection state and grid contents (will reload fresh)
+    window.__bankSelectionState = new Map();
+    const grid = document.getElementById('bankGrid');
+    if (grid) grid.innerHTML = '';
+
+    // Hide Staff tab + switch to Details
+    document.getElementById('staffs-tab-li')?.classList.add('d-none');
+    document.getElementById('details-tab')?.click();
+
+    // Refresh quota hint/UI
+    recalcBankQuota();
+
+    // Optional: focus qty field for quick typing
+    setTimeout(() => document.getElementById('counterQty')?.focus(), 80);
 }
 
 
 async function openCounterModalMock() {
-    const modalEl = document.getElementById('counterModal');
-    if (!counterModalInstance) {
-        counterModalInstance = new bootstrap.Modal(modalEl, { backdrop: 'static' });
-    }
+
+    // 🔄 reset everything to clean defaults
+    resetAddCounterModalUI();
 
     // load list EVERY time before showing (so it's always fresh)
     await loadProjectCounterMapping(true);
 
     await loadAndRenderBanks(); 
     // show modal
-    counterModalInstance.show();
+    const m = new bootstrap.Modal(document.getElementById('counterModal'));
+    m.show();
 }
 
 
@@ -495,7 +524,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.getElementById('counterQty')?.addEventListener('input', () => recalcBankQuota());
-recalcBankQuota(); 
+document.getElementById('counterQty48')?.addEventListener('input', () => recalcBankQuota());
+
+/*recalcBankQuota(); */
 
 // ---- Collect payload for CreateCounterRequest ----
 function collectCreateCounterPayload() {
@@ -523,7 +554,6 @@ function collectCreateCounterPayload() {
         banks: banks
     };
 }
-
 
 // ---- Post payload to server ----
 document.getElementById('btnSaveCounter')?.addEventListener('click', async () => {
@@ -554,22 +584,13 @@ document.getElementById('btnSaveCounter')?.addEventListener('click', async () =>
     }
 });
 
-
-// hydrate selection from server VM (Banks[])
-function hydrateBankSelectionFromVm(banks) {
-    window.__bankSelectionState = new Map();
-    (banks || []).forEach(b => {
-        const code = b.BankCode;                  // from VM
-        const qty = Number(b.Staff) || 0;
-        const checked = (b.FlagActive === true) && qty > 0;
-        if (code) window.__bankSelectionState.set(code, { checked, qty });
-    });
-}
-
-// after loadAndRenderBanks(), sync check/qty on the rendered cards to __bankSelectionState
 function applyBankStateToGrid(containerId = 'bankGrid') {
     const grid = document.getElementById(containerId);
     if (!grid) return;
+
+    // mark active grid so recalc uses the right cap
+    window.__activeBankGridId = containerId;
+
     grid.querySelectorAll('.card[data-bank]').forEach(card => {
         const code = card.getAttribute('data-bank');
         const s = window.__bankSelectionState?.get(code);
@@ -587,40 +608,10 @@ function applyBankStateToGrid(containerId = 'bankGrid') {
         // ensure state + total refresh
         chk.dispatchEvent(new Event('change'));
     });
+
     recalcBankQuota();
 }
 
-// open edit by mapping id (calls your API, fills modal by type)
-async function openEditById(id, queueTypeId) {
-    try {
-        console.log(id);
-        const res = await fetch(`${baseUrl}OtherSettings/GetProjectCounterDetail?id=${encodeURIComponent(id)}`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const { data } = await res.json(); // ← matches Controller action below
-
-        if (queueTypeId === 48) {
-            document.getElementById('counterQty48').value = Number(data?.EndCounter) || 0;
-            // pre-hydrate bank state from server
-            hydrateBankSelectionFromVm(data?.Banks);
-            // render bank grid, then apply state and show
-            await loadAndRenderBanks('bankGrid');
-            applyBankStateToGrid('bankGrid');
-
-            const m = new bootstrap.Modal(document.getElementById('modalQueue48'));
-            m.show();
-        } else {
-            // 49
-            document.getElementById('counterQty49').value = Number(data?.EndCounter) || 0;
-            const m = new bootstrap.Modal(document.getElementById('modalQueue49'));
-            m.show();
-        }
-    } catch (err) {
-        console.error('openEditById error:', err);
-        // (optional) toast/alert
-    }
-}
-
-// If you previously wired clicks, switch them to use openEditById:
 function bindCardClickHandlers() {
     const onClick = (e) => {
         const card = e.target.closest('.proj-card[role="button"]');
@@ -643,3 +634,255 @@ function bindCardClickHandlers() {
     document.getElementById('bank_cards')?.addEventListener('keydown', onKey);
     document.getElementById('inspect_cards')?.addEventListener('keydown', onKey);
 }
+
+// open edit by mapping id (calls your API, fills modal by type)
+async function openEditById(id, queueTypeId) {
+    try {
+        console.log(id);
+        const res = await fetch(`${baseUrl}OtherSettings/GetProjectCounterDetail?id=${encodeURIComponent(id)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const { data } = await res.json(); // ← matches Controller action below
+
+        if (queueTypeId === 48) {
+            document.getElementById('Projectnamebank').value = data?.ProjectName || "";
+            document.getElementById('counterQty48').value = Number(data?.EndCounter) || 0;
+            document.getElementById('hdmdIDprojectcounterbankedit').value = Number(data?.ID) || 0;
+            document.getElementById('Updatedatebank').value = data?.UpdateDate || "";
+            document.getElementById('Updatebybank').value = data?.UpdateName || "";
+            await loadAndRenderBanksEdit('bankGridEdit');
+            await hydrateBankSelectionFromVm(data?.Banks);
+            applyBankStateToGrid('bankGridEdit');   // <- was 'bankGrid'
+            const m = new bootstrap.Modal(document.getElementById('modalQueue48'));
+            m.show();
+        } else {
+            // 49
+            document.getElementById('counterQty49').value = Number(data?.EndCounter) || 0;
+            document.getElementById('ProjectnameInspect').value = data?.ProjectName || "";
+            document.getElementById('hdmdIDprojectcounterInspectedit').value = Number(data?.ID) || 0;
+            document.getElementById('UpdatedateInspect').value = data?.UpdateDate || "";
+            document.getElementById('UpdatebyInspect').value = data?.UpdateName || "";
+            const m = new bootstrap.Modal(document.getElementById('modalQueue49'));
+            m.show();
+        }
+    } catch (err) {
+        console.error('openEditById error:', err);
+    }
+}
+
+async function loadAndRenderBanksEdit(containerId = 'bankGridEdit') {
+    const grid = document.getElementById(containerId);
+    if (!grid) return;
+
+    // persist user toggles across reloads (one global map)
+    window.__bankSelectionState = window.__bankSelectionState || new Map();
+
+    // Build logo base URL (no Razor "~/" needed)
+    const ROOT = (document.querySelector('base')?.href || window.location.origin + '/');
+    const BANK_LOGO_BASE = new URL('image/ThaiBankicon/', ROOT).href;
+
+    // filename is BankCode + ".png"
+    const bankLogoSrc = (code) => `${BANK_LOGO_BASE}${code}.png`;
+
+    // dedupe but KEEP INPUT ORDER (server already orders by LineOrder)
+    const dedupeBy = (arr, key) => {
+        const seen = new Set();
+        const out = [];
+        for (const o of arr || []) {
+            const k = o?.[key];
+            if (!k || seen.has(k)) continue;
+            seen.add(k);
+            out.push(o);
+        }
+        return out;
+    };
+
+    const escapeHtml = (s) => (s ?? '').toString()
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+    function wireCardBehaviour(card) {
+        const chk = card.querySelector('.bank-check');
+        const qty = card.querySelector('.bank-qty');
+        const code = card.getAttribute('data-bank');
+
+        const sync = () => {
+            qty.disabled = !chk.checked;
+            window.__bankSelectionState.set(code, { checked: chk.checked, qty: Number(qty.value) || 0 });
+        };
+
+        chk.addEventListener('change', () => { sync(); recalcBankQuota(); });
+        qty.addEventListener('input', () => { sync(); recalcBankQuota(qty); });
+
+        sync();
+    }
+
+
+    const renderCard = ({ ValueInt: id, ValueString: code, Text: name }) => {
+        const prev = window.__bankSelectionState.get(code) || { checked: false, qty: 0 };
+        const col = document.createElement('div');
+        col.className = 'col-12 col-md-6 col-xl-4';
+        col.innerHTML = `<div class="card h-100 border-0 shadow-sm" data-bank="${escapeHtml(code)}" data-bank-id="${id}">
+                              <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                                  <div class="d-flex align-items-center gap-3 flex-grow-1">
+                                    <img src="${bankLogoSrc(code)}" alt="${escapeHtml(code)}" class="rounded-circle border" style="width:44px;height:44px;">
+                                    <div>
+                                      <div class="fw-semibold text-wrap">${escapeHtml(code)} - ${escapeHtml(name)}</div>
+                                    </div>
+                                  </div>
+                                  <div class="d-flex align-items-center gap-2">
+                                    <div class="form-check form-switch m-0">
+                                      <input class="form-check-input bank-check" type="checkbox" ${prev.checked ? 'checked' : ''}>
+                                    </div>
+                                    <input type="number" class="form-control form-control-sm bank-qty" placeholder="จำนวน…" min="0" value="${prev.qty || 0}" style="width:110px;">
+                                  </div>
+                                </div>
+                              </div>
+                           </div>`;
+        wireCardBehaviour(col.querySelector('.card'));
+        return col;
+    };
+
+
+    // Loading state
+    grid.innerHTML = `<div class="col-12">
+                          <div class="d-flex align-items-center text-muted small px-2">
+                            <i class="fa fa-spinner fa-spin me-2"></i>Loading banks…
+                          </div>
+                        </div>`;
+
+    try {
+        const res = await fetch(baseUrl + 'OtherSettings/GetListBank', { method: 'GET' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        // expect server already ordered by LineOrder
+        let data = await res.json(); // [{ ValueString: BankCode, Text: BankName }]
+
+        // keep server order, just dedupe by code
+        data = dedupeBy(data, 'ValueString');
+
+        // render
+        grid.innerHTML = '';
+        const frag = document.createDocumentFragment();
+        data.forEach(item => frag.appendChild(renderCard(item)));
+        grid.appendChild(frag);
+
+        // Select all / Clear (if buttons exist)
+        document.getElementById('btnSelectAllBanks')?.addEventListener('click', () => {
+            grid.querySelectorAll('.bank-check').forEach(chk => {
+                if (!chk.checked) { chk.checked = true; chk.dispatchEvent(new Event('change')); }
+            });
+        });
+        document.getElementById('btnClearBanks')?.addEventListener('click', () => {
+            grid.querySelectorAll('.bank-check').forEach(chk => {
+                if (chk.checked) { chk.checked = false; chk.dispatchEvent(new Event('change')); }
+            });
+        });
+    } catch (err) {
+        console.error('loadAndRenderBanks error:', err);
+        grid.innerHTML = `<div class="col-12">
+                            <div class="alert alert-warning mb-0">ไม่สามารถโหลดรายชื่อธนาคารได้</div>
+                          </div>`;
+    }
+}
+
+async function hydrateBankSelectionFromVm(banks) {
+    try {
+    window.__bankSelectionState = new Map();
+    (banks || []).forEach(b => {
+        const code = b.BankCode;                  // from VM
+        const qty = Number(b.Staff) || 0;
+        const checked = (b.FlagActive === true) && qty > 0;
+        if (code) window.__bankSelectionState.set(code, { checked, qty });
+    });
+    } catch (err) {
+        console.error('load hydrateBankSelectionFromVm is error:', err);
+    }
+}
+
+function collectEditBanks(containerId = 'bankGridEdit') {
+    return Array.from(document.querySelectorAll(`#${containerId} .card[data-bank]`))
+        .map(card => ({
+            bankId: Number(card.getAttribute('data-bank-id')) || 0,
+            code: card.getAttribute('data-bank') || '',
+            checked: !!card.querySelector('.bank-check')?.checked,
+            qty: Number(card.querySelector('.bank-qty')?.value) || 0
+        }));
+}
+
+
+document.getElementById('btnSaveQueue48')?.addEventListener('click', async () => {
+    const id = Number(document.getElementById('hdmdIDprojectcounterbankedit')?.value) || 0;
+    const counterQty = Number(document.getElementById('counterQty48')?.value) || 0;
+    const banks = collectEditBanks('bankGridEdit');     // all banks with checked/qty
+
+    if (id <= 0) { showWarning('ไม่พบรหัสข้อมูล (ID).', 2500); return; }
+
+    // validate: sum checked qty ≤ counterQty
+    const sumChecked = banks.filter(b => b.checked).reduce((a, b) => a + (b.qty || 0), 0);
+    if (sumChecked > counterQty) {
+        showWarning(`จำนวนสตาฟรวม (${sumChecked}) มากกว่าโควต้า (${counterQty})`, 3000);
+        return;
+    }
+
+    const payload = {
+        id,                 // TR_ProjectCounter_Mapping.ID
+        queueTypeId: 48,
+        counterQty,         // EndCounter
+        banks               // [{bankId, code, checked, qty}, ...]
+    };
+
+    try {
+        const res = await fetch(baseUrl + 'OtherSettings/UpdateCounterBank', {  // ← change route if needed
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+
+        if (!json?.ok) throw new Error(json?.message || 'Update failed');
+
+        showWarning('อัปเดตสำเร็จ', 1800);
+        // close modal
+        document.querySelector('#modalQueue48 [data-bs-dismiss="modal"]')?.click();
+        // refresh list
+        fetchProjectCounters?.();
+    } catch (err) {
+        console.error('UpdateCounterBank error:', err);
+        showWarning('อัปเดตไม่สำเร็จ', 3000);
+    }
+});
+
+// Save Inspect (QueueType 49)
+document.getElementById('btnSaveQueue49')?.addEventListener('click', async () => {
+    const id = Number(document.getElementById('hdmdIDprojectcounterInspectedit')?.value) || 0;
+    const counterQty = Number(document.getElementById('counterQty49')?.value) || 0;
+
+    if (id <= 0) { showWarning('ไม่พบรหัสข้อมูล (ID).', 2500); return; }
+
+    const payload = {
+        id,
+        queueTypeId: 49,   
+        counterQty: counterQty,
+    };
+
+    try {
+        const res = await fetch(baseUrl + 'OtherSettings/UpdateCounterInspect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        if (!json?.ok) throw new Error(json?.message || 'Update failed');
+
+        showWarning('อัปเดตสำเร็จ', 1800);
+        document.querySelector('#modalQueue49 [data-bs-dismiss="modal"]')?.click(); // close
+        fetchProjectCounters?.(); // refresh cards
+    } catch (err) {
+        console.error('UpdateCounterInspect error:', err);
+        showWarning('อัปเดตไม่สำเร็จ', 3000);
+    }
+});
+
+
