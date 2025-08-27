@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Models.Pages.ProjectCounter;
 using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
 using Project.CSS.Revise.Web.Service;
+
 
 namespace Project.CSS.Revise.Web.Controllers
 {
@@ -442,5 +442,6 @@ namespace Project.CSS.Revise.Web.Controllers
                 return Json(new { ok = false, message = msg });
             }
         }
+
     }
 }

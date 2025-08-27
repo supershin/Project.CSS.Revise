@@ -136,18 +136,31 @@
         color: #fff;
     }
 
+    /* icon-btn : ใช้ฟอนต์ Prompt แต่ไม่หนา */
     .icon-btn {
         background: #e7f4f4;
         color: #0f5b5b;
         border: none;
         border-radius: 10px;
         padding: .5rem .7rem;
-        font-weight: 700;
+        font-family: "Prompt", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        font-weight: 400 !important; /* <- no bold */
+        font-size: 0.95rem;
+        line-height: 1.25;
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem; /* แทน margin-right บน <i> */
     }
 
-    .icon-btn i {
-        margin-right: .35rem;
-    }
+        .icon-btn i {
+            font-weight: 400;
+        }
+        /* กันฟอนต์หนาจาก parent */
+        .icon-btn b, .icon-btn strong {
+            font-weight: 400 !important;
+        }
+    /* กันกรณีมี <b>/<strong> ภายใน */
+
 
     .btn-row {
         gap: .5rem;
@@ -155,26 +168,47 @@
 
 
 </style>
-<div class="container py-4 py-lg-5">
+<div class="container">
     <!-- ===================== Bank Pre-Approve ===================== -->
-    <div class="mb-3">
-        <span class="section-pill pill-green">Bank Pre-Approve (สินเชื่อ)</span>
+
+    <div class="d-flex gap-2 my-3">
+        <button id="btnQrSimple" class="btn btn-outline-secondary">
+            <i class="bi bi-eye me-1"></i>Preview Simple QR
+        </button>
+        <button id="btnQrPretty" class="btn btn-primary">
+            <i class="bi bi-download me-1"></i>Download Pretty QC QR
+        </button>
     </div>
-    <div class="row g-4" id="bank_cards">
-        <!-- dynamic -->
-   </div>
+
+
+
+    <div id="show_hide_bank" class="d-none">
+        <div class="mb-3">
+            <span class="section-pill pill-green">
+                <i class="bi bi-bank me-1"></i>Bank
+            </span>
+        </div>
+        <div class="row g-4" id="bank_cards">
+            <!-- dynamic -->
+        </div>
+    </div>
 
     <!-- ===================== Inspect ===================== -->
-    <div class="mt-5 mb-3">
-        <span class="section-pill pill-amber">Inspect (รับมอบห้อง)</span>
+    <div id="show_hide_inspect" class="d-none">
+        <div class="mt-5 mb-3">
+            <span class="section-pill pill-amber">
+                <i class="mdi mdi-clipboard-check-outline me-2"></i>Inspect
+            </span>
+        </div>
+        <div class="row g-4" id="inspect_cards">
+            <!-- dynamic -->
+        </div>
     </div>
-    <div class="row g-4" id="inspect_cards">
-        <!-- dynamic -->
-    </div>
+
 
 </div>
 
-<partial name="Partial_modal_add_counter" />
+<partial name="Partial_modal_counter" />
 @section Styles {
     <link rel="stylesheet" href="~/css/counter.css?ver=@DateTime.Now.Ticks">
 }

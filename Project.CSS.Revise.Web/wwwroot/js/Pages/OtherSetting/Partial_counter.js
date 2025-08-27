@@ -45,9 +45,9 @@ function buildBankCard(row) {
                     data-end="${row.EndCounter}">
                 <div class="d-flex justify-content-between align-items-start">
                 <div>
-                    <h3 class="site-name">${title}</h3>
+                    <h6>${title}</h3>
                 </div>
-                <span class="count-badge is-top-right is-green">${units} หน่วย</span>
+                <span class="count-badge is-top-right is-green">${units} Counter</span>
                 </div>
                 <div class="mt-auto pt-3 d-flex justify-content-between align-items-center flex-wrap btn-row">
                 <button class="action-btn" onclick="event.stopPropagation()">
@@ -72,7 +72,7 @@ function buildInspectCard(row) {
     const units = positionCountInclusive(row.StartCounter, row.EndCounter);
 
     return `
-              <div class="col-3">
+              <div class="col-4">
                 <div class="proj-card d-flex flex-column"
                      role="button" tabindex="0" style="cursor:pointer"
                      data-id="${row.ID}"
@@ -81,9 +81,9 @@ function buildInspectCard(row) {
                      data-end="${row.EndCounter}">
 
                   <!-- top-right pill using your .count-badge -->
-                  <span class="count-badge is-top-right is-amber">${units} หน่วย</span>
+                  <span class="count-badge is-top-right is-amber">${units} Counter</span>
                   <div class="d-flex justify-content-between align-items-start">
-                    <div><h3 class="site-name">${title}</h3></div>
+                    <div><h6>${title}</h3></div>
                   </div>
 
                   <div class="mt-auto pt-3 d-flex justify-content-between align-items-center flex-wrap btn-row">
@@ -96,6 +96,37 @@ function buildInspectCard(row) {
 }
 
 // -------- Render Counters--------
+
+//document.addEventListener('shown.bs.tab', function (ev) {
+//    // ev.target = the newly activated tab <a>
+//    if (ev.target && ev.target.id === 'counter-tab') {
+//        fetchProjectCounters?.(); // call your fetch
+//    }
+//});
+
+
+const QUEUE = { ALL: -1, BANK: 48, INSPECT: 49 };
+
+function getSelectedQueueType() {
+    let v = document.getElementById('ddl_counter_type')?.value ?? "-1";
+    if (v === "" || v === null) v = "-1";
+    const n = Number(v);
+    return isNaN(n) ? QUEUE.ALL : n;
+}
+
+// ซ่อน/แสดงกล่องตาม queue type
+function updateCounterSectionsVisibility() {
+    const q = getSelectedQueueType();
+    const bankBox = document.getElementById('show_hide_bank');
+    const inspectBox = document.getElementById('show_hide_inspect');
+
+    const showBank = (q === QUEUE.ALL || q === QUEUE.BANK);
+    const showInspect = (q === QUEUE.ALL || q === QUEUE.INSPECT);
+
+    bankBox?.classList.toggle('d-none', !showBank);
+    inspectBox?.classList.toggle('d-none', !showInspect);
+}
+
 function renderCounters(data) {
     const bankWrap = document.getElementById('bank_cards');
     const inspectWrap = document.getElementById('inspect_cards');
@@ -104,7 +135,7 @@ function renderCounters(data) {
 
     if (!Array.isArray(data) || data.length === 0) {
         if (bankWrap) bankWrap.innerHTML = emptyCard('ไม่พบข้อมูล');
-        if (inspectWrap) inspectWrap.innerHTML = '';
+        if (inspectWrap) inspectWrap.innerHTML = emptyCard('ไม่พบข้อมูล');
         return;
     }
 
@@ -178,6 +209,7 @@ async function fetchProjectCounters() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json(); // คาดว่าเป็น List<ProjectCounterMappingModel.ListData>
         renderCounters(json);
+        updateCounterSectionsVisibility(); // <- ตรงนี้สำคัญ
     } catch (err) {
         console.error('GetListProjectCounter error:', err);
         renderCounters([]);
@@ -478,7 +510,6 @@ function resetAddCounterModalUI() {
     setTimeout(() => document.getElementById('counterQty')?.focus(), 80);
 }
 
-
 async function openCounterModalMock() {
 
     // 🔄 reset everything to clean defaults
@@ -522,7 +553,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update on checkbox change
     chkBank.addEventListener('change', toggleStaffTab);
 });
-
 document.getElementById('counterQty')?.addEventListener('input', () => recalcBankQuota());
 document.getElementById('counterQty48')?.addEventListener('input', () => recalcBankQuota());
 
@@ -554,35 +584,6 @@ function collectCreateCounterPayload() {
         banks: banks
     };
 }
-
-// ---- Post payload to server ----
-document.getElementById('btnSaveCounter')?.addEventListener('click', async () => {
-    const payload = collectCreateCounterPayload();
-
-    try {
-        const res = await fetch(baseUrl + 'OtherSettings/CreateCounter', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-
-        const json = await res.json();
-        console.log('Server response:', json);
-
-        // show success feedback
-        showWarning('บันทึกสำเร็จ', 2000);
-        // close modal
-        document.querySelector('#counterModal [data-bs-dismiss="modal"]')?.click();
-
-    } catch (err) {
-        console.error('CreateCounter error:', err);
-        showWarning('บันทึกล้มเหลว', 3000);
-    }
-});
 
 function applyBankStateToGrid(containerId = 'bankGrid') {
     const grid = document.getElementById(containerId);
@@ -810,17 +811,48 @@ function collectEditBanks(containerId = 'bankGridEdit') {
 }
 
 
+document.getElementById('btnSaveCounter')?.addEventListener('click', async () => {
+    showLoading();
+    const payload = collectCreateCounterPayload();
+    try {
+        const res = await fetch(baseUrl + 'OtherSettings/CreateCounter', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        const json = await res.json();
+        document.querySelector('#counterModal [data-bs-dismiss="modal"]')?.click();
+        fetchProjectCounters?.();
+        hideLoading();
+        successMessage('บันทึกสำเร็จ');  
+    } catch (err) {
+        hideLoading();
+        successMessage('บันทึกล้มเหลว');  
+    }
+});
+
 document.getElementById('btnSaveQueue48')?.addEventListener('click', async () => {
+    showLoading();
     const id = Number(document.getElementById('hdmdIDprojectcounterbankedit')?.value) || 0;
     const counterQty = Number(document.getElementById('counterQty48')?.value) || 0;
     const banks = collectEditBanks('bankGridEdit');     // all banks with checked/qty
 
-    if (id <= 0) { showWarning('ไม่พบรหัสข้อมูล (ID).', 2500); return; }
+    if (id <= 0) {
+        hideLoading();
+        showWarning('ไม่พบรหัสข้อมูล (ID).', 5000);
+        return;
+    }
 
     // validate: sum checked qty ≤ counterQty
     const sumChecked = banks.filter(b => b.checked).reduce((a, b) => a + (b.qty || 0), 0);
     if (sumChecked > counterQty) {
-        showWarning(`จำนวนสตาฟรวม (${sumChecked}) มากกว่าโควต้า (${counterQty})`, 3000);
+        hideLoading();
+        showWarning(`จำนวนสตาฟรวม (${sumChecked}) มากกว่าโควต้า (${counterQty})`, 5000);
         return;
     }
 
@@ -841,25 +873,21 @@ document.getElementById('btnSaveQueue48')?.addEventListener('click', async () =>
         const json = await res.json();
 
         if (!json?.ok) throw new Error(json?.message || 'Update failed');
-
-        showWarning('อัปเดตสำเร็จ', 1800);
-        // close modal
         document.querySelector('#modalQueue48 [data-bs-dismiss="modal"]')?.click();
-        // refresh list
         fetchProjectCounters?.();
+        hideLoading();
+        successMessage('อัปเดตสำเร็จ');  
     } catch (err) {
-        console.error('UpdateCounterBank error:', err);
-        showWarning('อัปเดตไม่สำเร็จ', 3000);
+        hideLoading();
+        errorMessage('อัปเดตไม่สำเร็จ');
     }
 });
 
-// Save Inspect (QueueType 49)
 document.getElementById('btnSaveQueue49')?.addEventListener('click', async () => {
+    showLoading();
     const id = Number(document.getElementById('hdmdIDprojectcounterInspectedit')?.value) || 0;
     const counterQty = Number(document.getElementById('counterQty49')?.value) || 0;
-
     if (id <= 0) { showWarning('ไม่พบรหัสข้อมูล (ID).', 2500); return; }
-
     const payload = {
         id,
         queueTypeId: 49,   
@@ -875,13 +903,88 @@ document.getElementById('btnSaveQueue49')?.addEventListener('click', async () =>
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const json = await res.json();
         if (!json?.ok) throw new Error(json?.message || 'Update failed');
-
-        showWarning('อัปเดตสำเร็จ', 1800);
         document.querySelector('#modalQueue49 [data-bs-dismiss="modal"]')?.click(); // close
-        fetchProjectCounters?.(); // refresh cards
+        fetchProjectCounters?.();
+        hideLoading();
+        successMessage('อัปเดตสำเร็จ');          
     } catch (err) {
-        console.error('UpdateCounterInspect error:', err);
-        showWarning('อัปเดตไม่สำเร็จ', 3000);
+        hideLoading();
+        errorMessage('อัปเดตไม่สำเร็จ');
+    }
+});
+
+
+// helper: ดึง filename จาก Content-Disposition
+function getFilenameFromHeaders(res, fallbackName) {
+    const disp = res.headers.get('Content-Disposition');
+    if (!disp) return fallbackName;
+    let m = /filename\*?=(?:UTF-8'')?["']?([^"';]+)["']?/i.exec(disp);
+    if (!m) m = /filename=["']?([^"';]+)["']?/i.exec(disp);
+    return m && m[1] ? decodeURIComponent(m[1]) : fallbackName;
+}
+
+// helper: บังคับดาวน์โหลด blob
+function triggerDownload(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
+
+// ====== call IActionResult: /qr/simple (GET -> File) ======
+document.getElementById('btnQrSimple')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btnQrSimple');
+    const originalHTML = btn ? btn.innerHTML : '';
+
+    try {
+        showLoading?.();
+        if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Loading...`; }
+
+        // เรียกตรงตาม route ของ IActionResult
+        const res = await fetch(baseUrl + 'QrDemo/simple', { method: 'GET' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        const blob = await res.blob();
+        const filename = getFilenameFromHeaders(res, 'QC_simple.png');
+        triggerDownload(blob, filename);
+
+        successMessage?.('ดาวน์โหลดสำเร็จ: ' + filename);
+    } catch (err) {
+        console.error('QR simple error:', err);
+        errorMessage?.('ดาวน์โหลดล้มเหลว');
+    } finally {
+        hideLoading?.();
+        if (btn) { btn.disabled = false; btn.innerHTML = originalHTML; }
+    }
+});
+
+// ====== call IActionResult: /qr/pretty (GET -> File) ======
+document.getElementById('btnQrPretty')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btnQrPretty');
+    const originalHTML = btn ? btn.innerHTML : '';
+
+    try {
+        showLoading?.();
+        if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Loading...`; }
+
+        const res = await fetch(baseUrl + 'QrDemo/pretty', { method: 'GET' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        const blob = await res.blob();
+        const filename = getFilenameFromHeaders(res, 'QC_pretty.png');
+        triggerDownload(blob, filename);
+
+        successMessage?.('ดาวน์โหลดสำเร็จ: ' + filename);
+    } catch (err) {
+        console.error('QR pretty error:', err);
+        errorMessage?.('ดาวน์โหลดล้มเหลว');
+    } finally {
+        hideLoading?.();
+        if (btn) { btn.disabled = false; btn.innerHTML = originalHTML; }
     }
 });
 
