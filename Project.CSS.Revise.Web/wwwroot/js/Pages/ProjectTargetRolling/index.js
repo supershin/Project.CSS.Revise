@@ -166,6 +166,32 @@ function initBuDropdown() {
     document.getElementById('ddl_bug').addEventListener('change', onBuChanged);
 }
 
+function initProjectstatusDropdown() {
+    choicesBug = new Choices('#ddl_project_status', {
+        removeItemButton: true,
+        placeholderValue: 'เลือกสถานะโครงการได้มากกว่า 1',
+        searchEnabled: true,
+        itemSelectText: '',
+        shouldSort: false
+    });
+
+    document.getElementById('ddl_project_status').addEventListener('change', onBuChanged);
+}
+
+function initProjectpartnerDropdown() {
+    const ddlprojectpartner = document.getElementById('ddl_project_partner');
+    if (ddlprojectpartner) {
+        new Choices(ddlprojectpartner, {
+            removeItemButton: true,
+            searchEnabled: true,
+            placeholderValue: 'ทั้งหมด',     // ✅ เพิ่ม placeholder ตรงนี้
+            noResultsText: 'ไม่พบ Partner',
+            noChoicesText: 'ไม่มีตัวเลือก',
+            shouldSort: false
+        });
+    }
+}
+
 // ------------------------ PROJECT ------------------------
 
 function initProjectDropdown() {
@@ -223,6 +249,8 @@ function initAllDropdowns() {
     initMonthDropdown();
     initPlanTypeDropdown();
     initBuDropdown();
+    initProjectstatusDropdown();
+    /*initProjectpartnerDropdown();*/
     initProjectDropdown();
 }
 
@@ -240,7 +268,9 @@ function collectRollingPlanFilters() {
             return $(this).text();
         }).get().join(','), // ✅ ดึงเฉพาะ text ของตัวที่เลือก
         L_Bu: $('#ddl_bug').val() ? $('#ddl_bug').val().join(',') : '',
-        L_ProjectID: $('#ddl_project').val() ? $('#ddl_project').val().join(',') : ''
+        L_ProjectID: $('#ddl_project').val() ? $('#ddl_project').val().join(',') : '',
+        L_ProjectStatus: $('#ddl_project_status').val() ? $('#ddl_project_status').val().join(',') : '',
+        L_ProjectPartner: $('#ddl_project_partner').val()
     };
 }
 
@@ -298,6 +328,7 @@ function renderTableFromJson(data, selectedMonths) {
       <thead>
         <tr>
           <th>Project</th>
+          <th>Bu</th>
           <th>Plan Type</th>
           <th>Year</th>`;
 
@@ -308,7 +339,7 @@ function renderTableFromJson(data, selectedMonths) {
     html += `<th colspan="2">Total</th>`;
 
     html += `</tr><tr>
-      <th></th><th></th><th></th>`;
+      <th></th><th></th><th></th><th></th>`;
 
     selectedMonths.forEach(() => {
         html += `<th>Unit</th><th>Value (M)</th>`;
@@ -323,9 +354,11 @@ function renderTableFromJson(data, selectedMonths) {
             const year = Number(row.PlanYear ?? 0);
 
             html += `<tr data-projectid="${pid}" data-plantypeid="${ptypeId}" data-year="${year}">
-        <td>${row.ProjectName ?? ''}</td>
-        <td>${row.PlanTypeName ?? ''}</td>
-        <td>${row.PlanYear ?? ''}</td>`;
+                        <td>${row.ProjectName ?? ''}</td>
+                        <td>${row.BuName ?? ''}</td>
+                        <td>${row.PlanTypeName ?? ''}</td>
+                        <td>${row.PlanYear ?? ''}</td>
+                    `;
 
             selectedMonths.forEach(m => {
                 const key = monthLabels[m]; // e.g. "Jan"
@@ -342,22 +375,22 @@ function renderTableFromJson(data, selectedMonths) {
                 const valueRaw = dec(valueComma);  // "10760000.00"
 
                 html += `
-          <td class="editable"
-              contenteditable="false"
-              data-field="${key}_Unit"
-              data-month="${m}"
-              data-planamountid="183"
-              data-raw="${unitRaw}"
-              data-old="${unitRaw}">${unitShort}</td>
+                          <td class="editable"
+                              contenteditable="false"
+                              data-field="${key}_Unit"
+                              data-month="${m}"
+                              data-planamountid="183"
+                              data-raw="${unitRaw}"
+                              data-old="${unitRaw}">${unitShort}</td>
 
-          <td class="editable"
-              contenteditable="false"
-              data-field="${key}_Value"
-              data-month="${m}"
-              data-planamountid="184"
-              data-raw="${valueRaw}"
-              data-old="${valueRaw}">${valueShort}</td>`;
-            });
+                          <td class="editable"
+                              contenteditable="false"
+                              data-field="${key}_Value"
+                              data-month="${m}"
+                              data-planamountid="184"
+                              data-raw="${valueRaw}"
+                              data-old="${valueRaw}">${valueShort}</td>`;
+                            });
 
             // Totals (show short, keep raw on attrs too for later if needed)
             const totalUnitShort = row.Total_Unit ?? '-';
@@ -366,9 +399,10 @@ function renderTableFromJson(data, selectedMonths) {
             const totalValueRaw = dec(row.Total_Value_comma ?? '');
 
             html += `
-        <td class="total-unit"  data-raw="${totalUnitRaw}">${totalUnitShort}</td>
-        <td class="total-value" data-raw="${totalValueRaw}">${totalValueShort}</td>
-      </tr>`;
+                        <td class="total-unit"  data-raw="${totalUnitRaw}">${totalUnitShort}</td>
+                        <td class="total-value" data-raw="${totalValueRaw}">${totalValueShort}</td>
+                      </tr>
+                    `;
         });
     } else {
         html += `<tr><td colspan="${3 + selectedMonths.length * 2 + 2}" class="text-center">ไม่พบข้อมูล</td></tr>`;
@@ -536,9 +570,58 @@ function cancelEditMode() {
     setEditMode(false);
 }
 
+// --- Busy overlay (minimal) ---
+const Busy = (() => {
+    let $el, $msg;
+    function ensure() {
+        if (document.getElementById('uiBusy')) { $el = $('#uiBusy'); $msg = $el.find('.msg'); return; }
+        // style (very small)
+        const css = `
+      .ui-busy{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+        background:rgba(255,255,255,.6);backdrop-filter:saturate(180%) blur(2px);z-index:2000}
+      .ui-busy.d-none{display:none}
+    `;
+        const s = document.createElement('style'); s.textContent = css; document.head.appendChild(s);
+        // overlay
+        $('body').append(`
+      <div id="uiBusy" class="ui-busy d-none" aria-live="polite" aria-busy="true">
+        <div class="text-center">
+          <div class="spinner-border" role="status" aria-label="Loading"></div>
+          <div class="small text-muted mt-2 msg">Loading…</div>
+        </div>
+      </div>
+    `);
+        $el = $('#uiBusy'); $msg = $el.find('.msg');
+    }
+    function show(text = 'Loading…') { ensure(); $msg.text(text); $el.removeClass('d-none'); }
+    function hide() { if ($el) $el.addClass('d-none'); }
+    async function withBusy(fn, text = 'Loading…', minMs = 250) {
+        show(text);
+        await new Promise(r => setTimeout(r, 0)); // let overlay paint
+        const t0 = performance.now();
+        try {
+            const out = await Promise.resolve().then(fn);
+            const elapsed = performance.now() - t0;
+            const wait = Math.max(0, minMs - elapsed);
+            setTimeout(hide, wait);
+            return out;
+        } catch (e) {
+            hide(); throw e;
+        }
+    }
+    return { show, hide, with: withBusy };
+})();
+
+
 // wire buttons
-$(document).on('click', '#btnEdit', () => setEditMode(true));
-$(document).on('click', '#btnCancelEdit', cancelEditMode);
+$(document).on('click', '#btnEdit', () =>
+    Busy.with(() => setEditMode(true), 'Entering edit mode…', 250)
+);
+
+$(document).on('click', '#btnCancelEdit', () =>
+    Busy.with(() => cancelEditMode(), 'Reverting changes…', 250)
+);
+
 
 
 function upsertPendingEdit(change) {
@@ -684,9 +767,6 @@ function renderSummaryCards(datasum) {
                                 <div>
                                     <h4 class="fw-semibold mb-0" style="color: ${color}">${unit}</h4>
                                     <div class="text-muted small">Unit</div>
-                                </div>
-                                <div class="vr mx-3"></div>
-                                <div>
                                     <h4 class="fw-semibold mb-0" style="color: ${color}">${value}</h4>
                                     <div class="text-muted small">Value</div>
                                 </div>
@@ -789,7 +869,6 @@ function initImportExcelHandler() {
             });
     });
 }
-
 
 
 window.exportExcelProjectAndTargetRolling = function () {

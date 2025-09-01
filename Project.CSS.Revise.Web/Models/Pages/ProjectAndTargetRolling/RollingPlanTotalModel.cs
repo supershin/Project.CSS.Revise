@@ -8,6 +8,8 @@
         public string? L_ProjectID { get; set; }
         public string? L_Bu { get; set; }
         public string? L_PlanTypeID { get; set; }
+        public string? L_ProjectStatus { get; set; }
+        public string? L_ProjectPartner { get; set; }
 
         public string? PlanTypeName { get; set; }
         public string? PlanAmountName { get; set; }

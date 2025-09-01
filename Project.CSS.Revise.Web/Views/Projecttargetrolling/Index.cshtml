@@ -42,11 +42,11 @@
                             <div class="collapse show" id="collapseOne" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                                 <div class="card-body filter-cards-view animate-chk">
                                     <div class="row">
-                                        <div class="job-filter mb-3 col-4">
+                                        <div class="job-filter mb-3 col-3">
                                             <label for="ddl_year" class="form-label fw-bold">Year</label>
                                             <select id="ddl_year" class="form-control multi-select" multiple></select>
                                         </div>
-                                        <div class="job-filter mb-3 col-4">
+                                        <div class="job-filter mb-3 col-3">
                                             <label for="ddl_quarter" class="form-label fw-bold">Quarter</label>
                                             <select id="ddl_quarter" class="form-control multi-select" multiple>
                                                 <option value="Q1">Q1</option>
@@ -55,7 +55,7 @@
                                                 <option value="Q4">Q4</option>
                                             </select>
                                         </div>
-                                        <div class="job-filter mb-3 col-4">
+                                        <div class="job-filter mb-3 col-3">
                                             <label for="ddl_month" class="form-label fw-bold">Month</label>
                                             <select id="ddl_month" class="form-control" multiple>
                                                 <option value="1">Jan</option>
@@ -72,7 +72,7 @@
                                                 <option value="12">Dec</option>
                                             </select>
                                         </div>
-                                        <div class="job-filter mb-3 col-4">
+                                        <div class="job-filter mb-3 col-3">
                                             <label for="ddl_plantype" class="form-label fw-bold">Plan Type</label>
                                             <select id="ddl_plantype" class="form-control" multiple>
                                                 @if (ViewBag.ListPlanType != null)
@@ -84,8 +84,7 @@
                                                 }
                                             </select>
                                         </div>
-
-                                        <div class="job-filter mb-3 col-4">
+                                        <div class="job-filter mb-3 col-3">
                                             <label for="ddl_bug" class="form-label fw-bold">BUG</label>
                                             <select id="ddl_bug" class="form-control" multiple>
                                                 @if (ViewBag.listBu != null)
@@ -97,11 +96,35 @@
                                                 }
                                             </select>
                                         </div>
-
-                                        <div class="job-filter mb-3 col-4">
+                                        <div class="job-filter mb-3 col-3">
                                             <label for="ddl_project" class="form-label fw-bold">Project</label>
                                             <select id="ddl_project" class="form-control" multiple>
 
+                                            </select>
+                                        </div>
+                                        <div class="job-filter mb-3 col-3">
+                                            <label for="ddl_project_status" class="form-label fw-bold">Project Status</label>
+                                            <select id="ddl_project_status" class="form-control" multiple>
+                                                @if (ViewBag.ListProjectStatus != null)
+                                                {
+                                                    foreach (var item in ViewBag.ListProjectStatus)
+                                                    {
+                                                        <option value="@item.ValueInt">@item.Text</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="job-filter mb-3 col-3">
+                                            <label for="ddl_project_partner" class="form-label fw-bold">Project Partner</label>
+                                            <select id="ddl_project_partner" class="form-control" style="height: 50px; font-size: 1rem; padding: 10px 12px;">
+                                                @if (ViewBag.ListProjectPartner != null)
+                                                {
+                                                    <option value="">ทั้งหมด</option>
+                                                    foreach (var item in ViewBag.ListProjectPartner)
+                                                    {
+                                                        <option value="@item.ValueInt">@item.Text</option>
+                                                    }
+                                                }
                                             </select>
                                         </div>
                                     </div>

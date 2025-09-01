@@ -10,9 +10,12 @@
         public string? L_Bu { get; set; }
         public string? L_PlanTypeID { get; set; }
         public string? L_PlanTypeName { get; set; }
+        public string? L_ProjectStatus { get; set; }
+        public string? L_ProjectPartner { get; set; }
 
         public string? ProjectID { get; set; }
         public string? ProjectName { get; set; }
+        public string? BuName { get; set; }
         public string? PlanTypeID { get; set; }
         public string? PlanTypeName { get; set; }
         public string? PlanYear { get; set; }

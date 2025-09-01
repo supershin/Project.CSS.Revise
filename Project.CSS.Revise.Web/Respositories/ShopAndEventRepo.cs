@@ -336,6 +336,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                     LEFT JOIN [tm_Project] (NOLOCK) T2 ON T1.[ProjectID] = T2.ProjectID
 			                        LEFT JOIN [TR_Event_EventType] (NOLOCK) T3 ON T1.ID = T3.EventID
                                     LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T3.[EventTypeID] = T4.ID
+                                    LEFT JOIN TR_ProjectStatus PST (NOLOCK) ON T1.ProjectID = PST.ProjectID
                                     LEFT JOIN (
                                                     SELECT 
 	                                                    T1.EventID,
@@ -356,6 +357,10 @@ namespace Project.CSS.Revise.Web.Respositories
                                         @L_ProjectID = '' 
                                         OR (',' + @L_ProjectID + ',' LIKE '%,' + T1.ProjectID + ',%')
                                     )
+                                   AND (
+                                        @L_ProjectStatus = ''
+                                        OR (',' + @L_ProjectStatus + ',' LIKE '%,' + CONVERT(VARCHAR, PST.StatusID) + ',%')
+                                       )
                                     AND (
                                         YEAR(T1.StartDate) = @L_Year
                                         OR YEAR(T1.EndDate) = @L_Year
@@ -380,6 +385,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                      LEFT JOIN [tm_Project] (NOLOCK) T2 ON T1.[ProjectID] = T2.ProjectID
                                      LEFT JOIN [TR_Event_EventType] (NOLOCK) T3 ON T1.ID = T3.EventID
                                      LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T3.[EventTypeID] = T3.EventID
+                                     LEFT JOIN TR_ProjectStatus PST (NOLOCK) ON T1.ProjectID = PST.ProjectID
                                      LEFT JOIN (
                                                     SELECT 
                                                         T1.EventID,
@@ -399,6 +405,10 @@ namespace Project.CSS.Revise.Web.Respositories
                                         @L_Bu = '' 
                                         OR (',' + @L_Bu + ',' LIKE '%,' + CONVERT(varchar, T6.BUID) + ',%')
                                     )
+                                   AND (
+                                        @L_ProjectStatus = ''
+                                        OR (',' + @L_ProjectStatus + ',' LIKE '%,' + CONVERT(VARCHAR, PST.StatusID) + ',%')
+                                       )
                                     AND 
                                     (
                                         (
@@ -423,6 +433,7 @@ namespace Project.CSS.Revise.Web.Respositories
                 {
                     cmd.Parameters.Add(new SqlParameter("@L_Bu", filter.L_Bu ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_ProjectID", filter.L_ProjectID ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_ProjectStatus", filter.L_ProjectStatus ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_Month", filter.L_Month ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_Year", filter.L_Year ?? 0));
 

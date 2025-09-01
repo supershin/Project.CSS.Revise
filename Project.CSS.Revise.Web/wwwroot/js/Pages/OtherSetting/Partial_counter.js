@@ -36,36 +36,104 @@ function buildBankCard(row) {
     const bankCount = Number(row.COUNT_Bank) || 0;
 
     return `
-            <div class="col-4">
-            <div class="proj-card d-flex flex-column"
-                    role="button" tabindex="0" style="cursor:pointer"
-                    data-id="${row.ID}"
-                    data-project="${escapeHtml(row.ProjectID)}"
-                    data-queue="48"
-                    data-end="${row.EndCounter}">
-                <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <h6>${title}</h3>
-                </div>
-                <span class="count-badge is-top-right is-green">${units} Counter</span>
-                </div>
-                <div class="mt-auto pt-3 d-flex justify-content-between align-items-center flex-wrap btn-row">
-                <button class="action-btn" onclick="event.stopPropagation()">
-                    <i class="bi bi-qr-code me-1"></i>Download QR
-                </button>
-                <div class="d-flex btn-row">
-                    <button class="icon-btn" title="Staff count" onclick="event.stopPropagation()">
-                    <i class="bi bi-person me-1"></i>Staff ${staffCount}
-                    </button>
-                    <button class="icon-btn" title="Bank count" onclick="event.stopPropagation()">
-                    <i class="bi bi-bank me-1"></i>Bank ${bankCount}
-                    </button>
-                </div>
-                </div>
-            </div>
-            </div>`;
+    <div class="col-4">
+      <div class="proj-card d-flex flex-column"
+           role="button" tabindex="0" style="cursor:pointer"
+           data-id="${row.ID}"
+           data-project="${escapeHtml(row.ProjectID)}"
+           data-queue="48"
+           data-end="${row.EndCounter}">
+        <div class="d-flex justify-content-between align-items-start">
+          <div><h6>${title}</h6></div>
+          <span class="count-badge is-top-right is-green">${units} Counter</span>
+        </div>
 
+        <div class="mt-auto pt-3 d-flex justify-content-between align-items-center flex-wrap btn-row">
+
+          <!-- DOWNLOAD ZIP button -->
+          <button class="action-btn"
+                  title="Download all QR codes"
+                  onclick="event.stopPropagation(); handleDownloadQrZipClick(this)"
+                  data-pid="${escapeHtml(row.ProjectID)}"
+                  data-pname="${escapeHtml(row.ProjectName || row.ProjectID || '')}"
+                  data-qtype="bank"
+                  data-qty="${units}">
+            <i class="bi bi-qr-code me-1"></i>Download QR
+          </button>
+
+          <div class="d-flex btn-row">
+            <button class="icon-btn" title="Staff count" onclick="event.stopPropagation()">
+              <i class="bi bi-person me-1"></i>Staff ${staffCount}
+            </button>
+            <button class="icon-btn" title="Bank count" onclick="event.stopPropagation()">
+              <i class="bi bi-bank me-1"></i>Bank ${bankCount}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>`;
 }
+
+// --- helpers: filename + force download ---
+function getFilenameFromHeaders(res, fallbackName) {
+    const disp = res.headers.get('Content-Disposition');
+    if (!disp) return fallbackName;
+    let m = /filename\*?=(?:UTF-8'')?["']?([^"';]+)["']?/i.exec(disp);
+    if (!m) m = /filename=["']?([^"';]+)["']?/i.exec(disp);
+    return m && m[1] ? decodeURIComponent(m[1]) : fallbackName;
+}
+
+function triggerDownload(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
+
+// --- click handler wired from the button above ---
+async function handleDownloadQrZipClick(btn) {
+    const originalHTML = btn.innerHTML;
+
+    // read data-* from the button
+    const projectId = btn.dataset.pid || '';
+    const projectName = btn.dataset.pname || projectId || '';
+    const queueType = btn.dataset.qtype || 'bank';   // "bank" | "inspect"
+    const qty = Number(btn.dataset.qty || '0');
+
+    if (!projectId || qty < 1) {
+        errorMessage?.('Missing project or counter quantity.');
+        return;
+    }
+
+    const url = `${baseUrl}QrDemo/zip?projectId=${encodeURIComponent(projectId)}&projectName=${encodeURIComponent(projectName)}&queueType=${encodeURIComponent(queueType)}&qty=${qty}`;
+
+    try {
+        showLoading?.();
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Creating ZIP...`;
+
+        const res = await fetch(url, { method: 'GET' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        const blob = await res.blob();
+        const filename = getFilenameFromHeaders(res, `QRCodes_${projectId}_${queueType}.zip`);
+        triggerDownload(blob, filename);
+
+        successMessage?.('ดาวน์โหลดสำเร็จ: ' + filename);
+    } catch (err) {
+        console.error('Download QR ZIP error:', err);
+        errorMessage?.('ดาวน์โหลดล้มเหลว');
+    } finally {
+        hideLoading?.();
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+    }
+}
+
 
 function buildInspectCard(row) {
     const title = escapeHtml(row.ProjectName || row.ProjectID || '');
@@ -87,9 +155,18 @@ function buildInspectCard(row) {
                   </div>
 
                   <div class="mt-auto pt-3 d-flex justify-content-between align-items-center flex-wrap btn-row">
-                    <button class="action-btn" onclick="event.stopPropagation()">
-                      <i class="bi bi-bank me-1"></i>Download QR
-                    </button>
+
+                  <!-- DOWNLOAD ZIP button -->
+                  <button class="action-btn"
+                          title="Download all QR codes"
+                          onclick="event.stopPropagation(); handleDownloadQrZipClick(this)"
+                          data-pid="${escapeHtml(row.ProjectID)}"
+                          data-pname="${escapeHtml(row.ProjectName || row.ProjectID || '')}"
+                          data-qtype="inspect"
+                          data-qty="${units}">
+                    <i class="bi bi-qr-code me-1"></i>Download QR
+                  </button>
+
                   </div>
                 </div>
               </div>`;
@@ -182,6 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function fetchProjectCounters() {
     const bu = getMultiSelectValues('#ddl_BUG_counter');            // ex. ['1','3']
     const prj = getMultiSelectValues('#ddl_PROJECT_counter');       // ex. ['102C028','102C029']
+    const prjst = getMultiSelectValues('#ddl_project_status');
     let rawValue = document.getElementById('ddl_counter_type')?.value ?? "-1";
 
     // ถ้า clear แล้ว rawValue จะเป็น "" => แก้ให้เป็น "-1"
@@ -194,7 +272,8 @@ async function fetchProjectCounters() {
     const params = new URLSearchParams({
         Bu: toCommaList(bu, { trailing: false }),                      // "1,3"
         ProjectID: toCommaList(prj, { trailing: true }),               // "102C028,102C029," สำหรับ logic LIKE ฝั่ง SQL
-        QueueType: isNaN(queueType) ? '-1' : String(queueType)
+        QueueType: isNaN(queueType) ? '-1' : String(queueType),
+        ProjectStatus: isNaN(prjst) ? '-1' : String(prjst)
     });
 
     const btn = document.getElementById('btnSearchCounter');
@@ -934,58 +1013,3 @@ function triggerDownload(blob, filename) {
     a.remove();
     URL.revokeObjectURL(url);
 }
-
-// ====== call IActionResult: /qr/simple (GET -> File) ======
-document.getElementById('btnQrSimple')?.addEventListener('click', async () => {
-    const btn = document.getElementById('btnQrSimple');
-    const originalHTML = btn ? btn.innerHTML : '';
-
-    try {
-        showLoading?.();
-        if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Loading...`; }
-
-        // เรียกตรงตาม route ของ IActionResult
-        const res = await fetch(baseUrl + 'QrDemo/simple', { method: 'GET' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-
-        const blob = await res.blob();
-        const filename = getFilenameFromHeaders(res, 'QC_simple.png');
-        triggerDownload(blob, filename);
-
-        successMessage?.('ดาวน์โหลดสำเร็จ: ' + filename);
-    } catch (err) {
-        console.error('QR simple error:', err);
-        errorMessage?.('ดาวน์โหลดล้มเหลว');
-    } finally {
-        hideLoading?.();
-        if (btn) { btn.disabled = false; btn.innerHTML = originalHTML; }
-    }
-});
-
-// ====== call IActionResult: /qr/pretty (GET -> File) ======
-document.getElementById('btnQrPretty')?.addEventListener('click', async () => {
-    const btn = document.getElementById('btnQrPretty');
-    const originalHTML = btn ? btn.innerHTML : '';
-
-    try {
-        showLoading?.();
-        if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Loading...`; }
-
-        const res = await fetch(baseUrl + 'QrDemo/pretty', { method: 'GET' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-
-        const blob = await res.blob();
-        const filename = getFilenameFromHeaders(res, 'QC_pretty.png');
-        triggerDownload(blob, filename);
-
-        successMessage?.('ดาวน์โหลดสำเร็จ: ' + filename);
-    } catch (err) {
-        console.error('QR pretty error:', err);
-        errorMessage?.('ดาวน์โหลดล้มเหลว');
-    } finally {
-        hideLoading?.();
-        if (btn) { btn.disabled = false; btn.innerHTML = originalHTML; }
-    }
-});
-
-

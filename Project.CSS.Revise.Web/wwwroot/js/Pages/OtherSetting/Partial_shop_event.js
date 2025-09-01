@@ -178,108 +178,224 @@ function updateMonthBadgesFromEventList(eventList) {
     });
 }
 
-function renderEventSummaryBox(eventList) {
-    // ── Show "loading..." placeholder ─────────────
-    $('#Box_show_partial_event_in_year').html(`
-        <div class="text-center p-4 text-muted">
-            <div class="spinner-border text-primary mb-2" role="status"></div><br />
-            กำลังโหลดข้อมูล...
-        </div>
-    `);
+//function renderEventSummaryBox(eventList) {
+//    // ── Show "loading..." placeholder ─────────────
+//    $('#Box_show_partial_event_in_year').html(`
+//        <div class="text-center p-4 text-muted">
+//            <div class="spinner-border text-primary mb-2" role="status"></div><br />
+//            กำลังโหลดข้อมูล...
+//        </div>
+//    `);
 
-    setTimeout(() => { // simulate load delay (optional UX)
-        // ── group by JS month (1-12) ────────────────
+//    setTimeout(() => { // simulate load delay (optional UX)
+//        // ── group by JS month (1-12) ────────────────
+//        const monthGroups = {};
+//        eventList.forEach(ev => {
+//            const d = new Date(ev.start);
+//            if (isNaN(d)) return;
+//            const m = d.getMonth() + 1;
+//            (monthGroups[m] ??= []).push(ev);
+//        });
+
+//        // ── month name helper ──────────────────────
+//        const monthNames = [
+//            '', 'January', 'February', 'March', 'April', 'May', 'June',
+//            'July', 'August', 'September', 'October', 'November', 'December'
+//        ];
+
+//        let hasData = Object.keys(monthGroups).length > 0;
+
+//        // ── build HTML ─────────────────────────────
+//        let html = '<div class="md-sidebar"><div class="md-sidebar-aside job-sidebar">';
+//        html += '<div class="default-according style-1 faq-accordion job-accordion" id="accordionoc">';
+//        html += '<div class="row"><div class="col-xl-12"><div class="card"><div class="card-header">';
+//        html += '<h5 class="mb-0"><button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#collapseicon1" aria-expanded="true" aria-controls="collapseicon1">';
+//        html += 'Events in year.</button></h5></div>';
+//        html += '<div class="collapse card-body px-0 show" id="collapseicon1" data-bs-parent="#accordionoc">';
+
+//        if (hasData) {
+//            for (let m = 1; m <= 12; m++) {
+//                const list = monthGroups[m];
+//                if (!list || !list.length) continue;
+
+//                html += `<div class="categories pt-3 pb-0">
+//                           <div class="learning-header">
+//                             <span class="f-w-600">🗓️ ${monthNames[m]}</span>
+//                           </div><ul class="list-unstyled">`;
+
+//                list.forEach(ev => {
+//                    const start = new Date(ev.start);
+//                    const end = ev.end ? new Date(ev.end) : null;
+//                    const range = end ? `${start.getDate()}–${end.getDate()}` : `${start.getDate()}`;
+//                    let monthLabel = monthNames[start.getMonth() + 1].slice(0, 3);
+//                    if (end && start.getMonth() !== end.getMonth()) {
+//                        monthLabel += '–' + monthNames[end.getMonth() + 1].slice(0, 3);
+//                    }
+
+
+//                    const tagHtml = (ev.Eventtags ?? '')
+//                        .split(',')
+//                        .filter(t => t.trim())
+//                        .map(t => `<span class="glam-tag"><i class="fa fa-tag me-1"></i>${t.trim()}</span>`)
+//                        .join('');
+
+
+//                    html += `<li class="d-flex justify-content-between align-items-start mb-1">
+//                                <div class="flex-grow-1 pe-3" style="min-width:0;">
+//                                    <div class="fw-bold text-truncate">
+//                                        <a href="javascript:void(0)" onclick="OpenEditEventModalFormSummeryYearBox('${ev.EventID}', '${ev.ProjectID}')" class="text-decoration-none">
+//                                            ${ev.Eventname}
+//                                        </a>
+//                                    </div>
+//                                    <div class="text-muted small">
+//                                        Location in
+//                                        <a href="javascript:void(0)" onclick="OpenEditEventModalFormSummeryYearBox('${ev.EventID}', '${ev.ProjectID}')" class="text-decoration-underline">
+//                                            ${ev.Eventlocation}
+//                                        </a>
+//                                    </div>
+//                                    <div class="d-flex flex-wrap gap-1 small">${tagHtml}</div>
+//                                </div>
+//                                <div class="text-end ps-2" style="white-space:nowrap;">
+//                                    <h6 class="text-primary mb-0">${range}</h6>
+//                                    <small class="text-muted">${monthLabel}</small>
+//                                </div>
+//                            </li>`;
+
+//                });
+
+//                html += '</ul></div>';
+//            }
+//        } else {
+//            html += `
+//                <div class="p-4 text-center text-muted">
+//                    <i class="fa fa-calendar-times fa-2x mb-2"></i><br />
+//                    <strong>ไม่มีข้อมูลกิจกรรม</strong><br />
+//                    สำหรับปีที่เลือกไว้
+//                </div>
+//            `;
+//        }
+
+//        html += '</div></div></div></div></div></div>';
+
+//        $('#Box_show_partial_event_in_year').html(html);
+//    }, 300); // Delay 300ms for smooth loading effect
+//}
+
+function renderEventSummaryBox(eventList) {
+    $('#Box_show_partial_event_in_year').html(`
+    <div class="text-center p-4 text-muted">
+      <div class="spinner-border text-primary mb-2" role="status"></div><br />
+      กำลังโหลดข้อมูล...
+    </div>
+  `);
+
+    setTimeout(() => {
         const monthGroups = {};
-        eventList.forEach(ev => {
+        (eventList || []).forEach(ev => {
             const d = new Date(ev.start);
-            if (isNaN(d)) return;
-            const m = d.getMonth() + 1;
-            (monthGroups[m] ??= []).push(ev);
+            if (!isNaN(d)) (monthGroups[d.getMonth() + 1] ??= []).push(ev);
         });
 
-        // ── month name helper ──────────────────────
         const monthNames = [
             '', 'January', 'February', 'March', 'April', 'May', 'June',
             'July', 'August', 'September', 'October', 'November', 'December'
         ];
 
-        let hasData = Object.keys(monthGroups).length > 0;
+        let html = `
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Events in year</h5>
+          <div class="btn-group btn-group-sm">
+            <button type="button" class="btn btn-outline-secondary" data-tree="expand">Expand all</button>
+            <button type="button" class="btn btn-outline-secondary" data-tree="collapse">Collapse all</button>
+          </div>
+        </div>
+        <div class="card-body py-2">
+          <ul class="list-unstyled mb-0">
+    `;
 
-        // ── build HTML ─────────────────────────────
-        let html = '<div class="md-sidebar"><div class="md-sidebar-aside job-sidebar">';
-        html += '<div class="default-according style-1 faq-accordion job-accordion" id="accordionoc">';
-        html += '<div class="row"><div class="col-xl-12"><div class="card"><div class="card-header">';
-        html += '<h5 class="mb-0"><button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#collapseicon1" aria-expanded="true" aria-controls="collapseicon1">';
-        html += 'Events in year.</button></h5></div>';
-        html += '<div class="collapse card-body px-0 show" id="collapseicon1" data-bs-parent="#accordionoc">';
+        for (let m = 1; m <= 12; m++) {
+            const list = (monthGroups[m] || []).sort((a, b) => new Date(a.start) - new Date(b.start));
+            if (!list.length) continue;
 
-        if (hasData) {
-            for (let m = 1; m <= 12; m++) {
-                const list = monthGroups[m];
-                if (!list || !list.length) continue;
-
-                html += `<div class="categories pt-3 pb-0">
-                           <div class="learning-header">
-                             <span class="f-w-600">🗓️ ${monthNames[m]}</span>
-                           </div><ul class="list-unstyled">`;
-
-                list.forEach(ev => {
-                    const start = new Date(ev.start);
-                    const end = ev.end ? new Date(ev.end) : null;
-                    const range = end ? `${start.getDate()}–${end.getDate()}` : `${start.getDate()}`;
-                    let monthLabel = monthNames[start.getMonth() + 1].slice(0, 3);
-                    if (end && start.getMonth() !== end.getMonth()) {
-                        monthLabel += '–' + monthNames[end.getMonth() + 1].slice(0, 3);
-                    }
-
-
-                    const tagHtml = (ev.Eventtags ?? '')
-                        .split(',')
-                        .filter(t => t.trim())
-                        .map(t => `<span class="glam-tag"><i class="fa fa-tag me-1"></i>${t.trim()}</span>`)
-                        .join('');
-
-
-                    html += `<li class="d-flex justify-content-between align-items-start mb-1">
-                                <div class="flex-grow-1 pe-3" style="min-width:0;">
-                                    <div class="fw-bold text-truncate">
-                                        <a href="javascript:void(0)" onclick="OpenEditEventModalFormSummeryYearBox('${ev.EventID}', '${ev.ProjectID}')" class="text-decoration-none">
-                                            ${ev.Eventname}
-                                        </a>
-                                    </div>
-                                    <div class="text-muted small">
-                                        Location in 
-                                        <a href="javascript:void(0)" onclick="OpenEditEventModalFormSummeryYearBox('${ev.EventID}', '${ev.ProjectID}')" class="text-decoration-underline">
-                                            ${ev.Eventlocation}
-                                        </a>
-                                    </div>
-                                    <div class="d-flex flex-wrap gap-1 small">${tagHtml}</div>
-                                </div>
-                                <div class="text-end ps-2" style="white-space:nowrap;">
-                                    <h6 class="text-primary mb-0">${range}</h6>
-                                    <small class="text-muted">${monthLabel}</small>
-                                </div>
-                            </li>`;
-
-                });
-
-                html += '</ul></div>';
-            }
-        } else {
+            const monthId = `month_${m}`;
             html += `
-                <div class="p-4 text-center text-muted">
-                    <i class="fa fa-calendar-times fa-2x mb-2"></i><br />
-                    <strong>ไม่มีข้อมูลกิจกรรม</strong><br />
-                    สำหรับปีที่เลือกไว้
-                </div>
-            `;
+        <li class="mb-2">
+          <button class="btn btn-sm btn-link text-decoration-none px-0"
+                  data-bs-toggle="collapse" data-bs-target="#${monthId}"
+                  aria-expanded="false" aria-controls="${monthId}">
+            <i class="fa fa-chevron-right me-1" data-icon></i>
+            <span class="fw-semibold">${monthNames[m]}</span>
+            <span class="badge bg-light text-dark ms-2">${list.length}</span>
+          </button>
+
+          <!-- DEFAULT COLLAPSED: no 'show' class -->
+          <ul id="${monthId}" class="list-unstyled ms-4 collapse tree-children">
+      `;
+
+            list.forEach(ev => {
+                const start = new Date(ev.start);
+                const end = ev.end ? new Date(ev.end) : null;
+                const range = end ? `${start.getDate()}–${end.getDate()}` : `${start.getDate()}`;
+                let monthLabel = monthNames[start.getMonth() + 1].slice(0, 3);
+                if (end && start.getMonth() !== end.getMonth()) {
+                    monthLabel += '–' + monthNames[end.getMonth() + 1].slice(0, 3);
+                }
+                const tagHtml = (ev.Eventtags ?? '')
+                    .split(',').filter(t => t.trim())
+                    .map(t => `<span class="badge bg-secondary-subtle text-secondary-emphasis border me-1">
+                     <i class="fa fa-tag me-1"></i>${t.trim()}
+                   </span>`).join('');
+
+                html += `
+          <li class="d-flex justify-content-between align-items-start mb-2">
+            <div class="flex-grow-1 pe-3" style="min-width:0;">
+              <div class="fw-bold text-truncate">
+                <a href="javascript:void(0)" onclick="OpenEditEventModalFormSummeryYearBox('${ev.EventID}', '${ev.ProjectID}')" class="text-decoration-none">
+                  ${ev.Eventname}
+                </a>
+              </div>
+              <div class="text-muted small">
+                Location in 
+                <a href="javascript:void(0)" onclick="OpenEditEventModalFormSummeryYearBox('${ev.EventID}', '${ev.ProjectID}')" class="text-decoration-underline">
+                  ${ev.Eventlocation}
+                </a>
+              </div>
+              <div class="d-flex flex-wrap gap-1 small mt-1">${tagHtml}</div>
+            </div>
+            <div class="text-end ps-2" style="white-space:nowrap;">
+              <h6 class="text-primary mb-0">${range}</h6>
+              <small class="text-muted">${monthLabel}</small>
+            </div>
+          </li>`;
+            });
+
+            html += `</ul></li>`;
         }
 
-        html += '</div></div></div></div></div></div>';
-
+        html += `</ul></div></div>`;
         $('#Box_show_partial_event_in_year').html(html);
-    }, 300); // Delay 300ms for smooth loading effect
+    }, 200);
 }
+
+// Expand / Collapse All + chevron toggle
+$(document).on('click', '[data-tree="expand"]', function () {
+    $('.tree-children.collapse').each(function () {
+        bootstrap.Collapse.getOrCreateInstance(this, { toggle: false }).show();
+    });
+});
+$(document).on('click', '[data-tree="collapse"]', function () {
+    $('.tree-children.collapse').each(function () {
+        bootstrap.Collapse.getOrCreateInstance(this, { toggle: false }).hide();
+    });
+});
+$(document).on('shown.bs.collapse hidden.bs.collapse', '.tree-children', function () {
+    const isOpen = $(this).hasClass('show');
+    $(`[data-bs-target="#${this.id}"] [data-icon]`)
+        .toggleClass('fa-chevron-down', isOpen)
+        .toggleClass('fa-chevron-right', !isOpen);
+});
+
 
 function parseToISO(dateStr) {
     const parsed = new Date(dateStr);

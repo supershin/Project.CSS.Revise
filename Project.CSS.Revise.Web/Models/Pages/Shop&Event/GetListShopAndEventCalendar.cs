@@ -8,6 +8,7 @@ namespace Project.CSS.Revise.Web.Models.Pages.Shop_Event
         {
             public string? L_Bu { get; set; }
             public string? L_ProjectID { get; set; }
+            public string? L_ProjectStatus { get; set; }
             public int? L_Year { get; set; }
             public string? L_Month { get; set; }       
         }

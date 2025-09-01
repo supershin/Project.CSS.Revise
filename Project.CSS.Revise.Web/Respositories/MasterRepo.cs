@@ -262,8 +262,7 @@ namespace Project.CSS.Revise.Web.Respositories
             {
                 case "Ext":
                     var extQuery = from ext in _context.tm_Exts
-                                   where ext.FlagActive == true
-                                      && (model.ID == -1 || ext.ExtTypeID == model.ID)
+                                   where ext.FlagActive == true && (model.ID == -1 || ext.ExtTypeID == model.ID)
                                    orderby ext.LineOrder
                                    select new GetDDLModel
                                    {

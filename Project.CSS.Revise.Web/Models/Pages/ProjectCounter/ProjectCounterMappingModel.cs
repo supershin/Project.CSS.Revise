@@ -7,6 +7,7 @@
             public string? L_Bu { get; set; } = "";
             public string? L_ProjectID { get; set; } = "";
             public int? L_QueueType { get; set; } = -1;
+            public string? L_ProjectStatus { get; set; } = "";
         }
         public class ListData
         {

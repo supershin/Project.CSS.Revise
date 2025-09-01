@@ -40,11 +40,14 @@ namespace Project.CSS.Revise.Web.Respositories
                         --DECLARE @L_ProjectID NVARCHAR(100) = '102C028';
                         --DECLARE @L_Bu NVARCHAR(100) = '';
                         --DECLARE @L_PlanTypeID NVARCHAR(100) = '181,182,395,396';
+						--DECLARE @L_ProjectStatus NVARCHAR(100) = '';
+						--DECLARE @L_ProjectPartner NVARCHAR(100) = '';
                         -- ===== TEST CASE =====
 
                             SELECT
                                  T1.ProjectID
                                 ,P.ProjectName
+								,BU.[Name] AS BUName
                                 ,T1.PlanTypeID
                                 ,PT.[Name] AS PlanTypeName
                                 ,YEAR(T1.MonthlyDate) AS PlanYear
@@ -80,6 +83,8 @@ namespace Project.CSS.Revise.Web.Respositories
                             LEFT JOIN tm_Project P WITH (NOLOCK) ON T1.ProjectID = P.ProjectID
                             LEFT JOIN tm_Ext PT WITH (NOLOCK) ON T1.PlanTypeID = PT.ID
                             LEFT JOIN tm_BUProject_Mapping BPM WITH (NOLOCK) ON T1.ProjectID = BPM.ProjectID
+							LEFT JOIN [tm_BU] BU WITH (NOLOCK) ON BPM.BUID = BU.ID
+							LEFT JOIN TR_ProjectStatus PST WITH (NOLOCK) ON P.ProjectID = PST.ProjectID
                             WHERE T1.FlagActive = 1
                               AND T1.PlanAmountID IN (183, 184)
                               -- ===== YEAR FILTER =====
@@ -92,6 +97,21 @@ namespace Project.CSS.Revise.Web.Respositories
                                     @L_PlanTypeID = ''
                                     OR (',' + @L_PlanTypeID + ',' LIKE '%,' + CONVERT(VARCHAR, T1.PlanTypeID) + ',%')
                                   )
+                              -- ===== PROJECT STATUS FILTER =====
+                              AND (
+                                    @L_ProjectStatus = ''
+                                    OR (',' + @L_ProjectStatus + ',' LIKE '%,' + CONVERT(VARCHAR, PST.StatusID) + ',%')
+                                  )
+                              -- ===== PROJECT PARTNER FILTER =====
+							   AND (
+									@L_ProjectPartner = ''  -- case 1: no filter, show all
+									OR (
+										@L_ProjectPartner = '372' AND PartnerID IS NULL -- case 2: 372 means NULL
+									)
+									OR (
+										@L_ProjectPartner <> '' AND @L_ProjectPartner <> '372' AND P.PartnerID = @L_ProjectPartner -- case 3: normal compare
+									)
+								)
                               -- ===== BU FILTER =====
                               AND (
                                     @L_Bu = ''
@@ -120,6 +140,7 @@ namespace Project.CSS.Revise.Web.Respositories
                             GROUP BY
                                  T1.ProjectID
                                 ,P.ProjectName
+								,BU.[Name]
                                 ,T1.PlanTypeID
                                 ,PT.[Name]
                                 ,YEAR(T1.MonthlyDate)
@@ -139,6 +160,8 @@ namespace Project.CSS.Revise.Web.Respositories
                     cmd.Parameters.Add(new SqlParameter("@L_ProjectID", filter.L_ProjectID ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_Bu", filter.L_Bu ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_PlanTypeID", filter.L_PlanTypeID ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_ProjectStatus", filter.L_ProjectStatus ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_ProjectPartner", filter.L_ProjectPartner ?? ""));
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
@@ -148,6 +171,7 @@ namespace Project.CSS.Revise.Web.Respositories
                             {
                                 ProjectID = Commond.FormatExtension.NullToString(reader["ProjectID"]),
                                 ProjectName = Commond.FormatExtension.NullToString(reader["ProjectName"]),
+                                BuName = Commond.FormatExtension.NullToString(reader["BUName"]),
                                 PlanTypeID = Commond.FormatExtension.NullToString(reader["PlanTypeID"]),
                                 PlanTypeName = Commond.FormatExtension.NullToString(reader["PlanTypeName"]),
                                 PlanYear = Commond.FormatExtension.NullToString(reader["PlanYear"]),
@@ -244,6 +268,8 @@ namespace Project.CSS.Revise.Web.Respositories
                         --DECLARE @L_ProjectID NVARCHAR(100) = '102C028';
                         --DECLARE @L_Bu NVARCHAR(100) = '';
                         --DECLARE @L_PlanTypeID NVARCHAR(100) = '181,182,395,396';
+						--DECLARE @L_ProjectStatus NVARCHAR(100) = '';
+						--DECLARE @L_ProjectPartner NVARCHAR(100) = '';
                         -- ===== TEST CASE =====
 
                         SELECT
@@ -264,7 +290,10 @@ namespace Project.CSS.Revise.Web.Respositories
 			                          ,T1.[PlanAmountID]
 			                          ,SUM(T1.[Amount]) AS TOTAL
 		                        FROM [TR_TargetRollingPlan] T1 WITH (NOLOCK)
+                                LEFT JOIN tm_Project P WITH (NOLOCK) ON T1.ProjectID = P.ProjectID
 		                        LEFT JOIN tm_BUProject_Mapping BPM WITH (NOLOCK) ON T1.ProjectID = BPM.ProjectID
+							    LEFT JOIN [tm_BU] BU WITH (NOLOCK) ON BPM.BUID = BU.ID
+							    LEFT JOIN TR_ProjectStatus PST WITH (NOLOCK) ON P.ProjectID = PST.ProjectID
 		                        WHERE T1.FlagActive = 1
 		                          AND T1.PlanAmountID IN (183, 184)
 		                          -- ===== YEAR FILTER =====
@@ -272,6 +301,21 @@ namespace Project.CSS.Revise.Web.Respositories
 				                        @L_Year = ''
 				                        OR (',' + @L_Year + ',' LIKE '%,' + CAST(YEAR(T1.MonthlyDate) AS NVARCHAR) + ',%')
 			                          )
+                                  -- ===== PROJECT STATUS FILTER =====
+                                  AND (
+                                        @L_ProjectStatus = ''
+                                        OR (',' + @L_ProjectStatus + ',' LIKE '%,' + CONVERT(VARCHAR, PST.StatusID) + ',%')
+                                      )
+                                  -- ===== PROJECT PARTNER FILTER =====
+							       AND (
+									    @L_ProjectPartner = ''  -- case 1: no filter, show all
+									    OR (
+										    @L_ProjectPartner = '372' AND PartnerID IS NULL -- case 2: 372 means NULL
+									    )
+									    OR (
+										    @L_ProjectPartner <> '' AND @L_ProjectPartner <> '372' AND P.PartnerID = @L_ProjectPartner -- case 3: normal compare
+									    )
+								    )
 		        -- ===== PLAN TYPE FILTER (Not use now ^_^)=====
 		        -- AND (
 				-- @L_PlanTypeID = ''
@@ -321,6 +365,8 @@ namespace Project.CSS.Revise.Web.Respositories
                     cmd.Parameters.Add(new SqlParameter("@L_ProjectID", filter.L_ProjectID ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_Bu", filter.L_Bu ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_PlanTypeID", filter.L_PlanTypeID ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_ProjectStatus", filter.L_ProjectStatus ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_ProjectPartner", filter.L_ProjectPartner ?? ""));
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
@@ -452,11 +498,14 @@ namespace Project.CSS.Revise.Web.Respositories
                         --DECLARE @L_ProjectID NVARCHAR(100) = '102C028';
                         --DECLARE @L_Bu NVARCHAR(100) = '';
                         --DECLARE @L_PlanTypeID NVARCHAR(100) = '181,182,395,396';
+						--DECLARE @L_ProjectStatus NVARCHAR(100) = '';
+						--DECLARE @L_ProjectPartner NVARCHAR(100) = '';
                         -- ===== TEST CASE =====
 
                             SELECT
                                  T1.ProjectID
                                 ,P.ProjectName
+								,BU.[Name] AS BUName
                                 ,T1.PlanTypeID
                                 ,PT.[Name] AS PlanTypeName
                                 ,YEAR(T1.MonthlyDate) AS PlanYear
@@ -492,6 +541,8 @@ namespace Project.CSS.Revise.Web.Respositories
                             LEFT JOIN tm_Project P WITH (NOLOCK) ON T1.ProjectID = P.ProjectID
                             LEFT JOIN tm_Ext PT WITH (NOLOCK) ON T1.PlanTypeID = PT.ID
                             LEFT JOIN tm_BUProject_Mapping BPM WITH (NOLOCK) ON T1.ProjectID = BPM.ProjectID
+							LEFT JOIN [tm_BU] BU WITH (NOLOCK) ON BPM.BUID = BU.ID
+							LEFT JOIN TR_ProjectStatus PST WITH (NOLOCK) ON P.ProjectID = PST.ProjectID
                             WHERE T1.FlagActive = 1
                               AND T1.PlanAmountID IN (183, 184)
                               -- ===== YEAR FILTER =====
@@ -504,6 +555,21 @@ namespace Project.CSS.Revise.Web.Respositories
                                     @L_PlanTypeID = ''
                                     OR (',' + @L_PlanTypeID + ',' LIKE '%,' + CONVERT(VARCHAR, T1.PlanTypeID) + ',%')
                                   )
+                              -- ===== PROJECT STATUS FILTER =====
+                              AND (
+                                    @L_ProjectStatus = ''
+                                    OR (',' + @L_ProjectStatus + ',' LIKE '%,' + CONVERT(VARCHAR, PST.StatusID) + ',%')
+                                  )
+                              -- ===== PROJECT PARTNER FILTER =====
+							   AND (
+									@L_ProjectPartner = ''  -- case 1: no filter, show all
+									OR (
+										@L_ProjectPartner = '372' AND PartnerID IS NULL -- case 2: 372 means NULL
+									)
+									OR (
+										@L_ProjectPartner <> '' AND @L_ProjectPartner <> '372' AND P.PartnerID = @L_ProjectPartner -- case 3: normal compare
+									)
+								)
                               -- ===== BU FILTER =====
                               AND (
                                     @L_Bu = ''
@@ -532,6 +598,7 @@ namespace Project.CSS.Revise.Web.Respositories
                             GROUP BY
                                  T1.ProjectID
                                 ,P.ProjectName
+								,BU.[Name]
                                 ,T1.PlanTypeID
                                 ,PT.[Name]
                                 ,YEAR(T1.MonthlyDate)
@@ -551,6 +618,8 @@ namespace Project.CSS.Revise.Web.Respositories
                     cmd.Parameters.Add(new SqlParameter("@L_ProjectID", filter.L_ProjectID ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_Bu", filter.L_Bu ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_PlanTypeID", filter.L_PlanTypeID ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_ProjectStatus", filter.L_ProjectStatus ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_ProjectPartner", filter.L_ProjectPartner ?? ""));
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
@@ -560,6 +629,7 @@ namespace Project.CSS.Revise.Web.Respositories
                             {
                                 ProjectID = Commond.FormatExtension.NullToString(reader["ProjectID"]),
                                 ProjectName = Commond.FormatExtension.NullToString(reader["ProjectName"]),
+                                BuName = Commond.FormatExtension.NullToString(reader["BUName"]),
                                 PlanTypeID = Commond.FormatExtension.NullToString(reader["PlanTypeID"]),
                                 PlanTypeName = Commond.FormatExtension.NullToString(reader["PlanTypeName"]),
                                 PlanYear = Commond.FormatExtension.NullToString(reader["PlanYear"]),

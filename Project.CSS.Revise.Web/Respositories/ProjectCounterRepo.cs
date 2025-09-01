@@ -55,6 +55,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                 LEFT JOIN tm_Project              AS T2  WITH (NOLOCK) ON T1.ProjectID   = T2.ProjectID
                                 LEFT JOIN tm_BUProject_Mapping    AS BPM WITH (NOLOCK) ON T1.ProjectID   = BPM.ProjectID
                                 LEFT JOIN tm_Ext                  AS QTN WITH (NOLOCK) ON T1.QueueTypeID = QTN.ID
+                                LEFT JOIN TR_ProjectStatus        AS PST WITH (NOLOCK) ON T2.ProjectID = PST.ProjectID
                                 LEFT JOIN (
                                     SELECT 
                                          RPS.[ProjectID]
@@ -68,7 +69,8 @@ namespace Project.CSS.Revise.Web.Respositories
                                 WHERE T1.[FlagActive] = 1
                                   AND (@L_Bu = '' OR (',' + @L_Bu + ',' LIKE '%,' + CONVERT(VARCHAR(20), BPM.BUID) + ',%'))
                                   AND (@L_ProjectID = '' OR (',' + @L_ProjectID + ',' LIKE '%,' + T1.ProjectID + ',%'))
-                                  AND (@L_QueueType = -1 OR T1.QueueTypeID = @L_QueueType);
+                                  AND (@L_QueueType = -1 OR T1.QueueTypeID = @L_QueueType)
+                                  AND (@L_ProjectStatus = '' OR (',' + @L_ProjectStatus + ',' LIKE '%,' + CONVERT(VARCHAR, PST.StatusID) + ',%'))
                            "
                                     ;
 
@@ -77,6 +79,7 @@ namespace Project.CSS.Revise.Web.Respositories
                     cmd.Parameters.Add(new SqlParameter("@L_Bu", filter.L_Bu ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_ProjectID", filter.L_ProjectID ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_QueueType", filter.L_QueueType ?? -1));
+                    cmd.Parameters.Add(new SqlParameter("@L_ProjectStatus", filter.L_ProjectStatus ?? ""));
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {

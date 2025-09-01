@@ -6,7 +6,9 @@ using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Models.Pages.ProjectCounter;
 using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
 using Project.CSS.Revise.Web.Service;
-
+using QRCoder;
+using SkiaSharp;
+using System.Text.Json;
 
 namespace Project.CSS.Revise.Web.Controllers
 {
@@ -31,7 +33,6 @@ namespace Project.CSS.Revise.Web.Controllers
             var listBu = _masterService.GetlistBU(new BUModel());
             ViewBag.listBu = listBu;
 
-
             var filterDDlAllProject = new GetDDLModel
             {
                 Act = "listDDlAllProject"
@@ -53,6 +54,15 @@ namespace Project.CSS.Revise.Web.Controllers
             };
             var ListDDLEventType = _masterService.GetlisDDl(filterEventType);
             ViewBag.ListDDLEventType = ListDDLEventType;
+
+            var filter2 = new GetDDLModel
+            {
+                Act = "Ext",
+                ID = 54,
+
+            };
+            var ListProjectStatus = _masterService.GetlisDDl(filter2);
+            ViewBag.ListProjectStatus = ListProjectStatus;
 
             return View();
         }
@@ -283,14 +293,15 @@ namespace Project.CSS.Revise.Web.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetListProjectCounter(string? Bu, string? ProjectID , int QueueType)
+        public JsonResult GetListProjectCounter(string? Bu, string? ProjectID , int QueueType , string? ProjectStatus)
         {
 
             var filter = new ProjectCounterMappingModel.FilterData
             {
                 L_Bu = Bu,
                 L_ProjectID = ProjectID,
-                L_QueueType = QueueType
+                L_QueueType = QueueType,
+                L_ProjectStatus = ProjectStatus
             };
 
             var result = _projectCounterService.GetListsProjectCounterMapping(filter);

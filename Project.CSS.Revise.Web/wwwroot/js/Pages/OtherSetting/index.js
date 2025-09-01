@@ -381,7 +381,21 @@ $(document).ready(function () {
     loadBUCounterOptions(() => { });
     loadPartial('Partial_shop_event');
     LoadPartialshopevent();
+    initProjectstatusDropdown();
+
 });
+
+function initProjectstatusDropdown() {
+    choicesBug = new Choices('#ddl_project_status', {
+        removeItemButton: true,
+        placeholderValue: 'เลือกสถานะโครงการได้มากกว่า 1',
+        searchEnabled: true,
+        itemSelectText: '',
+        shouldSort: false
+    });
+
+    document.getElementById('ddl_project_status').addEventListener('change', onBuChanged);
+}
 
 function openNewEventModal() {
     

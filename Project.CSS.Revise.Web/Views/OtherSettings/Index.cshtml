@@ -249,6 +249,19 @@
                                                 <select id="ddl_PROJECT_counter" class="form-control" multiple></select>
                                             </div>
 
+                                            <div class="job-filter mb-3 col-12 col-sm-6 col-md-4 col-lg-3">
+                                                <label for="ddl_project_status" class="form-label fw-bold">สถานะโครงการ</label>
+                                                <select id="ddl_project_status" class="form-control" multiple>
+                                                    @if (ViewBag.ListProjectStatus != null)
+                                                    {
+                                                        foreach (var item in ViewBag.ListProjectStatus)
+                                                        {
+                                                            <option value="@item.ValueInt">@item.Text</option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+
                                             <!-- Counter Type -->
                                             <div class="job-filter mb-3 col-12 col-sm-6 col-md-4 col-lg-3">
                                                 <label for="ddl_counter_type" class="form-label fw-bold">Counter</label>
