@@ -355,22 +355,20 @@ async function loadProjectCounterMapping(forceReload = false) {
     }
 }
 
-// Load banks (keep server order by LineOrder) and render cards into #bankGrid
 async function loadAndRenderBanks(containerId = 'bankGrid') {
     const grid = document.getElementById(containerId);
     if (!grid) return;
 
-    // persist user toggles across reloads (one global map)
+    // keep user selection map
     window.__bankSelectionState = window.__bankSelectionState || new Map();
 
-    // Build logo base URL (no Razor "~/" needed)
-    const ROOT = (document.querySelector('base')?.href || window.location.origin + '/');
-    const BANK_LOGO_BASE = baseUrl + 'image/ThaiBankicon/' + ROOT;
+    // ✅ your real folder under wwwroot
+    const BANK_LOGO_BASE = baseUrl + 'image/ThaiBankicon/';
 
-    // filename is BankCode + ".png"
-    const bankLogoSrc = (code) => `${BANK_LOGO_BASE}${code}.png`;
+    // simple src builder
+    const bankLogoSrc = (code) => `${BANK_LOGO_BASE}${encodeURIComponent(code)}.png`;
 
-    // dedupe but KEEP INPUT ORDER (server already orders by LineOrder)
+    // dedupe but keep input order
     const dedupeBy = (arr, key) => {
         const seen = new Set();
         const out = [];
@@ -397,41 +395,45 @@ async function loadAndRenderBanks(containerId = 'bankGrid') {
             window.__bankSelectionState.set(code, { checked: chk.checked, qty: Number(qty.value) || 0 });
         };
 
-        chk.addEventListener('change', () => { sync(); recalcBankQuota(); });
-        qty.addEventListener('input', () => { sync(); recalcBankQuota(qty); });
+        chk.addEventListener('change', () => { sync(); recalcBankQuota?.(); });
+        qty.addEventListener('input', () => { sync(); recalcBankQuota?.(qty); });
 
         sync();
     }
-
 
     const renderCard = ({ ValueInt: id, ValueString: code, Text: name }) => {
         const prev = window.__bankSelectionState.get(code) || { checked: false, qty: 0 };
         const col = document.createElement('div');
         col.className = 'col-12 col-md-6 col-xl-4';
-        col.innerHTML = `<div class="card h-100 border-0 shadow-sm" data-bank="${escapeHtml(code)}" data-bank-id="${id}">
-                              <div class="card-body">
-                                <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
-                                  <div class="d-flex align-items-center gap-3 flex-grow-1">
-                                    <img src="${bankLogoSrc(code)}" alt="${escapeHtml(code)}" class="rounded-circle border" style="width:44px;height:44px;">
-                                    <div>
-                                      <div class="fw-semibold text-wrap">${escapeHtml(code)} - ${escapeHtml(name)}</div>
-                                    </div>
-                                  </div>
-                                  <div class="d-flex align-items-center gap-2">
-                                    <div class="form-check form-switch m-0">
-                                      <input class="form-check-input bank-check" type="checkbox" ${prev.checked ? 'checked' : ''}>
-                                    </div>
-                                    <input type="number" class="form-control form-control-sm bank-qty" placeholder="จำนวน…" min="0" value="${prev.qty || 0}" style="width:110px;">
-                                  </div>
-                                </div>
-                              </div>
-                           </div>`;
+        col.innerHTML = `
+      <div class="card h-100 border-0 shadow-sm" data-bank="${escapeHtml(code)}" data-bank-id="${id}">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+            <div class="d-flex align-items-center gap-3 flex-grow-1">
+              <img src="${bankLogoSrc(code)}"
+                   alt="${escapeHtml(code)}"
+                   onerror="this.onerror=null; this.src='${BANK_LOGO_BASE}_default.png';"
+                   class="rounded-circle border"
+                   style="width:44px;height:44px;">
+              <div>
+                <div class="fw-semibold text-wrap">${escapeHtml(code)} - ${escapeHtml(name)}</div>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <div class="form-check form-switch m-0">
+                <input class="form-check-input bank-check" type="checkbox" ${prev.checked ? 'checked' : ''}>
+              </div>
+              <input type="number" class="form-control form-control-sm bank-qty"
+                     placeholder="จำนวน…" min="0" value="${prev.qty || 0}" style="width:110px;">
+            </div>
+          </div>
+        </div>
+      </div>`;
         wireCardBehaviour(col.querySelector('.card'));
         return col;
     };
 
-
-    // Loading state
+    // loading state
     grid.innerHTML = `
     <div class="col-12">
       <div class="d-flex align-items-center text-muted small px-2">
@@ -442,19 +444,15 @@ async function loadAndRenderBanks(containerId = 'bankGrid') {
     try {
         const res = await fetch(baseUrl + 'OtherSettings/GetListBank', { method: 'GET' });
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        // expect server already ordered by LineOrder
-        let data = await res.json(); // [{ ValueString: BankCode, Text: BankName }]
 
-        // keep server order, just dedupe by code
+        let data = await res.json(); // [{ ValueString, Text, ValueInt }]
         data = dedupeBy(data, 'ValueString');
 
-        // render
+        // render simple foreach
         grid.innerHTML = '';
-        const frag = document.createDocumentFragment();
-        data.forEach(item => frag.appendChild(renderCard(item)));
-        grid.appendChild(frag);
+        data.forEach(item => grid.appendChild(renderCard(item)));
 
-        // Select all / Clear (if buttons exist)
+        // select all / clear (if buttons exist)
         document.getElementById('btnSelectAllBanks')?.addEventListener('click', () => {
             grid.querySelectorAll('.bank-check').forEach(chk => {
                 if (!chk.checked) { chk.checked = true; chk.dispatchEvent(new Event('change')); }
@@ -474,6 +472,7 @@ async function loadAndRenderBanks(containerId = 'bankGrid') {
       </div>`;
     }
 }
+
 
 // ---- QUOTA ENFORCER ----
 function ensureQuotaHint() {
@@ -753,117 +752,69 @@ async function loadAndRenderBanksEdit(containerId = 'bankGridEdit') {
     const grid = document.getElementById(containerId);
     if (!grid) return;
 
-    // persist user toggles across reloads (one global map)
-    window.__bankSelectionState = window.__bankSelectionState || new Map();
+    // VERY simple path builder
+    const BANK_LOGO_BASE = baseUrl + 'image/ThaiBankicon/';
 
-    // Build logo base URL (no Razor "~/" needed)
-    const ROOT = (document.querySelector('base')?.href || window.location.origin + '/');
-    const BANK_LOGO_BASE = new URL('image/ThaiBankicon/', ROOT).href;
-
-    // filename is BankCode + ".png"
-    const bankLogoSrc = (code) => `${BANK_LOGO_BASE}${code}.png`;
-
-    // dedupe but KEEP INPUT ORDER (server already orders by LineOrder)
-    const dedupeBy = (arr, key) => {
-        const seen = new Set();
-        const out = [];
-        for (const o of arr || []) {
-            const k = o?.[key];
-            if (!k || seen.has(k)) continue;
-            seen.add(k);
-            out.push(o);
-        }
-        return out;
-    };
-
-    const escapeHtml = (s) => (s ?? '').toString()
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-
-    function wireCardBehaviour(card) {
-        const chk = card.querySelector('.bank-check');
-        const qty = card.querySelector('.bank-qty');
-        const code = card.getAttribute('data-bank');
-
-        const sync = () => {
-            qty.disabled = !chk.checked;
-            window.__bankSelectionState.set(code, { checked: chk.checked, qty: Number(qty.value) || 0 });
-        };
-
-        chk.addEventListener('change', () => { sync(); recalcBankQuota(); });
-        qty.addEventListener('input', () => { sync(); recalcBankQuota(qty); });
-
-        sync();
-    }
-
-
-    const renderCard = ({ ValueInt: id, ValueString: code, Text: name }) => {
-        const prev = window.__bankSelectionState.get(code) || { checked: false, qty: 0 };
-        const col = document.createElement('div');
-        col.className = 'col-12 col-md-6 col-xl-4';
-        col.innerHTML = `<div class="card h-100 border-0 shadow-sm" data-bank="${escapeHtml(code)}" data-bank-id="${id}">
-                              <div class="card-body">
-                                <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
-                                  <div class="d-flex align-items-center gap-3 flex-grow-1">
-                                    <img src="${bankLogoSrc(code)}" alt="${escapeHtml(code)}" class="rounded-circle border" style="width:44px;height:44px;">
-                                    <div>
-                                      <div class="fw-semibold text-wrap">${escapeHtml(code)} - ${escapeHtml(name)}</div>
-                                    </div>
-                                  </div>
-                                  <div class="d-flex align-items-center gap-2">
-                                    <div class="form-check form-switch m-0">
-                                      <input class="form-check-input bank-check" type="checkbox" ${prev.checked ? 'checked' : ''}>
-                                    </div>
-                                    <input type="number" class="form-control form-control-sm bank-qty" placeholder="จำนวน…" min="0" value="${prev.qty || 0}" style="width:110px;">
-                                  </div>
-                                </div>
-                              </div>
-                           </div>`;
-        wireCardBehaviour(col.querySelector('.card'));
-        return col;
-    };
-
-
-    // Loading state
-    grid.innerHTML = `<div class="col-12">
-                          <div class="d-flex align-items-center text-muted small px-2">
-                            <i class="fa fa-spinner fa-spin me-2"></i>Loading banks…
-                          </div>
-                        </div>`;
+    grid.innerHTML = '<div class="col-12 small text-muted px-2">Loading…</div>';
 
     try {
         const res = await fetch(baseUrl + 'OtherSettings/GetListBank', { method: 'GET' });
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        // expect server already ordered by LineOrder
-        let data = await res.json(); // [{ ValueString: BankCode, Text: BankName }]
+        const banks = await res.json(); // [{ ValueString: BankCode, Text: BankName, ValueInt: Id }]
 
-        // keep server order, just dedupe by code
-        data = dedupeBy(data, 'ValueString');
-
-        // render
         grid.innerHTML = '';
-        const frag = document.createDocumentFragment();
-        data.forEach(item => frag.appendChild(renderCard(item)));
-        grid.appendChild(frag);
 
-        // Select all / Clear (if buttons exist)
-        document.getElementById('btnSelectAllBanks')?.addEventListener('click', () => {
-            grid.querySelectorAll('.bank-check').forEach(chk => {
-                if (!chk.checked) { chk.checked = true; chk.dispatchEvent(new Event('change')); }
-            });
+        // simple foreach render
+        banks.forEach(b => {
+            const code = (b?.ValueString || '').trim();
+            const name = b?.Text || '';
+            const id = b?.ValueInt ?? '';
+
+            const html = `
+                            <div class="col-12 col-md-6 col-xl-4">
+                              <div class="card h-100 border-0 shadow-sm" data-bank="${code}" data-bank-id="${id}">
+                                <div class="card-body">
+                                  <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                                    <div class="d-flex align-items-center gap-3 flex-grow-1">
+                                      <img src="${BANK_LOGO_BASE}${code}.png"
+                                           alt="${code}"
+                                           class="rounded-circle border"
+                                           style="width:44px;height:44px;">
+                                      <div class="fw-semibold text-wrap">${code} - ${name}</div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                      <div class="form-check form-switch m-0">
+                                        <input class="form-check-input bank-check" type="checkbox">
+                                      </div>
+                                      <input type="number" class="form-control form-control-sm bank-qty"
+                                             placeholder="จำนวน…" min="0" value="0" style="width:110px;">
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            `;
+
+            grid.insertAdjacentHTML('beforeend', html);
         });
-        document.getElementById('btnClearBanks')?.addEventListener('click', () => {
-            grid.querySelectorAll('.bank-check').forEach(chk => {
-                if (chk.checked) { chk.checked = false; chk.dispatchEvent(new Event('change')); }
-            });
+
+        // minimal wiring (optional)
+        grid.querySelectorAll('.card').forEach(card => {
+            const chk = card.querySelector('.bank-check');
+            const qty = card.querySelector('.bank-qty');
+            qty.disabled = !chk.checked;
+            chk.addEventListener('change', () => qty.disabled = !chk.checked);
         });
+
     } catch (err) {
         console.error('loadAndRenderBanks error:', err);
-        grid.innerHTML = `<div class="col-12">
-                            <div class="alert alert-warning mb-0">ไม่สามารถโหลดรายชื่อธนาคารได้</div>
-                          </div>`;
+        grid.innerHTML = `
+      <div class="col-12">
+        <div class="alert alert-warning mb-0">ไม่สามารถโหลดรายชื่อธนาคารได้</div>
+      </div>`;
     }
 }
+
 
 async function hydrateBankSelectionFromVm(banks) {
     try {
