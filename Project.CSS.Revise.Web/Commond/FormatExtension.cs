@@ -286,19 +286,40 @@ namespace Project.CSS.Revise.Web.Commond
         /// <returns>string เช่น "16.85 M" หรือ "500"</returns>
         public static string ConvertToShortNameUnit(object obj, string defaultString = " - ")
         {
-            string str = NullToAnyString(obj, defaultString);
+            if (obj is null) return defaultString;
 
-            if (decimal.TryParse(str, out decimal number))
+            decimal number;
+
+            switch (obj)
             {
-                if (number >= 1_000_000)
-                    return (number / 1_000_000M).ToString("#,0.##") + " M";
-                else if (number >= 1_000)
-                    return (number / 1_000M).ToString("#,0.##") + " K";
-                else
-                    return number.ToString("#,0.##");
+                case decimal d: number = d; break;
+                case double db: number = (decimal)db; break;
+                case float f: number = (decimal)f; break;
+                case long l: number = l; break;
+                case int i: number = i; break;
+                case string s:
+                    var cleaned = s.Trim().Replace(",", "");
+                    if (!decimal.TryParse(cleaned, NumberStyles.Any, CultureInfo.InvariantCulture, out number) &&
+                        !decimal.TryParse(cleaned, NumberStyles.Any, CultureInfo.CurrentCulture, out number))
+                        return defaultString;
+                    break;
+                default:
+                    var text = Convert.ToString(obj, CultureInfo.InvariantCulture);
+                    if (!decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out number))
+                        return defaultString;
+                    break;
             }
 
-            return defaultString;
+            var abs = Math.Abs(number);
+            if (abs >= 1_000_000M)
+            {
+                // show millions with up to 2 decimals + " M"
+                var m = number / 1_000_000M;
+                return m.ToString("#,0.##", CultureInfo.InvariantCulture) + " M";
+            }
+
+            // below 1M: plain number, no decimals
+            return number.ToString("#,0", CultureInfo.InvariantCulture);
         }
 
         public static string ConvertToShortUnit(object obj, string defaultString = " - ")
