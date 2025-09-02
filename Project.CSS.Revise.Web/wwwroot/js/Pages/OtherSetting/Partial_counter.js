@@ -365,7 +365,7 @@ async function loadAndRenderBanks(containerId = 'bankGrid') {
 
     // Build logo base URL (no Razor "~/" needed)
     const ROOT = (document.querySelector('base')?.href || window.location.origin + '/');
-    const BANK_LOGO_BASE = new URL(baseUrl + 'image/ThaiBankicon/', ROOT).href;
+    const BANK_LOGO_BASE = baseUrl + 'image/ThaiBankicon/' + ROOT;
 
     // filename is BankCode + ".png"
     const bankLogoSrc = (code) => `${BANK_LOGO_BASE}${code}.png`;
