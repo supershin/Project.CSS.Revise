@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Project.CSS.Revise.Web.Commond;
+using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Service;
 using QRCoder;
 using SkiaSharp;
 using System.IO.Compression;
-using System.Net.Http;            // ✅ for HttpClient
 using System.Linq;                // (optional) for LINQ in font helper
+using System.Net.Http;            // ✅ for HttpClient
 using System.Text.Json;
 
 namespace Project.CSS.Revise.Web.Controllers
@@ -18,9 +19,8 @@ namespace Project.CSS.Revise.Web.Controllers
         private string GetRegisterCounterQRCodeUrl(int counterNo, int QueueTypeID, string ProjectID, string ProjectName)
         {
             string viewName = (QueueTypeID == 48) ? "RegisterBankCounter" : "RegisterInspectCounter";
-            string paramEncrypt = string.Format("{0}:{1}:{2}", ProjectName, QueueTypeID, counterNo).EnCryptText();
-            string url = string.Format("{0}Register/{1}?param={2}",
-                "http://aswinno.assetwise.co.th/qcinspection/", viewName, paramEncrypt);
+            string paramEncrypt = string.Format("{0}:{1}:{2}", ProjectID, QueueTypeID, counterNo).EnCryptText();
+            string url = string.Format("{0}Register/{1}?param={2}","https://aswinno.assetwise.co.th/qcinspection/", viewName, paramEncrypt);
             return url;
         }
 
@@ -43,14 +43,14 @@ namespace Project.CSS.Revise.Web.Controllers
             string typeLabel = queueTypeId == 48 ? "Bank" : "Inspect";
             string typeEmoji = queueTypeId == 48 ? "🏦" : "📋";
 
-            string iconUrl = "http://localhost:5292/assets/images/logo/ASW_Logo_Rac_dark-bg.png";
+            string iconUrl = BaseUrl + "assets/images/logo/ASW_Logo_Rac_dark-bg.png";
 
             var textTypeface = GetTextTypeface(env);  // ← Prompt-first, Thai-safe
             var emojiTypeface = TryGetEmojiTypeface();
 
             string rootFolder = $"{Sanitize(projectId)}";
             string typeFolder = queueTypeId == 48 ? "Bank" : "Inspect";
-            string imagesFolder = "QRCODES";
+            string imagesFolder = projectName;
 
             using var centerIcon = await TryLoadImageFromUrl(iconUrl);  // ✅ dispose when done
 
@@ -80,8 +80,8 @@ namespace Project.CSS.Revise.Web.Controllers
                         emojiTypeface: emojiTypeface
                     );
 
-                    string fileName = $"QC_{Sanitize(projectId)}_{i}_{(queueTypeId == 48 ? "bank" : "inspect")}.png";
-                    string entryPath = $"{rootFolder}/{typeFolder}/{imagesFolder}/{fileName}";
+                    string fileName = $"{Sanitize(projectName)}_{i}.png";
+                    string entryPath = $"{imagesFolder}/{fileName}";
                     var entry = archive.CreateEntry(entryPath, CompressionLevel.Optimal);
                     using var entryStream = entry.Open();
                     await entryStream.WriteAsync(pngBytes, 0, pngBytes.Length);
@@ -89,7 +89,7 @@ namespace Project.CSS.Revise.Web.Controllers
             }
             msZip.Position = 0;
 
-            string zipName = $"{rootFolder}_{typeFolder}_QRCODES.zip";
+            string zipName = $"{rootFolder}_{typeFolder}_QRcode.zip";
             return File(msZip.ToArray(), "application/zip", zipName);
         }
 
