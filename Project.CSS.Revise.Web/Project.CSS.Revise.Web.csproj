@@ -8,9 +8,7 @@
 	<ItemGroup>
 		<Folder Include="Data\" />
 		<!-- ✅ make sure Thai fonts are copied -->
-		<Content Include="wwwroot\fonts\*.ttf"
-				 CopyToOutputDirectory="PreserveNewest"
-				 CopyToPublishDirectory="Always" />
+		<Content Include="wwwroot\fonts\*.ttf" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Always" />
 	</ItemGroup>
 
 	<ItemGroup>
