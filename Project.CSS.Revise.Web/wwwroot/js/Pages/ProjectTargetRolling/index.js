@@ -3,8 +3,16 @@ let isEditMode = false;                       // toggle by Edit/Cancel
 /*const pendingEdits = window.pendingEdits || []; // keep your array*/
 
 // format helpers
-const toLocaleInt = n => Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 });
-const toLocaleMoney = n => Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const toLocaleInt = (n) => {
+    const num = Number(n);
+    return isNaN(num) ? '0' : num.toLocaleString(undefined, { maximumFractionDigits: 0 });
+};
+
+const toLocaleMoney = (n) => {
+    const num = Number(n);
+    return isNaN(num) ? '0.00' : num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
 
 // mimic your C# ConvertToShortUnit for display mode (K/M)
 function formatShort(n) {
@@ -742,40 +750,46 @@ function refreshSummaryCards() {
 
 
 function renderSummaryCards(datasum) {
-    const container = document.getElementById('cardContainer');
-    if (!container || !Array.isArray(datasum)) return;
+    const container = document.getElementById('cardSummary');
+    if (!container) return;
 
     container.innerHTML = '';
 
-    datasum.forEach(item => {
-        const name = item.PlanTypeName || '';
-        const unit = item.Unit?.toLocaleString() || '0';
-        const value = item.Value?.toLocaleString(undefined, { minimumFractionDigits: 2 });
-        const color = item.ColorClass || 'text-muted';
+    const order = [
+        { key: 'Target', label: 'Target' },
+        { key: 'WorkingTarget', label: 'Working Target' },
+        { key: 'MLL', label: 'MLL' },
+        { key: 'Rolling', label: 'Rolling' },
+        { key: 'WorkingRolling', label: 'Working Rolling' },
+        { key: 'Actual', label: 'Actual' }
+    ];
+
+    order.forEach(slot => {
+        const item = (datasum || []).find(it =>
+            (it.PlanTypeName || '').toLowerCase().replace(/\s/g, '') === slot.key.toLowerCase()
+        );
+
+        const name = slot.label;
+        const unit = (item?.Unit ?? 0).toLocaleString();
+        const value = (item?.Value ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
         const card = document.createElement('div');
-        card.className = 'card small-widget flex-shrink-0 company-card clickable-card';
-        card.style.minWidth = '75px';
+        // 👇 now card uses bg-primary & text-white from Riho/Bootstrap
+        card.className = 'summary-card bg-primary text-white';
 
         card.innerHTML = `
-            <div class="card o-hidden small-widget">
-                <div class="card-body total-project border-b-primary border-2">
-                    <span class="f-light f-w-500 f-14">${name}</span>
-                    <div class="project-details">
-                        <div class="project-counter">
-                            <div class="card-body d-flex justify-content-around align-items-center py-0">
-                                <div>
-                                    <h4 class="fw-semibold mb-0" style="color: ${color}">${unit}</h4>
-                                    <div class="text-muted small">Unit</div>
-                                    <h4 class="fw-semibold mb-0" style="color: ${color}">${value}</h4>
-                                    <div class="text-muted small">Value</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
+      <div class="sc-title">${name}</div>
+      <div class="sc-grid">
+        <div class="sc-cell">
+          <div class="sc-label">Unit</div>
+          <div class="sc-value">${unit}</div>
+        </div>
+        <div class="sc-cell">
+          <div class="sc-label">Value</div>
+          <div class="sc-value">${value}</div>
+        </div>
+      </div>
+    `;
 
         container.appendChild(card);
     });

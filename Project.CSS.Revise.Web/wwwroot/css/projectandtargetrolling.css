@@ -7,7 +7,7 @@
 #rollingPlanTable {
     border-collapse: separate;
     border-spacing: 0;
-    min-width: 1200px;
+    /*min-width: 1200px;*/
     width: max-content;
 }
 
@@ -56,6 +56,10 @@
         z-index: 3;
         background: #fff;
         min-width: 200px;
+    /* text-align: left;*/
+    }
+
+    #rollingPlanTable td:nth-child(1) {
         text-align: left;
     }
 
@@ -80,7 +84,7 @@
     /* Make sticky header cells in the first 3 columns sit on top of column stickies */
     #rollingPlanTable thead tr:nth-child(1) th:nth-child(-n+3),
     #rollingPlanTable thead tr:nth-child(2) th:nth-child(-n+3) {
-        z-index: 100;
+        z-index: 10;
     }
 
     /* Row highlight */
@@ -106,3 +110,81 @@
         #rollingPlanTable td.editable.dirty {
             background: #fff1f0;
         }
+
+
+
+/* ===== Layout container ===== */
+.summary-grid,
+#cardSummary { /* fallback id เดิม */
+    display: grid !important; /* override ถ้ามี d-flex ติดมา */
+    grid-template-columns: repeat(3, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+/* Responsive: Tablet = 2 cols, Mobile = 1 col */
+@media (max-width: 992px) {
+    .summary-grid,
+    #cardSummary {
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+    }
+}
+
+@media (max-width: 576px) {
+    .summary-grid,
+    #cardSummary {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== Card style ===== */
+.summary-card {
+    /* สีหลักมาจาก bg-primary text-white ที่ใส่ใน class ผ่าน JS */
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,.08);
+}
+
+    /* Header ของการ์ด (ทำเป็น strip ทับบน bg-primary) */
+    .summary-card .sc-title {
+        background: rgba(0, 0, 0, 0.15); /* แถบหัวสีเข้มกว่าเล็กน้อย */
+        padding: 10px 12px;
+        font-weight: 700;
+        text-align: center;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.35);
+    }
+
+    /* Grid ภายในการ์ด (Unit | Value) */
+    .summary-card .sc-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border-top: 2px solid rgba(255, 255, 255, 0.35);
+    }
+
+    /* ช่องแต่ละฝั่ง */
+    .summary-card .sc-cell {
+        padding: 12px 10px;
+        text-align: center;
+        border-right: 2px solid rgba(255, 255, 255, 0.35);
+    }
+
+        .summary-card .sc-cell:last-child {
+            border-right: 0;
+        }
+
+/* Label และ Value */
+.sc-label {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    letter-spacing: 0.2px;
+}
+
+.sc-value {
+    margin-top: 2px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+
+
+

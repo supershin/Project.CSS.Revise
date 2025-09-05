@@ -669,30 +669,32 @@ namespace Project.CSS.Revise.Web.Controllers
 
                 if (dt.Rows.Count > 0)
                 {
-                    // Sum down each month column (Unit/Value)
+                    // Subtotal down each month column (Unit/Value)
                     for (int i = 0; i < months.Length; i++)
                     {
                         int unitCol = firstUnitCol + (i * 2);
                         int valueCol = unitCol + 1;
 
                         ws.Cells[grandTotalRow, unitCol].Formula =
-                            $"=SUM({ws.Cells[dataStartRow, unitCol].Address}:{ws.Cells[lastDataRow, unitCol].Address})";
+                            $"=SUBTOTAL(9,{ws.Cells[dataStartRow, unitCol].Address}:{ws.Cells[lastDataRow, unitCol].Address})";
+
                         ws.Cells[grandTotalRow, valueCol].Formula =
-                            $"=SUM({ws.Cells[dataStartRow, valueCol].Address}:{ws.Cells[lastDataRow, valueCol].Address})";
+                            $"=SUBTOTAL(9,{ws.Cells[dataStartRow, valueCol].Address}:{ws.Cells[lastDataRow, valueCol].Address})";
                     }
 
-                    // Sum TOTAL Unit / TOTAL Value
+                    // Subtotal TOTAL Unit / TOTAL Value
                     ws.Cells[grandTotalRow, totalUnitCol].Formula =
-                        $"=SUM({ws.Cells[dataStartRow, totalUnitCol].Address}:{ws.Cells[lastDataRow, totalUnitCol].Address})";
+                        $"=SUBTOTAL(9,{ws.Cells[dataStartRow, totalUnitCol].Address}:{ws.Cells[lastDataRow, totalUnitCol].Address})";
+
                     ws.Cells[grandTotalRow, totalValueCol].Formula =
-                        $"=SUM({ws.Cells[dataStartRow, totalValueCol].Address}:{ws.Cells[lastDataRow, totalValueCol].Address})";
+                        $"=SUBTOTAL(9,{ws.Cells[dataStartRow, totalValueCol].Address}:{ws.Cells[lastDataRow, totalValueCol].Address})";
                 }
                 else
                 {
-                    // No data: optional zeros
                     for (int col = firstUnitCol; col <= totalValueCol; col++)
                         ws.Cells[grandTotalRow, col].Value = 0;
                 }
+
 
                 // Style the GRAND TOTAL row
                 using (var rngGrand = ws.Cells[grandTotalRow, 1, grandTotalRow, totalCols])

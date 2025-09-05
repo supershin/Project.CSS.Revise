@@ -128,7 +128,6 @@
                                             </select>
                                         </div>
                                     </div>
-
                                 </div>
                                 <div class="card-footer d-flex justify-content-end gap-2">
                                     <button class="btn btn-secondary" type="button" id="import_data_project_target_rolling" data-bs-toggle="modal" data-bs-target="#modalImportTargetRolling">
@@ -151,16 +150,31 @@
 </div>
 
 <div class="container-fluid">
-    <div class="card">
-        <div class="card-header card-no-border total-revenue">
-            <h4 class="m-0">Summery</h4>
-        </div>
-        <div class="card-body pt-0">
-            <div id="cardContainer" class="d-flex overflow-auto gap-3" style="white-space: nowrap; scroll-behavior: smooth;">
+    <div class="col-12 box-col-12">
+        <div class="md-sidebar">
+            <a class="btn btn-primary email-aside-toggle md-sidebar-toggle">Summary</a>
+            <div class="md-sidebar-aside job-sidebar">
+                <div class="default-according style-1 faq-accordion job-accordion">
+                    <div class="accordion" id="accordionSummary">
+                        <div class="card">
+                            <div class="card-header" id="headingSummary">
+                                <h2 class="mb-0">
+                                    <button class="btn btn-link btn-block text-start" type="button" data-bs-toggle="collapse" data-bs-target="#collapsecardSummary" aria-expanded="true" aria-controls="collapsecardSummary"><h4 class="m-0">Summary</h4></button>
+                                </h2>
+                            </div>
+                            <div class="collapse show" id="collapsecardSummary" aria-labelledby="headingSummary" data-bs-parent="#accordionSummary">
+                                <div class="card-body pt-0">
+                                    <div id="cardSummary" class="summary-grid"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 
 <div class="container-fluid">
     <div class="card">
