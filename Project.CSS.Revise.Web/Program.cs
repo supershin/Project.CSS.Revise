@@ -34,6 +34,8 @@ builder.Services.AddScoped<IProjectAndTargetRollingRepo, ProjectAndTargetRolling
 builder.Services.AddScoped<IProjectAndTargetRollingService, ProjectAndTargetRollingService>();
 builder.Services.AddScoped<IProjectCounterRepo, ProjectCounterRepo>();
 builder.Services.AddScoped<IProjectCounterService, ProjectCounterService>();
+builder.Services.AddScoped<IUserBankRepo, UserBankRepo>();
+builder.Services.AddScoped<IUserBankService, UserBankService>();
 
 // Add Rate Limiting Middleware
 builder.Services.AddMemoryCache();

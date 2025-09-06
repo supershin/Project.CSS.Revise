@@ -53,6 +53,10 @@ public partial class PR_User
     [Unicode(false)]
     public string? UpdateBy { get; set; }
 
+    public bool IsLeadBank { get; set; }
+
+    public int? ParentBankID { get; set; }
+
     [InverseProperty("User")]
     public virtual ICollection<PR_UserBank_Mapping> PR_UserBank_Mappings { get; set; } = new List<PR_UserBank_Mapping>();
 

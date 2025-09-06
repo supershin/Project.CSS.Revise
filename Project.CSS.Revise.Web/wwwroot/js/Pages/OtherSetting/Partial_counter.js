@@ -435,11 +435,12 @@ async function loadAndRenderBanks(containerId = 'bankGrid') {
 
     // loading state
     grid.innerHTML = `
-    <div class="col-12">
-      <div class="d-flex align-items-center text-muted small px-2">
-        <i class="fa fa-spinner fa-spin me-2"></i>Loading banks…
-      </div>
-    </div>`;
+                        <div class="col-12">
+                          <div class="d-flex align-items-center text-muted small px-2">
+                            <i class="fa fa-spinner fa-spin me-2"></i>Loading banks…
+                          </div>
+                        </div>`
+                    ;
 
     try {
         const res = await fetch(baseUrl + 'OtherSettings/GetListBank', { method: 'GET' });

@@ -19,6 +19,9 @@ public partial class TR_DefectVendor
     public DateTime? ExpectDate { get; set; }
 
     [Column(TypeName = "datetime")]
+    public DateTime? FastTrackDate { get; set; }
+
+    [Column(TypeName = "datetime")]
     public DateTime? InprocessDate { get; set; }
 
     public int? InprocessBy { get; set; }

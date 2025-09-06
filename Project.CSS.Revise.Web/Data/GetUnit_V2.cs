@@ -178,6 +178,10 @@ public partial class GetUnit_V2
     [Unicode(false)]
     public string? LastExpectDate { get; set; }
 
+    [StringLength(10)]
+    [Unicode(false)]
+    public string? LastFastTrackDate { get; set; }
+
     public int? LineContract { get; set; }
 
     [StringLength(50)]

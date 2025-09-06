@@ -1,0 +1,55 @@
+﻿.custom-switch-label {
+    transition: color 0.3s ease;
+}
+
+tr.checked-row {
+    background-color: #e6f9ec !important; /* เขียวอ่อน */
+    color: #198754; /* Bootstrap success color */
+}
+
+#bankCountCards .card {
+    border-radius: 10px;
+}
+
+#bankCountCards img {
+    display: block;
+}
+
+/* badge มุมขวาบนสำหรับหัวทีม */
+.ribbon-badge {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    background: var(--bs-primary); /* ใช้สี primary ของธีม */
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    line-height: 1;
+    box-shadow: 0 1px 3px rgba(0,0,0,.15);
+}
+
+.bank-logo-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #1E44A6; /* พื้นหลังน้ำเงิน */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; /* กันรูปเกินวง */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15); /* เงาเบาๆ */
+}
+
+    .bank-logo-circle img {
+        max-width: 100%; /* จำกัดขนาดโลโก้ */
+        max-height: 100%;
+        object-fit: contain; /* ไม่บิดสัดส่วน */
+    }
+
+
+
+
+
+
