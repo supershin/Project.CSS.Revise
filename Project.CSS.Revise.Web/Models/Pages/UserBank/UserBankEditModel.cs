@@ -10,7 +10,7 @@
         public string? Mobile { get; set; }
         public string? Email { get; set; }
         public string? UserName { get; set; }
-        public string? Password { get; set; }   // ถ้าจะไม่ส่งรหัสผ่านจริง ให้เว้น/มาสก์ใน Select
+        public string? Password { get; set; }
 
         public bool? ConsentAccept { get; set; }
         public bool? FlagActive { get; set; }
@@ -21,15 +21,15 @@
         public string? UpdateBy { get; set; }
 
         public bool IsLeadBank { get; set; }   // bit -> bool
-        public int? ParentBankID { get; set; }   // อาจเป็น null
+        public int? ParentBankID { get; set; }
+
+        public int? AreaID { get; set; }
 
         public int? BankID { get; set; }
         public string? BankCode { get; set; }
         public string? BankName { get; set; }
 
-        // เผื่อสะดวกใช้ใน UI
-        public string FullName => $"{FirstName} {LastName}".Trim();
-
+        public int? IUDBy { get; set; }
         public List<ListProject> ProjectUserBank { get; set; } = new();
     }
 

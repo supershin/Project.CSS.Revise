@@ -63,5 +63,44 @@ namespace Project.CSS.Revise.Web.Controllers
             var result = _masterService.GetlisDDl(filter);
             return Json(result);
         }
+
+        [HttpGet]
+        public JsonResult GetlistUserBankInTeam(int ParentBankID)
+        {
+            var filter = new GetlistUserBankInTeam
+            {
+                ParentBankID = ParentBankID
+            };
+            var data = _userBankService.GetlistUserBankInTeam(filter);
+            return Json(new { success = data != null, data });
+        }
+
+        public JsonResult GetlistUserBankInTeamForAdd(int BankID , int LeadteamID)
+        {
+            var filter = new GetDDLModel
+            {
+                 Act = "listUserBankInTeamForAdd"
+                ,ID = BankID
+                ,ID2 = LeadteamID
+            };
+            var result = _masterService.GetlisDDl(filter);
+            return Json(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> InsertUserBank([FromBody] UserBankEditModel model)
+        {
+            if (model == null) return BadRequest("No payload");
+
+            // บังคับค่าคงที่ฝั่งเซิร์ฟเวอร์
+            model.UserTypeID = 74; // หรือ Constants.Ext.UserBank
+            model.FlagActive = model.FlagActive ?? true;
+            model.CreateDate = DateTime.Now;
+            model.CreateBy = User?.Identity?.Name ?? "system";  // ปรับตามระบบ login ของพ่อใหญ่
+
+            var newId = await _userBankService.InsertUserBankAsync(model);
+            return Json(new { success = newId > 0, id = newId });
+        }
+
     }
 }

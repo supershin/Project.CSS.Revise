@@ -456,6 +456,30 @@ namespace Project.CSS.Revise.Web.Respositories
 
                     return listAllBank.ToList();
 
+                case "listUserBankInTeamForAdd":
+                    var listUserBankInTeamForAdd =
+                        from u in _context.PR_Users.AsNoTracking()
+                        join ubm in _context.PR_UserBank_Mappings.AsNoTracking()
+                            on u.ID equals ubm.UserID into j1
+                        from ubm in j1.DefaultIfEmpty() // LEFT JOIN
+                        join b in _context.tm_Banks.AsNoTracking()
+                            on ubm.BankID equals b.ID into j2
+                        from b in j2.DefaultIfEmpty()   // LEFT JOIN
+                        where u.FlagActive == true
+                           && u.UserTypeID == Constants.Ext.UserBank
+                           && u.IsLeadBank == false
+                           && b.ID == model.ID             // << ธนาคารที่ต้องการ filter
+                           && (u.ParentBankID == null || u.ParentBankID != model.ID2)
+                        select new GetDDLModel
+                        {
+                            ValueInt = u.ID,
+                            Text = (u.ParentBankID != null)
+                                ? (u.FirstName + " " + u.LastName + "  (มีทีมแล้ว) ")
+                                : (u.FirstName + " " + u.LastName)
+                        };
+
+                return listUserBankInTeamForAdd.ToList();
+
                 default:
 
                 return new List<GetDDLModel>();

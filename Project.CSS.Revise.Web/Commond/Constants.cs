@@ -12,6 +12,7 @@
             public static readonly int MLL = 452;
             public static readonly int QUEUE_TYPE_BANK = 48;
 
+            public static readonly int UserBank = 74;
             public static readonly int Unit = 183;
             public static readonly int Value = 184;
         }

@@ -883,7 +883,9 @@ public partial class CSSContext : DbContext
             entity.Property(e => e.FlagActive).HasDefaultValue(true);
             entity.Property(e => e.UpdateDate).HasDefaultValueSql("(getdate())");
 
-            entity.HasOne(d => d.UserType).WithMany(p => p.PR_Users).HasConstraintName("FK_PR_User_tm_Ext");
+            entity.HasOne(d => d.Area).WithMany(p => p.PR_UserAreas).HasConstraintName("FK_PRUser_tmExt_AreaID");
+
+            entity.HasOne(d => d.UserType).WithMany(p => p.PR_UserUserTypes).HasConstraintName("FK_PR_User_tm_Ext");
         });
 
         modelBuilder.Entity<PR_UserBank_Mapping>(entity =>

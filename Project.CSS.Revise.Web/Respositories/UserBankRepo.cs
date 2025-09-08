@@ -1,7 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models.Pages.UserBank;
+using static QRCoder.PayloadGenerator;
 
 namespace Project.CSS.Revise.Web.Respositories
 {
@@ -10,6 +12,8 @@ namespace Project.CSS.Revise.Web.Respositories
         public List<CountUserByBankModel.ListData> GetListCountUserByBank();
         public List<GetlistUserBank.ListData> GetListUserBank(GetlistUserBank.FilterData filter);
         Task<UserBankEditModel?> GetUserBankByIdAsync(int id);
+        public List<GetlistUserBankInTeam> GetlistUserBankInTeam(GetlistUserBankInTeam model);
+        Task<int> InsertUserBankAsync(UserBankEditModel model);
     }
     public class UserBankRepo : IUserBankRepo
     {
@@ -181,10 +185,121 @@ namespace Project.CSS.Revise.Web.Respositories
             return row;
         }
 
+        public List<GetlistUserBankInTeam> GetlistUserBankInTeam(GetlistUserBankInTeam model)
+        {
+            var result = from u in _context.PR_Users
+                         join e in _context.tm_Exts on u.AreaID equals e.ID into gj
+                         from e in gj.DefaultIfEmpty()               
+                         where u.FlagActive == true
+                             && u.ParentBankID == model.ParentBankID
+                             && u.UserTypeID == Constants.Ext.UserBank
+                         select new GetlistUserBankInTeam
+                         {
+                            ID = u.ID,
+                            FullName = (u.FirstName ?? "") + " " + (u.LastName ?? ""),
+                            Mobile = u.Mobile,
+                            Email = u.Email,
+                            AreaID = u.AreaID,
+                            AreaName = e != null ? e.Name : null
+                         };
 
+            return result.ToList();
+        }
 
+        public async Task<int> InsertUserBankAsync(UserBankEditModel model)
+        {
+            if (string.IsNullOrWhiteSpace(model.FirstName) ||
+                string.IsNullOrWhiteSpace(model.LastName) ||
+                string.IsNullOrWhiteSpace(model.UserName) ||
+                string.IsNullOrWhiteSpace(model.Password))
+            {
+                throw new ArgumentException("FirstName, LastName, UserName, Password are required.");
+            }
 
+            using var tx = await _context.Database.BeginTransactionAsync();
 
+            try
+            {
+                // 1) INSERT PR_User
+                var user = new PR_User
+                {
+                    // ค่าจำเป็น/จากฟอร์ม
+                    UserTypeID = model.UserTypeID ?? 74, // fix 74
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Mobile = model.Mobile,
+                    Email = model.Email,
+                    UserName = model.UserName,
+                    Password = model.Password,      // TODO: ถ้าต้องการ hash ให้ทำที่นี่
+
+                    // ค่า state
+                    FlagActive = model.FlagActive ?? true,
+                    ConsentAccept = model.ConsentAccept,
+
+                    // team flags
+                    IsLeadBank = model.IsLeadBank,
+                    ParentBankID = model.ParentBankID, // ถ้าเป็น lead อาจเป็น null; ถ้าเป็น crew อาจเซ็ตไว้
+
+                    AreaID = model.AreaID,
+
+                    // audit
+                    CreateDate = model.CreateDate ?? DateTime.Now,
+                    CreateBy = model.CreateBy ?? "system",
+                    UpdateDate = model.UpdateDate,
+                    UpdateBy = model.UpdateBy
+                };
+
+                _context.PR_Users.Add(user);
+                await _context.SaveChangesAsync(); // ได้ user.ID
+
+                var newUserId = user.ID;
+
+                // 2) (แนะนำ) INSERT PR_UserBank_Mapping ถ้ามี BankID
+                if (model.BankID.HasValue)
+                {
+                    var map = new PR_UserBank_Mapping
+                    {
+                        UserID = newUserId,
+                        BankID = model.BankID.Value
+                    };
+                    _context.PR_UserBank_Mappings.Add(map);
+                    await _context.SaveChangesAsync();
+                }
+
+                // 3) INSERT PR_ProjectBankUser_Mapping (ProjectID เป็น string เช่น "PJ001")
+                if (model.ProjectUserBank != null && model.ProjectUserBank.Count > 0)
+                {
+                    foreach (var p in model.ProjectUserBank)
+                    {
+                        var pid = (p.ProjectID ?? string.Empty).Trim();
+                        if (string.IsNullOrEmpty(pid)) continue; // ข้ามว่าง
+
+                        // (ออปชัน) กันซ้ำ: project เดิม-คนเดิม
+                        var exists = await _context.PR_ProjectBankUser_Mappings
+                            .AsNoTracking()
+                            .AnyAsync(x => x.ProjectID == pid && x.BankUserID == newUserId);
+                        if (exists) continue;
+
+                        var pm = new PR_ProjectBankUser_Mapping
+                        {
+                            ProjectID = pid,
+                            BankUserID = newUserId
+                        };
+                        _context.PR_ProjectBankUser_Mappings.Add(pm);
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
+
+                await tx.CommitAsync();
+                return newUserId;
+            }
+            catch
+            {
+                await tx.RollbackAsync();
+                throw;
+            }
+        }
 
     }
 }

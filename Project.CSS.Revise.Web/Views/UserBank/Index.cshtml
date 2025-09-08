@@ -54,12 +54,10 @@
                                             </div>
 
                                             <!-- Create button -->
-                                            <button type="button"
-                                                    class="btn btn-primary btn-sm ms-2"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#modalCreateUser">
+                                            <button type="button" class="btn btn-primary btn-sm ms-2" onclick="openAddUserBankModal()">
                                                 <i class="bi bi-plus-circle me-1"></i> Create
                                             </button>
+
                                         </div>
 
                                         <div class="card-body">
@@ -184,12 +182,31 @@
                                                                 </div>
 
                                                                 <div class="tab-pane fade" id="team-filter" role="tabpanel" aria-labelledby="team-tab">
-                                                                    <div class="pt-3" id="team-tab-content">
+                                                                    <div class="pt-3">
+
                                                                         <!-- Teams Name -->
                                                                         <div class="mb-3">
-                                                                            <label class="form-label fw-semibold">Teams Name</label>
-                                                                            <input type="text" class="form-control" placeholder="Teams BBL 1 - คุณปานิสรา วงษ์วาณิช (สอบ)">
+                                                                            <label class="form-label fw-semibold mb-1">Teams Name</label>
+                                                                            <input type="text" class="form-control" id="inpTeamName" disabled>
                                                                         </div>
+
+                                                                        <div class="mb-3">
+                                                                            <div class="row">
+                                                                                <div class="col-8">
+                                                                                    <select class="form-select" aria-label="เลือกสมาชิกเข้าทีม" id="ddl-add-more-user-bank">
+                                                                                        <option value="">
+                                                                                            เลือกสมาชิกเข้าทีม
+                                                                                        </option>
+                                                                                    </select>
+                                                                                </div>
+                                                                                <div class="col-4">
+                                                                                    <button class="btn btn-outline-primary" type="button" id="crewDropdown">
+                                                                                        <i class="fa fa-user-plus me-1"></i> Add crew
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
 
                                                                         <!-- Search -->
                                                                         <div class="mb-3">
@@ -197,84 +214,39 @@
                                                                                 <span class="input-group-text bg-white border-end-0">
                                                                                     <i class="fa fa-search text-muted"></i>
                                                                                 </span>
-                                                                                <input type="text" class="form-control border-start-0" placeholder="ค้นหา Teams / Name">
+                                                                                <input id="inpSearchTeam" type="text" class="form-control border-start-0" placeholder="ค้นหา Full name / Email / Mobile / Area">
                                                                             </div>
                                                                         </div>
 
-                                                                        <!-- Table -->
+                                                                        <!-- Table: Member รวมชื่อ/มือถือ/อีเมลในคอลัมน์เดียว -->
                                                                         <div class="table-responsive">
-                                                                            <table class="table align-middle team-table">
+                                                                            <table class="table align-middle" id="tblTeam">
                                                                                 <thead>
                                                                                     <tr class="border-bottom">
                                                                                         <th style="width:44px;">
-                                                                                            <input class="form-check-input team-check-all" type="checkbox">
+                                                                                            <input class="form-check-input" type="checkbox" id="chkAllRows">
                                                                                         </th>
-                                                                                        <th class="text-muted fw-semibold">Teams</th>
                                                                                         <th class="text-muted fw-semibold">Member</th>
+                                                                                        <th class="text-muted fw-semibold">Area</th>
+                                                                                        <th style="width:100px;"></th>
                                                                                     </tr>
                                                                                 </thead>
-                                                                                <tbody>
-                                                                                    <!-- Row 1 (checked) -->
-                                                                                    <tr class="team-row">
-                                                                                        <td>
-                                                                                            <input class="form-check-input team-check" type="checkbox" checked>
-                                                                                        </td>
-                                                                                        <td>
-                                                                                            <div class="fw-semibold">Teams BBL 1 - คุณปานิสรา วงษ์วาณิช (สอบ)</div>
-                                                                                        </td>
-                                                                                        <td>
-                                                                                            <div class="member-name">ปานิสรา วงษ์วาณิช</div>
-                                                                                            <div class="member-area fw-semibold text-dark">กรุงเทพฯ/ปริมณฑล</div>
-                                                                                        </td>
-                                                                                    </tr>
-
-                                                                                    <!-- Row 2 (checked) -->
-                                                                                    <tr class="team-row">
-                                                                                        <td>
-                                                                                            <input class="form-check-input team-check" type="checkbox" checked>
-                                                                                        </td>
-                                                                                        <td>
-                                                                                            <div class="fw-semibold">Teams BBL 1 - คุณปานิสรา วงษ์วาณิช (สอบ)</div>
-                                                                                        </td>
-                                                                                        <td>
-                                                                                            <div class="member-name">สุชิน บุหาริษ</div>
-                                                                                            <div class="member-area fw-semibold text-dark">ต่างจังหวัด</div>
-                                                                                        </td>
-                                                                                    </tr>
-
-                                                                                    <!-- Row 3 (unchecked) -->
-                                                                                    <tr class="team-row">
-                                                                                        <td>
-                                                                                            <input class="form-check-input team-check" type="checkbox">
-                                                                                        </td>
-                                                                                        <td>
-                                                                                            <div class="fw-semibold">Teams BBL 1 - คุณปานิสรา วงษ์วาณิช (สอบ)</div>
-                                                                                        </td>
-                                                                                        <td>
-                                                                                            <div class="member-name">ปานิสรา วงษ์วาณิช</div>
-                                                                                            <div class="member-area fw-semibold text-dark">กรุงเทพฯ/ปริมณฑล</div>
-                                                                                        </td>
-                                                                                    </tr>
-
-                                                                                    <!-- Row 4 (unchecked) -->
-                                                                                    <tr class="team-row">
-                                                                                        <td>
-                                                                                            <input class="form-check-input team-check" type="checkbox">
-                                                                                        </td>
-                                                                                        <td>
-                                                                                            <div class="fw-semibold">Teams BBL 1 - คุณปานิสรา วงษ์วาณิช (สอบ)</div>
-                                                                                        </td>
-                                                                                        <td>
-                                                                                            <div class="member-name">สุณีย์ มหาริษ</div>
-                                                                                            <div class="member-area fw-semibold text-dark">ต่างจังหวัด</div>
-                                                                                        </td>
-                                                                                    </tr>
+                                                                                <tbody id="teamTbody">
+                                                                                    <!-- filled by JS: renderTeamRows(list) -->
                                                                                 </tbody>
+                                                                                <tfoot>
+                                                                                    <tr class="border-top">
+                                                                                        <td colspan="4" class="small text-muted">
+                                                                                            * ใช้เครื่องหมายถูกเพื่อเลือกหลายรายการ หรือกดปุ่ม Remove เพื่อลบออกจากทีม
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tfoot>
                                                                             </table>
                                                                         </div>
-                                                                    </div>
 
+                                                                    </div>
                                                                 </div>
+
                                                             </div>
                                                         </div>
 
@@ -303,168 +275,102 @@
     </div>
 </div>
 <!-- Container-fluid Ends-->
-<!-- Modal Starts-->
-<div class="modal fade bd-example-modal-xl" id="modalCreateUser" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="myLargeModalLabel">Create new user</h4>
-                <button class="btn-close py-0" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+
+<!-- Insert New User Bank -->
+<div class="modal fade" id="modalAddUserBank" tabindex="-1" aria-labelledby="modalAddUserBankLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <div>
+                    <h5 class="modal-title fw-bold" id="modalAddUserBankLabel">Create User Bank</h5>
+                    <div class="text-muted small">เพิ่มผู้ใช้ธนาคารใหม่ และเลือกโปรเจ็กต์ที่เกี่ยวข้อง</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body dark-modal">
-                <form class="row g-3 needs-validation custom-input" novalidate="">
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="col-md-2">
-                                <label class="form-label" for="validationTooltip01">
-                                    Title (TH)<span class="text-danger">*</span>
-                                </label>
-                                <select class="form-select" id="validationTooltip01" required="">
-                                    <option selected="" value="">ไม่ระบุ</option>
-                                    <option>นาย </option>
-                                    <option>นาง </option>
-                                    <option>นางสาว </option>
-                                </select>
-                                <div class="invalid-tooltip">Please select a valid pronoun.</div>
-                            </div>
-                            <div class="col-md-5">
-                                <label class="form-label" for="validationTooltip02">
-                                    First name (TH)<span class="text-danger">*</span>
-                                </label>
-                                <input class="form-control" id="validationTooltip02" type="text" placeholder="" required="">
-                                <div class="valid-tooltip">Looks good!</div>
-                            </div>
-                            <div class="col-md-5">
-                                <label class="form-label" for="validationTooltip03">
-                                    Last name (TH)<span class="text-danger">*</span>
-                                </label>
-                                <input class="form-control" id="validationTooltip03" type="text" placeholder="" required="">
-                                <div class="valid-tooltip">Looks good!</div>
-                            </div>
+
+            <div class="modal-body pt-3">
+                <form id="formAddUserBank" class="row g-3">
+
+                    <!-- หัวหน้า Team -->
+                    <div class="col-12 d-flex align-items-center gap-2">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="addIsLeadBank">
+                            <label class="form-check-label" for="addIsLeadBank">หัวหน้า Team</label>
                         </div>
                     </div>
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="col-md-2">
-                                <label class="form-label" for="validationTooltip04">
-                                    Title (Eng)<span class="text-danger">*</span>
-                                </label>
-                                <select class="form-select" id="validationTooltip04" required="">
-                                    <option selected="" value="">
-                                        Not specified
-                                    </option>
-                                    <option>Mr. </option>
-                                    <option>Mrs. </option>
-                                    <option>Miss. </option>
-                                </select>
-                                <div class="invalid-tooltip">Please select a valid pronoun.</div>
-                            </div>
-                            <div class="col-md-5">
-                                <label class="form-label" for="validationTooltip05">
-                                    First name (Eng)<span class="text-danger">*</span>
-                                </label>
-                                <input class="form-control" id="validationTooltip05" type="text" placeholder="" required="">
-                                <div class="valid-tooltip">Looks good!</div>
-                            </div>
-                            <div class="col-md-5">
-                                <label class="form-label" for="validationTooltip06">
-                                    Last name (Eng)<span class="text-danger">*</span>
-                                </label>
-                                <input class="form-control" id="validationTooltip06" type="text" placeholder="" required="">
-                                <div class="valid-tooltip">Looks good!</div>
-                            </div>
-                        </div>
+
+                    <!-- Bank -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Bank <span class="text-danger">*</span></label>
+                        <select id="ddlAddBank" class="form-select" required></select>
+                        <div class="invalid-feedback">กรุณาเลือกธนาคาร</div>
                     </div>
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <label class="form-label" for="validationTooltipEmail">
-                                    Email
-                                </label>
-                                <input class="form-control" id="validationTooltipEmail" type="email" placeholder="example@mail.com" required="">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label" for="validationTooltipMobile">
-                                    Mobile Number
-                                </label>
-                                <input class="form-control" id="validationTooltipMobile" type="tel" placeholder="0812345678" required="">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label" for="validationTooltipDepartment">
-                                    Department<span class="text-danger">*</span>
-                                </label>
-                                <select class="form-select" id="validationTooltipDepartment" required="">
-                                    <option selected="" disabled value="">Choose Department</option>
-                                    <option>Project Manager</option>
-                                    <option>Sales</option>
-                                    <option>IT Support</option>
-                                    <option>Accounting</option>
-                                    <option>Human Resources</option>
-                                </select>
-                                <div class="invalid-tooltip">Please select a department.</div>
-                            </div>
-                        </div>
+
+                    <!-- Projects (multi-select) -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Projects</label>
+                        <select id="ddlAddProjects" class="form-control" multiple></select>
                     </div>
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <label class="form-label" for="validationTooltipUserID">
-                                    User ID<span class="text-danger">*</span>
-                                </label>
-                                <input class="form-control" id="validationTooltipUserID" type="text" placeholder="Enter User ID" required="">
-                                <div class="invalid-tooltip">Please enter a valid User ID.</div>
-                            </div>
-                            <div class="col-md-4 form-group">
-                                <label class="form-label" for="validationTooltipPassword">
-                                    Password<span class="text-danger">*</span>
-                                </label>
-                                <div class="position-relative">
-                                    <input class="form-control" id="validationTooltipPassword" type="password" placeholder="*********" required>
-                                    <span class="show-hide position-absolute top-50 end-0 translate-middle-y me-3"
-                                          style="cursor:pointer; color:blue;"
-                                          onclick="togglePassword('validationTooltipPassword', this)">
-                                        show
-                                    </span>
-                                </div>
-                                <div class="invalid-tooltip">Please provide a password.</div>
-                            </div>
-                            <div class="col-md-4 form-group">
-                                <label class="form-label" for="validationTooltipConfirmPassword">
-                                    Confirm Password<span class="text-danger">*</span>
-                                </label>
-                                <div class="position-relative">
-                                    <input class="form-control" id="validationTooltipConfirmPassword" type="password" placeholder="*********" required>
-                                    <span class="show-hide position-absolute top-50 end-0 translate-middle-y me-3"
-                                          style="cursor:pointer; color:blue;"
-                                          onclick="togglePassword('validationTooltipConfirmPassword', this)">
-                                        show
-                                    </span>
-                                </div>
-                                <div class="invalid-tooltip">Please confirm your password.</div>
-                            </div>
-                        </div>
+
+                    <!-- First / Last Name -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">First Name <span class="text-danger">*</span></label>
+                        <input id="addFirstName" type="text" class="form-control" placeholder="ชื่อ" required>
+                        <div class="invalid-feedback">กรุณากรอกชื่อ</div>
                     </div>
-                    <div class="col-md-6 col-xl-4">
-                        <div class="card-wrapper border rounded-3 rtl-input checkbox-checked">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" id="flexSwitchCheckDefault" type="checkbox" role="switch">
-                                <label class="form-check-label" for="flexSwitchCheckDefault" style="color: black;">
-                                    Flag Admin
-                                </label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                        <input id="addLastName" type="text" class="form-control" placeholder="นามสกุล" required>
+                        <div class="invalid-feedback">กรุณากรอกนามสกุล</div>
+                    </div>
+
+                    <!-- Mobile / Email -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Mobile</label>
+                        <input id="addMobile" type="tel" class="form-control" placeholder="0812345678" inputmode="numeric">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Email</label>
+                        <input id="addEmail" type="email" class="form-control" placeholder="example@mail.com">
+                    </div>
+
+                    <!-- Username / Password -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Username <span class="text-danger">*</span></label>
+                        <input id="addUsername" type="text" class="form-control" placeholder="username" required>
+                        <div class="invalid-feedback">กรุณากรอก Username</div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Password <span class="text-danger">*</span></label>
+                        <div class="position-relative">
+                            <input id="addPassword" type="password" class="form-control pe-5" placeholder="********" required>
+                            <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2 text-decoration-none" id="btnToggleAddPw">show</button>
+                        </div>
+                        <div class="invalid-feedback">กรุณากรอกรหัสผ่าน</div>
+                    </div>
+
+                    <!-- Area -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Area</label>
+                        <div class="d-flex gap-3 mt-1">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="addArea" id="addAreaBangkok" value="460" checked>
+                                <label class="form-check-label" for="addAreaBangkok">กรุงเทพฯ/ปริมณฑล</label>
                             </div>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" id="flexSwitchCheckChecked" type="checkbox" role="switch">
-                                <label class="form-check-label" for="flexSwitchCheckChecked" style="color: black;">
-                                    Flag Readonly
-                                </label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="addArea" id="addAreaUpcountry" value="461">
+                                <label class="form-check-label" for="addAreaUpcountry">ต่างจังหวัด</label>
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary">Save</button>
+
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="btnSaveNewUserBank" class="btn btn-primary">
+                    <i class="fa fa-save me-1"></i> Save
+                </button>
             </div>
         </div>
     </div>
@@ -474,6 +380,7 @@
 @section Scripts {
     <script src="~/js/Pages/UserBank/index.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <link rel="stylesheet" type="text/css" href="~/css/userbank.css?ver=@DateTime.Now.Ticks.ToString()">
+
 }
 
 

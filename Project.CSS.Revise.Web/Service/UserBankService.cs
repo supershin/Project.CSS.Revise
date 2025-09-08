@@ -9,6 +9,8 @@ namespace Project.CSS.Revise.Web.Service
         public List<CountUserByBankModel.ListData> GetListCountUserByBank();
         public List<GetlistUserBank.ListData> GetListUserBank(GetlistUserBank.FilterData filter);
         Task<UserBankEditModel?> GetUserBankByIdAsync(int id);
+        public List<GetlistUserBankInTeam> GetlistUserBankInTeam(GetlistUserBankInTeam model);
+        Task<int> InsertUserBankAsync(UserBankEditModel model);
     }
     public class UserBankService : IUserBankService
     {
@@ -30,12 +32,19 @@ namespace Project.CSS.Revise.Web.Service
             List<GetlistUserBank.ListData> resp = _userBankRepo.GetListUserBank(filter);
             return resp;
         }
+
         public async Task<UserBankEditModel?> GetUserBankByIdAsync(int id)
         {
             var resp = await _userBankRepo.GetUserBankByIdAsync(id);
             return resp;
         }
 
+        public List<GetlistUserBankInTeam> GetlistUserBankInTeam(GetlistUserBankInTeam model)
+        {
+            List<GetlistUserBankInTeam> resp = _userBankRepo.GetlistUserBankInTeam(model);
+            return resp;
+        }
 
+        public Task<int> InsertUserBankAsync(UserBankEditModel model) => _userBankRepo.InsertUserBankAsync(model);
     }
 }

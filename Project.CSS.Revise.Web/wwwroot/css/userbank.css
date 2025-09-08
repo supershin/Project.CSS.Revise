@@ -42,11 +42,32 @@ tr.checked-row {
     box-shadow: 0 2px 6px rgba(0,0,0,0.15); /* เงาเบาๆ */
 }
 
-    .bank-logo-circle img {
-        max-width: 100%; /* จำกัดขนาดโลโก้ */
-        max-height: 100%;
-        object-fit: contain; /* ไม่บิดสัดส่วน */
-    }
+.bank-logo-circle img {
+    max-width: 100%; /* จำกัดขนาดโลโก้ */
+    max-height: 100%;
+    object-fit: contain; /* ไม่บิดสัดส่วน */
+}
+
+/* Modern modal touch */
+#modalAddUserBank .modal-content {
+    border-radius: 18px;
+}
+
+#modalAddUserBank .form-control,
+#modalAddUserBank .form-select {
+    border-radius: 12px;
+}
+
+#modalAddUserBank .btn {
+    border-radius: 12px;
+}
+
+
+
+
+
+
+
 
 
 
