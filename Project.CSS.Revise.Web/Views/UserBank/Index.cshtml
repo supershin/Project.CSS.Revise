@@ -42,16 +42,19 @@
                                                 <input type="text"
                                                        id="searchPerson"
                                                        class="form-control"
-                                                       placeholder="🔍 ค้นหา ชื่อ, อังกฤษ หรือแผนก">
+                                                       placeholder="🔍 ค้นหา ชื่อ,นามสกุล">
                                             </div>
 
                                             <!-- Bank dropdown (ใช้ listBank: ValueInt, Text) -->
                                             <div style="min-width:220px;">
-                                                <select id="ddl_bank" class="form-select">
+                                                <select id="ddl_bank" class="form-select" multiple>
                                                     <option value="">— เลือกธนาคาร —</option>
-                                                    <!-- จะถูกเติมด้วย JS จาก Page_Load -->
                                                 </select>
                                             </div>
+
+                                            <button type="button" id="btnSearchUser" class="btn btn-outline-secondary btn-sm ms-2">
+                                                <i class="fa fa-search me-1"></i> Search
+                                            </button>
 
                                             <!-- Create button -->
                                             <button type="button" class="btn btn-primary btn-sm ms-2" onclick="openAddUserBankModal()">
@@ -175,12 +178,20 @@
                                                                         </div>
 
                                                                         <!-- Projects -->
-                                                                        <div class="mb-2">
+                                                                        <div class="mb-3">
                                                                             <select id="projectMultiSelect" class="form-control" multiple></select>
+                                                                        </div>
+
+                                                                        <div class="mb-2 d-flex justify-content-between align-items-center bg-white">
+                                                                            <button id="btnDeleteUserBank" type="button" class="btn btn-outline-danger">
+                                                                                <i class="fa fa-trash me-1"></i> Delete
+                                                                            </button>
+                                                                            <button id="btnSaveUserBank" type="button" class="btn btn-primary">
+                                                                                <i class="fa fa-save me-1"></i> Save
+                                                                            </button>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-
                                                                 <div class="tab-pane fade" id="team-filter" role="tabpanel" aria-labelledby="team-tab">
                                                                     <div class="pt-3">
 
@@ -223,9 +234,6 @@
                                                                             <table class="table align-middle" id="tblTeam">
                                                                                 <thead>
                                                                                     <tr class="border-bottom">
-                                                                                        <th style="width:44px;">
-                                                                                            <input class="form-check-input" type="checkbox" id="chkAllRows">
-                                                                                        </th>
                                                                                         <th class="text-muted fw-semibold">Member</th>
                                                                                         <th class="text-muted fw-semibold">Area</th>
                                                                                         <th style="width:100px;"></th>
@@ -246,18 +254,7 @@
 
                                                                     </div>
                                                                 </div>
-
                                                             </div>
-                                                        </div>
-
-                                                        <!-- Footer -->
-                                                        <div class="card-footer d-flex justify-content-between align-items-center bg-white">
-                                                            <button id="btnDeleteUserBank" type="button" class="btn btn-outline-danger">
-                                                                <i class="fa fa-trash me-1"></i> Delete
-                                                            </button>
-                                                            <button id="btnSaveUserBank" type="button" class="btn btn-primary">
-                                                                <i class="fa fa-save me-1"></i> Save
-                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>

@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Models.Master;
+using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
 using Project.CSS.Revise.Web.Models.Pages.UserBank;
 using Project.CSS.Revise.Web.Service;
 
@@ -92,15 +94,82 @@ namespace Project.CSS.Revise.Web.Controllers
         {
             if (model == null) return BadRequest("No payload");
 
-            // บังคับค่าคงที่ฝั่งเซิร์ฟเวอร์
+
+            string LoginID = User.FindFirst("LoginID")?.Value;
+            string UserID = SecurityManager.DecodeFrom64(LoginID);
+
+            model.Password = SecurityManager.EnCryptPassword(model.Password);
             model.UserTypeID = 74; // หรือ Constants.Ext.UserBank
             model.FlagActive = model.FlagActive ?? true;
             model.CreateDate = DateTime.Now;
-            model.CreateBy = User?.Identity?.Name ?? "system";  // ปรับตามระบบ login ของพ่อใหญ่
+            model.CreateBy = UserID;
+            model.UpdateDate = DateTime.Now;
+            model.UpdateBy = UserID;
 
             var newId = await _userBankService.InsertUserBankAsync(model);
             return Json(new { success = newId > 0, id = newId });
         }
 
+        [HttpPost]
+        public IActionResult MoveUserbankToTeam(int UserBankID, int LeadteamID)
+        {
+            string LoginID = User.FindFirst("LoginID")?.Value;
+            string UserID = SecurityManager.DecodeFrom64(LoginID);
+            string _userID = Commond.FormatExtension.NullToString(UserID);
+            bool result = _userBankService.MoveUserbankToTeam(UserBankID , LeadteamID , _userID);
+            
+            return Json(new { success = result });
+        }
+
+        [HttpPost]
+        public IActionResult LeavUserbankFromTeam(int UserBankID, int LeadteamID)
+        {
+            string LoginID = User.FindFirst("LoginID")?.Value;
+            string UserID = SecurityManager.DecodeFrom64(LoginID);
+            string _userID = Commond.FormatExtension.NullToString(UserID);
+            bool result = _userBankService.LeavUserbankFromTeam(UserBankID, _userID);
+
+            return Json(new { success = result });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateUserBank([FromBody] UserBankEditModel model)
+        {           
+            if (model == null) return BadRequest("No payload");
+
+
+            string LoginID = User.FindFirst("LoginID")?.Value;
+            string UserID = SecurityManager.DecodeFrom64(LoginID);
+
+            model.Password = SecurityManager.EnCryptPassword(model.Password);
+            model.FlagActive = model.FlagActive ?? true;
+            model.CreateDate = DateTime.Now;
+            model.CreateBy = UserID;
+            model.UpdateDate = DateTime.Now;
+            model.UpdateBy = UserID;
+
+            var newId = await _userBankService.UpdateUserBankAsync(model);
+            return Json(new { success = newId > 0, id = newId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteUserBank(int id)
+        {
+            if (id <= 0) return BadRequest("Invalid id.");
+
+            string loginId = User.FindFirst("LoginID")?.Value;
+            string userId = SecurityManager.DecodeFrom64(loginId);
+
+            var ok = await _userBankService.SoftDeleteUserBankAsync(id, userId ?? "system");
+            return Json(new { success = ok });
+        }
+
+        public JsonResult SearchUserBank(string BankIDs, string TextSearch)
+        {
+
+            var DatalistUserBank = _userBankService.GetListUserBank(new GetlistUserBank.FilterData { L_BankIDs = BankIDs, L_Name = TextSearch });
+
+            return Json(new { success = true, listUserBank = DatalistUserBank });
+        }
     }
 }

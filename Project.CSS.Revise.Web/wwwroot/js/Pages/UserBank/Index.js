@@ -16,6 +16,7 @@ const el = (tag, cls = '', html = '') => {
 
 let choicesBank, choicesProject;
 let cacheBanks = null, cacheProjects = null;
+let choicesFilterBanks; // multi-select for bank filter (top-left)
 
 // ---- Bank icons (ใช้โฟลเดอร์ภายใต้เว็บรูทเดียว) ----
 const BANK_ICON_DIR = 'image/ThaiBankicon/';
@@ -46,14 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
     loadUserBankPage();
 
     // เปลี่ยนธนาคารหลัก (เผื่อเอาไปกรองต่อ)
-    $id('ddl_bank')?.addEventListener('change', () => {
+    //$id('ddl_bank')?.addEventListener('change', () => {
         // TODO: add filter logic if needed
-    });
-
-    // Select-all ในตารางทีม
-    $id('chkAllRows')?.addEventListener('change', (e) => {
-        document.querySelectorAll('#teamTbody .team-check').forEach(cb => cb.checked = e.target.checked);
-    });
+    //});
 
     // Remove แถวในทีม (UI)
     $id('teamTbody')?.addEventListener('click', (e) => {
@@ -94,16 +90,47 @@ function renderBankDropdown(listBank) {
     const ddl = $id('ddl_bank');
     if (!ddl) return;
 
-    // เคลียร์ค่าเดิม (เว้น option แรกไว้)
-    ddl.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
+    // init Choices once
+    if (typeof Choices !== 'undefined' && !choicesFilterBanks) {
+        choicesFilterBanks = new Choices('#ddl_bank', {
+            removeItemButton: true,
+            searchEnabled: true,
+            shouldSort: false,
+            placeholder: true,
+            placeholderValue: 'เลือกธนาคาร',
+            itemSelectText: ''
+        });
 
-    (listBank || []).forEach(b => {
-        const opt = document.createElement('option');
-        opt.value = b.ValueInt;   // <-- ValueInt
-        opt.textContent = b.Text; // <-- Text (BankName)
-        ddl.appendChild(opt);
-    });
+        // react to changes (selected bank IDs array)
+        ddl.addEventListener('change', () => {
+            const selected = choicesFilterBanks.getValue(true); // ['1','2', ...]
+            // TODO: call your filter reload here, e.g.:
+            // reloadUserList({ bankIds: selected });
+        });
+    }
+
+    // Build options for Choices
+    const options = (listBank || []).map(b => ({
+        value: String(b.ValueInt),
+        label: b.Text
+    }));
+
+    if (choicesFilterBanks) {
+        // Clear and set fresh options (preserve selected empty)
+        choicesFilterBanks.clearStore();
+        choicesFilterBanks.setChoices(options, 'value', 'label', true);
+    } else {
+        // Fallback (if Choices not loaded)
+        ddl.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
+        for (const b of (listBank || [])) {
+            const opt = document.createElement('option');
+            opt.value = b.ValueInt;
+            opt.textContent = b.Text;
+            ddl.appendChild(opt);
+        }
+    }
 }
+
 
 // ===== Render CountUserByBank cards =====
 function renderCountUserByBankCards(items) {
@@ -261,6 +288,8 @@ async function loadUserBankForEdit(userId) {
 
         const u = json.data;
 
+        window.currentEditUserId = Number(u.id ?? u.ID ?? userId) || 0;
+
         // ---- Header: โลโก้ + ชื่อ + ธนาคาร ----
         const logo = $id('editUserBankLogo');
         const nameEl = $id('editUserBankFullName');
@@ -300,6 +329,15 @@ async function loadUserBankForEdit(userId) {
             if (projValues.length) choicesProject.setChoiceByValue(projValues);
         }
 
+        // ตัดสินว่าเป็นหัวหน้าทีมไหม
+        const activeLeft = document.querySelector('#userBankList .list-group-item.active');
+        const roleFromLeft = Number(activeLeft?.dataset.role || NaN);
+        const isLead = !!(u.isLeadBank ?? u.IsLeadBank) || roleFromLeft === 1;
+
+        // ซ่อน/แสดงแท็บ Team ตามบทบาท
+        toggleTeamTab(isLead);
+
+
         // ===== หลัง populate ฟอร์มเสร็จ → โหลดทีมตามบทบาท =====
         try {
             const fromApi = {
@@ -322,6 +360,10 @@ async function loadUserBankForEdit(userId) {
             }
 
             if (parentId) {
+                // ★★ set globals for "Add crew"
+                window.currentLeadTeamId = Number(parentId) || 0;
+                window.currentBankIdForAdd = Number(u.bankID ?? u.BankID ?? bankId ?? 0);
+
                 await loadTeamTableByParent(parentId);
                 await setTeamName(parentId, u);      // ★ ตั้งชื่อทีม
                 if (bankId) loadAddMoreUserBankDropdown(bankId, parentId);
@@ -341,6 +383,36 @@ async function loadUserBankForEdit(userId) {
         window.hideLoading?.();
     }
 }
+
+function toggleTeamTab(isLead) {
+    const teamTab = document.getElementById('team-tab');      // <a>
+    const teamLi = teamTab?.closest('.nav-item');            // <li>
+    const teamPane = document.getElementById('team-filter');   // pane
+
+    const detailTab = document.getElementById('detail-tab');
+    const detailPane = document.getElementById('detail-filter');
+
+    if (!teamTab || !teamPane || !detailTab || !detailPane) return;
+
+    if (isLead) {
+        // แสดงแท็บ Team
+        teamLi?.classList.remove('d-none');
+        teamTab.removeAttribute('tabindex');
+    } else {
+        // ซ่อนแท็บ Team + สลับไป Detail
+        teamLi?.classList.add('d-none');
+        teamTab.setAttribute('tabindex', '-1');
+
+        // ยกเลิก active บน Team ถ้าเผลอค้าง
+        teamTab.classList.remove('active', 'show');
+        teamPane.classList.remove('active', 'show');
+
+        // เปิด Detail ให้ชัดเจน
+        detailTab.classList.add('active');
+        detailPane.classList.add('active', 'show');
+    }
+}
+
 
 // ===== helper: สรุป role → parentBankId =====
 // role: 1 = Team Lead, 2 = Crew, 3 = No-crew
@@ -379,13 +451,12 @@ function renderTeamRows(list) {
     if (!tbody) return;
 
     if (!list?.length) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-muted small">No members in this team.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="3" class="text-muted small">No members in this team.</td></tr>`;
         return;
     }
 
     tbody.innerHTML = list.map(x => `
     <tr data-id="${x.ID}">
-      <td><input class="form-check-input team-check" type="checkbox"></td>
       <td>
         <div class="fw-semibold">${x.FullName ?? '-'}</div>
         <div class="small">${x.Mobile ?? '-'}</div>
@@ -393,13 +464,14 @@ function renderTeamRows(list) {
       </td>
       <td>${x.AreaName ?? '-'}</td>
       <td class="text-end">
-        <button type="button" class="btn btn-sm btn-outline-danger btn-remove-row">
-          <i class="fa fa-trash me-1"></i> Remove
+        <button type="button" class="btn btn-sm btn-outline-warning btn-leave-row">
+          <i class="fa fa-user-minus me-1"></i> Leave
         </button>
       </td>
     </tr>
   `).join('');
 }
+
 
 // Debounce
 const debounce = (fn, ms = 250) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
@@ -606,6 +678,7 @@ document.getElementById('btnToggleAddPw')?.addEventListener('click', () => {
 
 // Save (รวบรวมค่า + validate ฝั่ง client; ต่อ API insert ภายหลัง)
 document.getElementById('btnSaveNewUserBank')?.addEventListener('click', async () => {
+    showLoading();
     const form = document.getElementById('formAddUserBank');
     if (!form.checkValidity()) {
         form.classList.add('was-validated');
@@ -636,14 +709,462 @@ document.getElementById('btnSaveNewUserBank')?.addEventListener('click', async (
         if (json?.success) {
             // ปิด modal + รีเฟรชหน้า list
             bootstrap.Modal.getInstance(document.getElementById('modalAddUserBank'))?.hide();
+            successMessage('บันทึกสำเร็จ');  
             await loadUserBankPage(); // reload list/cards
         } else {
-            alert('Insert failed');
+            hideLoading()
+            successMessage('บันทึกล้มเหลว');
+
         }
     } catch (e) {
         console.error(e);
-        alert('Insert error');
+        successMessage('บันทึกล้มเหลว');
     }
 });
 
 
+async function addCrewFromDropdown() {
+    const btn = document.getElementById('crewDropdown');
+    const ddl = document.getElementById('ddl-add-more-user-bank');
+    if (!ddl || !btn) return;
+
+    const userId = Number(ddl.value || 0);                 // selected crew
+    const leadId = Number(window.currentLeadTeamId || 0);  // current team lead
+    const bankId = Number(window.currentBankIdForAdd || 0);
+
+    // ---- Validate with SweetAlert2 ----
+    if (!leadId) {
+        if (typeof Swal !== 'undefined') {
+            await Swal.fire({ icon: 'error', title: 'ไม่พบหัวหน้าทีม', text: 'LeadteamID หายไป', confirmButtonText: 'ตกลง' });
+        } else {
+            alert('ไม่พบหัวหน้าทีม (LeadteamID).');
+        }
+        return;
+    }
+    if (!userId) {
+        if (typeof Swal !== 'undefined') {
+            await Swal.fire({ icon: 'warning', title: 'ยังไม่ได้เลือกสมาชิก', text: 'กรุณาเลือกสมาชิกเข้าทีมก่อน', confirmButtonText: 'ตกลง' });
+        } else {
+            alert('กรุณาเลือกสมาชิกเข้าทีมก่อน');
+        }
+        return;
+    }
+
+    // ---- Confirm ----
+    let confirmed = true;
+    if (typeof Swal !== 'undefined') {
+        const res = await Swal.fire({
+            title: 'เพิ่มสมาชิกเข้าทีม?',
+            text: 'ยืนยันการเพิ่มสมาชิกคนนี้เข้าทีมของหัวหน้าปัจจุบัน',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'เพิ่ม',
+            cancelButtonText: 'ยกเลิก',
+            reverseButtons: true,
+            focusCancel: true
+        });
+        confirmed = res.isConfirmed;
+    }
+    if (!confirmed) return;
+
+    // UI: disable while posting
+    const prevHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Adding...`;
+
+    try {
+        const body = new URLSearchParams({ UserBankID: String(userId), LeadteamID: String(leadId) });
+
+        // NOTE: ถ้าพ่อใหญ่ใช้ action ชื่ออื่น (เช่น InsertNewEventsAndShops) ก็เปลี่ยน URL ตรงนี้
+        const res = await fetch(baseUrl + 'UserBank/MoveUserbankToTeam', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+            body
+        });
+        const json = await res.json();
+
+        if (json?.success) {
+            // refresh team table
+            await loadTeamTableByParent(leadId);
+
+            // refresh dropdown (remove the just-added user from candidates)
+            if (bankId) {
+                await loadAddMoreUserBankDropdown(bankId, leadId);
+            }
+
+            // reset selection
+            ddl.value = '';
+
+            // success toast
+            if (typeof Swal !== 'undefined') {
+                await Swal.fire({ icon: 'success', title: 'เพิ่มสมาชิกสำเร็จ', timer: 1200, showConfirmButton: false });
+            }
+        } else {
+            if (typeof Swal !== 'undefined') {
+                await Swal.fire({ icon: 'error', title: 'ไม่สำเร็จ', text: 'เพิ่มสมาชิกเข้าทีมไม่สำเร็จ' });
+            } else {
+                alert('เพิ่มสมาชิกเข้าทีมไม่สำเร็จ');
+            }
+        }
+    } catch (e) {
+        console.error(e);
+        if (typeof Swal !== 'undefined') {
+            await Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'โปรดลองอีกครั้ง' });
+        } else {
+            alert('เกิดข้อผิดพลาดขณะเพิ่มสมาชิก');
+        }
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = prevHTML;
+    }
+}
+
+
+// wire the button
+document.getElementById('crewDropdown')?.addEventListener('click', addCrewFromDropdown);
+
+// Leave (remove from team) handler with SweetAlert2 confirm
+document.getElementById('teamTbody')?.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.btn-leave-row');
+    if (!btn) return;
+
+    const tr = btn.closest('tr');
+    const userId = Number(tr?.dataset.id || 0);
+    const leadId = Number(window.currentLeadTeamId || 0);
+    const bankId = Number(window.currentBankIdForAdd || 0);
+
+    if (!userId) { alert('ไม่พบรหัสสมาชิก'); return; }
+    if (!leadId) { alert('ไม่พบหัวหน้าทีม (LeadteamID)'); return; }
+
+    // --- SweetAlert2 confirm ---
+    let confirmed = true;
+    if (typeof Swal !== 'undefined') {
+        const res = await Swal.fire({
+            title: 'นำสมาชิกออกจากทีม?',
+            text: 'สมาชิกคนนี้จะถูกถอดออกจากทีมของหัวหน้าปัจจุบัน',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'ใช่, นำออก',
+            cancelButtonText: 'ยกเลิก',
+            reverseButtons: true,
+            focusCancel: true
+        });
+        confirmed = res.isConfirmed;
+    } else {
+        confirmed = confirm('ยืนยันนำสมาชิกคนนี้ออกจากทีม?');
+    }
+    if (!confirmed) return;
+
+    const prevHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Processing...`;
+
+    try {
+        const body = new URLSearchParams({ UserBankID: String(userId), LeadteamID: String(leadId) });
+        const res = await fetch(baseUrl + 'UserBank/LeavUserbankFromTeam', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+            body
+        });
+        const json = await res.json();
+
+        if (json?.success) {
+            await loadTeamTableByParent(leadId);
+            if (bankId) await loadAddMoreUserBankDropdown(bankId, leadId);
+
+            if (typeof Swal !== 'undefined') {
+                await Swal.fire({ icon: 'success', title: 'นำออกแล้ว', timer: 1200, showConfirmButton: false });
+            }
+        } else {
+            if (typeof Swal !== 'undefined') {
+                await Swal.fire({ icon: 'error', title: 'ไม่สำเร็จ', text: 'นำสมาชิกออกจากทีมไม่สำเร็จ' });
+            } else {
+                alert('นำสมาชิกออกจากทีมไม่สำเร็จ');
+            }
+        }
+    } catch (err) {
+        console.error(err);
+        if (typeof Swal !== 'undefined') {
+            await Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'โปรดลองอีกครั้ง' });
+        } else {
+            alert('เกิดข้อผิดพลาดขณะนำสมาชิกออกจากทีม');
+        }
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = prevHTML;
+    }
+});
+
+
+
+async function saveCurrentUserBank() {
+    const btn = document.getElementById('btnSaveUserBank');
+    if (!btn) return;
+
+    // อ่านค่า
+    const id = Number(window.currentEditUserId || 0);
+    const isLead = document.getElementById('chkIsLead').checked;
+    const firstName = document.getElementById('inpFirstName').value.trim();
+    const lastName = document.getElementById('inpLastName').value.trim();
+    const mobile = document.getElementById('inpMobile').value.trim();
+    const email = document.getElementById('inpEmail').value.trim();
+    const userName = document.getElementById('inpUsername').value.trim();
+    const password = document.getElementById('inpPassword').value;  // ถ้าไม่เปลี่ยนจะเป็นค่าเดิมที่โหลดมา
+    const bankIdRaw = (choicesBank ? choicesBank.getValue(true) : null);
+    const bankId = bankIdRaw ? Number(bankIdRaw) : null;
+
+    const projectIds = (choicesProject ? choicesProject.getValue(true) : []) || [];
+    const projectList = projectIds.map(pid => ({ ProjectID: String(pid) }));
+
+    // ตรวจความครบถ้วน (จำเป็นขั้นต่ำ)
+    const requiredMissing = [];
+    if (!id) requiredMissing.push('ID');
+    if (!firstName) requiredMissing.push('First Name');
+    if (!lastName) requiredMissing.push('Last Name');
+    if (!userName) requiredMissing.push('Username');
+    // password: ให้ผ่านได้ เพราะฟิลด์ถูกเติมมาจากเซิร์ฟเวอร์แล้ว
+
+    if (requiredMissing.length) {
+        if (typeof Swal !== 'undefined') {
+            await Swal.fire({
+                icon: 'warning',
+                title: 'ข้อมูลไม่ครบ',
+                html: 'กรุณากรอก: <b>' + requiredMissing.join(', ') + '</b>',
+                confirmButtonText: 'ตกลง'
+            });
+        } else {
+            alert('กรุณากรอก: ' + requiredMissing.join(', '));
+        }
+        return;
+    }
+
+    // payload ตามโมเดล UserBankEditModel
+    const payload = {
+        ID: id,
+        IsLeadBank: isLead,
+        BankID: bankId,
+        FirstName: firstName,
+        LastName: lastName,
+        Mobile: mobile,
+        Email: email,
+        UserName: userName,
+        Password: password,
+        ProjectUserBank: projectList
+        // สามารถเพิ่ม AreaID ได้ถ้ามี UI บนหน้าแก้ไข
+    };
+
+    // ยืนยันก่อนบันทึก
+    let confirmed = true;
+    if (typeof Swal !== 'undefined') {
+        const res = await Swal.fire({
+            title: 'บันทึกการแก้ไข?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'บันทึก',
+            cancelButtonText: 'ยกเลิก',
+            reverseButtons: true
+        });
+        confirmed = res.isConfirmed;
+    }
+    if (!confirmed) return;
+
+    // UI ระหว่างบันทึก
+    const prevHTML = btn.innerHTML; btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Saving...`;
+
+    try {
+        console.log(payload);
+        const res = await fetch(baseUrl + 'UserBank/UpdateUserBank', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        // 👇 add this
+        if (!res.ok) {
+            const text = await res.text().catch(() => '');
+            throw new Error(`POST ${res.status} ${res.statusText} — ${text}`);
+        }
+
+        const json = await res.json();
+
+
+        if (json?.success) {
+            // รีโหลดข้อมูลรวม (การ์ด/ลิสต์/ฯลฯ)
+            window.showLoading?.();
+            await loadUserBankPage();
+
+            // พยายามเลือกกลับมาที่ user เดิม
+            const list = document.querySelector('#userBankList');
+            const target = list?.querySelector(`.list-group-item[data-id="${id}"]`);
+            target?.click();
+            window.hideLoading?.();
+            if (typeof Swal !== 'undefined') {
+                await Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', timer: 1200, showConfirmButton: false });
+            }
+        } else {
+            if (typeof Swal !== 'undefined') {
+                await Swal.fire({ icon: 'error', title: 'บันทึกไม่สำเร็จ', text: 'โปรดลองอีกครั้ง' });
+            } else {
+                alert('บันทึกไม่สำเร็จ');
+            }
+        }
+    } catch (err) {
+        console.error(err);
+        if (typeof Swal !== 'undefined') {
+            await Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'โปรดลองอีกครั้ง' });
+        } else {
+            alert('เกิดข้อผิดพลาด');
+        }
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = prevHTML;
+    }
+}
+
+// bind ปุ่ม Save
+document.getElementById('btnSaveUserBank')?.addEventListener('click', saveCurrentUserBank);
+
+document.getElementById('btnDeleteUserBank')?.addEventListener('click', async () => {
+    const id = Number(window.currentEditUserId || 0);
+    if (!id) {
+        if (typeof Swal !== 'undefined') {
+            await Swal.fire({ icon: 'warning', title: 'ไม่พบรหัสผู้ใช้', text: 'โปรดเลือกผู้ใช้ก่อน' });
+        } else { alert('No user selected.'); }
+        return;
+    }
+
+    // Confirm
+    let confirmed = true;
+    if (typeof Swal !== 'undefined') {
+        const res = await Swal.fire({
+            title: 'ลบผู้ใช้ธนาคารนี้?',
+            text: 'ระบบจะปิดการใช้งาน (FlagActive = 0 ). ถ้าเป็นหัวหน้าทีม ลูกทีมทั้งหมดจะถูกถอดออกจากทีมด้วย',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'ยืนยันลบ',
+            cancelButtonText: 'ยกเลิก',
+            reverseButtons: true,
+            focusCancel: true
+        });
+        confirmed = res.isConfirmed;
+    } else {
+        confirmed = confirm('Confirm delete this user?');
+    }
+    if (!confirmed) return;
+
+    const btn = document.getElementById('btnDeleteUserBank');
+    const prevHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Deleting...`;
+
+    try {
+        const body = new URLSearchParams({ id: String(id) });
+        const res = await fetch(baseUrl + 'UserBank/DeleteUserBank', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+            body
+        });
+
+        if (!res.ok) {
+            const text = await res.text().catch(() => '');
+            throw new Error(`POST ${res.status} ${res.statusText} — ${text}`);
+        }
+        const json = await res.json();
+
+        if (json?.success) {
+            if (typeof Swal !== 'undefined') {
+                await Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', timer: 1200, showConfirmButton: false });
+            }
+            // reload left list + cards
+            await loadUserBankPage();
+
+            // Clear right panel fields (optional)
+            document.getElementById('editUserBankFullName').textContent = '';
+            document.getElementById('editUserBankBankName').textContent = '';
+            document.getElementById('editUserBankLogo').src = baseUrl + 'image/ThaiBankicon/DEFAULT.png';
+
+            // reset current id
+            window.currentEditUserId = 0;
+        } else {
+            if (typeof Swal !== 'undefined') {
+                await Swal.fire({ icon: 'error', title: 'ลบไม่สำเร็จ', text: 'โปรดลองอีกครั้ง' });
+            } else { alert('Delete failed'); }
+        }
+    } catch (err) {
+        console.error(err);
+        if (typeof Swal !== 'undefined') {
+            await Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'โปรดลองอีกครั้ง' });
+        } else { alert('Error while deleting'); }
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = prevHTML;
+    }
+});
+
+
+// Helper to read selected bank ids (strings)
+function getSelectedBankIds() {
+    if (window.choicesFilterBanks) return choicesFilterBanks.getValue(true); // ['1','2']
+    const ddl = $id('ddl_bank');
+    if (!ddl) return [];
+    return Array.from(ddl.selectedOptions).map(o => o.value).filter(Boolean);
+}
+
+// Call API and re-render list
+async function doSearchUserBank() {
+    try {
+        window.showLoading?.();
+
+        const q = ($id('searchPerson')?.value || '').trim();
+        const bankIdsCsv = getSelectedBankIds().join(',');
+
+        const url = baseUrl + 'UserBank/SearchUserBank?' + new URLSearchParams({
+            BankIDs: bankIdsCsv,
+            TextSearch: q
+        });
+
+        const res = await fetch(url, { method: 'GET' });
+        if (!res.ok) {
+            const text = await res.text().catch(() => '');
+            throw new Error(`GET ${res.status} ${res.statusText} — ${text}`);
+        }
+
+        const json = await res.json();
+        if (json?.success) {
+            const list = json.listUserBank || [];
+            renderUserBankList(list);
+
+            // Optional: if no result, clear right side
+            if (!list.length) {
+                $id('editUserBankFullName') && ($id('editUserBankFullName').textContent = '');
+                $id('editUserBankBankName') && ($id('editUserBankBankName').textContent = '');
+                $id('teamTbody') && ($id('teamTbody').innerHTML = `<tr><td colspan="4" class="text-muted small">No members in this team.</td></tr>`);
+            }
+        } else {
+            // fallback: clear list
+            renderUserBankList([]);
+        }
+    } catch (err) {
+        console.error('SearchUserBank failed', err);
+    } finally {
+        window.hideLoading?.();
+    }
+}
+
+// Click on the button
+$id('btnSearchUser')?.addEventListener('click', doSearchUserBank);
+
+// Press Enter in the search box
+$id('searchPerson')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        doSearchUserBank();
+    }
+});
+
+// Optional: trigger search when banks change (multi-select)
+$id('ddl_bank')?.addEventListener('change', () => {
+    // auto-search on filter change (or keep manual — your call)
+    // doSearchUserBank();
+});

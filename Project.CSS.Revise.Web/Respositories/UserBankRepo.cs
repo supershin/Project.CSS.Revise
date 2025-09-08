@@ -1,8 +1,13 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Data;
+using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Pages.UserBank;
+using System.Reflection;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static QRCoder.PayloadGenerator;
 
 namespace Project.CSS.Revise.Web.Respositories
@@ -14,6 +19,10 @@ namespace Project.CSS.Revise.Web.Respositories
         Task<UserBankEditModel?> GetUserBankByIdAsync(int id);
         public List<GetlistUserBankInTeam> GetlistUserBankInTeam(GetlistUserBankInTeam model);
         Task<int> InsertUserBankAsync(UserBankEditModel model);
+        public bool MoveUserbankToTeam(int UserBankID, int ParrentID, string UserID);
+        public bool LeavUserbankFromTeam(int UserBankID, string UserID);
+        Task<int> UpdateUserBankAsync(UserBankEditModel model);
+        Task<bool> SoftDeleteUserBankAsync(int id, string updatedBy);
     }
     public class UserBankRepo : IUserBankRepo
     {
@@ -67,7 +76,7 @@ namespace Project.CSS.Revise.Web.Respositories
             {
                 throw new InvalidOperationException("No connection string configured for CSSContext.");
             }
-                
+
             using var conn = new SqlConnection(connectionString);
             conn.Open();
 
@@ -126,7 +135,7 @@ namespace Project.CSS.Revise.Web.Respositories
                 }
             }
 
-   
+
             return result;
         }
 
@@ -151,7 +160,7 @@ namespace Project.CSS.Revise.Web.Respositories
                     Mobile = u.Mobile,
                     Email = u.Email,
                     UserName = u.UserName,
-                    Password = u.Password,      // ถ้าไม่อยากส่งออก ให้เป็น null
+                    Password = SecurityManager.DecodeFrom64(u.Password),      // ถ้าไม่อยากส่งออก ให้เป็น null
                     ConsentAccept = u.ConsentAccept,
                     FlagActive = u.FlagActive,
                     CreateDate = u.CreateDate,
@@ -189,18 +198,18 @@ namespace Project.CSS.Revise.Web.Respositories
         {
             var result = from u in _context.PR_Users
                          join e in _context.tm_Exts on u.AreaID equals e.ID into gj
-                         from e in gj.DefaultIfEmpty()               
+                         from e in gj.DefaultIfEmpty()
                          where u.FlagActive == true
                              && u.ParentBankID == model.ParentBankID
                              && u.UserTypeID == Constants.Ext.UserBank
                          select new GetlistUserBankInTeam
                          {
-                            ID = u.ID,
-                            FullName = (u.FirstName ?? "") + " " + (u.LastName ?? ""),
-                            Mobile = u.Mobile,
-                            Email = u.Email,
-                            AreaID = u.AreaID,
-                            AreaName = e != null ? e.Name : null
+                             ID = u.ID,
+                             FullName = (u.FirstName ?? "") + " " + (u.LastName ?? ""),
+                             Mobile = u.Mobile,
+                             Email = u.Email,
+                             AreaID = u.AreaID,
+                             AreaName = e != null ? e.Name : null
                          };
 
             return result.ToList();
@@ -299,6 +308,249 @@ namespace Project.CSS.Revise.Web.Respositories
                 await tx.RollbackAsync();
                 throw;
             }
+        }
+
+        public bool MoveUserbankToTeam(int UserBankID, int ParrentID, string UserID)
+        {
+            var response = false;
+
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+
+                    var existing = _context.PR_Users.FirstOrDefault(e => e.ID == UserBankID);
+
+                    if (existing != null)
+                    {
+                        existing.ParentBankID = ParrentID;
+                        existing.UpdateDate = DateTime.Now;
+                        existing.UpdateBy = UserID;
+
+                        _context.PR_Users.Update(existing);
+                    }
+
+                    _context.SaveChanges();
+
+
+                    transaction.Commit();
+
+                    response = true;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    var message = ex.InnerException != null
+                        ? $"INNER ERROR: {ex.InnerException.Message}"
+                        : $"ERROR: {ex.Message}";
+                    response = false;
+                }
+
+            }
+
+            return response;
+        }
+
+        public bool LeavUserbankFromTeam(int UserBankID, string UserID)
+        {
+            var response = false;
+
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+
+                    var existing = _context.PR_Users.FirstOrDefault(e => e.ID == UserBankID);
+
+                    if (existing != null)
+                    {
+                        existing.ParentBankID = null;
+                        existing.UpdateDate = DateTime.Now;
+                        existing.UpdateBy = UserID;
+
+                        _context.PR_Users.Update(existing);
+                    }
+
+                    _context.SaveChanges();
+
+
+                    transaction.Commit();
+
+                    response = true;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    var message = ex.InnerException != null
+                        ? $"INNER ERROR: {ex.InnerException.Message}"
+                        : $"ERROR: {ex.Message}";
+                    response = false;
+                }
+
+            }
+
+            return response;
+        }
+
+        public async Task<int> UpdateUserBankAsync(UserBankEditModel model)
+        {
+            if (model == null) throw new ArgumentNullException(nameof(model));
+            if (model.ID <= 0) throw new ArgumentException("Invalid ID.");
+
+            // basic required fields (password optional on edit)
+            if (string.IsNullOrWhiteSpace(model.FirstName)
+                || string.IsNullOrWhiteSpace(model.LastName)
+                || string.IsNullOrWhiteSpace(model.UserName))
+                throw new ArgumentException("FirstName, LastName, and UserName are required.");
+
+            using var tx = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var existing = await _context.PR_Users.FirstOrDefaultAsync(e => e.ID == model.ID);
+                if (existing == null) throw new KeyNotFoundException("User not found.");
+
+                // --- PR_User updates ---
+                existing.FirstName = model.FirstName?.Trim();
+                existing.LastName = model.LastName?.Trim();
+                existing.Mobile = model.Mobile;
+                existing.Email = model.Email;
+                existing.UserName = model.UserName?.Trim();
+
+                // update password only if provided (avoid overwriting with empty)
+                if (!string.IsNullOrWhiteSpace(model.Password))
+                    existing.Password = model.Password; // TODO: hash if needed
+
+                existing.FlagActive = model.FlagActive ?? (existing.FlagActive ?? true);
+                existing.ConsentAccept = model.ConsentAccept ?? existing.ConsentAccept;
+
+                existing.IsLeadBank = model.IsLeadBank;
+                existing.ParentBankID = model.ParentBankID;
+                existing.AreaID = model.AreaID;
+
+                // keep original CreateDate/CreateBy; only update audit
+                existing.UpdateDate = DateTime.Now;
+                existing.UpdateBy = string.IsNullOrWhiteSpace(model.UpdateBy) ? "system" : model.UpdateBy;
+
+                await _context.SaveChangesAsync();
+
+                // --- PR_UserBank_Mapping (optional) ---
+                if (model.BankID.HasValue)
+                {
+                    var map = await _context.PR_UserBank_Mappings.FirstOrDefaultAsync(m => m.UserID == existing.ID);
+
+                    if (map == null)
+                    {
+                        _context.PR_UserBank_Mappings.Add(new PR_UserBank_Mapping
+                        {
+                            UserID = existing.ID,
+                            BankID = model.BankID.Value
+                        });
+                    }
+                    else if (map.BankID != model.BankID.Value)
+                    {
+                        map.BankID = model.BankID.Value;
+                        _context.PR_UserBank_Mappings.Update(map);
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
+
+                // --- PR_ProjectBankUser_Mapping (hard replace: delete all then insert new) ---
+                if (model.ProjectUserBank != null)
+                {
+                    // 1) ลบ mapping เดิมทั้งหมดของ user นี้
+                    var oldMaps = await _context.PR_ProjectBankUser_Mappings
+                                                .Where(m => m.BankUserID == existing.ID)
+                                                .ToListAsync();
+
+                    if (oldMaps.Count > 0)
+                    {
+                        _context.PR_ProjectBankUser_Mappings.RemoveRange(oldMaps);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    // 2) เตรียมชุดใหม่จาก payload (กันซ้ำ/ว่าง)
+                    var toAdd = model.ProjectUserBank
+                        .Select(p => (p.ProjectID ?? string.Empty).Trim())
+                        .Where(pid => !string.IsNullOrEmpty(pid))
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .Select(pid => new PR_ProjectBankUser_Mapping
+                        {
+                            ProjectID = pid,          // string เช่น "PJ001"
+                            BankUserID = existing.ID
+                        })
+                        .ToList();
+
+                    if (toAdd.Count > 0)
+                    {
+                        await _context.PR_ProjectBankUser_Mappings.AddRangeAsync(toAdd);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                // ถ้า "เคยเป็นหัวหน้า" แต่ "ตอนนี้ไม่ใช่หัวหน้าแล้ว"
+                // → ถอดลูกทีมทุกคนออกจากทีม (ParentBankID = null)
+                if (!model.IsLeadBank)
+                {
+                    var crews = await _context.PR_Users.Where(u => u.ParentBankID == existing.ID).ToListAsync();
+
+                    foreach (var c in crews)
+                    {
+                        c.ParentBankID = null;
+                        c.UpdateDate = DateTime.Now;
+                        c.UpdateBy = existing.UpdateBy; // หรือ model.UpdateBy
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
+
+                await tx.CommitAsync();
+                return existing.ID;
+            }
+            catch
+            {
+                await tx.RollbackAsync();
+                throw;
+            }
+        }
+
+        public async Task<bool> SoftDeleteUserBankAsync(int id, string updatedBy)
+        {
+            using var tx = await _context.Database.BeginTransactionAsync();
+
+            var u = await _context.PR_Users.FirstOrDefaultAsync(x => x.ID == id);
+            if (u == null) return false;
+
+            // 1) Soft delete this user
+            u.FlagActive = false;
+            u.UpdateBy = updatedBy;
+            u.UpdateDate = DateTime.Now;
+
+            // 2) If this user is a Lead → detach all crews
+            if (u.IsLeadBank)
+            {
+                var crews = await _context.PR_Users
+                                          .Where(c => c.ParentBankID == u.ID)
+                                          .ToListAsync();
+                foreach (var c in crews)
+                {
+                    c.ParentBankID = null;
+                    c.UpdateBy = updatedBy;
+                    c.UpdateDate = DateTime.Now;
+                }
+            }
+            else
+            {
+                // Crew (or no-crew): ensure their own ParentBankID is cleared
+                if (u.ParentBankID != null)
+                {
+                    u.ParentBankID = null;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            await tx.CommitAsync();
+            return true;
         }
 
     }

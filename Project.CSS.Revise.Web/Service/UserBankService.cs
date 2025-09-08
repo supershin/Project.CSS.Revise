@@ -1,4 +1,5 @@
-﻿using Project.CSS.Revise.Web.Models.Pages.ProjectCounter;
+﻿using Microsoft.Extensions.Logging;
+using Project.CSS.Revise.Web.Models.Pages.ProjectCounter;
 using Project.CSS.Revise.Web.Models.Pages.UserBank;
 using Project.CSS.Revise.Web.Respositories;
 
@@ -11,6 +12,11 @@ namespace Project.CSS.Revise.Web.Service
         Task<UserBankEditModel?> GetUserBankByIdAsync(int id);
         public List<GetlistUserBankInTeam> GetlistUserBankInTeam(GetlistUserBankInTeam model);
         Task<int> InsertUserBankAsync(UserBankEditModel model);
+        public bool MoveUserbankToTeam(int UserBankID, int ParrentID, string UserID);
+        public bool LeavUserbankFromTeam(int UserBankID, string UserID);
+        Task<int> UpdateUserBankAsync(UserBankEditModel model);
+        Task<bool> SoftDeleteUserBankAsync(int id, string updatedBy);
+
     }
     public class UserBankService : IUserBankService
     {
@@ -46,5 +52,23 @@ namespace Project.CSS.Revise.Web.Service
         }
 
         public Task<int> InsertUserBankAsync(UserBankEditModel model) => _userBankRepo.InsertUserBankAsync(model);
+
+        public bool MoveUserbankToTeam(int UserBankID, int ParrentID, string UserID)
+        {
+            return _userBankRepo.MoveUserbankToTeam(UserBankID, ParrentID, UserID);
+        }
+
+        public bool LeavUserbankFromTeam(int UserBankID, string UserID)
+        {
+            return _userBankRepo.LeavUserbankFromTeam(UserBankID, UserID);
+        }
+
+        public Task<int> UpdateUserBankAsync(UserBankEditModel model) => _userBankRepo.UpdateUserBankAsync(model);
+
+        public async Task<bool> SoftDeleteUserBankAsync(int id, string updatedBy)
+        {
+            return await _userBankRepo.SoftDeleteUserBankAsync(id, updatedBy);
+        }
+
     }
 }
