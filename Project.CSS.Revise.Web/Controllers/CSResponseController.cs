@@ -1,10 +1,22 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Project.CSS.Revise.Web.Models;
+using Project.CSS.Revise.Web.Service;
 
 namespace Project.CSS.Revise.Web.Controllers
 {
-    public class CSResponseController : Controller
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+    public class CSResponseController : BaseController
     {
+        private readonly IMasterService _masterService;
+        private readonly IUserBankService _userBankService;
+        public CSResponseController(IHttpContextAccessor httpContextAccessor, IMasterService masterService, IUserBankService userBankService) : base(httpContextAccessor)
+        {
+            _masterService = masterService;
+            _userBankService = userBankService;
+        }
+
         public IActionResult Index()
         {
             var users = new List<User>
