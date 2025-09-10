@@ -3,11 +3,18 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Project.CSS.Revise.Web.Data;
+using Project.CSS.Revise.Web.Library.DAL;
+using Project.CSS.Revise.Web.Library.DAL.SQL;
 using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Respositories;
 using Project.CSS.Revise.Web.Service;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ✅ บรรทัดนี้สำคัญ — เซ็ต config ให้ MasterManagementProviderProject ก่อนมีใครไปเรียก SiteProvider.Instance
+MasterManagementProviderProject.Initialize(builder.Configuration);
+// ... โค้ดลงทะเบียน service อื่น ๆ ตามเดิม
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -18,6 +25,7 @@ builder.Services.AddHttpContextAccessor();
 // Add SQL Server database context
 builder.Services.AddDbContext<CSSContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("CSSStrings")));
+
 
 // Add Config appsetting.json
 builder.Services.AddOptions();
@@ -36,6 +44,13 @@ builder.Services.AddScoped<IProjectCounterRepo, ProjectCounterRepo>();
 builder.Services.AddScoped<IProjectCounterService, ProjectCounterService>();
 builder.Services.AddScoped<IUserBankRepo, UserBankRepo>();
 builder.Services.AddScoped<IUserBankService, UserBankService>();
+builder.Services.AddScoped<ICSResponseRepo, CSResponseRepo>();
+builder.Services.AddScoped<ICSResponseService, CSResponseService>();
+
+// Add the new services for SQL and data access
+//builder.Services.AddScoped<SqlMasterManagementProject>();
+builder.Services.AddScoped<MasterManagementProviderProject, SqlMasterManagementProject>();
+builder.Services.AddScoped<MasterManagementConfigProject>();
 
 // Add Rate Limiting Middleware
 builder.Services.AddMemoryCache();

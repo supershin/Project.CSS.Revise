@@ -19,7 +19,6 @@ namespace Project.CSS.Revise.Web.Respositories
             _context = context;
         }
 
-
         public List<GetlistUnitCSResponseModel.ListData> GetlistUnitCSResponse(GetlistUnitCSResponseModel.FilterData filter)
         {
             List<GetlistUnitCSResponseModel.ListData> result = new List<GetlistUnitCSResponseModel.ListData>();
@@ -33,11 +32,11 @@ namespace Project.CSS.Revise.Web.Respositories
                 sql = @"
                                 -- ===== TEST CASE =====
 	                            --DECLARE @L_UserID NVARCHAR(100) = '';
-                                --   DECLARE @L_ProjectID NVARCHAR(100) = '102C028';
+                                --DECLARE @L_ProjectID NVARCHAR(100) = '102C028';
 	                            --DECLARE @L_Build NVARCHAR(100) = 'A,B';
 	                            --DECLARE @L_Floor NVARCHAR(100) = '';
 	                            --DECLARE @L_Room NVARCHAR(100) = '10';
-                                --   DECLARE @L_TypeUserShow   NVARCHAR(10)  = '-1';  -- '1' = เฉพาะของฉัน, '-1' = ทั้งหมด, '0' = ของคนอื่น
+                                --DECLARE @L_TypeUserShow   NVARCHAR(10)  = '-1';  -- '1' = เฉพาะของฉัน, '-1' = ทั้งหมด, '0' = ของคนอื่น
                                 -- ===== TEST CASE =====
 
 

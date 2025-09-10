@@ -480,6 +480,29 @@ namespace Project.CSS.Revise.Web.Respositories
 
                 return listUserBankInTeamForAdd.ToList();
 
+                case "listAllCSUser":
+                {
+                    var listAllCSUser =
+                        from t1 in _context.tm_Users
+                        where t1.FlagActive == true
+                            && t1.DepartmentID == Constants.Ext.Customer_Service   // = 31
+                        join t2 in _context.tm_TitleNames
+                                on t1.TitleID equals t2.ID into gj
+                        from t2 in gj.DefaultIfEmpty() // LEFT JOIN
+                        select new GetDDLModel
+                        {
+                            ValueInt = t1.ID,
+                            Text = (
+                                (t2.Name ?? "") + " " +
+                                (t1.FirstName ?? "") + " " +
+                                (t1.LastName ?? "")
+                            ).Trim()
+                        };
+
+                    return listAllCSUser.ToList();
+                }
+
+
                 default:
 
                 return new List<GetDDLModel>();

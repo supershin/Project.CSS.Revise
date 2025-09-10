@@ -2,7 +2,7 @@
 {
     public class RollingPlanSummaryModel
     {
-
+        public string? L_Act { get; set; }
         public string? L_Year { get; set; }
         public string? L_Quarter { get; set; }
         public string? L_Month { get; set; }
@@ -13,6 +13,7 @@
         public string? L_ProjectStatus { get; set; }
         public string? L_ProjectPartner { get; set; }
 
+        public int? index { get; set; }
         public string? ProjectID { get; set; }
         public string? ProjectName { get; set; }
         public string? BuName { get; set; }

@@ -4,6 +4,7 @@
     {
         public static class Ext
         {
+            public static readonly int Customer_Service = 31;
             public static readonly int Target = 181;
             public static readonly int Rolling = 182;
             public static readonly int Actual = 185;

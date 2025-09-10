@@ -17,10 +17,12 @@ namespace Project.CSS.Revise.Web.Controllers
     {
         private readonly IMasterService _masterService;
         private readonly IProjectAndTargetRollingService _projectAndTargetRollingService;
-        public ProjecttargetrollingController(IHttpContextAccessor httpContextAccessor, IMasterService masterService, IProjectAndTargetRollingService projectAndTargetRollingService) : base(httpContextAccessor)
+        private readonly MasterManagementConfigProject _configProject;
+        public ProjecttargetrollingController(IHttpContextAccessor httpContextAccessor, IMasterService masterService, IProjectAndTargetRollingService projectAndTargetRollingService, MasterManagementConfigProject configProject) : base(httpContextAccessor)
         {
             _masterService = masterService;
             _projectAndTargetRollingService = projectAndTargetRollingService;
+            _configProject = configProject;
         }
 
         public IActionResult Index()
@@ -68,7 +70,9 @@ namespace Project.CSS.Revise.Web.Controllers
         [HttpPost]
         public JsonResult GetDataTableProjectAndTargetRolling([FromForm] RollingPlanSummaryModel model)
         {
-            var result = _projectAndTargetRollingService.GetListTargetRollingPlan(model);
+            // Fix: The method returns a List<RollingPlanSummaryModel>, not a single RollingPlanSummaryModel
+            model.L_Act = "GetListTargetRollingPlan";
+            List<RollingPlanSummaryModel> result = _configProject.sp_GetProjecTargetRollingPlanList_GetListTargetRollingPlan(model);
 
             var filter = new RollingPlanTotalModel
             {
@@ -128,44 +132,44 @@ namespace Project.CSS.Revise.Web.Controllers
                         {
                             ProjectID = worksheet.Cells[row, 1].Text?.Trim(),
                             ProjectName = worksheet.Cells[row, 2].Text?.Trim(),
-                            ProjectPlanType = worksheet.Cells[row, 3].Text?.Trim(),
-                            Year = int.TryParse(worksheet.Cells[row, 4].Text, out var year) ? year : 0,
+                            ProjectPlanType = worksheet.Cells[row, 4].Text?.Trim(),
+                            Year = int.TryParse(worksheet.Cells[row, 5].Text, out var year) ? year : 0,
 
-                            Jan_Unit = TryParseDecimal(worksheet.Cells[row, 5].Text),
-                            Jan_Value = TryParseDecimal(worksheet.Cells[row, 6].Text),
+                            Jan_Unit = TryParseDecimal(worksheet.Cells[row, 6].Text),
+                            Jan_Value = TryParseDecimal(worksheet.Cells[row, 7].Text),
 
-                            Feb_Unit = TryParseDecimal(worksheet.Cells[row, 7].Text),
-                            Feb_Value = TryParseDecimal(worksheet.Cells[row, 8].Text),
+                            Feb_Unit = TryParseDecimal(worksheet.Cells[row, 8].Text),
+                            Feb_Value = TryParseDecimal(worksheet.Cells[row, 9].Text),
 
-                            Mar_Unit = TryParseDecimal(worksheet.Cells[row, 9].Text),
-                            Mar_Value = TryParseDecimal(worksheet.Cells[row, 10].Text),
+                            Mar_Unit = TryParseDecimal(worksheet.Cells[row, 10].Text),
+                            Mar_Value = TryParseDecimal(worksheet.Cells[row, 11].Text),
 
-                            Apr_Unit = TryParseDecimal(worksheet.Cells[row, 11].Text),
-                            Apr_Value = TryParseDecimal(worksheet.Cells[row, 12].Text),
+                            Apr_Unit = TryParseDecimal(worksheet.Cells[row, 12].Text),
+                            Apr_Value = TryParseDecimal(worksheet.Cells[row, 13].Text),
 
-                            May_Unit = TryParseDecimal(worksheet.Cells[row, 13].Text),
-                            May_Value = TryParseDecimal(worksheet.Cells[row, 14].Text),
+                            May_Unit = TryParseDecimal(worksheet.Cells[row, 14].Text),
+                            May_Value = TryParseDecimal(worksheet.Cells[row, 15].Text),
 
-                            Jun_Unit = TryParseDecimal(worksheet.Cells[row, 15].Text),
-                            Jun_Value = TryParseDecimal(worksheet.Cells[row, 16].Text),
+                            Jun_Unit = TryParseDecimal(worksheet.Cells[row, 16].Text),
+                            Jun_Value = TryParseDecimal(worksheet.Cells[row, 17].Text),
 
-                            Jul_Unit = TryParseDecimal(worksheet.Cells[row, 17].Text),
-                            Jul_Value = TryParseDecimal(worksheet.Cells[row, 18].Text),
+                            Jul_Unit = TryParseDecimal(worksheet.Cells[row, 18].Text),
+                            Jul_Value = TryParseDecimal(worksheet.Cells[row, 19].Text),
 
-                            Aug_Unit = TryParseDecimal(worksheet.Cells[row, 19].Text),
-                            Aug_Value = TryParseDecimal(worksheet.Cells[row, 20].Text),
+                            Aug_Unit = TryParseDecimal(worksheet.Cells[row, 20].Text),
+                            Aug_Value = TryParseDecimal(worksheet.Cells[row, 21].Text),
 
-                            Sep_Unit = TryParseDecimal(worksheet.Cells[row, 21].Text),
-                            Sep_Value = TryParseDecimal(worksheet.Cells[row, 22].Text),
+                            Sep_Unit = TryParseDecimal(worksheet.Cells[row, 22].Text),
+                            Sep_Value = TryParseDecimal(worksheet.Cells[row, 23].Text),
 
-                            Oct_Unit = TryParseDecimal(worksheet.Cells[row, 23].Text),
-                            Oct_Value = TryParseDecimal(worksheet.Cells[row, 24].Text),
+                            Oct_Unit = TryParseDecimal(worksheet.Cells[row, 24].Text),
+                            Oct_Value = TryParseDecimal(worksheet.Cells[row, 25].Text),
 
-                            Nov_Unit = TryParseDecimal(worksheet.Cells[row, 25].Text),
-                            Nov_Value = TryParseDecimal(worksheet.Cells[row, 26].Text),
+                            Nov_Unit = TryParseDecimal(worksheet.Cells[row, 26].Text),
+                            Nov_Value = TryParseDecimal(worksheet.Cells[row, 27].Text),
 
-                            Dec_Unit = TryParseDecimal(worksheet.Cells[row, 27].Text),
-                            Dec_Value = TryParseDecimal(worksheet.Cells[row, 28].Text)
+                            Dec_Unit = TryParseDecimal(worksheet.Cells[row, 28].Text),
+                            Dec_Value = TryParseDecimal(worksheet.Cells[row, 29].Text)
                         };
 
                         list.Add(item);

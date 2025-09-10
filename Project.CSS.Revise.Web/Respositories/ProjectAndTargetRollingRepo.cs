@@ -278,8 +278,8 @@ namespace Project.CSS.Revise.Web.Respositories
 	                         ,SUB1.TOTAL
                              ,CASE 
                                 WHEN T3.[Name] LIKE '%Target%' THEN '#0d6efd'            -- Bootstrap primary
-                                WHEN T3.[Name] LIKE '%Rolling%' THEN '#dc3545'          -- Bootstrap danger
-                                WHEN T3.[Name] LIKE '%Actual%' THEN '#ffc107'           -- Bootstrap warning
+                                WHEN T3.[Name] LIKE '%Rolling%' THEN '#dc3545'           -- Bootstrap danger
+                                WHEN T3.[Name] LIKE '%Actual%' THEN '#ffc107'            -- Bootstrap warning
                                 WHEN T3.[Name] LIKE '%Working Target%' THEN '#0d6efd'
                                 WHEN T3.[Name] LIKE '%Working Rolling%' THEN '#dc3545'
                                 WHEN T3.[Name] LIKE '%MLL%' THEN '#0d6efd'

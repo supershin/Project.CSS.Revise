@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.CSS.Revise.Web.Models;
+using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Service;
 
 namespace Project.CSS.Revise.Web.Controllers
@@ -232,6 +233,23 @@ namespace Project.CSS.Revise.Web.Controllers
                     UpdateDate = DateTime.Parse("2024-03-27 16:55:45.650"), UpdateBy = "1"
                 }
             };
+
+
+            var filter1 = new GetDDLModel
+            {
+                Act = "listAllCSUser"
+            };
+            var listAllCSUser = _masterService.GetlisDDl(filter1);
+            ViewBag.listAllCSUser = listAllCSUser;
+
+            var filter2 = new GetDDLModel
+            {
+                Act = "listDDlAllProject"
+            };
+            var listDDlAllProject = _masterService.GetlisDDl(filter2);
+            ViewBag.listDDlAllProject = listDDlAllProject;
+
+
 
             return View(users);
         }
