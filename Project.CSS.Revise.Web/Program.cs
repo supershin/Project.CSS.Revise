@@ -13,8 +13,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ✅ บรรทัดนี้สำคัญ — เซ็ต config ให้ MasterManagementProviderProject ก่อนมีใครไปเรียก SiteProvider.Instance
 MasterManagementProviderProject.Initialize(builder.Configuration);
-// ... โค้ดลงทะเบียน service อื่น ๆ ตามเดิม
-
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -23,8 +21,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
 
 // Add SQL Server database context
-builder.Services.AddDbContext<CSSContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("CSSStrings")));
+builder.Services.AddDbContext<CSSContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("CSSStrings")));
 
 
 // Add Config appsetting.json

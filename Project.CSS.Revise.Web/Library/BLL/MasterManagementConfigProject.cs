@@ -14,4 +14,9 @@ public class MasterManagementConfigProject
     {
         return _provider.sp_GetProjecTargetRollingPlanList_GetListTargetRollingPlan(en);
     }
+
+    public List<RollingPlanTotalModel> sp_GetProjecTargetRollingPlanList_GetDataTotalTargetRollingPlan(RollingPlanTotalModel en)
+    {
+        return _provider.sp_GetProjecTargetRollingPlanList_GetDataTotalTargetRollingPlan(en);
+    }
 }

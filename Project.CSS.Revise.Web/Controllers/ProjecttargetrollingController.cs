@@ -76,6 +76,7 @@ namespace Project.CSS.Revise.Web.Controllers
 
             var filter = new RollingPlanTotalModel
             {
+                L_Act = "GetDataTotalTargetRollingPlan",
                 L_Year = model.L_Year,
                 L_Quarter = model.L_Quarter,
                 L_Month = model.L_Month,
@@ -86,7 +87,8 @@ namespace Project.CSS.Revise.Web.Controllers
                 L_ProjectPartner = model.L_ProjectPartner
             };
 
-            var resultsum = _projectAndTargetRollingService.GetDataTotalTargetRollingPlan(filter);
+            //var resultsum = _projectAndTargetRollingService.GetDataTotalTargetRollingPlan(filter);
+            List<RollingPlanTotalModel> resultsum = _configProject.sp_GetProjecTargetRollingPlanList_GetDataTotalTargetRollingPlan(filter);
 
             // ✅ Group & reshape datasum for summary cards
             var groupedSum = resultsum

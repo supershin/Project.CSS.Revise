@@ -32,9 +32,9 @@ namespace Project.CSS.Revise.Web.Library.DAL
             _configuration = configuration;
         }
 
-        public abstract List<RollingPlanSummaryModel> sp_GetProjecTargetRollingPlanList_GetListTargetRollingPlan(RollingPlanSummaryModel filter);
+        public abstract List<RollingPlanSummaryModel> sp_GetProjecTargetRollingPlanList_GetListTargetRollingPlan(RollingPlanSummaryModel en);
 
-
+        public abstract List<RollingPlanTotalModel> sp_GetProjecTargetRollingPlanList_GetDataTotalTargetRollingPlan(RollingPlanTotalModel en);
 
         #region __ Reader __
 
@@ -145,6 +145,31 @@ namespace Project.CSS.Revise.Web.Library.DAL
         }
 
 
+        public static List<RollingPlanTotalModel> sp_GetProjecTargetRollingPlanList_GetlistTotal_ListReader(IDataReader reader)
+        {
+            List<RollingPlanTotalModel> list = new List<RollingPlanTotalModel>();
+            int index = 1;
+            while ((reader.Read()))
+            {
+                list.Add(sp_GetProjecTargetRollingPlanList_GetlistTotal_Reader(reader, index));
+                index++;
+            }
+            reader.Close();
+            return list;
+        }
+
+        private static RollingPlanTotalModel sp_GetProjecTargetRollingPlanList_GetlistTotal_Reader(IDataReader reader, int index)
+        {
+            var Entity = new RollingPlanTotalModel();
+
+            Entity.index = index;
+            Entity.PlanTypeName = Commond.FormatExtension.NullToString(reader["PlanTypeName"]);
+            Entity.PlanAmountName = Commond.FormatExtension.NullToString(reader["PlanAmountName"]);
+            Entity.TOTAL = Commond.FormatExtension.ConvertToShortNameUnit(reader["TOTAL"]);
+            Entity.COLORS = Commond.FormatExtension.NullToString(reader["COLORS"]);
+
+            return Entity;
+        }
 
 
         #endregion
