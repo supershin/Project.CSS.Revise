@@ -29,6 +29,8 @@
         public string? BankCode { get; set; }
         public string? BankName { get; set; }
 
+        public string? ParentTeam { get; set; }
+
         public int? IUDBy { get; set; }
         public List<ListProject> ProjectUserBank { get; set; } = new();
     }

@@ -139,43 +139,41 @@ namespace Project.CSS.Revise.Web.Controllers
 
                             Jan_Unit = TryParseDecimal(worksheet.Cells[row, 6].Text),
                             Jan_Value = TryParseDecimal(worksheet.Cells[row, 7].Text),
-
                             Feb_Unit = TryParseDecimal(worksheet.Cells[row, 8].Text),
                             Feb_Value = TryParseDecimal(worksheet.Cells[row, 9].Text),
-
                             Mar_Unit = TryParseDecimal(worksheet.Cells[row, 10].Text),
                             Mar_Value = TryParseDecimal(worksheet.Cells[row, 11].Text),
-
                             Apr_Unit = TryParseDecimal(worksheet.Cells[row, 12].Text),
                             Apr_Value = TryParseDecimal(worksheet.Cells[row, 13].Text),
-
                             May_Unit = TryParseDecimal(worksheet.Cells[row, 14].Text),
                             May_Value = TryParseDecimal(worksheet.Cells[row, 15].Text),
-
                             Jun_Unit = TryParseDecimal(worksheet.Cells[row, 16].Text),
                             Jun_Value = TryParseDecimal(worksheet.Cells[row, 17].Text),
-
                             Jul_Unit = TryParseDecimal(worksheet.Cells[row, 18].Text),
                             Jul_Value = TryParseDecimal(worksheet.Cells[row, 19].Text),
-
                             Aug_Unit = TryParseDecimal(worksheet.Cells[row, 20].Text),
                             Aug_Value = TryParseDecimal(worksheet.Cells[row, 21].Text),
-
                             Sep_Unit = TryParseDecimal(worksheet.Cells[row, 22].Text),
                             Sep_Value = TryParseDecimal(worksheet.Cells[row, 23].Text),
-
                             Oct_Unit = TryParseDecimal(worksheet.Cells[row, 24].Text),
                             Oct_Value = TryParseDecimal(worksheet.Cells[row, 25].Text),
-
                             Nov_Unit = TryParseDecimal(worksheet.Cells[row, 26].Text),
                             Nov_Value = TryParseDecimal(worksheet.Cells[row, 27].Text),
-
                             Dec_Unit = TryParseDecimal(worksheet.Cells[row, 28].Text),
                             Dec_Value = TryParseDecimal(worksheet.Cells[row, 29].Text)
                         };
 
+                        // ❌ ข้ามแถวที่เป็น Actual
+                        if (string.Equals(item.ProjectPlanType?.Trim(), "Actual", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        // (แนะนำ) ข้ามแถวว่าง ๆ ไม่มี ProjectID
+                        if (string.IsNullOrWhiteSpace(item.ProjectID))
+                            continue;
+
                         list.Add(item);
                     }
+
                 }
             }
 
@@ -212,6 +210,12 @@ namespace Project.CSS.Revise.Web.Controllers
             {
                 // Map PlanType text to ID
                 int PlanTypeID = GetPlanTypeId(row.ProjectPlanType);
+
+                // ✅ skip this row if plan type is unknown (includes "Actual")
+                if (PlanTypeID == 0) continue;
+
+                if (string.IsNullOrWhiteSpace(row.ProjectID)) continue;
+                if (row.Year <= 0) continue;
 
                 for (int month = 1; month <= 12; month++)
                 {
@@ -265,8 +269,8 @@ namespace Project.CSS.Revise.Web.Controllers
                     return Constants.Ext.Target;
                 case "Rolling":
                     return Constants.Ext.Rolling;
-                case "Actual":
-                    return Constants.Ext.Actual;
+                //case "Actual":
+                //    return Constants.Ext.Actual;
                 case "Working Target":
                     return Constants.Ext.WorkingTarget;
                 case "Working Rolling":

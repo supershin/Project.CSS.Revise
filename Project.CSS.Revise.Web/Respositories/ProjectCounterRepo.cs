@@ -122,8 +122,6 @@ namespace Project.CSS.Revise.Web.Respositories
                         throw new ArgumentException("CounterTypeIds is required.");
                     if (model.CounterTypeIds.Any(x => x != 48 && x != 49))
                         throw new ArgumentException("CounterTypeIds must be only 48 or 49.");
-                    if (model.CounterQty < 0)
-                        throw new ArgumentException("CounterQty must be >= 0.");
 
                     var now = DateTime.Now;
 
@@ -169,13 +167,6 @@ namespace Project.CSS.Revise.Web.Respositories
 
                         // ใช้เฉพาะธนาคารที่ติ๊ก Checked
                         var enabledBanks = model.Banks.Where(b => b.Checked).ToList();
-
-                        // (ออปชัน) รวมยอดต้องไม่เกิน CounterQty
-                        var sumStaff = enabledBanks.Sum(b => b.Qty);
-                        if (sumStaff > model.CounterQty)
-                        {
-                            throw new ArgumentException($"Sum of bank staff ({sumStaff}) must be <= CounterQty ({model.CounterQty}).");
-                        }
 
                         foreach (var projectId in model.ProjectIds)
                         {
@@ -304,18 +295,6 @@ namespace Project.CSS.Revise.Web.Respositories
                 if (dto.ID <= 0)
                 {
                     throw new ArgumentException("Invalid ID.");
-                }
-                if (dto.CounterQty < 0)
-                {
-                    throw new ArgumentException("CounterQty must be >= 0.");
-                }
-                   
-                // 0) Validate total staff <= counter
-                var sumChecked = (dto.Banks ?? new List<UpdateCounterBankRequest.BankEditItem>()).Where(b => b.Checked).Sum(b => Math.Max(0, b.Qty));
-
-                if (sumChecked > dto.CounterQty)
-                {
-                    throw new ArgumentException($"Sum of staff ({sumChecked}) exceeds counter quota ({dto.CounterQty}).");
                 }
                     
                 var now = DateTime.Now;

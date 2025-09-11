@@ -4,14 +4,14 @@
     position: relative;
 }
 
+/* ===== base table ===== */
 #rollingPlanTable {
     border-collapse: separate;
     border-spacing: 0;
-    /*min-width: 1200px;*/
     width: max-content;
 }
 
-    /* Base cells */
+    /* cells */
     #rollingPlanTable th,
     #rollingPlanTable td {
         white-space: nowrap;
@@ -22,33 +22,33 @@
         background: #fff;
     }
 
-    /* Fix header heights so sticky offsets are exact */
+    /* header heights (for sticky offsets) */
     #rollingPlanTable thead tr:nth-child(1) th {
-        height: 40px; /* lock row-1 height */
+        height: 40px;
         line-height: 40px;
     }
 
     #rollingPlanTable thead tr:nth-child(2) th {
-        height: 40px; /* lock row-2 height */
+        height: 40px;
         line-height: 40px;
     }
 
-    /* Sticky headers */
+    /* sticky headers */
     #rollingPlanTable thead tr:nth-child(1) th {
         position: sticky;
         top: 0;
-        z-index: 5; /* above sticky columns */
+        z-index: 5;
         background: #f1f1f1;
     }
 
     #rollingPlanTable thead tr:nth-child(2) th {
         position: sticky;
-        top: 40px; /* exactly row-1 height */
+        top: 40px;
         z-index: 5;
         background: #f9f9f9;
     }
 
-    /* Sticky first 3 columns */
+    /* sticky first 3 columns */
     #rollingPlanTable th:nth-child(1),
     #rollingPlanTable td:nth-child(1) {
         position: sticky;
@@ -56,7 +56,6 @@
         z-index: 3;
         background: #fff;
         min-width: 200px;
-    /* text-align: left;*/
     }
 
     #rollingPlanTable td:nth-child(1) {
@@ -66,7 +65,7 @@
     #rollingPlanTable th:nth-child(2),
     #rollingPlanTable td:nth-child(2) {
         position: sticky;
-        left: 200px; /* = col1 width */
+        left: 200px;
         z-index: 3;
         background: #fff;
         min-width: 160px;
@@ -75,19 +74,19 @@
     #rollingPlanTable th:nth-child(3),
     #rollingPlanTable td:nth-child(3) {
         position: sticky;
-        left: 360px; /* = 200 + 160 */
+        left: 360px;
         z-index: 3;
         background: #fff;
         min-width: 80px;
     }
 
-    /* Make sticky header cells in the first 3 columns sit on top of column stickies */
+    /* make sticky headers above sticky columns */
     #rollingPlanTable thead tr:nth-child(1) th:nth-child(-n+3),
     #rollingPlanTable thead tr:nth-child(2) th:nth-child(-n+3) {
         z-index: 10;
     }
 
-    /* Row highlight */
+    /* row highlight */
     #rollingPlanTable tbody tr:hover {
         background: #fff8e1;
     }
@@ -96,7 +95,7 @@
         background: #e8f4ff;
     }
 
-    /* Editable look */
+    /* editable look */
     #rollingPlanTable td.editable {
         cursor: text;
         outline: none;
@@ -110,6 +109,42 @@
         #rollingPlanTable td.editable.dirty {
             background: #fff1f0;
         }
+
+/*    #rollingPlanTable td.actualrow {
+        background: #f7f7f7;
+        color: #555;
+        cursor: default;
+    }*/
+
+
+    /* =========================================================
+   UNIT / VALUE pair → black border with middle divider
+   ========================================================= */
+    /*#rollingPlanTable td[data-field$="_Unit"],
+    #rollingPlanTable td[data-field$="_Value"] {
+        background: #fff;
+    }*/
+
+    /* Unit cell = left half */
+    /*#rollingPlanTable td[data-field$="_Unit"] {
+        border: 2px solid #000;
+        border-right: 1px solid #000;*/ /* thinner middle divider */
+    /*}*/
+
+    /* Value cell = right half */
+    /*#rollingPlanTable td[data-field$="_Value"] {
+        border: 2px solid #000;
+        border-left: 1px solid #000;*/ /* thinner middle divider */
+    /*}*/
+
+    /* Totals bold with black border */
+    /*#rollingPlanTable td.total-unit,
+    #rollingPlanTable td.total-value {
+        font-weight: 700;
+        border: 2px solid #000;
+    }*/
+
+
 
 
 
@@ -135,47 +170,48 @@
         grid-template-columns: 1fr;
     }
 }
-
-/* ===== Card style ===== */
+/* card shell stays colored */
 .summary-card {
-    /* สีหลักมาจาก bg-primary text-white ที่ใส่ใน class ผ่าน JS */
     border-radius: 6px;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    background: var(--bg, #0d6efd);
+    color: var(--fg, #fff);
 }
 
-    /* Header ของการ์ด (ทำเป็น strip ทับบน bg-primary) */
+    /* header strip over the colored shell */
     .summary-card .sc-title {
-        background: rgba(0, 0, 0, 0.15); /* แถบหัวสีเข้มกว่าเล็กน้อย */
+        background: rgba(0,0,0,0.15);
         padding: 10px 12px;
         font-weight: 700;
         text-align: center;
-        border-bottom: 2px solid rgba(255, 255, 255, 0.35);
+        border-bottom: 2px solid rgba(0,0,0,0.25);
     }
 
-    /* Grid ภายในการ์ด (Unit | Value) */
+    /* ❗ make the grid white with colored borders only */
     .summary-card .sc-grid {
+        background: #fff;
+        color: #000;
         display: grid;
         grid-template-columns: 1fr 1fr;
-        border-top: 2px solid rgba(255, 255, 255, 0.35);
+        border: 2px solid var(--bg, #0d6efd); /* outer border in card color */
+        border-top: 0; /* no double line under header */
     }
 
-    /* ช่องแต่ละฝั่ง */
     .summary-card .sc-cell {
         padding: 12px 10px;
         text-align: center;
-        border-right: 2px solid rgba(255, 255, 255, 0.35);
+        border-right: 2px solid var(--bg, #0d6efd); /* vertical divider in color */
     }
 
         .summary-card .sc-cell:last-child {
             border-right: 0;
         }
 
-/* Label และ Value */
 .sc-label {
-    font-size: 0.85rem;
-    opacity: 0.9;
-    letter-spacing: 0.2px;
+    font-size: .85rem;
+    opacity: .9;
+    letter-spacing: .2px;
 }
 
 .sc-value {
@@ -184,6 +220,8 @@
     font-weight: 700;
     line-height: 1.2;
 }
+
+
 
 
 

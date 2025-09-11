@@ -145,12 +145,32 @@ namespace Project.CSS.Revise.Web.Respositories
             var row = await (
                 from u in _context.PR_Users.AsNoTracking()
                 where u.ID == id
+
+                // u -> (own) bank mapping
                 join ubm in _context.PR_UserBank_Mappings.AsNoTracking()
-                     on u.ID equals ubm.UserID into j1
-                from ubm in j1.DefaultIfEmpty() // LEFT
+                    on u.ID equals ubm.UserID into j1
+                from ubm in j1.DefaultIfEmpty()   // LEFT
+
+                    // (own) bank info
                 join b in _context.tm_Banks.AsNoTracking()
-                     on ubm.BankID equals b.ID into j2
-                from b in j2.DefaultIfEmpty() // LEFT
+                    on ubm.BankID equals b.ID into j2
+                from b in j2.DefaultIfEmpty()     // LEFT
+
+                    // parent user (u.ParentBankID -> PP.ID)
+                join pp0 in _context.PR_Users.AsNoTracking()
+                    on u.ParentBankID equals (int?)pp0.ID into j3
+                from pp in j3.DefaultIfEmpty()    // LEFT
+
+                    // parent user's bank mapping
+                join ubmp0 in _context.PR_UserBank_Mappings.AsNoTracking()
+                    on pp.ID equals ubmp0.UserID into j4
+                from ubmp in j4.DefaultIfEmpty()  // LEFT
+
+                    // parent bank info
+                join bp0 in _context.tm_Banks.AsNoTracking()
+                    on ubmp.BankID equals bp0.ID into j5
+                from bp in j5.DefaultIfEmpty()    // LEFT
+
                 select new UserBankEditModel
                 {
                     ID = u.ID,
@@ -160,7 +180,7 @@ namespace Project.CSS.Revise.Web.Respositories
                     Mobile = u.Mobile,
                     Email = u.Email,
                     UserName = u.UserName,
-                    Password = SecurityManager.DecodeFrom64(u.Password),      // ถ้าไม่อยากส่งออก ให้เป็น null
+                    Password = SecurityManager.DecodeFrom64(u.Password),   // หรือ null ถ้าไม่อยากส่งออก
                     ConsentAccept = u.ConsentAccept,
                     FlagActive = u.FlagActive,
                     CreateDate = u.CreateDate,
@@ -170,14 +190,19 @@ namespace Project.CSS.Revise.Web.Respositories
                     IsLeadBank = u.IsLeadBank,
                     ParentBankID = u.ParentBankID,
 
-                    // ธนาคารจาก JOIN
+                    // ธนาคารของ user นี้
                     BankID = ubm != null ? ubm.BankID : null,
                     BankCode = b != null ? b.BankCode : null,
-                    BankName = b != null ? b.BankName : null
+                    BankName = b != null ? b.BankName : null,
+
+                    // ทีมของ Parent:  bp.BankName + ' ' + PP.FirstName + ' ' + PP.LastName
+                    ParentTeam =
+                        ((bp != null ? bp.BankName : null) ?? "") + " " +
+                        ((pp != null ? pp.FirstName : null) ?? "") + " " +
+                        ((pp != null ? pp.LastName : null) ?? "")
                 }
-            )
-            // ถ้ามีหลายแถว (กรณีแมปหลายธนาคาร) จะเอาแถวแรกพอ
-            .FirstOrDefaultAsync();
+            ).FirstOrDefaultAsync();
+
 
             if (row == null) return null;
 

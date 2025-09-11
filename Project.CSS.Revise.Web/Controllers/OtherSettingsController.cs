@@ -393,28 +393,15 @@ namespace Project.CSS.Revise.Web.Controllers
             {
                 if (dto == null) return Json(new { ok = false, message = "Invalid payload." });
                 if (dto.ID <= 0) return Json(new { ok = false, message = "Invalid ID." });
-                if (dto.CounterQty < 0) return Json(new { ok = false, message = "CounterQty must be >= 0." });
-
-                // (defensive) ensure sum of checked bank qty <= CounterQty
-                var sum = (dto.Banks ?? new List<UpdateCounterBankRequest.BankEditItem>())
-                            .Where(b => b.Checked)
-                            .Sum(b => Math.Max(0, b.Qty));
-
-                if (sum > dto.CounterQty)
-                {
-                    return Json(new { ok = false, message = $"Sum of staff ({sum}) exceeds counter quota ({dto.CounterQty})." });
-                }
 
                 string LoginID = User.FindFirst("LoginID")?.Value;
                 string UserID = SecurityManager.DecodeFrom64(LoginID);
                 dto.UserID = Commond.FormatExtension.Nulltoint(UserID);
 
-                //// delegate to service (your repo will do the actual DB update inside a transaction)
-                var result = _projectCounterService.UpdateCounterBank(dto);   // returns CreateCounterRequest.Response or similar
+                var result = _projectCounterService.UpdateCounterBank(dto); 
 
                 var ok = (result?.ID ?? 0) == 1;
 
-                //var ok = true;
                 if (!ok)
                 {
                     Response.StatusCode = 400;

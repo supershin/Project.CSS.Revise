@@ -334,6 +334,25 @@ async function loadUserBankForEdit(userId) {
         const roleFromLeft = Number(activeLeft?.dataset.role || NaN);
         const isLead = !!(u.isLeadBank ?? u.IsLeadBank) || roleFromLeft === 1;
 
+
+        // ---- Show/Hide Team Name input by role (NOT team lead => show) ----
+        const parentTeamInput = $id('inpParentTeam');
+        const parentTeamRow = parentTeamInput?.closest('.mb-3.row');
+
+        // สตริงจาก API (มาจาก field ParentTeam ใน model)
+        const parentTeamStr = (u.parentTeam ?? u.ParentTeam ?? '').trim();
+
+        if (isLead) {
+            // เป็นหัวหน้าทีม: ซ่อนช่อง Team Name
+            if (parentTeamRow) parentTeamRow.classList.add('d-none');
+            if (parentTeamInput) parentTeamInput.value = '';
+        } else {
+            // ไม่ใช่หัวหน้าทีม: โชว์ช่อง Team Name และเติมค่า
+            if (parentTeamRow) parentTeamRow.classList.remove('d-none');
+            if (parentTeamInput) parentTeamInput.value = parentTeamStr || '';
+            // ช่องนี้อ่านอย่างเดียวอยู่แล้ว (disabled ใน HTML)
+        }
+
         // ซ่อน/แสดงแท็บ Team ตามบทบาท
         toggleTeamTab(isLead);
 

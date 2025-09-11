@@ -267,7 +267,6 @@ async function fetchProjectCounters() {
         rawValue = "-1";
     }
     const queueType = Number(rawValue);
-    console.log('ddl_counter_type : ' + queueType);
 
     const params = new URLSearchParams({
         Bu: toCommaList(bu, { trailing: false }),                      // "1,3"
@@ -515,43 +514,16 @@ function recalcBankQuota(lastQtyInput = null) {
         : (Number(document.getElementById('counterQty')?.value) || 0);  // ADD modal
 
     // choose the right save button to disable/enable
-    const saveBtn = inEdit ? document.getElementById('btnSaveQueue48')
-                           : document.getElementById('btnSaveCounter');
+    const saveBtn = inEdit ? document.getElementById('btnSaveQueue48') : document.getElementById('btnSaveCounter');
 
     // only show the remaining-hint for ADD modal (keep old behavior)
     const hint = inEdit ? null : ensureQuotaHint();
 
-    // when clamping, consider cards across BOTH grids
-    if (lastQtyInput) {
-        const allCards = Array.from(document.querySelectorAll('#bankGrid .card, #bankGridEdit .card'));
-        const codeOfLast = lastQtyInput.closest('.card')?.getAttribute('data-bank');
-        const sumOthers = allCards.reduce((acc, card) => {
-            const chk = card.querySelector('.bank-check');
-            const qty = card.querySelector('.bank-qty');
-            const code = card.getAttribute('data-bank');
-            if (!chk || !qty) return acc;
-            if (chk.checked && code !== codeOfLast) acc += Number(qty.value) || 0;
-            return acc;
-        }, 0);
 
-        const maxForThis = Math.max(0, cap - sumOthers);
-        const cur = Number(lastQtyInput.value) || 0;
-        if (cur > maxForThis) {
-            lastQtyInput.value = String(maxForThis);
-            showWarning("กรุณาตรวจสอบจำนวนเคาน์เตอร์", 2000);
-        }
-    }
 
     // total from both grids
     const total = sumCheckedBankQty();                 // you already updated this to both grids
-    const remaining = Math.max(0, cap - total);
 
-    // hint (ADD modal only)
-    if (hint) {
-        hint.textContent = `คงเหลือ: ${remaining}`;
-        hint.classList.toggle('text-danger', total > cap);
-        hint.classList.toggle('text-muted', total <= cap);
-    }
 }
 
 function resetAddCounterModalUI() {
@@ -718,7 +690,6 @@ function bindCardClickHandlers() {
 // open edit by mapping id (calls your API, fills modal by type)
 async function openEditById(id, queueTypeId) {
     try {
-        console.log(id);
         const res = await fetch(`${baseUrl}OtherSettings/GetProjectCounterDetail?id=${encodeURIComponent(id)}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const { data } = await res.json(); // ← matches Controller action below
@@ -863,7 +834,7 @@ document.getElementById('btnSaveCounter')?.addEventListener('click', async () =>
         successMessage('บันทึกสำเร็จ');  
     } catch (err) {
         hideLoading();
-        successMessage('บันทึกล้มเหลว');  
+        errorMessage('บันทึกล้มเหลว');  
     }
 });
 
@@ -871,7 +842,7 @@ document.getElementById('btnSaveQueue48')?.addEventListener('click', async () =>
     showLoading();
     const id = Number(document.getElementById('hdmdIDprojectcounterbankedit')?.value) || 0;
     const counterQty = Number(document.getElementById('counterQty48')?.value) || 0;
-    const banks = collectEditBanks('bankGridEdit');     // all banks with checked/qty
+    const banks = collectEditBanks('bankGridEdit');
 
     if (id <= 0) {
         hideLoading();
@@ -879,40 +850,33 @@ document.getElementById('btnSaveQueue48')?.addEventListener('click', async () =>
         return;
     }
 
-    // validate: sum checked qty ≤ counterQty
-    const sumChecked = banks.filter(b => b.checked).reduce((a, b) => a + (b.qty || 0), 0);
-    if (sumChecked > counterQty) {
-        hideLoading();
-        showWarning(`จำนวนสตาฟรวม (${sumChecked}) มากกว่าโควต้า (${counterQty})`, 5000);
-        return;
-    }
-
-    const payload = {
-        id,                 // TR_ProjectCounter_Mapping.ID
-        queueTypeId: 48,
-        counterQty,         // EndCounter
-        banks               // [{bankId, code, checked, qty}, ...]
-    };
+    const payload = { id, queueTypeId: 48, counterQty, banks };
 
     try {
-        const res = await fetch(baseUrl + 'OtherSettings/UpdateCounterBank', {  // ← change route if needed
+        const res = await fetch(baseUrl + 'OtherSettings/UpdateCounterBank', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const json = await res.json();
 
-        if (!json?.ok) throw new Error(json?.message || 'Update failed');
+        const json = await res.json(); // อ่าน JSON ก่อน
+        if (!res.ok || !json?.ok) {
+            throw new Error(json?.message || `HTTP ${res.status}`);
+        }
+
+        // ✅ success
         document.querySelector('#modalQueue48 [data-bs-dismiss="modal"]')?.click();
         fetchProjectCounters?.();
         hideLoading();
-        successMessage('อัปเดตสำเร็จ');  
+        successMessage(json?.message || 'อัปเดตสำเร็จ');
+
     } catch (err) {
         hideLoading();
-        errorMessage('อัปเดตไม่สำเร็จ');
+        errorMessage(err.message || 'อัปเดตไม่สำเร็จ');
+        console.error('UpdateCounterBank error:', err);
     }
 });
+
 
 document.getElementById('btnSaveQueue49')?.addEventListener('click', async () => {
     showLoading();

@@ -328,6 +328,106 @@ searchRollingPlanData();
 
 const pendingEdits = []; // {ProjectID, PlanTypeID, Year, Month, PlanAmountID, OldValue, NewValue}
 
+//function renderTableFromJson(data, selectedMonths) {
+//    const dec = s => (s ?? '').toString().replace(/,/g, ''); // "10,760,000.00" -> "10760000.00"
+
+//    let html = `
+//    <table id="rollingPlanTable" class="table table-bordered table-striped w-auto">
+//      <thead>
+//        <tr>
+//          <th>Project</th>
+//          <th>Bu</th>
+//          <th>Plan Type</th>
+//          <th>Year</th>`;
+
+//    selectedMonths.forEach(m => {
+//        html += `<th colspan="2">${monthLabels[m]}</th>`;
+//    });
+
+//    html += `<th colspan="2">Total</th>`;
+
+//    html += `</tr><tr>
+//      <th></th><th></th><th></th><th></th>`;
+
+//    selectedMonths.forEach(() => {
+//        html += `<th>Unit</th><th>Value (M)</th>`;
+//    });
+
+//    html += `<th>Unit</th><th>Value (M)</th></tr></thead><tbody>`;
+
+//    if (Array.isArray(data) && data.length) {
+//        data.forEach(row => {
+//            const pid = row.ProjectID ?? '';
+//            const ptypeId = row.PlanTypeID ?? 0;
+//            const year = Number(row.PlanYear ?? 0);
+
+//            html += `<tr data-projectid="${pid}" data-plantypeid="${ptypeId}" data-year="${year}">
+//                        <td>${row.ProjectName ?? ''}</td>
+//                        <td>${row.BuName ?? ''}</td>
+//                        <td>${row.PlanTypeName ?? ''}</td>
+//                        <td>${row.PlanYear ?? ''}</td>
+//                    `;
+
+//            selectedMonths.forEach(m => {
+//                const key = monthLabels[m]; // e.g. "Jan"
+
+//                // short display (1, 1.2, etc.)
+//                const unitShort = row[`${key}_Unit`] ?? '';
+//                const valueShort = row[`${key}_Value`] ?? '';
+
+//                // full with commas ("10,760,000.00"), convert to RAW numeric string for editing
+//                const unitComma = row[`${key}_Unit_comma`] ?? '';
+//                const valueComma = row[`${key}_Value_comma`] ?? '';
+
+//                const unitRaw = dec(unitComma);   // "10760000.00"
+//                const valueRaw = dec(valueComma);  // "10760000.00"
+
+//                html += `
+//                          <td class="editable unit-cell"
+//                              contenteditable="false"
+//                              data-field="${key}_Unit"
+//                              data-month="${m}"
+//                              data-planamountid="183"
+//                              data-raw="${unitRaw}"
+//                              data-old="${unitRaw}">${unitShort}</td>
+
+//                          <td class="editable value-cell"
+//                              contenteditable="false"
+//                              data-field="${key}_Value"
+//                              data-month="${m}"
+//                              data-planamountid="184"
+//                              data-raw="${valueRaw}"
+//                              data-old="${valueRaw}">${valueShort}</td>`;
+//                            });
+
+//            // Totals (show short, keep raw on attrs too for later if needed)
+//            const totalUnitShort = row.Total_Unit ?? '-';
+//            const totalValueShort = row.Total_Value ?? '-';
+//            const totalUnitRaw = dec(row.Total_Unit_comma ?? '');
+//            const totalValueRaw = dec(row.Total_Value_comma ?? '');
+
+//            html += `
+//                        <td class="total-unit"  data-raw="${totalUnitRaw}">${totalUnitShort}</td>
+//                        <td class="total-value" data-raw="${totalValueRaw}">${totalValueShort}</td>
+//                      </tr>
+//                    `;
+//        });
+//    } else {
+//        html += `<tr><td colspan="${3 + selectedMonths.length * 2 + 2}" class="text-center">ไม่พบข้อมูล</td></tr>`;
+//    }
+
+//    html += `</tbody></table>`;
+//    $('#rolling-plan-container').html(html);
+
+//    // (Re)bind editing behaviors
+//    bindEditableHandlers();
+
+//    // Initial totals recompute (uses data-raw if your recompute function reads from data-raw)
+//    $('#rollingPlanTable tbody tr').each(function () {
+//        recomputeRowTotals($(this));
+//    });
+//}
+
 function renderTableFromJson(data, selectedMonths) {
     const dec = s => (s ?? '').toString().replace(/,/g, ''); // "10,760,000.00" -> "10760000.00"
 
@@ -360,6 +460,7 @@ function renderTableFromJson(data, selectedMonths) {
             const pid = row.ProjectID ?? '';
             const ptypeId = row.PlanTypeID ?? 0;
             const year = Number(row.PlanYear ?? 0);
+            const isActual = String(row.PlanTypeName ?? '').trim().toLowerCase() === 'actual';
 
             html += `<tr data-projectid="${pid}" data-plantypeid="${ptypeId}" data-year="${year}">
                         <td>${row.ProjectName ?? ''}</td>
@@ -382,8 +483,11 @@ function renderTableFromJson(data, selectedMonths) {
                 const unitRaw = dec(unitComma);   // "10760000.00"
                 const valueRaw = dec(valueComma);  // "10760000.00"
 
+                // 🔒 if Actual → use "actualrow" (non-editable), else "editable"
+                const cls = isActual ? 'actualrow' : 'editable';
+
                 html += `
-                          <td class="editable"
+                          <td class="${cls} unit-cell"
                               contenteditable="false"
                               data-field="${key}_Unit"
                               data-month="${m}"
@@ -391,14 +495,14 @@ function renderTableFromJson(data, selectedMonths) {
                               data-raw="${unitRaw}"
                               data-old="${unitRaw}">${unitShort}</td>
 
-                          <td class="editable"
+                          <td class="${cls} value-cell"
                               contenteditable="false"
                               data-field="${key}_Value"
                               data-month="${m}"
                               data-planamountid="184"
                               data-raw="${valueRaw}"
                               data-old="${valueRaw}">${valueShort}</td>`;
-                            });
+            });
 
             // Totals (show short, keep raw on attrs too for later if needed)
             const totalUnitShort = row.Total_Unit ?? '-';
@@ -419,14 +523,37 @@ function renderTableFromJson(data, selectedMonths) {
     html += `</tbody></table>`;
     $('#rolling-plan-container').html(html);
 
-    // (Re)bind editing behaviors
+    // (Re)bind editing behaviors (acts only on .editable)
     bindEditableHandlers();
 
-    // Initial totals recompute (uses data-raw if your recompute function reads from data-raw)
+    // Initial totals recompute (uses data-raw)
     $('#rollingPlanTable tbody tr').each(function () {
         recomputeRowTotals($(this));
     });
 }
+
+function recomputeRowTotals($row) {
+    let totalUnit = 0, totalValue = 0;
+
+    // include BOTH editable and actual rows
+    $row.find('td.editable, td.actualrow').each(function () {
+        const raw = $(this).data('raw');
+        if (raw === '' || raw == null || isNaN(raw)) return;
+        const n = Number(raw);
+        const pid = Number($(this).data('planamountid')); // 183 unit / 184 value
+        if (pid === 183) totalUnit += n; else if (pid === 184) totalValue += n;
+    });
+
+    // In edit mode show full numbers; in view mode show short (K/M)
+    $row.find('td.total-unit').text(
+        isEditMode ? (totalUnit ? toLocaleInt(totalUnit) : '-') : (totalUnit ? formatShort(totalUnit) : '-')
+    );
+    $row.find('td.total-value').text(
+        isEditMode ? (totalValue ? toLocaleMoney(totalValue) : '-') : (totalValue ? formatShort(totalValue) : '-')
+    );
+}
+
+
 
 function bindEditableHandlers() {
     const table = $('#rollingPlanTable');
@@ -536,7 +663,6 @@ function bindEditableHandlers() {
         savePendingEdits(); // <-- disable for now
     });
 }
-
 function setEditMode(on) {
     isEditMode = !!on;
 
@@ -547,23 +673,31 @@ function setEditMode(on) {
     const $table = $('#rollingPlanTable');
     if (!$table.length) return;
 
-    // switch each editable cell between short display and RAW display
-    $table.find('td.editable').each(function () {
+    // ✅ format BOTH editable & actualrow cells on mode change
+    $table.find('td.editable, td.actualrow').each(function () {
         const $cell = $(this);
         const raw = $cell.data('raw');
-        const pid = Number($cell.data('planamountid')); // 183 Unit, 184 Value
+        const pid = Number($cell.data('planamountid')); // 183 = Unit, 184 = Value
 
         if (isEditMode) {
-            // Show RAW with thousand separators; enable editing
-            const txt = (raw == null || raw === '') ? '' : (pid === 184 ? toLocaleMoney(raw) : toLocaleInt(raw));
+            // Edit mode: show full numbers (Value = money, Unit = int)
+            const txt = (raw == null || raw === '')
+                ? ''
+                : (pid === 184 ? toLocaleMoney(raw) : toLocaleInt(raw));
             $cell.text(txt);
-            this.setAttribute('contenteditable', 'true');
+
+            // only real editable cells are contenteditable
+            if ($cell.hasClass('editable')) {
+                this.setAttribute('contenteditable', 'true');
+            } else {
+                this.setAttribute('contenteditable', 'false'); // keep actualrow locked
+            }
         } else {
-            // Back to short; disable editing
+            // View mode: show short K/M format
             const shortTxt = (raw == null || raw === '') ? '' : formatShort(raw);
             $cell.text(shortTxt);
             this.setAttribute('contenteditable', 'false');
-            $cell.removeClass('dirty row-editing');
+            if ($cell.hasClass('editable')) $cell.removeClass('dirty row-editing');
         }
     });
 
@@ -571,6 +705,42 @@ function setEditMode(on) {
     $table.find('tbody tr').each(function () { recomputeRowTotals($(this)); });
     $table.toggleClass('editing-active', isEditMode);
 }
+
+
+//function setEditMode(on) {
+//    isEditMode = !!on;
+
+//    // toggle buttons
+//    $('#btnEdit').toggleClass('d-none', isEditMode);
+//    $('#btnCancelEdit').toggleClass('d-none', !isEditMode);
+
+//    const $table = $('#rollingPlanTable');
+//    if (!$table.length) return;
+
+//    // switch each editable cell between short display and RAW display
+//    $table.find('td.editable').each(function () {
+//        const $cell = $(this);
+//        const raw = $cell.data('raw');
+//        const pid = Number($cell.data('planamountid')); // 183 Unit, 184 Value
+
+//        if (isEditMode) {
+//            // Show RAW with thousand separators; enable editing
+//            const txt = (raw == null || raw === '') ? '' : (pid === 184 ? toLocaleMoney(raw) : toLocaleInt(raw));
+//            $cell.text(txt);
+//            this.setAttribute('contenteditable', 'true');
+//        } else {
+//            // Back to short; disable editing
+//            const shortTxt = (raw == null || raw === '') ? '' : formatShort(raw);
+//            $cell.text(shortTxt);
+//            this.setAttribute('contenteditable', 'false');
+//            $cell.removeClass('dirty row-editing');
+//        }
+//    });
+
+//    // refresh totals with current mode
+//    $table.find('tbody tr').each(function () { recomputeRowTotals($(this)); });
+//    $table.toggleClass('editing-active', isEditMode);
+//}
 
 function cancelEditMode() {
     // discard staged changes
@@ -647,25 +817,25 @@ function upsertPendingEdit(change) {
     }
 }
 
-function recomputeRowTotals($row) {
-    let totalUnit = 0, totalValue = 0;
+//function recomputeRowTotals($row) {
+//    let totalUnit = 0, totalValue = 0;
 
-    $row.find('td.editable').each(function () {
-        const raw = $(this).data('raw');
-        if (raw === '' || raw == null || isNaN(raw)) return;
-        const n = Number(raw);
-        const pid = Number($(this).data('planamountid')); // 183 unit / 184 value
-        if (pid === 183) totalUnit += n; else if (pid === 184) totalValue += n;
-    });
+//    $row.find('td.editable').each(function () {
+//        const raw = $(this).data('raw');
+//        if (raw === '' || raw == null || isNaN(raw)) return;
+//        const n = Number(raw);
+//        const pid = Number($(this).data('planamountid')); // 183 unit / 184 value
+//        if (pid === 183) totalUnit += n; else if (pid === 184) totalValue += n;
+//    });
 
-    // In edit mode show full numbers; in view mode show short (K/M)
-    $row.find('td.total-unit').text(
-        isEditMode ? (totalUnit ? toLocaleInt(totalUnit) : '-') : (totalUnit ? formatShort(totalUnit) : '-')
-    );
-    $row.find('td.total-value').text(
-        isEditMode ? (totalValue ? toLocaleMoney(totalValue) : '-') : (totalValue ? formatShort(totalValue) : '-')
-    );
-}
+//    // In edit mode show full numbers; in view mode show short (K/M)
+//    $row.find('td.total-unit').text(
+//        isEditMode ? (totalUnit ? toLocaleInt(totalUnit) : '-') : (totalUnit ? formatShort(totalUnit) : '-')
+//    );
+//    $row.find('td.total-value').text(
+//        isEditMode ? (totalValue ? toLocaleMoney(totalValue) : '-') : (totalValue ? formatShort(totalValue) : '-')
+//    );
+//}
 
 
 function savePendingEdits() {
@@ -752,7 +922,6 @@ function refreshSummaryCards() {
 function renderSummaryCards(datasum) {
     const container = document.getElementById('cardSummary');
     if (!container) return;
-
     container.innerHTML = '';
 
     const order = [
@@ -773,9 +942,16 @@ function renderSummaryCards(datasum) {
         const unit = (item?.Unit ?? 0).toLocaleString();
         const value = (item?.Value ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+        // 🔹 background from service (hex or bootstrap keyword). fallback to #0d6efd
+        const bg = normalizeBg(item?.ColorClass) || '#0d6efd';
+        const fg = idealTextColor(bg);              // auto white/black
+        const div = hexToRgba(fg, 0.35);           // divider color based on text
+
         const card = document.createElement('div');
-        // 👇 now card uses bg-primary & text-white from Riho/Bootstrap
-        card.className = 'summary-card bg-primary text-white';
+        card.className = 'summary-card';
+        card.style.setProperty('--bg', bg);
+        card.style.setProperty('--fg', fg);
+        card.style.setProperty('--divider', div);
 
         card.innerHTML = `
       <div class="sc-title">${name}</div>
@@ -790,10 +966,44 @@ function renderSummaryCards(datasum) {
         </div>
       </div>
     `;
-
         container.appendChild(card);
     });
 }
+
+/* === helpers (tiny) === */
+function normalizeBg(c) {
+    if (!c) return null;
+    c = String(c).trim();
+    // allow hex like #0d6efd or 0d6efd
+    if (/^#?[0-9a-f]{6}$/i.test(c)) return c.startsWith('#') ? c : ('#' + c);
+    // allow bootstrap keywords from service
+    const map = {
+        primary: '#0d6efd', secondary: '#6c757d', success: '#198754', danger: '#dc3545',
+        warning: '#ffc107', info: '#0dcaf0', light: '#f8f9fa', dark: '#212529'
+    };
+    return map[c.toLowerCase()] || null;
+}
+
+function idealTextColor(hex) {
+    const { r, g, b } = hexToRgb(hex);
+    // perceived luminance (ITU-R BT.601)
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+    return luminance > 186 ? '#000000' : '#ffffff';
+}
+
+function hexToRgb(hex) {
+    hex = hex.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return { r, g, b };
+}
+
+function hexToRgba(hex, a = 1) {
+    const { r, g, b } = hexToRgb(hex);
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
 
 
 $('button:contains("Search")').on('click', function () {
