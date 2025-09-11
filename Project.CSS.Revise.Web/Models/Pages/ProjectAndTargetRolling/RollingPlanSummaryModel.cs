@@ -13,6 +13,8 @@
         public string? L_ProjectStatus { get; set; }
         public string? L_ProjectPartner { get; set; }
 
+        public bool? IS_Export { get; set; }
+
         public int? index { get; set; }
         public string? ProjectID { get; set; }
         public string? ProjectName { get; set; }

@@ -64,7 +64,6 @@
                                                             </div>
                                                             <div class="collapse show" id="collapseOne" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                                                                 <div class="card-body filter-cards-view animate-chk">
-
                                                                     <!-- 🔍 พนักงาน -->
                                                                     <div class="job-filter mb-3">
                                                                         <label for="csUserSelect" class="form-label fw-bold">ชื่อพนักงาน</label>
@@ -78,22 +77,19 @@
                                                                             <option value="6">ชุติมา แสงดาว</option>
                                                                         </select>
                                                                     </div>
-
-                                                                            <!-- 🔍 พนักงาน -->
-                                                                            <div class="job-filter mb-3">
-                                                                                <label for="csUserSelect" class="form-label fw-bold">ประเภทการแสดง</label>
-                                                                                <select id="csUserSelect" class="form-control searchable-select">
-                                                                                    <option value="">ทั้งหมด</option>
-                                                                                    <option value="1">CS</option>
-                                                                                    <option value="2">None</option>
-                                                                                </select>
-                                                                            </div>
-
+                                                                    <div class="job-filter mb-3">
+                                                                        <label for="csUserSelect" class="form-label fw-bold">ประเภทการแสดง</label>
+                                                                        <select id="csUserSelect" class="form-control searchable-select">
+                                                                            <option value="">ทั้งหมด</option>
+                                                                            <option value="1">CS</option>
+                                                                            <option value="2">Other</option>
+                                                                        </select>
+                                                                    </div>
                                                                     <!-- 🏢 โครงการ -->
                                                                     <div class="job-filter mb-3">
-                                                                        <label for="projectSelect" class="form-label fw-bold">โครงการที่รับผิดชอบ</label>
+                                                                        <label for="projectSelect" class="form-label fw-bold">โครงการ</label>
                                                                         <select id="projectSelect" class="form-control searchable-select">
-                                                                            <option value="1">มารูน รัชดา</option>
+                                                                            <option value="">พิมพ์ค้นหาชื่อโครงการ...</option>
                                                                             <option value="2">เคฟ ป๊อป ศาลายา</option>
                                                                             <option value="3">เคฟ วันเดอร์แลนด์</option>
                                                                             <option value="4">เคฟ ลูมินัส บางมด</option>
@@ -136,7 +132,7 @@
 
                                                                     <!-- 🚪 ห้อง -->
                                                                     <div class="job-filter mb-3">
-                                                                        <label for="roomMultiSelect" class="form-label fw-bold">ห้อง</label>
+                                                                        <label for="roomMultiSelect" class="form-label fw-bold">Unit</label>
                                                                         <select id="roomMultiSelect" class="form-control multi-select" multiple>
                                                                             @for (int i = 1; i <= 300; i++)
                                                                             {

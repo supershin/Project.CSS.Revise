@@ -72,6 +72,7 @@ namespace Project.CSS.Revise.Web.Controllers
         {
             // Fix: The method returns a List<RollingPlanSummaryModel>, not a single RollingPlanSummaryModel
             model.L_Act = "GetListTargetRollingPlan";
+            model.IS_Export = false;
             List<RollingPlanSummaryModel> result = _configProject.sp_GetProjecTargetRollingPlanList_GetListTargetRollingPlan(model);
 
             var filter = new RollingPlanTotalModel
@@ -323,7 +324,11 @@ namespace Project.CSS.Revise.Web.Controllers
         {
             try
             {
-                var dataList = _projectAndTargetRollingService.GetListDataExportTargetRollingPlan(model);
+                model.L_Act = "GetListTargetRollingPlan";
+                model.IS_Export = true;
+                List<RollingPlanSummaryModel> dataList = _configProject.sp_GetProjecTargetRollingPlanList_GetListTargetRollingPlan(model);
+                //var dataList = _projectAndTargetRollingService.GetListDataExportTargetRollingPlan(model);
+
                 var dataTable = ConvertToDataTable(dataList);
 
                 var excelBytes = WriteExcelProjectAndTargetRolling(dataTable);

@@ -35,7 +35,17 @@ namespace Project.CSS.Revise.Web.Library.DAL.SQL
                     switch (en.L_Act)
                     {
                         case "GetListTargetRollingPlan":
-                            return sp_GetProjecTargetRollingPlanList_Getlisttable_ListReader(ExecuteReader(SqlCmd));
+                        {
+                            if (en.IS_Export == true )
+                            {
+                                    return sp_GetProjecTargetRollingPlanList_Getlisttable_ForExport_ListReader(ExecuteReader(SqlCmd));
+                            }
+                            else
+                            {
+                                return sp_GetProjecTargetRollingPlanList_Getlisttable_ListReader(ExecuteReader(SqlCmd));
+                            }
+                        }
+                            
 
                         default:
                             return new List<RollingPlanSummaryModel>();
