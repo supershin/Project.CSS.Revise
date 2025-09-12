@@ -234,7 +234,6 @@ namespace Project.CSS.Revise.Web.Controllers
                 }
             };
 
-
             var filter1 = new GetDDLModel
             {
                 Act = "listAllCSUser"
@@ -249,9 +248,30 @@ namespace Project.CSS.Revise.Web.Controllers
             var listDDlAllProject = _masterService.GetlisDDl(filter2);
             ViewBag.listDDlAllProject = listDDlAllProject;
 
-
-
             return View(users);
         }
+
+
+        [HttpPost]
+        public JsonResult GetlistBuildInProject(string ProjectID)
+        {
+            var result = _masterService.GetlisDDl(new GetDDLModel { Act = "listBuildInProject", IDString = ProjectID });
+            return Json(new { success = true, data = result });
+        }
+
+        [HttpPost]
+        public JsonResult GetListFloorInBuildInProject(string ProjectID, string Builds)
+        {
+            var result = _masterService.GetlisDDl(new GetDDLModel { Act = "ListFloorInBuildInProject", IDString = ProjectID , IDString2 = Builds});
+            return Json(new { success = true, data = result });
+        }
+
+        [HttpPost]
+        public JsonResult GetListUnitInFloorInBuildInProject(string ProjectID, string Builds , string Floors)
+        {
+            var result = _masterService.GetlisDDl(new GetDDLModel { Act = "ListUnitInFloorInBuildInProject", IDString = ProjectID, IDString2 = Builds , IDString3 = Floors});
+            return Json(new { success = true, data = result });
+        }
+
     }
 }

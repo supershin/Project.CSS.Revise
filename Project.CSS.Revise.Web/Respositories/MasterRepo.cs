@@ -486,6 +486,7 @@ namespace Project.CSS.Revise.Web.Respositories
                         from t1 in _context.tm_Users
                         where t1.FlagActive == true
                             && t1.DepartmentID == Constants.Ext.Customer_Service   // = 31
+                            && t1.QCTypeID == 10
                         join t2 in _context.tm_TitleNames
                                 on t1.TitleID equals t2.ID into gj
                         from t2 in gj.DefaultIfEmpty() // LEFT JOIN
@@ -502,6 +503,152 @@ namespace Project.CSS.Revise.Web.Respositories
                     return listAllCSUser.ToList();
                 }
 
+                case "listBuildInProject":
+                    {
+                        var projectId = (model?.IDString ?? model?.ValueString ?? string.Empty).Trim();
+
+                        if (string.IsNullOrWhiteSpace(projectId))
+                        {
+                            return new List<GetDDLModel>();
+                        }
+                            
+                        var builds =
+                            _context.tm_Units
+                                .AsNoTracking()
+                                .Where(u => u.FlagActive == true
+                                            && u.ProjectID == projectId
+                                            && !string.IsNullOrEmpty(u.Build))
+                                .Select(u => u.Build!)
+                                .Distinct()
+                                .OrderBy(b => b)
+                                .Select(b => new GetDDLModel
+                                {
+                                    ValueString = b,
+                                    Text = b
+                                });
+
+                        return builds.ToList();
+                    }
+
+                case "ListFloorInBuildInProject":
+                    {
+                        var result = new List<GetDDLModel>();
+                        var connectionString = _context.Database.GetDbConnection().ConnectionString;
+
+                        using (var conn = new SqlConnection(connectionString))
+                        {
+                            conn.Open();
+
+                            string sql = $@"
+                                            -- ===== TEST CASE =====
+                                            --DECLARE @ProjectID nvarchar(100) = N'122C001';
+                                            --DECLARE @Build     nvarchar(100) = N'B,C';
+                                            -- ===== TEST CASE =====
+
+                                            SELECT
+                                                  x.[Value]
+                                                , x.[Text]
+                                            FROM (
+                                                SELECT DISTINCT
+                                                      CONVERT(varchar(50), U.[Build]) + N'-' + CONVERT(varchar(50), U.[Floor]) AS [Value]
+                                                    , N'ตึก ' + CONVERT(varchar(50), U.[Build]) + N' ชั้น ' + CONVERT(varchar(50), U.[Floor]) AS [Text]
+                                                    , U.[Build]
+                                                    , U.[Floor]
+                                                FROM dbo.tm_Unit AS U
+                                                WHERE U.FlagActive = 1
+                                                  AND U.ProjectID  = @ProjectID
+                                                  AND (
+                                                         @Build = N''
+                                                      OR (',' + @Build + ',' LIKE '%,' + CONVERT(varchar(50), U.[Build]) + ',%')
+                                                      )
+                                            ) AS x
+                                            ORDER BY
+                                                  x.[Build]
+                                                , x.[Floor];
+                                        ";
+
+                            using (var cmd = new SqlCommand(sql, conn))
+                            {
+                                cmd.Parameters.Add(new SqlParameter("@ProjectID", model.IDString ?? ""));
+                                cmd.Parameters.Add(new SqlParameter("@Build", model.IDString2 ?? ""));
+
+                                using (var reader = cmd.ExecuteReader())
+                                {
+                                    while (reader.Read())
+                                    {
+                                        result.Add(new GetDDLModel
+                                        {
+                                            ValueString = reader["Value"].ToString(),
+                                            Text = reader["Text"].ToString()
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                        return result;
+                    }
+
+                case "ListUnitInFloorInBuildInProject":
+                    {
+                        var result = new List<GetDDLModel>();
+                        var connectionString = _context.Database.GetDbConnection().ConnectionString;
+
+                        using (var conn = new SqlConnection(connectionString))
+                        {
+                            conn.Open();
+
+                            string sql = $@"
+                                            -- ===== TEST CASE =====
+                                            --DECLARE @ProjectID nvarchar(100) = N'122C001';
+                                            --DECLARE @Build     nvarchar(100) = N'B,C';
+                                            --DECLARE @Pairs     nvarchar(4000) = N'A-3,A-4,B-1,B-2,B-3';
+                                            -- ===== TEST CASE =====
+
+                                            SELECT
+                                                  [UnitCode] As [Value]
+	                                            , [UnitCode] As [Text]
+                                            FROM  dbo.tm_Unit AS U
+                                            WHERE U.FlagActive = 1
+                                              AND U.ProjectID  = @ProjectID
+                                              AND (
+                                                     -- 1) ถ้าไม่ส่ง @Build มา → ผ่าน
+                                                     @Build = N''
+                                                     -- 2) ถ้าส่ง @Build มา → กรองด้วย CSV LIKE (ใช้ได้ทุกเวอร์ชัน)
+                                                  OR (',' + @Build + ',' LIKE '%,' + CONVERT(varchar(50), U.[Build]) + ',%')
+                                                  )
+                                              AND (
+                                                     -- 3) ถ้าไม่ส่ง @Pairs มา → ผ่าน
+                                                     @Pairs = N''
+                                                     -- 4) ถ้าส่ง @Pairs มา → จับคู่ Build-Floor แบบเป๊ะ ๆ
+                                                  OR (',' + @Pairs + ',' LIKE '%,' + CONVERT(varchar(50), U.[Build]) + '-' + CONVERT(varchar(50), U.[Floor]) + ',%')
+                                                  )
+                                            ORDER BY
+                                                  U.[Build]
+                                                , U.[Floor]
+                                                , U.[Room]
+                                        ";
+
+                            using (var cmd = new SqlCommand(sql, conn))
+                            {
+                                cmd.Parameters.Add(new SqlParameter("@ProjectID", model.IDString ?? ""));
+                                cmd.Parameters.Add(new SqlParameter("@Build", model.IDString2 ?? ""));
+                                cmd.Parameters.Add(new SqlParameter("@Pairs", model.IDString3 ?? ""));
+
+                                using (var reader = cmd.ExecuteReader())
+                                {
+                                    while (reader.Read())
+                                    {
+                                        result.Add(new GetDDLModel
+                                        {
+                                            ValueString = reader["Value"].ToString(),
+                                            Text = reader["Text"].ToString()
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                        return result;
+                    }
 
                 default:
 
