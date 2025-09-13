@@ -139,138 +139,337 @@ namespace Project.CSS.Revise.Web.Respositories
             return response;
         }
 
+        //public CreateEventsShopsResponse CreateEventsAndShops(CreateEvent_Shops model)
+        //{
+        //    var response = new CreateEventsShopsResponse();
+
+        //    using (var transaction = _context.Database.BeginTransaction())
+        //    {
+        //        try
+        //        {
+        //            var newShopsIds = new List<int>();
+
+        //            // ✅ 1. ตรวจสอบและเพิ่ม Shops ใหม่
+        //            if (model.ShopsItems != null)
+        //            {
+        //                foreach (var tag in model.ShopsItems)
+        //                {
+        //                    if (tag.ID == -1) // ✅ INSERT ใหม่
+        //                    {
+        //                        var newShop = new tm_Shop
+        //                        {
+        //                            Name = tag.Name?.Trim(),
+        //                            FlagActive = true,
+        //                            CreateDate = DateTime.Now,
+        //                            CreateBy = model.UserID,
+        //                            UpdateDate = DateTime.Now,
+        //                            UpdateBy = model.UserID
+        //                        };
+        //                        _context.tm_Shops.Add(newShop);
+        //                        _context.SaveChanges();
+        //                        newShopsIds.Add(newShop.ID);
+        //                    }
+        //                    else // ✅ UPDATE ชื่อร้าน
+        //                    {
+        //                        var existingShop = _context.tm_Shops.FirstOrDefault(s => s.ID == tag.ID && s.FlagActive == true);
+        //                        if (existingShop != null)
+        //                        {
+        //                            existingShop.Name = tag.Name?.Trim();
+        //                            existingShop.UpdateDate = DateTime.Now;
+        //                            existingShop.UpdateBy = model.UserID;
+
+        //                            _context.tm_Shops.Update(existingShop);
+        //                            _context.SaveChanges();
+        //                            newShopsIds.Add(existingShop.ID);
+        //                        }
+        //                    }
+        //                }
+        //            }
+
+        //            // ✅ 2. สร้าง ProjectShopEvent
+        //            if (model.ProjectIds != null && model.ProjectIds.Any())
+        //            {
+        //                foreach (var projectId in model.ProjectIds)
+        //                {
+        //                    if (model.DatesEvent != null && model.DatesEvent.Any())
+        //                    {
+        //                        foreach (var DateInsert in model.DatesEvent)
+        //                        {
+        //                            if (newShopsIds != null && newShopsIds.Any())
+        //                            {
+        //                                foreach (var newShopId in newShopsIds)
+        //                                {
+        //                                    var shop = model.ShopsItems.FirstOrDefault(x => x.ID == newShopId || x.Name?.Trim() == _context.tm_Shops.FirstOrDefault(s => s.ID == newShopId)?.Name);
+
+        //                                    var targetDate = Commond.FormatExtension.ToDateFromddmmyyy(DateInsert);
+
+        //                                    // ✅ ตรวจสอบก่อนว่า record มีอยู่หรือไม่
+        //                                    var existing = _context.TR_ProjectShopEvents.FirstOrDefault(e =>
+        //                                        e.ProjectID == projectId &&
+        //                                        e.EventID == model.EventID &&
+        //                                        e.EventDate == targetDate &&
+        //                                        e.ShopID == newShopId &&
+        //                                        e.FlagActive == true);
+
+        //                                    if (existing != null)
+        //                                    {
+        //                                        // 🔄 UPDATE
+        //                                        existing.UnitQuota = shop?.UnitQuota ?? 0;
+        //                                        existing.ShopQuota = shop?.ShopQuota ?? 0;
+        //                                        existing.IsUsed = shop?.IsUsed ?? false;
+        //                                        existing.UpdateDate = DateTime.Now;
+
+        //                                        _context.TR_ProjectShopEvents.Update(existing);
+        //                                    }
+        //                                    else
+        //                                    {
+        //                                        // ➕ INSERT
+        //                                        var ProjectShopEvent = new TR_ProjectShopEvent
+        //                                        {
+        //                                            ProjectID = projectId,
+        //                                            EventID = model.EventID,
+        //                                            EventDate = targetDate,
+        //                                            ShopID = newShopId,
+        //                                            UnitQuota = shop?.UnitQuota ?? 0,
+        //                                            ShopQuota = shop?.ShopQuota ?? 0,
+        //                                            IsUsed = shop?.IsUsed ?? false,
+        //                                            FlagActive = true,
+        //                                            CreateDate = DateTime.Now,
+        //                                            CreateBy = model.UserID,
+        //                                            UpdateDate = DateTime.Now,
+        //                                        };
+        //                                        _context.TR_ProjectShopEvents.Add(ProjectShopEvent);
+        //                                    }
+
+        //                                    _context.SaveChanges();
+        //                                }
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //            }
+
+
+        //            // ✅ 3. บันทึกการเปลี่ยนแปลงทั้งหมด
+        //            transaction.Commit();
+
+        //            // ✅ 4. ส่งผลลัพธ์กลับ
+        //            response.ID = 1;
+        //            response.Message = "Shops created successfully";
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            transaction.Rollback();
+        //            var message = ex.InnerException != null
+        //                ? $"INNER ERROR: {ex.InnerException.Message}"
+        //                : $"ERROR: {ex.Message}";
+
+        //            response.Message = $"An error occurred: {message}";
+        //        }
+
+        //    }
+
+        //    return response;
+        //}
         public CreateEventsShopsResponse CreateEventsAndShops(CreateEvent_Shops model)
         {
             var response = new CreateEventsShopsResponse();
 
-            using (var transaction = _context.Database.BeginTransaction())
+            // ---- 0) เตรียม helper ----
+            static string Normalize(string? s) => (s ?? "").Trim().ToUpperInvariant();
+
+            try
             {
-                try
-                {
-                    var newShopsIds = new List<int>();
+                var newShopIds = new List<int>();
+                var dupErrors = new List<string>();
 
-                    // ✅ 1. ตรวจสอบและเพิ่ม Shops ใหม่
-                    if (model.ShopsItems != null)
+                // รวบรวมรายการจาก payload (เฉพาะรายการที่มีชื่อ)
+                var items = (model.ShopsItems ?? new List<ShopsModel>())
+                    .Where(x => !string.IsNullOrWhiteSpace(x.Name))
+                    .Select(x => new
                     {
-                        foreach (var tag in model.ShopsItems)
-                        {
-                            if (tag.ID == -1) // ✅ INSERT ใหม่
-                            {
-                                var newShop = new tm_Shop
-                                {
-                                    Name = tag.Name?.Trim(),
-                                    FlagActive = true,
-                                    CreateDate = DateTime.Now,
-                                    CreateBy = model.UserID,
-                                    UpdateDate = DateTime.Now,
-                                    UpdateBy = model.UserID
-                                };
-                                _context.tm_Shops.Add(newShop);
-                                _context.SaveChanges();
-                                newShopsIds.Add(newShop.ID);
-                            }
-                            else // ✅ UPDATE ชื่อร้าน
-                            {
-                                var existingShop = _context.tm_Shops.FirstOrDefault(s => s.ID == tag.ID && s.FlagActive == true);
-                                if (existingShop != null)
-                                {
-                                    existingShop.Name = tag.Name?.Trim();
-                                    existingShop.UpdateDate = DateTime.Now;
-                                    existingShop.UpdateBy = model.UserID;
+                        x.ID,
+                        RawName = x.Name!,
+                        NormName = Normalize(x.Name),
+                    })
+                    .ToList();
 
-                                    _context.tm_Shops.Update(existingShop);
-                                    _context.SaveChanges();
-                                    newShopsIds.Add(existingShop.ID);
-                                }
+                // ---- 1) เช็คซ้ำใน payload เอง ----
+                var dupInPayload = items
+                    .GroupBy(x => x.NormName)
+                    .Where(g => g.Count() > 1)
+                    .Select(g => g.First().RawName)  // โชว์ชื่อดิบอย่างน้อย 1 รายการ
+                    .Distinct()
+                    .ToList();
+
+                if (dupInPayload.Any())
+                    dupErrors.Add($"ชื่อร้านซ้ำกันในรายการที่ส่งมา: {string.Join(", ", dupInPayload)}");
+
+                // ---- 2) โหลดชื่อร้านที่มีอยู่แล้วใน DB (Active) ----
+                var existing = _context.tm_Shops
+                    .Where(s => s.FlagActive == true)
+                    .Select(s => new { s.ID, s.Name })
+                    .AsNoTracking()
+                    .ToList();
+
+                var existingByNorm = existing
+                    .GroupBy(e => Normalize(e.Name))
+                    .ToDictionary(g => g.Key, g => g.Select(v => v.ID).ToList());
+
+                // ---- 3) เช็คชนกับ DB ----
+                foreach (var it in items)
+                {
+                    if (!existingByNorm.TryGetValue(it.NormName, out var ids)) continue;
+
+                    // INSERT (ID == -1): ชื่อชนเมื่อมีชื่อเดียวกันอยู่แล้ว
+                    if (it.ID == -1)
+                    {
+                        dupErrors.Add($"พบชื่อร้านซ้ำกับข้อมูลเดิม: {it.RawName}");
+                    }
+                    else
+                    {
+                        // UPDATE: ชื่อชนถ้ามีเจ้าของชื่อคนอื่น (ID อื่น)
+                        if (ids.Any(dbId => dbId != it.ID))
+                            dupErrors.Add($"บันทึกชื่อ '{it.RawName}' ไม่ได้ เพราะมีร้านอื่นใช้ชื่อนี้อยู่แล้ว");
+                    }
+                }
+
+                // ---- 4) ถ้ามี error เรื่องซ้ำ -> ยกเลิกทันที ----
+                if (dupErrors.Any())
+                {
+                    response.ID = 0;
+                    response.Message = string.Join(" | ", dupErrors.Distinct());
+                    return response;
+                }
+
+                // ---- 5) ผ่านการตรวจแล้ว ค่อยเริ่มทรานแซคชันเพื่อเขียนข้อมูล ----
+                using var tran = _context.Database.BeginTransaction();
+
+                // 5.1 INSERT/UPDATE shops
+                if (model.ShopsItems != null)
+                {
+                    foreach (var tag in model.ShopsItems)
+                    {
+                        var normalized = Normalize(tag.Name);
+                        if (string.IsNullOrWhiteSpace(normalized)) continue;
+
+                        if (tag.ID == -1) // INSERT
+                        {
+                            var newShop = new tm_Shop
+                            {
+                                Name = tag.Name?.Trim(),
+                                FlagActive = true,
+                                CreateDate = DateTime.Now,
+                                CreateBy = model.UserID,
+                                UpdateDate = DateTime.Now,
+                                UpdateBy = model.UserID
+                            };
+                            _context.tm_Shops.Add(newShop);
+                            _context.SaveChanges(); // ต้องการ ID เพื่อใช้ต่อ
+                            newShopIds.Add(newShop.ID);
+                        }
+                        else // UPDATE
+                        {
+                            var existingShop = _context.tm_Shops
+                                .FirstOrDefault(s => s.ID == tag.ID && s.FlagActive == true);
+                            if (existingShop != null)
+                            {
+                                existingShop.Name = tag.Name?.Trim();
+                                existingShop.UpdateDate = DateTime.Now;
+                                existingShop.UpdateBy = model.UserID;
+
+                                _context.tm_Shops.Update(existingShop);
+                                _context.SaveChanges(); // ต้องการยืนยันว่าอัปเดตผ่าน
+                                newShopIds.Add(existingShop.ID);
                             }
                         }
                     }
+                }
 
-                    // ✅ 2. สร้าง ProjectShopEvent
-                    if (model.ProjectIds != null && model.ProjectIds.Any())
+                // 5.2 สร้าง/อัปเดต TR_ProjectShopEvent
+                if (model.ProjectIds != null && model.ProjectIds.Any()
+                    && model.DatesEvent != null && model.DatesEvent.Any()
+                    && newShopIds.Any())
+                {
+                    foreach (var projectId in model.ProjectIds)
                     {
-                        foreach (var projectId in model.ProjectIds)
+                        foreach (var dateText in model.DatesEvent)
                         {
-                            if (model.DatesEvent != null && model.DatesEvent.Any())
+                            var targetDate = Commond.FormatExtension.ToDateFromddmmyyy(dateText);
+
+                            foreach (var shopId in newShopIds)
                             {
-                                foreach (var DateInsert in model.DatesEvent)
+                                var shopPayload = model.ShopsItems!.FirstOrDefault(x => x.ID == shopId)
+                                                  ?? model.ShopsItems!.FirstOrDefault(x =>
+                                                      Normalize(x.Name) == Normalize(
+                                                          _context.tm_Shops.Where(s => s.ID == shopId)
+                                                                            .Select(s => s.Name)
+                                                                            .FirstOrDefault()
+                                                      )
+                                                  );
+
+                                var existingEvent = _context.TR_ProjectShopEvents.FirstOrDefault(e =>
+                                    e.ProjectID == projectId &&
+                                    e.EventID == model.EventID &&
+                                    e.EventDate == targetDate &&
+                                    e.ShopID == shopId &&
+                                    e.FlagActive == true);
+
+                                if (existingEvent != null)
                                 {
-                                    if (newShopsIds != null && newShopsIds.Any())
+                                    // UPDATE
+                                    existingEvent.UnitQuota = shopPayload?.UnitQuota ?? 0;
+                                    existingEvent.ShopQuota = shopPayload?.ShopQuota ?? 0;
+                                    existingEvent.IsUsed = shopPayload?.IsUsed ?? false;
+                                    existingEvent.UpdateDate = DateTime.Now;
+
+                                    _context.TR_ProjectShopEvents.Update(existingEvent);
+                                }
+                                else
+                                {
+                                    // INSERT
+                                    var pse = new TR_ProjectShopEvent
                                     {
-                                        foreach (var newShopId in newShopsIds)
-                                        {
-                                            var shop = model.ShopsItems.FirstOrDefault(x => x.ID == newShopId || x.Name?.Trim() == _context.tm_Shops.FirstOrDefault(s => s.ID == newShopId)?.Name);
-
-                                            var targetDate = Commond.FormatExtension.ToDateFromddmmyyy(DateInsert);
-
-                                            // ✅ ตรวจสอบก่อนว่า record มีอยู่หรือไม่
-                                            var existing = _context.TR_ProjectShopEvents.FirstOrDefault(e =>
-                                                e.ProjectID == projectId &&
-                                                e.EventID == model.EventID &&
-                                                e.EventDate == targetDate &&
-                                                e.ShopID == newShopId &&
-                                                e.FlagActive == true);
-
-                                            if (existing != null)
-                                            {
-                                                // 🔄 UPDATE
-                                                existing.UnitQuota = shop?.UnitQuota ?? 0;
-                                                existing.ShopQuota = shop?.ShopQuota ?? 0;
-                                                existing.IsUsed = shop?.IsUsed ?? false;
-                                                existing.UpdateDate = DateTime.Now;
-
-                                                _context.TR_ProjectShopEvents.Update(existing);
-                                            }
-                                            else
-                                            {
-                                                // ➕ INSERT
-                                                var ProjectShopEvent = new TR_ProjectShopEvent
-                                                {
-                                                    ProjectID = projectId,
-                                                    EventID = model.EventID,
-                                                    EventDate = targetDate,
-                                                    ShopID = newShopId,
-                                                    UnitQuota = shop?.UnitQuota ?? 0,
-                                                    ShopQuota = shop?.ShopQuota ?? 0,
-                                                    IsUsed = shop?.IsUsed ?? false,
-                                                    FlagActive = true,
-                                                    CreateDate = DateTime.Now,
-                                                    CreateBy = model.UserID,
-                                                    UpdateDate = DateTime.Now,
-                                                };
-                                                _context.TR_ProjectShopEvents.Add(ProjectShopEvent);
-                                            }
-
-                                            _context.SaveChanges();
-                                        }
-                                    }
+                                        ProjectID = projectId,
+                                        EventID = model.EventID,
+                                        EventDate = targetDate,
+                                        ShopID = shopId,
+                                        UnitQuota = shopPayload?.UnitQuota ?? 0,
+                                        ShopQuota = shopPayload?.ShopQuota ?? 0,
+                                        IsUsed = shopPayload?.IsUsed ?? false,
+                                        FlagActive = true,
+                                        CreateDate = DateTime.Now,
+                                        CreateBy = model.UserID,
+                                        UpdateDate = DateTime.Now,
+                                    };
+                                    _context.TR_ProjectShopEvents.Add(pse);
                                 }
                             }
                         }
                     }
-
-
-                    // ✅ 3. บันทึกการเปลี่ยนแปลงทั้งหมด
-                    transaction.Commit();
-
-                    // ✅ 4. ส่งผลลัพธ์กลับ
-                    response.ID = 1;
-                    response.Message = "Shops created successfully";
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    var message = ex.InnerException != null
-                        ? $"INNER ERROR: {ex.InnerException.Message}"
-                        : $"ERROR: {ex.Message}";
-
-                    response.Message = $"An error occurred: {message}";
+                    _context.SaveChanges();
                 }
 
+                // 5.3 commit
+                tran.Commit();
+
+                response.ID = 1;
+                response.Message = "Shops created/updated successfully";
+                return response;
             }
-
-            return response;
+            catch (Exception ex)
+            {
+                var msg = ex.InnerException != null
+                    ? $"INNER ERROR: {ex.InnerException.Message}"
+                    : $"ERROR: {ex.Message}";
+                return new CreateEventsShopsResponse
+                {
+                    ID = 0,
+                    Message = $"An error occurred: {msg}"
+                };
+            }
         }
+
 
         public GetDataCreateEvent_Shops GetDataCreateEventsAndShops(GetDataCreateEvent_Shops filter)
         {
