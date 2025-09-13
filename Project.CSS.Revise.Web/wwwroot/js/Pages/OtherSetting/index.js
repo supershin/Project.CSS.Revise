@@ -1052,8 +1052,8 @@ document.getElementById('save-edit-event').addEventListener('click', function (e
         const idStr = checkbox?.id?.split('-')[1] || "-1";
         const shopID = parseInt(idStr) || -99;
 
-        const unitQuotaInput = row.querySelector('input[placeholder="Quota"]');
-        const shopQuotaInput = row.querySelector('input[placeholder="Quota/Unit"]');
+        const shopQuotaInput = row.querySelector('input[placeholder="Quota"]');
+        const unitQuotaInput = row.querySelector('input[placeholder="Quota/Unit"]');
 
         // ✅ รองรับทั้ง input และ div
         const nameInputOrDiv = row.querySelector('input[type="text"], div.fw-semibold.fs-6.text-dark');
