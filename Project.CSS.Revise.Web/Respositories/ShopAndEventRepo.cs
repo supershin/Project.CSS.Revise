@@ -1,6 +1,8 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Project.CSS.Revise.Web.Data;
+using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
 
 namespace Project.CSS.Revise.Web.Respositories
@@ -791,6 +793,21 @@ namespace Project.CSS.Revise.Web.Respositories
 
                         _context.tm_Events.Update(existing);
                     }
+
+                    var existingEvents = _context.TR_ProjectShopEvents.Where(e => e.ProjectID == ProjectID && e.EventID == EnventID).ToList();
+
+                    foreach (var ev in existingEvents)
+                    {
+                        ev.IsUsed = false;
+                        ev.FlagActive = false;
+                        ev.UpdateDate = DateTime.Now;
+                    }
+
+                    if (existingEvents.Count > 0)
+                    {
+                        _context.TR_ProjectShopEvents.UpdateRange(existingEvents);
+                    }
+
 
                     _context.SaveChanges();
 
