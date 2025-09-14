@@ -414,14 +414,18 @@
                                 </div>
                             </div>
                             <ul class="profile-dropdown onhover-show-div">
-                                <li><a href="user-profile.html"><i data-feather="user"></i><span>My Profile</span></a></li>
-                                <li><a href="letter-box.html"><i data-feather="mail"></i><span>Inbox</span></a></li>
-                                <li> <a href="edit-profile.html"> <i data-feather="settings"></i><span>Settings</span></a></li>
+                                <li><a href="~/ComingSoon/index"><i data-feather="user"></i><span>My Profile</span></a></li>
+                                <li><a href="~/ComingSoon/index"><i data-feather="mail"></i><span>Inbox</span></a></li>
+                                <li><a href="~/ComingSoon/index"> <i data-feather="settings"></i><span>Settings</span></a></li>
                                 <li>
-                                    <a class="btn btn-pill btn-outline-primary btn-sm" href="/Login/index">
-                                        Log Out
-                                    </a>
+                                    <form id="logoutForm" action="~/Login/Logout" method="post" class="m-0">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-pill btn-outline-primary btn-sm w-100 text-start">
+                                            Log Out
+                                        </button>
+                                    </form>
                                 </li>
+
                             </ul>
                         </li>
                     </ul>
@@ -502,7 +506,7 @@
                                     <li><a href="~/main/index">Company</a></li>
                                     <li><a href="~/Projecttargetrolling/index">Project target & rolling</a></li>
                                     <li><a href="~/CSResponse/index">CS Response</a></li>
-                                    <li><a href="~/User/index">User</a></li>
+                                    <li><a href="~/ComingSoon/index">User</a></li>
                                     <li><a href="~/UserBank/index">User Bank</a></li>
                                     <li><a href="~/OtherSettings/index">Other Settings</a></li>
                                 </ul>

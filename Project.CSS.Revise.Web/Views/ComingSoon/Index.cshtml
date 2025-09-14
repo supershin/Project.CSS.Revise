@@ -1,0 +1,92 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutSite.cshtml";
+}
+
+<div class="coming-wrap">
+    <div class="sky"></div>
+    <svg class="skyline" viewBox="0 0 1440 300" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+            <linearGradient id="bgrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0b1220" />
+                <stop offset="100%" stop-color="#0b1220" />
+            </linearGradient>
+            <linearGradient id="windowGlow" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ffe08a" />
+                <stop offset="100%" stop-color="#ffd54d" />
+            </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="1440" height="300" fill="url(#bgrad)" />
+        <g fill="#0f1a2e">
+            <rect x="0" y="140" width="120" height="160" />
+            <rect x="120" y="110" width="90" height="190" />
+            <rect x="210" y="160" width="150" height="140" />
+            <rect x="360" y="90" width="110" height="210" />
+            <rect x="470" y="130" width="85" height="170" />
+            <rect x="555" y="150" width="95" height="150" />
+            <rect x="650" y="80" width="140" height="220" />
+            <rect x="790" y="150" width="110" height="150" />
+            <rect x="900" y="120" width="95" height="180" />
+            <rect x="995" y="160" width="120" height="140" />
+            <rect x="1115" y="100" width="140" height="200" />
+            <rect x="1255" y="150" width="185" height="150" />
+        </g>
+        <g class="windows">
+            <rect class="twinkle t1" x="45" y="190" width="6" height="10" fill="url(#windowGlow)" />
+            <rect class="twinkle t2" x="168" y="150" width="6" height="10" fill="url(#windowGlow)" />
+            <rect class="twinkle t3" x="255" y="185" width="6" height="10" fill="url(#windowGlow)" />
+            <rect class="twinkle t1" x="380" y="140" width="6" height="10" fill="url(#windowGlow)" />
+            <rect class="twinkle t2" x="498" y="175" width="6" height="10" fill="url(#windowGlow)" />
+            <rect class="twinkle t3" x="590" y="190" width="6" height="10" fill="url(#windowGlow)" />
+            <rect class="twinkle t1" x="708" y="150" width="6" height="10" fill="url(#windowGlow)" />
+            <rect class="twinkle t2" x="835" y="190" width="6" height="10" fill="url(#windowGlow)" />
+            <rect class="twinkle t3" x="930" y="165" width="6" height="10" fill="url(#windowGlow)" />
+            <rect class="twinkle t1" x="1025" y="195" width="6" height="10" fill="url(#windowGlow)" />
+            <rect class="twinkle t2" x="1160" y="160" width="6" height="10" fill="url(#windowGlow)" />
+            <rect class="twinkle t3" x="1310" y="190" width="6" height="10" fill="url(#windowGlow)" />
+        </g>
+    </svg>
+
+
+    <svg class="crane" viewBox="0 0 600 260" aria-hidden="true">
+        <g class="tower" stroke="#9bb8ff" stroke-width="3" fill="none">
+            <line x1="60" y1="30" x2="60" y2="230" />
+            <line x1="40" y1="230" x2="80" y2="230" />
+            <line x1="40" y1="200" x2="80" y2="170" />
+            <line x1="40" y1="170" x2="80" y2="140" />
+            <line x1="40" y1="140" x2="80" y2="110" />
+            <line x1="40" y1="110" x2="80" y2="80" />
+            <line x1="40" y1="80" x2="80" y2="50" />
+        </g>
+        <g class="jib" stroke="#bcd3ff" stroke-width="3" fill="none">
+            <line x1="60" y1="30" x2="360" y2="30" />
+            <line x1="60" y1="30" x2="120" y2="70" />
+            <line x1="120" y1="70" x2="180" y2="30" />
+            <line x1="180" y1="30" x2="240" y2="70" />
+            <line x1="240" y1="70" x2="300" y2="30" />
+            <line x1="300" y1="30" x2="360" y2="70" />
+        </g>
+        <g class="trolley">
+            <rect x="180" y="22" width="34" height="16" rx="2" fill="#fff" opacity="0.9" />
+            <line class="cable" x1="197" y1="38" x2="197" y2="150" stroke="#e7f0ff" stroke-width="2" />
+            <g class="hook" transform="translate(197,150)">
+                <path d="M0 0 v22 q0 8 8 8 h4 q8 0 8 -8 v-6" fill="none" stroke="#ffd166" stroke-width="3" stroke-linecap="round" />
+                <circle cx="0" cy="0" r="3" fill="#ffd166" />
+            </g>
+            <rect class="load" x="178" y="178" width="38" height="22" fill="#ffd166" rx="2" />
+        </g>
+    </svg>
+
+
+    <main class="content">
+        <h1>Coming Soon</h1>
+        <p class="lead">This page is in develop.</p>
+
+
+        <div class="tape" aria-hidden="true"></div>
+    </main>
+</div>
+@section Scripts {
+    <link rel="stylesheet" type="text/css" href="~/css/comingsoon.css?ver=@DateTime.Now.Ticks.ToString()">
+}
+
