@@ -6,6 +6,8 @@ namespace Project.CSS.Revise.Web.Service
     public interface ICSResponseService
     {
         public List<GetlistUnitCSResponseModel.ListData> GetlistUnitCSResponse(GetlistUnitCSResponseModel.FilterData filter);
+        public UpdateInsertCsmapping UpdateorInsertCsmapping(UpdateInsertCsmapping model);
+        Task<List<GetlistCountByCS>> GetListCountByCSAsync();
     }
     public class CSResponseService : ICSResponseService
     {
@@ -14,9 +16,20 @@ namespace Project.CSS.Revise.Web.Service
         {
             _cSResponseRepo = csResponseRepo;
         }
+
+        public Task<List<GetlistCountByCS>> GetListCountByCSAsync()
+        {
+            return _cSResponseRepo.GetListCountByCSAsync();
+        }
+
         public List<GetlistUnitCSResponseModel.ListData> GetlistUnitCSResponse(GetlistUnitCSResponseModel.FilterData filter)
         {
             return _cSResponseRepo.GetlistUnitCSResponse(filter);
+        }
+
+        public UpdateInsertCsmapping UpdateorInsertCsmapping(UpdateInsertCsmapping model)
+        {
+            return _cSResponseRepo.UpdateorInsertCsmapping(model);
         }
     }
 }

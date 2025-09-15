@@ -27,12 +27,11 @@
             public string Area { get; set; } = "";
             public string UnitStatus { get; set; } = "";
 
-            public string UserID { get; set; } = "";
-            public string FirstName { get; set; } = "";
-            public string FirstName_Eng { get; set; } = "";
-            public string TitleID_Eng { get; set; } = "";
-            public string LastName { get; set; } = "";
-            public string LastName_Eng { get; set; } = "";
+            public string CSUserID { get; set; } = "";
+            public string CSFullNameThai { get; set; } = "";
+            public string CSFullNameEng { get; set; } = "";
+            public string UpdateBy { get; set; } = "";
+            public string UpdateDate { get; set; } = "";
 
             public int IsCheck { get; set; } = 0;
         }

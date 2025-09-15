@@ -3,12 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models.Pages.CSResponse;
 using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
+using System.Linq;
 
 namespace Project.CSS.Revise.Web.Respositories
 {
     public interface ICSResponseRepo
     {
         public List<GetlistUnitCSResponseModel.ListData> GetlistUnitCSResponse(GetlistUnitCSResponseModel.FilterData filter);
+        public UpdateInsertCsmapping UpdateorInsertCsmapping(UpdateInsertCsmapping model);
+        Task<List<GetlistCountByCS>> GetListCountByCSAsync();
     }
     public class CSResponseRepo : ICSResponseRepo
     {
@@ -40,7 +43,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                 -- ===== TEST CASE =====
 
 
-                            SELECT P.[ProjectID]
+                            SELECT   P.[ProjectID]
                                     ,P.[ProjectName]
                                     ,P.[ProjectName_Eng]
                                     ,P.[ProjectType]
@@ -52,18 +55,17 @@ namespace Project.CSS.Revise.Web.Respositories
                                     ,U.[UnitType]
                                     ,U.[Area]
                                     ,U.[UnitStatus]
-	                                ,UUM.[UserID]
-                                    ,US.[FirstName]
-                                    ,US.[FirstName_Eng]
-                                    ,US.[TitleID_Eng]
-                                    ,US.[LastName]
-                                    ,US.[LastName_Eng]
+	                                ,UUM.[UserID] AS CSUserID
+                                    ,US.[FirstName] + ' ' + US.[LastName] AS CSFullNameThai
+                                    ,US.[FirstName_Eng] + ' ' + US.[LastName_Eng] AS CSFullNameEng
 	                                ,CASE WHEN CONVERT(NVARCHAR(100), UUM.[UserID]) = @L_UserID THEN 1 ELSE 0 END AS IsCheck
+									,UPUS.[FirstName] + ' ' + UPUS.[LastName] AS UpdateBy
+									,UUM.[UpdateDate] 
                                 FROM [tm_Project] P WITH (NOLOCK) 
                                 LEFT JOIN [tm_Unit] U WITH (NOLOCK) ON U.ProjectID = P.ProjectID
-                                LEFT JOIN [TR_UnitUser_Mapping] UUM WITH (NOLOCK) 
-                                        ON P.ProjectID = UUM.ProjectID AND UUM.UnitCode = U.[UnitCode]
+                                LEFT JOIN [TR_UnitUser_Mapping] UUM WITH (NOLOCK) ON P.ProjectID = UUM.ProjectID AND UUM.UnitCode = U.[UnitCode]
                                 LEFT JOIN [tm_User] US WITH (NOLOCK) ON UUM.UserID = US.[ID]
+								LEFT JOIN [tm_User] UPUS WITH (NOLOCK) ON UUM.UpdateBy = UPUS.[ID]
                             WHERE U.[FlagActive] = 1
                                 AND P.[FlagActive] = 1
                                 AND P.[ProjectID] =  @L_ProjectID
@@ -72,9 +74,11 @@ namespace Project.CSS.Revise.Web.Respositories
 		                            OR (N',' + @L_Build + N',' LIKE N'%,' + CONVERT(NVARCHAR(100), U.[Build]) + N',%')
 	                                )
                                 AND (
-		                            @L_Floor = N''
-		                            OR (N',' + @L_Floor + N',' LIKE N'%,' + CONVERT(NVARCHAR(100), U.[Floor]) + N',%')
-	                                )
+                                        -- 3) ถ้าไม่ส่ง @Pairs มา → ผ่าน
+                                        @L_Floor = N''
+                                        -- 4) ถ้าส่ง @Pairs มา → จับคู่ Build-Floor แบบเป๊ะ ๆ
+                                    OR (',' + @L_Floor + ',' LIKE '%,' + CONVERT(varchar(50), U.[Build]) + '-' + CONVERT(varchar(50), U.[Floor]) + ',%')
+                                    )
                                 AND (
 		                            @L_Room = N''
 		                            OR (N',' + @L_Room + N',' LIKE N'%,' + CONVERT(NVARCHAR(100), U.[Room]) + N',%')
@@ -86,7 +90,6 @@ namespace Project.CSS.Revise.Web.Respositories
                                     )
                                 ORDER BY P.[ProjectID]
                                         ,U.[UnitCode]
-
 
                            "
                                     ;
@@ -120,12 +123,11 @@ namespace Project.CSS.Revise.Web.Respositories
                                 Area = Commond.FormatExtension.NullToString(reader["Area"]),
                                 UnitStatus = Commond.FormatExtension.NullToString(reader["UnitStatus"]),
 
-                                UserID = Commond.FormatExtension.NullToString(reader["UserID"]),
-                                FirstName = Commond.FormatExtension.NullToString(reader["FirstName"]),
-                                FirstName_Eng = Commond.FormatExtension.NullToString(reader["FirstName_Eng"]),
-                                TitleID_Eng = Commond.FormatExtension.NullToString(reader["TitleID_Eng"]),
-                                LastName = Commond.FormatExtension.NullToString(reader["LastName"]),
-                                LastName_Eng = Commond.FormatExtension.NullToString(reader["LastName_Eng"]),
+                                CSUserID = Commond.FormatExtension.NullToString(reader["CSUserID"]),
+                                CSFullNameThai = Commond.FormatExtension.NullToString(reader["CSFullNameThai"]),
+                                CSFullNameEng = Commond.FormatExtension.NullToString(reader["CSFullNameEng"]),
+                                UpdateBy = Commond.FormatExtension.NullToString(reader["UpdateBy"]),
+                                UpdateDate = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["UpdateDate"]),
                                 IsCheck = Commond.FormatExtension.Nulltoint(reader["IsCheck"])
                             });
                         }
@@ -135,6 +137,153 @@ namespace Project.CSS.Revise.Web.Respositories
 
 
             return result;
+        }
+
+        public UpdateInsertCsmapping UpdateorInsertCsmapping(UpdateInsertCsmapping model)
+        {
+            try
+            {
+                if (model == null)
+                {
+                    return new UpdateInsertCsmapping { Issuccess = false, Message = "Model is null." };
+                }
+
+                if (string.IsNullOrWhiteSpace(model.ProjectID))
+                {
+                    return new UpdateInsertCsmapping { Issuccess = false, Message = "ProjectID is required." };
+                }
+
+                if (model.CSUserID <= 0)
+                {
+                    return new UpdateInsertCsmapping { Issuccess = false, Message = "CSUserID is required." };
+                }
+
+                if (model.ListUnitCode == null || model.ListUnitCode.Count == 0)
+                {
+                    return new UpdateInsertCsmapping { Issuccess = false, Message = "Unit list is empty." };
+                }
+
+                var now = DateTime.Now;
+                var projectId = model.ProjectID.Trim();
+                var unitCodes = model.ListUnitCode
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Select(x => x.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                int updated = 0;
+                int inserted = 0;
+
+                using (var tx = _context.Database.BeginTransaction())
+                {
+                    foreach (var code in unitCodes)
+                    {
+                        // WHERE ProjectID AND UnitCode
+                        var row = _context.TR_UnitUser_Mappings
+                            .FirstOrDefault(x => x.ProjectID == projectId && x.UnitCode == code);
+
+                        if (row != null)
+                        {
+                            // UPDATE
+                            row.UserID = model.CSUserID;
+                            row.UpdateDate = now;
+                            row.UpdateBy = model.UpdateBy;
+                            _context.TR_UnitUser_Mappings.Update(row);
+                            updated++;
+                        }
+                        else
+                        {
+                            // INSERT
+                            var newRow = new TR_UnitUser_Mapping
+                            {
+                                ProjectID = projectId,
+                                UnitCode = code,
+                                UserID = model.CSUserID,
+                                CreateDate = now,
+                                CreateBy = model.UpdateBy,
+                                UpdateDate = now,
+                                UpdateBy = model.UpdateBy
+                            };
+
+                            _context.TR_UnitUser_Mappings.Add(newRow);
+                            inserted++;
+                        }
+                    }
+
+                    _context.SaveChanges();
+                    tx.Commit();
+                }
+
+                return new UpdateInsertCsmapping
+                {
+                    Issuccess = true,
+                    Message = $"Updated {updated}, Inserted {inserted}"
+                };
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.InnerException != null
+                    ? $"INNER ERROR: {ex.InnerException.Message}"
+                    : $"ERROR: {ex.Message}";
+
+                return new UpdateInsertCsmapping
+                {
+                    Issuccess = false,
+                    Message = msg
+                };
+            }
+        }
+
+        public async Task<List<GetlistCountByCS>> GetListCountByCSAsync()
+        {
+            var query =
+                from u in _context.tm_Users
+                join tTH in _context.tm_TitleNames on u.TitleID equals tTH.ID into thg
+                from tTH in thg.DefaultIfEmpty()
+                join tEN in _context.tm_TitleNames on u.TitleID_Eng equals tEN.ID into engg
+                from tEN in engg.DefaultIfEmpty()
+                where u.FlagActive == true
+                      && u.QCTypeID == 10
+                      && u.DepartmentID == 31
+                select new GetlistCountByCS
+                {
+                    ID = u.ID,
+                    FullnameTH = ((tTH.Name ?? "") + " " + (u.FirstName ?? "") + " " + (u.LastName ?? "")).Trim(),
+                    FullnameEN = ((tEN.Name ?? "") + " " + (u.FirstName_Eng ?? "") + " " + (u.LastName_Eng ?? "")).Trim(),
+                    Email = u.Email,
+                    Mobile = u.Mobile,
+
+                    Project = (
+                        from m in _context.TR_UnitUser_Mappings
+                        join p in _context.tm_Projects on m.ProjectID equals p.ProjectID into pg
+                        from p in pg.DefaultIfEmpty()
+                        where m.UserID == u.ID
+                        group m by new { m.ProjectID, p.ProjectName } into g
+                        select new ListProjectAndCountUnit
+                        {
+                            ProjectID = g.Key.ProjectID.ToString(),
+                            ProjectName = g.Key.ProjectName ?? "",
+                            CountUnit = g.Count(x => x.UnitCode != null),
+
+                            Unit = (
+                                from unit in _context.tm_Units
+                                join us in _context.tm_UnitStatuses on unit.UnitStatus equals us.ID into usg
+                                from us in usg.DefaultIfEmpty()
+                                where unit.ProjectID == g.Key.ProjectID
+                                group unit by new { unit.UnitStatus, UnitStatusName = us.Name } into ug
+                                orderby ug.Key.UnitStatus
+                                select new ListUnitCoutstatus
+                                {
+                                    UnitStatus = ug.Key.UnitStatus ?? 0,
+                                    UnitStatusName = ug.Key.UnitStatusName ?? "",
+                                    TotalUnit = ug.Count()
+                                }
+                            ).ToList()
+                        }
+                    ).ToList()
+                };
+
+            return await query.ToListAsync();
         }
 
     }

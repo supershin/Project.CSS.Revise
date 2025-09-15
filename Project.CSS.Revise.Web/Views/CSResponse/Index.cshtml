@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_LayoutSite.cshtml";
-    @model List<Project.CSS.Revise.Web.Models.User>
+    @model List<Project.CSS.Revise.Web.Models.Pages.CSResponse.GetlistCountByCS>
 }
 <style>
     .no-select {
@@ -50,7 +50,7 @@
                             <div class="tab-pane fade show active" id="counter-filter" role="tabpanel" aria-labelledby="counter-tab">
                                 <div class="p-3">
                                     <div class="row mb-3">
-                                    <div class="col-xl-3 xl-30 box-col-12">
+                                    <div class="col-xl-3 xl-30 box-col-12"> @* card 1 *@
                                         <div class="md-sidebar">
                                             <a class="btn btn-primary email-aside-toggle md-sidebar-toggle">Job filter</a>
                                             <div class="md-sidebar-aside job-sidebar">
@@ -92,10 +92,10 @@
                                                                     <div class="job-filter mb-3">
                                                                         <label for="projectSelect" class="form-label fw-bold">โครงการ</label>
                                                                             @{
-                                                                                var projects = ViewBag.listDDlAllProject as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+                                                                                var _projects = ViewBag.listDDlAllProject as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
                                                                             }
                                                                             <select id="projectSelect" class="form-control searchable-select">
-                                                                                @foreach (var p in projects)
+                                                                                    @foreach (var p in _projects)
                                                                                 {
                                                                                     var val = (p.ValueString ?? p.ValueInt ?? p.Value ?? p.ID ?? "").ToString();
                                                                                     var text = (p.Text ?? p.ProjectName ?? p.Name ?? "").ToString();
@@ -106,7 +106,7 @@
 
                                                                     <!-- 🏢 อาคาร -->
                                                                     <div class="job-filter mb-3">
-                                                                        <label for="buildingMultiSelect" class="form-label fw-bold">อาคาร</label>
+                                                                                <label for="buildingMultiSelect" class="form-label fw-bold">อาคาร/โซน</label>
                                                                         <select id="buildingMultiSelect" class="form-control multi-select" multiple>
       
                                                                         </select>
@@ -129,7 +129,7 @@
                                                                     </div>
 
                                                                     <!-- 🔎 ปุ่มค้นหา -->
-                                                                    <button class="btn btn-primary text-center" type="button">Search 🔍 </button>
+                                                                    <button id="btnSearch" class="btn btn-primary text-center" type="button">Search 🔍</button>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -138,21 +138,22 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-xl-9 xl-70 box-col-12">
+                                    <div class="col-xl-9 xl-70 box-col-12"> 
                                         <div class="card">
                                             <div class="card-header d-flex justify-content-between align-items-center">
                                                 <div>
-                                                    <h4>เอสต้า ซีรีนิตี้ บรมราชชนนี</h4>
+                                                    <h4 id="name_project_selected"></h4>
+                                                    <small id="row_count" class="text-muted"></small>
                                                 </div>
                                                 <div>
-                                                    <button type="button" class="btn btn-primary btn-sm">
+                                                    <button type="button" class="btn btn-primary btn-sm" id="save_change_cs_responsive">
                                                         💾 Save
                                                     </button>
                                                 </div>
                                             </div>
                                             <div class="card-body">
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered table-striped align-middle text-center">
+                                                        <div class="table-responsive" id="div_Tb_CS_Response" style="display:block; max-height:550px; overflow-y:auto;">
+                                                    <table class="table table-bordered table-striped align-middle text-center" id="Tb_CS_Response">
                                                         <thead class="table-light">
                                                             <tr>
                                                                 <th scope="col" class="text-center">
@@ -163,114 +164,7 @@
                                                                 <th scope="col">Update</th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td class="text-center">
-                                                                    <input class="form-check-input row-check" id="flexCheckCheckedA001" type="checkbox" checked>
-                                                                </td>
-                                                                <td class="text-start">
-                                                                    <small class="d-block">Condo / Unit B105 / Floor 5 / Room 12</small>
-                                                                </td>
-                                                                <td class="text-start">
-                                                                    <i class="icofont icofont-user"></i> กิติยา กัญยะโสภา
-                                                                    <small class="d-block">
-                                                                        <i class="icofont icofont-check-circled"></i> Checker
-                                                                    </small>
-                                                                </td>
-                                                                <td class="text-start">
-                                                                    <i class="icofont icofont-user"></i> พนิดา อินทร์แก้ว
-                                                                    <small class="d-block mt-1">
-                                                                        <i class="icofont icofont-calendar"></i> 12/05/2025
-                                                                    </small>
-                                                                </td>
-                                                            </tr>
-
-                                                            <tr>
-                                                                <td class="text-center">
-                                                                    <input class="form-check-input row-check" id="flexCheckCheckedA002" type="checkbox">
-                                                                </td>
-                                                                <td class="text-start">
-                                                                    <small class="d-block">House / Unit A005 / Room 05</small>
-                                                                </td>
-                                                                <td class="text-start">
-                                                                    <i class="icofont icofont-user"></i> เสาวณีย์ พงษ์ฟ้าประทานพร
-                                                                    <small class="d-block">
-                                                                        <i class="icofont icofont-sale-discount"></i> Sale
-                                                                    </small>
-                                                                </td>
-                                                                <td class="text-start">
-                                                                    <i class="icofont icofont-user"></i> สุธัช (อาร์ท) ขันธไพรศรี
-                                                                    <small class="d-block mt-1">
-                                                                        <i class="icofont icofont-calendar"></i> 12/05/2025
-                                                                    </small>
-                                                                </td>
-                                                            </tr>
-
-                                                            <!-- ✅ Mockup Row 1 -->
-                                                            <tr>
-                                                                <td class="text-center">
-                                                                    <input class="form-check-input row-check" id="flexCheckCheckedA003" type="checkbox" checked>
-                                                                </td>
-                                                                <td class="text-start">
-                                                                    <small class="d-block">Condo / Unit D201 / Floor 2 / Room 1</small>
-                                                                </td>
-                                                                <td class="text-start">
-                                                                    <i class="icofont icofont-user"></i> ณัฐวุฒิ ศรีสุวรรณ
-                                                                    <small class="d-block">
-                                                                        <i class="icofont icofont-support"></i> Customer Service
-                                                                    </small>
-                                                                </td>
-                                                                <td class="text-start">
-                                                                    <i class="icofont icofont-user"></i> ธนพัฒน์ อุดมชัย
-                                                                    <small class="d-block mt-1">
-                                                                        <i class="icofont icofont-calendar"></i> 14/05/2025
-                                                                    </small>
-                                                                </td>
-                                                            </tr>
-
-                                                            <!-- ✅ Mockup Row 2 -->
-                                                            <tr>
-                                                                <td class="text-center">
-                                                                    <input class="form-check-input row-check" id="flexCheckCheckedA004" type="checkbox">
-                                                                </td>
-                                                                <td class="text-start">
-                                                                    <small class="d-block">Condo / Unit C310 / Floor 3 / Room 10</small>
-                                                                </td>
-                                                                <td class="text-start">
-                                                                    <i class="icofont icofont-user"></i> อภิสิทธิ์ ทองพูน
-                                                                    <small class="d-block">
-                                                                        <i class="icofont icofont-support"></i> Customer Service
-                                                                    </small>
-                                                                </td>
-                                                                <td class="text-start">
-                                                                    <i class="icofont icofont-user"></i> ภัทรพล มีชัย
-                                                                    <small class="d-block mt-1">
-                                                                        <i class="icofont icofont-calendar"></i> 15/05/2025
-                                                                    </small>
-                                                                </td>
-                                                            </tr>
-
-                                                            <!-- ✅ Mockup Row 3 -->
-                                                            <tr>
-                                                                <td class="text-center">
-                                                                    <input class="form-check-input row-check" id="flexCheckCheckedA005" type="checkbox" checked>
-                                                                </td>
-                                                                <td class="text-start">
-                                                                    <small class="d-block">Condo / Unit E502 / Floor 5 / Room 2</small>
-                                                                </td>
-                                                                <td class="text-start">
-                                                                    <i class="icofont icofont-user"></i> ปภาวดี ศรีสุธรรม
-                                                                    <small class="d-block">
-                                                                        <i class="icofont icofont-users-social"></i> Deviate
-                                                                    </small>
-                                                                </td>
-                                                                <td class="text-start">
-                                                                    <i class="icofont icofont-user"></i> กานต์รวี นิลไพศาล
-                                                                    <small class="d-block mt-1">
-                                                                        <i class="icofont icofont-calendar"></i> 16/05/2025
-                                                                    </small>
-                                                                </td>
-                                                            </tr>
+                                                         <tbody id="Tb_CS_Response_body">
 
                                                         </tbody>
                                                     </table>
@@ -278,68 +172,166 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="tab-pane fade" id="shop-event-filter" role="tabpanel" aria-labelledby="shop-event-tab">
-                                <div class="p-3">
-                                    <div class="row">
-                                        @foreach (var user in Model)
-                                        {
-                                            <div class="col-4">
-                                                <div class="card social-profile">
-                                                    <div class="card-body text-center">
-                                                        <div class="social-img-wrap hover-icon-swap">
-                                                            <div class="social-img">
-                                                                <a href="~/CSMapping">
-                                                                    <i class="icofont icon-toggle icofont-man-in-glasses"
-                                                                       data-default="icofont-man-in-glasses"
-                                                                       data-hover="icofont-ui-edit"></i>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                        <div class="social-details mt-3">
-                                                            <h5 class="mb-1">
-                                                                <a href="social-app.html">@($"{user.FirstName} {user.LastName}")</a>
-                                                            </h5>
-                                                            <span class="f-light">@($"{user.FirstName_Eng} {user.LastName_Eng}")</span>
+                                    <div class="p-3">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm align-middle">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th style="width:36px;"></th>
+                                                    <th>User (TH / EN)</th>
+                                                    <th>Email</th>
+                                                    <th>Mobile</th>
+                                                    <th class="text-end">Projects</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var user in Model)
+                                                {
+                                                    // dedupe projects (in case of duplicates)
+                                                    var projects = user.Project
+                                                    .GroupBy(p => p.ProjectID)
+                                                    .Select(g => g.First())
+                                                    .OrderBy(p => p.ProjectName)
+                                                    .ToList();
 
-                                                            @{
-                                                                var _projects = new[] {  new { Name = "ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี", Units = 4 },
-                                                                                        new { Name = "แอทโมซ ลาดพร้าว 71", Units = 3 },
-                                                                                        new { Name = "แม็กซี่ ไพร์ม รัชดา-สุทธิสาร 71", Units = 12 }
-                                                                };
-                                                            }
+                                                    var userRowId = $"u_{user.ID}";
+                                                    var totalUnits = projects.Sum(p => p.CountUnit);
 
-                                                                @foreach (var proj in _projects)
-                                                            {
-                                                                var collapseId = $"collapse_{user.ID}_{proj.Name.GetHashCode()}";
-                                                                <div class="small text-muted mt-2">
-                                                                    <a class="text-muted" data-bs-toggle="collapse" href="#@collapseId" role="button" aria-expanded="false" aria-controls="@collapseId">
-                                                                        @proj.Name -
-                                                                        <span class="badge rounded-circle badge-p-space badge-danger badge-small">@proj.Units</span> Unit
-                                                                    </a>
-                                                                </div>
+                                                    <tr>
+                                                        <td>
+                                                            <button class="btn btn-outline-primary btn-sm"
+                                                                    type="button"
+                                                                    data-bs-toggle="collapse"
+                                                                    data-bs-target="#@userRowId"
+                                                                    aria-expanded="false"
+                                                                    aria-controls="@userRowId">
+                                                                <i class="bi bi-caret-down-square"></i>
+                                                            </button>
+                                                        </td>
+                                                        <td>
+                                                            <div class="fw-semibold">@user.FullnameTH</div>
+                                                            <div class="text-muted small">@user.FullnameEN</div>
+                                                        </td>
+                                                        <td>@user.Email</td>
+                                                        <td>@user.Mobile</td>
+                                                        <td class="text-end">
+                                                            <span class="badge bg-secondary">@projects.Count() projects</span>
+                                                            <span class="badge bg-dark-subtle text-dark">@totalUnits units</span>
+                                                        </td>
+                                                    </tr>
 
-                                                                <div class="collapse mt-2" id="@collapseId">
-                                                                    <div class="card card-body py-2 px-3">
-                                                                        <ul class="mb-0">
-                                                                            <li>Unit : A001 - Status : <span class="badge badge-light badge-small text-dark">ว่าง</span></li>
-                                                                            <li>Unit : A002 - Status : <span class="badge badge-danger badge-small">จอง</span></li>
-                                                                            <li>Unit : A003 - Status : <span class="badge badge-primary badge-small">สัญญา</span></li>
-                                                                            <li>Unit : A004 - Status : <span class="badge badge-success badge-small">โอน</span></li>
-                                                                        </ul>
+                                                    <!-- child: projects table -->
+                                                    <tr class="collapse" id="@userRowId">
+                                                        <td></td>
+                                                        <td colspan="4">
+                                                            <div class="card border-0">
+                                                                <div class="card-body p-2">
+                                                                    <div class="table-responsive">
+                                                                        <table class="table table-sm mb-0">
+                                                                            <thead>
+                                                                                <tr class="table-secondary">
+                                                                                    <th style="width:36px;"></th>
+                                                                                    <th>Project</th>
+                                                                                    <th class="text-end">Units</th>
+                                                                                    <th>Status</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                @foreach (var proj in projects)
+                                                                                {
+                                                                                    var projRowId = $"p_{user.ID}_{proj.ProjectID}";
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            <button class="btn btn-outline-secondary btn-sm"
+                                                                                                    type="button"
+                                                                                                    data-bs-toggle="collapse"
+                                                                                                    data-bs-target="#@projRowId"
+                                                                                                    aria-expanded="false"
+                                                                                                    aria-controls="@projRowId">
+                                                                                                <i class="bi bi-caret-right-square"></i>
+                                                                                            </button>
+                                                                                        </td>
+                                                                                        <td class="fw-semibold">@proj.ProjectName</td>
+                                                                                        <td class="text-end">
+                                                                                            <span class="badge bg-dark-subtle text-dark">@proj.CountUnit</span>
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <!-- quick inline summary badges (collapsed detail below) -->
+                                                                                            @foreach (var uni in proj.Unit)
+                                                                                            {
+                                                                                                string summaryBadge = uni.UnitStatus switch
+                                                                                                {
+                                                                                                    1 => "badge bg-light text-dark", // ว่าง
+                                                                                                    2 => "badge bg-danger",          // จอง
+                                                                                                    3 => "badge bg-primary",         // สัญญา
+                                                                                                    4 => "badge bg-success",         // โอน
+                                                                                                    _ => "badge bg-secondary"
+                                                                                                };
+                                                                                                <span class="@summaryBadge me-1 mb-1">@uni.UnitStatusName @uni.TotalUnit</span>
+                                                                                            }
+                                                                                        </td>
+                                                                                    </tr>
+
+                                                                                    <!-- grandchild: per-project unit-status breakdown -->
+                                                                                    <tr class="collapse" id="@projRowId" data-bs-parent="#@userRowId">
+                                                                                        <td></td>
+                                                                                        <td colspan="3">
+                                                                                            <div class="card border-0">
+                                                                                                <div class="card-body py-2">
+                                                                                                    <div class="table-responsive">
+                                                                                                        <table class="table table-sm table-borderless mb-0">
+                                                                                                            <thead>
+                                                                                                                <tr class="text-muted">
+                                                                                                                    <th style="width:30%;">Unit Status</th>
+                                                                                                                    <th style="width:70%;">Count</th>
+                                                                                                                </tr>
+                                                                                                            </thead>
+                                                                                                            <tbody>
+                                                                                                                @foreach (var uni in proj.Unit)
+                                                                                                                {
+                                                                                                                    string badgeClass = uni.UnitStatus switch
+                                                                                                                    {
+                                                                                                                        1 => "badge bg-light text-dark", // ว่าง
+                                                                                                                        2 => "badge bg-danger",          // จอง
+                                                                                                                        3 => "badge bg-primary",         // สัญญา
+                                                                                                                        4 => "badge bg-success",         // โอน
+                                                                                                                        _ => "badge bg-secondary"
+                                                                                                                    };
+                                                                                                                    <tr>
+                                                                                                                        <td>
+                                                                                                                            <span class="@badgeClass">@uni.UnitStatusName</span>
+                                                                                                                        </td>
+                                                                                                                        <td>
+                                                                                                                            <div class="d-flex justify-content-between">
+                                                                                                                                <div class="fw-semibold">@uni.TotalUnit</div>
+                                                                                                                            </div>
+                                                                                                                        </td>
+                                                                                                                    </tr>
+                                                                                                                }
+                                                                                                            </tbody>
+                                                                                                        </table>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                }
+                                                                            </tbody>
+                                                                        </table>
                                                                     </div>
                                                                 </div>
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        }
-                    
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
                                     </div>
-                                </div>
+                                    </div>
                             </div>
                         </div>
                     </div>
