@@ -57,11 +57,7 @@ public partial class PR_User
 
     public int? ParentBankID { get; set; }
 
-    public int? AreaID { get; set; }
-
-    [ForeignKey("AreaID")]
-    [InverseProperty("PR_UserAreas")]
-    public virtual tm_Ext? Area { get; set; }
+    public string? AreaID { get; set; }
 
     [InverseProperty("User")]
     public virtual ICollection<PR_UserBank_Mapping> PR_UserBank_Mappings { get; set; } = new List<PR_UserBank_Mapping>();
@@ -70,6 +66,6 @@ public partial class PR_User
     public virtual ICollection<PR_User_PasswordChange> PR_User_PasswordChanges { get; set; } = new List<PR_User_PasswordChange>();
 
     [ForeignKey("UserTypeID")]
-    [InverseProperty("PR_UserUserTypes")]
+    [InverseProperty("PR_Users")]
     public virtual tm_Ext? UserType { get; set; }
 }

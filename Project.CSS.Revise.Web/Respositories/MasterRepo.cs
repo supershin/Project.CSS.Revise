@@ -650,6 +650,18 @@ namespace Project.CSS.Revise.Web.Respositories
                         return result;
                     }
 
+                case "ListArea":
+                    var ListArea = from ext in _context.tm_Exts
+                                   where ext.FlagActive == true && ext.ExtTypeID == 67
+                                   orderby ext.LineOrder
+                                   select new GetDDLModel
+                                   {
+                                       ValueInt = ext.ID,
+                                       Text = ext.Name
+                                   };
+
+                    return ListArea.ToList();
+
                 default:
 
                 return new List<GetDDLModel>();

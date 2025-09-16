@@ -64,11 +64,8 @@ public partial class tm_Ext
     [InverseProperty("UserType")]
     public virtual ICollection<PR_Loan> PR_Loans { get; set; } = new List<PR_Loan>();
 
-    [InverseProperty("Area")]
-    public virtual ICollection<PR_User> PR_UserAreas { get; set; } = new List<PR_User>();
-
     [InverseProperty("UserType")]
-    public virtual ICollection<PR_User> PR_UserUserTypes { get; set; } = new List<PR_User>();
+    public virtual ICollection<PR_User> PR_Users { get; set; } = new List<PR_User>();
 
     [InverseProperty("QCType")]
     public virtual ICollection<TR_AttachFileQC> TR_AttachFileQCs { get; set; } = new List<TR_AttachFileQC>();

@@ -189,6 +189,32 @@
                                                                             <select id="projectMultiSelect" class="form-control" multiple></select>
                                                                         </div>
 
+                                                                        <!-- Checkbox area -->
+                                                                        <div class="mb-3 row">
+                                                                            <label class="col-sm-3 col-form-label">Area</label>
+                                                                            <div class="col-sm-9">
+                                                                                @{
+                                                                                    var areas = ViewBag.ListArea as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+                                                                                }
+                                                                                @foreach (var a in areas)
+                                                                                {
+                                                                                    var val = (a.ValueInt ?? a.ValueString ?? a.Value ?? a.ID ?? "").ToString();
+                                                                                    var text = (a.Text ?? a.Name ?? "").ToString();
+                                                                                    var cid = $"area_{val}";
+                                                                                    <div class="form-check form-check-inline mb-2">
+                                                                                        <input class="form-check-input"
+                                                                                               type="checkbox"
+                                                                                               id="@cid"
+                                                                                               name="AreaIDs"
+                                                                                               value="@val" />
+                                                                                        <label class="form-check-label" for="@cid">@text</label>
+                                                                                    </div>
+                                                                                }
+                                                                            </div>
+                                                                        </div>
+
+
+
                                                                         <div class="mb-2 d-flex justify-content-between align-items-center bg-white">
                                                                             <button id="btnDeleteUserBank" type="button" class="btn btn-outline-danger">
                                                                                 <i class="fa fa-trash me-1"></i> Delete
@@ -354,19 +380,27 @@
                     </div>
 
                     <!-- Area -->
-                    <div class="col-12 col-md-6">
+                    @{
+                        var areas = ViewBag.ListArea as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+                    }
+
+                    <div class="col-12">
                         <label class="form-label">Area</label>
-                        <div class="d-flex gap-3 mt-1">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="addArea" id="addAreaBangkok" value="460" checked>
-                                <label class="form-check-label" for="addAreaBangkok">กรุงเทพฯ/ปริมณฑล</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="addArea" id="addAreaUpcountry" value="461">
-                                <label class="form-check-label" for="addAreaUpcountry">ต่างจังหวัด</label>
-                            </div>
+                        <div class="d-flex gap-3 mt-1 flex-wrap">
+                            @foreach (var a in areas)
+                            {
+                                var val = (a.ValueInt ?? a.ValueString ?? a.Value ?? a.ID ?? "").ToString();
+                                var text = (a.Text ?? a.Name ?? "").ToString();
+                                var cid = $"addArea_{val}";
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="addArea" id="@cid" value="@val" />
+                                    <label class="form-check-label" for="@cid">@text</label>
+                                </div>
+                            }
                         </div>
                     </div>
+
+
                 </form>
             </div>
 

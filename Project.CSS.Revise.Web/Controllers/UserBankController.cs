@@ -22,6 +22,13 @@ namespace Project.CSS.Revise.Web.Controllers
 
         public IActionResult Index()
         {
+            var filter2 = new GetDDLModel
+            {
+                Act = "ListArea",
+                ID = 67
+            };
+            var ListArea = _masterService.GetlisDDl(filter2);
+            ViewBag.ListArea = ListArea;
             return View();
         }
 
@@ -35,7 +42,6 @@ namespace Project.CSS.Revise.Web.Controllers
             var DatalistBank = _masterService.GetlisDDl(filter);
             var DatalistCountUserByBankk = _userBankService.GetListCountUserByBank();
             var DatalistUserBank = _userBankService.GetListUserBank(new GetlistUserBank.FilterData { L_BankIDs = "", L_Name = "" });
-
             return Json(new { success = true, listBank = DatalistBank, listCountUserByBankk = DatalistCountUserByBankk, listUserBank  = DatalistUserBank });
         }
 

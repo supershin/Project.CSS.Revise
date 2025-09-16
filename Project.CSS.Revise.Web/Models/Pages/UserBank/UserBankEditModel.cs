@@ -23,7 +23,7 @@
         public bool IsLeadBank { get; set; }   // bit -> bool
         public int? ParentBankID { get; set; }
 
-        public int? AreaID { get; set; }
+        public string? AreaID { get; set; }
 
         public int? BankID { get; set; }
         public string? BankCode { get; set; }

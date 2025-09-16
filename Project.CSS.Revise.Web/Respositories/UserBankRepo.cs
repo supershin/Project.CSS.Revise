@@ -189,6 +189,7 @@ namespace Project.CSS.Revise.Web.Respositories
                     UpdateBy = u.UpdateBy,
                     IsLeadBank = u.IsLeadBank,
                     ParentBankID = u.ParentBankID,
+                    AreaID = u.AreaID,
 
                     // ธนาคารของ user นี้
                     BankID = ubm != null ? ubm.BankID : null,
@@ -219,26 +220,83 @@ namespace Project.CSS.Revise.Web.Respositories
             return row;
         }
 
+        //public List<GetlistUserBankInTeam> GetlistUserBankInTeam(GetlistUserBankInTeam model)
+        //{
+        //    var result = from u in _context.PR_Users
+        //                 //join e in _context.tm_Exts on u.AreaID equals e.ID into gj
+        //                 //from e in gj.DefaultIfEmpty()
+        //                 where u.FlagActive == true
+        //                     && u.ParentBankID == model.ParentBankID
+        //                     && u.UserTypeID == Constants.Ext.UserBank
+        //                 select new GetlistUserBankInTeam
+        //                 {
+        //                     ID = u.ID,
+        //                     FullName = (u.FirstName ?? "") + " " + (u.LastName ?? ""),
+        //                     Mobile = u.Mobile,
+        //                     Email = u.Email,
+        //                     AreaID = "",
+        //                     AreaName = ""
+        //                 };
+
+        //    return result.ToList();
+        //}
+
         public List<GetlistUserBankInTeam> GetlistUserBankInTeam(GetlistUserBankInTeam model)
         {
-            var result = from u in _context.PR_Users
-                         join e in _context.tm_Exts on u.AreaID equals e.ID into gj
-                         from e in gj.DefaultIfEmpty()
-                         where u.FlagActive == true
-                             && u.ParentBankID == model.ParentBankID
-                             && u.UserTypeID == Constants.Ext.UserBank
-                         select new GetlistUserBankInTeam
-                         {
-                             ID = u.ID,
-                             FullName = (u.FirstName ?? "") + " " + (u.LastName ?? ""),
-                             Mobile = u.Mobile,
-                             Email = u.Email,
-                             AreaID = u.AreaID,
-                             AreaName = e != null ? e.Name : null
-                         };
+            // ดึงแผนที่ ID → Name ของ Area (ExtTypeID = 67)
+            var areaMap = _context.tm_Exts
+                .AsNoTracking()
+                .Where(e => e.FlagActive == true && e.ExtTypeID == 67)
+                .Select(e => new { e.ID, e.Name })
+                .ToList()
+                .ToDictionary(x => x.ID, x => x.Name ?? "");
 
-            return result.ToList();
+            // ดึงผู้ใช้ที่อยู่ใต้หัวหน้าตามที่ส่งมา
+            var users = _context.PR_Users
+                .AsNoTracking()
+                .Where(u => u.FlagActive == true
+                         && u.ParentBankID == model.ParentBankID
+                         && u.UserTypeID == Constants.Ext.UserBank)
+                .Select(u => new
+                {
+                    u.ID,
+                    u.FirstName,
+                    u.LastName,
+                    u.Mobile,
+                    u.Email,
+                    u.AreaID // CSV เช่น "461,463,464"
+                })
+                .ToList();
+
+            // helper แปลง CSV → ชื่อ ด้วยลำดับตาม CSV
+            static string ToAreaName(string? csv, IDictionary<int, string> map)
+            {
+                if (string.IsNullOrWhiteSpace(csv)) return "";
+                var names = csv
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(s => int.TryParse(s, out var id) ? id : (int?)null)
+                    .Where(id => id.HasValue && map.ContainsKey(id.Value))
+                    .Select(id => map[id!.Value])
+                    .ToList();
+
+                return names.Count == 0 ? "" : string.Join(" , ", names); // ช่องว่างทั้งสองข้างตามที่ขอ
+            }
+
+            // map กลับเป็นรุ่นที่ต้องการ
+            var result = users.Select(u => new GetlistUserBankInTeam
+            {
+                ID = u.ID,
+                FullName = $"{u.FirstName ?? ""} {u.LastName ?? ""}".Trim(),
+                Mobile = u.Mobile,
+                Email = u.Email,
+                AreaID = u.AreaID ?? "",
+                AreaName = ToAreaName(u.AreaID, areaMap)
+            })
+            .ToList();
+
+            return result;
         }
+
 
         public async Task<int> InsertUserBankAsync(UserBankEditModel model)
         {

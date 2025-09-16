@@ -282,12 +282,14 @@ async function loadUserBankForEdit(userId) {
         setChoicesOptions(choicesProject, projects);
 
         // ดึงข้อมูลผู้ใช้
-        const res = await fetch(baseUrl + 'UserBank/GetUserBankById?id=' + encodeURIComponent(userId));
+        const url = baseUrl + 'UserBank/GetUserBankById?id=' + encodeURIComponent(userId);
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`GET ${res.status} ${res.statusText}`);
+
         const json = await res.json();
-        if (!json?.success || !json.data) return;
+        if (!json?.success || !json.data) throw new Error('No data');
 
         const u = json.data;
-
         window.currentEditUserId = Number(u.id ?? u.ID ?? userId) || 0;
 
         // ---- Header: โลโก้ + ชื่อ + ธนาคาร ----
@@ -304,71 +306,85 @@ async function loadUserBankForEdit(userId) {
         if (nameEl) nameEl.textContent = `${first} ${last}`.trim();
         if (bankEl) bankEl.textContent = bankName || bankCode || '';
 
-
         // ---- ฟอร์มหลัก ----
-        $id('chkIsLead').checked = !!(u.isLeadBank ?? u.IsLeadBank);
+        const isLeadFromData = !!(u.isLeadBank ?? u.IsLeadBank);
+        const bankIdStr = String(u.bankID ?? u.BankID ?? '');
 
-        const bankId = String(u.bankID ?? u.BankID ?? '');
+        const chkIsLead = $id('chkIsLead');
+        if (chkIsLead) chkIsLead.checked = isLeadFromData;
+
         if (choicesBank) {
-            bankId ? choicesBank.setChoiceByValue(bankId) : choicesBank.removeActiveItems();
+            bankIdStr ? choicesBank.setChoiceByValue(bankIdStr) : choicesBank.removeActiveItems();
         }
 
+        const inpFirstName = $id('inpFirstName');
+        const inpLastName = $id('inpLastName');
+        const inpMobile = $id('inpMobile');
+        const inpEmail = $id('inpEmail');
+        const inpUsername = $id('inpUsername');
+        const inpPassword = $id('inpPassword');
 
-        $id('inpFirstName').value = first;
-        $id('inpLastName').value = last;
-        $id('inpMobile').value = u.mobile ?? u.Mobile ?? '';
-        $id('inpEmail').value = u.email ?? u.Email ?? '';
-        $id('inpUsername').value = u.userName ?? u.UserName ?? '';
-        $id('inpPassword').value = u.password ?? u.Password ?? '';
+        if (inpFirstName) inpFirstName.value = first;
+        if (inpLastName) inpLastName.value = last;
+        if (inpMobile) inpMobile.value = u.mobile ?? u.Mobile ?? '';
+        if (inpEmail) inpEmail.value = u.email ?? u.Email ?? '';
+        if (inpUsername) inpUsername.value = u.userName ?? u.UserName ?? '';
+        if (inpPassword) inpPassword.value = u.password ?? u.Password ?? '';
 
+        // Projects (Choices multi)
         const projValues = (u.projectUserBank ?? u.ProjectUserBank ?? [])
             .map(p => String(p.projectID ?? p.ProjectID))
             .filter(Boolean);
+
         if (choicesProject) {
             choicesProject.removeActiveItems();
             if (projValues.length) choicesProject.setChoiceByValue(projValues);
         }
 
-        // ตัดสินว่าเป็นหัวหน้าทีมไหม
+        // ===== Area (checkbox จาก CSV) =====
+        (function setAreaChecksFromCsv() {
+            const csv = String(u.areaID ?? u.AreaID ?? '').trim(); // ตัวอย่าง: "461,463,464"
+            const selected = new Set(csv ? csv.split(',').map(s => s.trim()).filter(Boolean) : []);
+            const all = document.querySelectorAll('input[name="AreaIDs"]');
+            all.forEach(el => { el.checked = false; });
+            all.forEach(el => {
+                const v = String(el.value).trim();
+                if (selected.has(v)) el.checked = true;
+            });
+        })();
+
+        // ===== ตัดสินบทบาทหัวหน้าทีม (ถ้าเมนูซ้าย active บอก role=1 ให้ถือเป็นหัวหน้า) =====
         const activeLeft = document.querySelector('#userBankList .list-group-item.active');
         const roleFromLeft = Number(activeLeft?.dataset.role || NaN);
-        const isLead = !!(u.isLeadBank ?? u.IsLeadBank) || roleFromLeft === 1;
+        const isLead = isLeadFromData || roleFromLeft === 1;
 
-
-        // ---- Show/Hide Team Name input by role (NOT team lead => show) ----
+        // Team Name show/hide (NOT team lead => show)
         const parentTeamInput = $id('inpParentTeam');
         const parentTeamRow = parentTeamInput?.closest('.mb-3.row');
-
-        // สตริงจาก API (มาจาก field ParentTeam ใน model)
         const parentTeamStr = (u.parentTeam ?? u.ParentTeam ?? '').trim();
 
         if (isLead) {
-            // เป็นหัวหน้าทีม: ซ่อนช่อง Team Name
             if (parentTeamRow) parentTeamRow.classList.add('d-none');
             if (parentTeamInput) parentTeamInput.value = '';
         } else {
-            // ไม่ใช่หัวหน้าทีม: โชว์ช่อง Team Name และเติมค่า
             if (parentTeamRow) parentTeamRow.classList.remove('d-none');
             if (parentTeamInput) parentTeamInput.value = parentTeamStr || '';
-            // ช่องนี้อ่านอย่างเดียวอยู่แล้ว (disabled ใน HTML)
         }
 
         // ซ่อน/แสดงแท็บ Team ตามบทบาท
         toggleTeamTab(isLead);
 
-
-        // ===== หลัง populate ฟอร์มเสร็จ → โหลดทีมตามบทบาท =====
+        // ===== โหลดตารางทีมตามบทบาท =====
         try {
             const fromApi = {
                 id: u.id ?? u.ID,
-                role: u.role,  // อาจไม่มีเมื่อมาจาก /GetUserBankById
+                role: u.role, // อาจไม่มี
                 isLeadBank: u.isLeadBank ?? u.IsLeadBank,
                 parentBankID: u.parentBankID ?? u.ParentBankID
             };
 
             let parentId = getParentBankIdForTeam(fromApi);
 
-            // เผื่อกรณี role ไม่มากับ /GetUserBankById → ใช้ active item ทางซ้ายช่วย
             if (!parentId) {
                 const active = document.querySelector('#userBankList .list-group-item.active');
                 if (active) {
@@ -379,17 +395,16 @@ async function loadUserBankForEdit(userId) {
             }
 
             if (parentId) {
-                // ★★ set globals for "Add crew"
                 window.currentLeadTeamId = Number(parentId) || 0;
-                window.currentBankIdForAdd = Number(u.bankID ?? u.BankID ?? bankId ?? 0);
+                window.currentBankIdForAdd = Number(u.bankID ?? u.BankID ?? bankIdStr ?? 0);
 
                 await loadTeamTableByParent(parentId);
-                await setTeamName(parentId, u);      // ★ ตั้งชื่อทีม
-                if (bankId) loadAddMoreUserBankDropdown(bankId, parentId);
+                await setTeamName(parentId, u);
+                if (bankIdStr) loadAddMoreUserBankDropdown(bankIdStr, parentId);
             } else {
-                renderTeamRows([]); // no-crew
-                await setTeamName(null, u);  
-                if (bankId) loadAddMoreUserBankDropdown(bankId, 0); 
+                renderTeamRows([]);
+                await setTeamName(null, u);
+                if (bankIdStr) loadAddMoreUserBankDropdown(bankIdStr, 0);
             }
         } catch (e) {
             console.error(e);
@@ -398,10 +413,14 @@ async function loadUserBankForEdit(userId) {
 
     } catch (e) {
         console.error(e);
+        if (typeof Swal !== 'undefined') {
+            await Swal.fire({ icon: 'error', title: 'โหลดข้อมูลล้มเหลว', text: String(e?.message || e) });
+        }
     } finally {
         window.hideLoading?.();
     }
 }
+
 
 function toggleTeamTab(isLead) {
     const teamTab = document.getElementById('team-tab');      // <a>
@@ -703,6 +722,9 @@ document.getElementById('btnSaveNewUserBank')?.addEventListener('click', async (
         form.classList.add('was-validated');
         return;
     }
+    // ใหม่ (checkbox หลายตัว → CSV string เช่น "461,463,464")
+    const areaIds = Array.from(document.querySelectorAll('input[name="addArea"]:checked'))
+        .map(el => String(el.value));
 
     const payload = {
         IsLeadBank: document.getElementById('addIsLeadBank').checked,
@@ -713,7 +735,7 @@ document.getElementById('btnSaveNewUserBank')?.addEventListener('click', async (
         Email: document.getElementById('addEmail').value.trim(),
         UserName: document.getElementById('addUsername').value.trim(),
         Password: document.getElementById('addPassword').value,
-        AreaID: Number(document.querySelector('input[name="addArea"]:checked')?.value || 460), // ★
+        AreaID: areaIds.length ? areaIds.join(',') : '',
         ProjectUserBank: (choicesAddProjects?.getValue(true) || []).map(pid => ({ ProjectID: String(pid) }))
     };
 
@@ -957,6 +979,8 @@ async function saveCurrentUserBank() {
         return;
     }
 
+    const areaIds = Array.from(document.querySelectorAll('input[name="AreaIDs"]:checked')).map(el => String(el.value).trim()).filter(v => v);
+
     // payload ตามโมเดล UserBankEditModel
     const payload = {
         ID: id,
@@ -968,8 +992,8 @@ async function saveCurrentUserBank() {
         Email: email,
         UserName: userName,
         Password: password,
-        ProjectUserBank: projectList
-        // สามารถเพิ่ม AreaID ได้ถ้ามี UI บนหน้าแก้ไข
+        ProjectUserBank: projectList,
+        AreaID: areaIds.length ? areaIds.join(',') : ''
     };
 
     // ยืนยันก่อนบันทึก
