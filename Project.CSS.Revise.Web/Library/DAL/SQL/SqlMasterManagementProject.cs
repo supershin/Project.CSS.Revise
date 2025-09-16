@@ -1,7 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
+using Project.CSS.Revise.Web.Models.Pages.CSResponse;
 using Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling;
-using System.Data;
 using Serilog;
+using System.Data;
+using System.Data.SqlTypes;
 using Log = Serilog.Log;
 
 namespace Project.CSS.Revise.Web.Library.DAL.SQL
@@ -138,5 +140,106 @@ namespace Project.CSS.Revise.Web.Library.DAL.SQL
                 }
             }
         }
+
+        public override SPGetDataCSResponse.ListData sp_GetDataCSResponse(SPGetDataCSResponse.FilterData en)
+        {
+            var result = new SPGetDataCSResponse.ListData();
+            using var SqlCon = new SqlConnection(ConnectionString);
+            using var SqlCmd = new SqlCommand("sp_GetDataCSResponse", SqlCon) { CommandType = CommandType.StoredProcedure };
+
+            SqlCmd.Parameters.Add(new SqlParameter("@Act", SqlDbType.NVarChar)).Value = Commond.FormatExtension.NullToString(en.Act);
+            SqlCmd.Parameters.Add(new SqlParameter("@ProjectID", SqlDbType.NVarChar)).Value = Commond.FormatExtension.NullToString(en.ProjectID);
+            SqlCmd.Parameters.Add(new SqlParameter("@BUID", SqlDbType.NVarChar)).Value = Commond.FormatExtension.NullToString(en.BUID);
+            SqlCmd.Parameters.Add(new SqlParameter("@CsName", SqlDbType.NVarChar)).Value = Commond.FormatExtension.NullToString(en.CsName);
+            SqlCmd.Parameters.Add(new SqlParameter("@UserID", SqlDbType.Int)).Value = Commond.FormatExtension.Nulltoint(en.UserID);
+
+            try
+            {
+                SqlCon.Open();
+                using var reader = ExecuteReader(SqlCmd);
+                switch (en.Act)
+                {
+                    case "GetListCSSummary":
+                        result.CSSummary = sp_GetDataCSResponse_GetListCSSummary_ListReader(reader);
+                        break;
+                    case "GetListCountUnitStatus":
+                        result.CountUnitStatus = sp_GetDataCSResponse_GetListCountUnitStatus_ListReader(reader);
+                        break;
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Stored name : sp_GetDataCSResponse");
+                Log.Error("SEND Act: {Act}", en.Act);
+                Log.Error("SEND ProjectID: {ProjectID}", en.ProjectID);
+                Log.Error("SEND BUID: {BUID}", en.BUID);
+                Log.Error("SEND CsName: {CsName}", en.CsName);
+                Log.Error("SEND UserID: {UserID}", en.UserID);
+                Log.Error(ex, "Error executing sp_GetDataCSResponse");
+                return new SPGetDataCSResponse.ListData();
+            }
+        }
+
+        //public override SPGetDataCSResponse.ListData sp_GetDataCSResponse(SPGetDataCSResponse.FilterData en)
+        //{
+        //    using (SqlConnection SqlCon = new SqlConnection(ConnectionString))
+        //    {
+        //        SqlCommand SqlCmd = new SqlCommand("sp_GetDataCSResponse", SqlCon);
+        //        try
+        //        {
+        //            var result = new SPGetDataCSResponse.ListData();
+        //            SqlCon.Open();
+        //            SqlTransaction Trans = SqlCon.BeginTransaction();
+        //            SqlCmd.Transaction = Trans;
+        //            SqlCmd.CommandType = CommandType.StoredProcedure;
+
+        //            SqlCmd.Parameters.Add(new SqlParameter("@Act", SqlDbType.NVarChar)).Value = Commond.FormatExtension.NullToString(en.Act);
+        //            SqlCmd.Parameters.Add(new SqlParameter("@ProjectID", SqlDbType.NVarChar)).Value = Commond.FormatExtension.NullToString(en.ProjectID);
+        //            SqlCmd.Parameters.Add(new SqlParameter("@BUID", SqlDbType.NVarChar)).Value = Commond.FormatExtension.NullToString(en.BUID);
+        //            SqlCmd.Parameters.Add(new SqlParameter("@CsName", SqlDbType.NVarChar)).Value = Commond.FormatExtension.NullToString(en.CsName);
+        //            SqlCmd.Parameters.Add(new SqlParameter("@UserID", SqlDbType.Int)).Value = Commond.FormatExtension.Nulltoint(en.UserID);
+
+        //            switch (en.Act)
+        //            {
+        //                case "GetListCSSummary":
+        //                    {
+        //                        using var reader = ExecuteReader(SqlCmd); // from DataAccess
+        //                        result.CSSummary = sp_GetDataCSResponse_GetListCSSummary_ListReader(reader);
+        //                        break;
+        //                    }
+        //                case "GetListCountUnitStatus":
+        //                    {
+        //                        using var reader = ExecuteReader(SqlCmd);
+        //                        result.CountUnitStatus = sp_GetDataCSResponse_GetListCountUnitStatus_ListReader(reader);
+        //                        break;
+        //                    }
+        //                default:
+        //                    return new List<SPGetDataCSResponse>();
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Log.Error("Stored name : sp_GetProjecTargetRollingPlanList");
+
+        //            Log.Error("SEND pram1 Act (nvarchar) : {Act}", en.Act);
+        //            Log.Error("SEND pram2 Year (nvarchar) : " + en.ProjectID);
+        //            Log.Error("SEND pram3 Quarter (nvarchar) : " + en.BUID);
+        //            Log.Error("SEND pram4 Month (nvarchar) : " + en.CsName);
+        //            Log.Error("SEND pram5 ProjectID (nvarchar) : " + en.UserID);
+
+        //            Log.Error(ex.ToString());
+        //            Log.Error("=========== END ===========");
+
+        //            return new List<SPGetDataCSResponse>();
+        //        }
+        //        finally
+        //        {
+        //            SqlCmd.Dispose();
+        //            SqlCon.Close();
+        //            SqlCon.Dispose();
+        //        }
+        //    }
+        //}
     }
 }

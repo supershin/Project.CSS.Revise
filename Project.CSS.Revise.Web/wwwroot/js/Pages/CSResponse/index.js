@@ -26,6 +26,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const buildChoices = new Choices('#buildingMultiSelect', { removeItemButton: true, placeholderValue: '🔍 เลือกอาคาร', searchEnabled: true, itemSelectText: '', shouldSort: false });
     const floorChoices = new Choices('#floorMultiSelect', { removeItemButton: true, placeholderValue: '🔍 เลือกชั้น (เช่น B-2)', searchEnabled: true, itemSelectText: '', shouldSort: false });
     const unitChoices = new Choices('#roomMultiSelect', { removeItemButton: true, placeholderValue: '🔍 เลือกยูนิต', searchEnabled: true, itemSelectText: '', shouldSort: false });
+    // CS tab project multi-select
+    const projectChoicesCs = new Choices('#ddlProject_cs', {
+        removeItemButton: true,
+        searchEnabled: true,
+        itemSelectText: '',
+        placeholder: true,
+        placeholderValue: '— เลือกโครงการ —',
+        shouldSort: false
+    });
+
 
     // auto-select first option
     const firstOption = document.querySelector('#projectSelect option');
@@ -396,6 +406,220 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     })();
+
+
+    // === BU -> Project relation =====================================
+
+    function setLoadingChoices(choicesInst, placeholder = 'กำลังโหลด...') {
+        choicesInst.clearStore();
+        choicesInst.clearChoices();
+        choicesInst.setChoices([{ value: '', label: placeholder, disabled: true }], 'value', 'label', true);
+    }
+
+    function fillChoices(choicesInst, items, placeholder = '— เลือกโครงการ —') {
+        choicesInst.clearStore();
+        choicesInst.clearChoices();
+        choicesInst.setChoices(
+            [{ value: '', label: placeholder, disabled: true }].concat(items),
+            'value', 'label', true
+        );
+    }
+
+    // get selected project IDs as CSV
+    function getSelectedProjectsCsv() {
+        const vals = projectChoicesCs.getValue(true); // returns array for multi-select
+        const arr = Array.isArray(vals) ? vals.filter(v => v) : (vals ? [vals] : []);
+        return arr.join(',');
+    }
+
+    async function ReadyuseProjectListByBU() {
+        try {
+            const list = await fetchProjectListByBU('');
+
+            if (!list.length) {
+                fillChoices(projectChoicesCs, [], '— ไม่พบโครงการ —');
+                return;
+            }
+
+            const items = list.map(p => ({
+                value: String(p.ProjectID),
+                label: String(p.ProjectNameTH || p.ProjectNameEN || p.ProjectID)
+            }));
+
+            fillChoices(projectChoicesCs, items);
+        } catch (err) {
+            console.error("ReadyuseProjectListByBU error:", err);
+            return [];
+        }
+    }
+
+
+    document.querySelector('#ddlBU_cs')?.addEventListener('change', async () => {
+        const buid = document.querySelector('#ddlBU_cs')?.value || '';
+        setLoadingChoices(projectChoicesCs);
+
+        const list = await fetchProjectListByBU(buid);
+
+        if (!list.length) {
+            fillChoices(projectChoicesCs, [], '— ไม่พบโครงการ —');
+            return;
+        }
+
+        const items = list.map(p => ({
+            value: String(p.ProjectID),
+            label: String(p.ProjectNameTH || p.ProjectNameEN || p.ProjectID)
+        }));
+
+        fillChoices(projectChoicesCs, items);
+    });
+
+
+    // 🔹 reusable: fetch project list by BU
+    async function fetchProjectListByBU(buid) {
+        try {
+            const res = await formPost(baseUrl + 'CSResponse/GetProjectListByBU', { L_BUID: buid });
+            return res?.data || [];
+        } catch (err) {
+            console.error("fetchProjectListByBU error:", err);
+            return [];
+        }
+    }
+
+
+
+    // === Get CSSummary ===
+    async function fetchCSSummary() {
+        const buid = document.querySelector('#ddlBU_cs')?.value || '';
+        const projectsCsv = getSelectedProjectsCsv();
+        const csName = document.querySelector('#txtCsName_cs')?.value || '';
+
+        const res = await formPost(baseUrl + 'CSResponse/GetListCSSummary', {
+            BUID: buid,
+            ProjectID: projectsCsv,   // ⬅️ CSV of multi-selected projects
+            CsName: csName
+        });
+
+        renderSummary(res?.data || []);
+    }
+
+
+
+    function renderSummary(list) {
+        const tbody = document.getElementById("tbCSSummaryBody");
+        if (!tbody) return;
+
+        if (!list.length) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">ไม่พบข้อมูล</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = list.map(u => {
+            const rowId = `u_${u.ID}`;
+            return `
+      <tr>
+        <td>
+          <button class="btn btn-outline-primary btn-sm btn-expand"
+                  type="button"
+                  data-id="${u.ID}"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#${rowId}"
+                  aria-expanded="false"
+                  aria-controls="${rowId}">
+            <i class="bi bi-caret-down-square"></i>
+          </button>
+        </td>
+        <td>
+          <div class="fw-semibold">${u.FullnameTH}</div>
+          <div class="text-muted small">${u.FullnameEN}</div>
+        </td>
+        <td>${u.Email || '-'}</td>
+        <td>${u.Mobile || '-'}</td>
+        <td class="text-end">
+          <span class="badge bg-secondary">${u.Cnt_Project} projects</span>
+          <span class="badge bg-dark-subtle text-dark">${u.Cnt_UnitCode} units</span>
+        </td>
+      </tr>
+      <tr class="collapse" id="${rowId}">
+        <td></td>
+        <td colspan="4">
+          <div class="card border-0">
+            <div class="card-body p-2">
+              <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                  <thead>
+                    <tr class="table-secondary">
+                      <th>Project</th>
+                      <th class="text-end">My Units</th>
+                      <th>ว่าง</th>
+                      <th>จอง</th>
+                      <th>สัญญา</th>
+                      <th>จอง</th>
+                    </tr>
+                  </thead>
+                  <tbody id="child_${u.ID}">
+                    <tr><td colspan="6" class="text-center text-muted">กดเพื่อโหลดข้อมูล…</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>`;
+        }).join("");
+    }
+
+
+    async function loadChild(userId) {
+        const tbody = document.querySelector(`#child_${userId}`);
+        if (!tbody) return;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center">กำลังโหลด...</td></tr>`;
+
+        try {
+            const res = await formPost(baseUrl + "CSResponse/GetListCountUnitStatus", { UserID: userId });
+            const list = res?.data || [];
+            if (!list.length) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">ไม่พบข้อมูล</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = list.map(p => `
+            <tr>
+                <td>${p.ProjectName}</td>
+                <td class="text-end">${p.Cnt_UserUnits}</td>
+                <td>${p.Cnt_Status1 > 0 ? `<span class="badge bg-light text-dark">${p.Cnt_Status1}</span>` : ''}</td>
+                <td>${p.Cnt_Status2 > 0 ? `<span class="badge bg-danger">${p.Cnt_Status2}</span>` : ''}</td>
+                <td>${p.Cnt_Status3 > 0 ? `<span class="badge bg-primary">${p.Cnt_Status3}</span>` : ''}</td>
+                <td>${p.Cnt_Status4 > 0 ? `<span class="badge bg-success">${p.Cnt_Status4}</span>` : ''}</td>
+            </tr>
+        `).join("");
+        } catch (err) {
+            console.error(err);
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">โหลดผิดพลาด</td></tr>`;
+        }
+    }
+
+    // delegate event: expand user
+    document.addEventListener("click", function (e) {
+        const btn = e.target.closest(".btn-expand");
+        if (!btn) return;
+        const uid = btn.dataset.id;
+        const placeholder = document.querySelector(`#child_${uid}`);
+        // load only once
+        if (placeholder && !placeholder.dataset.loaded) {
+            loadChild(uid).then(() => { placeholder.dataset.loaded = "1"; });
+        }
+    });
+
+
+
+    // 🔎 Event Search
+    $("#btnSearch_cs")?.addEventListener("click", async () => {
+        await fetchCSSummary();
+    });
+
+    fetchCSSummary();
+
+    ReadyuseProjectListByBU();
 });
 
 

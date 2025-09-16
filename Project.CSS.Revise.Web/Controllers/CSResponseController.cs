@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.CSS.Revise.Web.Commond;
+using Project.CSS.Revise.Web.Library.DAL;
 using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Models.Pages.CSResponse;
+using Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling;
 using Project.CSS.Revise.Web.Service;
 
 namespace Project.CSS.Revise.Web.Controllers
@@ -14,13 +16,15 @@ namespace Project.CSS.Revise.Web.Controllers
     {
         private readonly IMasterService _masterService;
         private readonly ICSResponseService _csResponseServic;
-        public CSResponseController(IHttpContextAccessor httpContextAccessor, IMasterService masterService, ICSResponseService csResponseServic) : base(httpContextAccessor)
+        private readonly MasterManagementConfigProject _configProject;
+        public CSResponseController(IHttpContextAccessor httpContextAccessor, IMasterService masterService, ICSResponseService csResponseServic, MasterManagementConfigProject configProject) : base(httpContextAccessor)
         {
             _masterService = masterService;
             _csResponseServic = csResponseServic;
+            _configProject = configProject;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             var filter1 = new GetDDLModel
             {
@@ -36,10 +40,54 @@ namespace Project.CSS.Revise.Web.Controllers
             var listDDlAllProject = _masterService.GetlisDDl(filter2);
             ViewBag.listDDlAllProject = listDDlAllProject;
 
-            var model = await _csResponseServic.GetListCountByCSAsync();
+            var filter = new SPGetDataCSResponse.FilterData
+            {
+                Act = "GetListCSSummary",
+                ProjectID = "", // or ""
+                BUID = "",                  // or ""
+                CsName = "",
+                UserID = 506
+            };
 
-            return View(model);
+            var listBu = _masterService.GetlistBU(new BUModel());
+            ViewBag.listBu2 = listBu;
+
+            //var result = _configProject.sp_GetDataCSResponse(filter);
+            //var model = await _csResponseServic.GetListCountByCSAsync();
+
+            return View();
         }
+
+        [HttpPost]
+        public JsonResult GetProjectListByBU([FromForm] ProjectModel model)
+        {
+            var result = _masterService.GetlistPrject(model);
+            return Json(new { success = true, data = result });
+        }
+
+
+        [HttpPost]
+        public JsonResult GetListCSSummary([FromForm] SPGetDataCSResponse.FilterData filter)
+        {
+            filter.Act = "GetListCSSummary";
+            var result = _configProject.sp_GetDataCSResponse(filter);
+            return Json(new { success = true, data = result.CSSummary });
+        }
+
+
+        [HttpPost]
+        public JsonResult GetListCountUnitStatus([FromForm] int UserID)
+        {
+            var filter = new SPGetDataCSResponse.FilterData
+            {
+                Act = "GetListCountUnitStatus",
+                UserID = UserID
+            };
+
+            var result = _configProject.sp_GetDataCSResponse(filter);
+            return Json(new { success = true, data = result.CountUnitStatus });
+        }
+
 
 
         [HttpPost]

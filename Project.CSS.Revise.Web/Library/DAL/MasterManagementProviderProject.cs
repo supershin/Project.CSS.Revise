@@ -1,4 +1,5 @@
-﻿using Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling;
+﻿using Project.CSS.Revise.Web.Models.Pages.CSResponse;
+using Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling;
 using System.Data;
 
 namespace Project.CSS.Revise.Web.Library.DAL
@@ -35,6 +36,8 @@ namespace Project.CSS.Revise.Web.Library.DAL
         public abstract List<RollingPlanSummaryModel> sp_GetProjecTargetRollingPlanList_GetListTargetRollingPlan(RollingPlanSummaryModel en);
 
         public abstract List<RollingPlanTotalModel> sp_GetProjecTargetRollingPlanList_GetDataTotalTargetRollingPlan(RollingPlanTotalModel en);
+
+        public abstract SPGetDataCSResponse.ListData sp_GetDataCSResponse(SPGetDataCSResponse.FilterData en);
 
         #region __ Reader __
 
@@ -252,7 +255,6 @@ namespace Project.CSS.Revise.Web.Library.DAL
         }
 
 
-
         public static List<RollingPlanTotalModel> sp_GetProjecTargetRollingPlanList_GetlistTotal_ListReader(IDataReader reader)
         {
             List<RollingPlanTotalModel> list = new List<RollingPlanTotalModel>();
@@ -280,6 +282,64 @@ namespace Project.CSS.Revise.Web.Library.DAL
         }
 
 
+        public static List<SPGetDataCSResponse.ListCSSummary> sp_GetDataCSResponse_GetListCSSummary_ListReader(IDataReader reader)
+        {
+            List<SPGetDataCSResponse.ListCSSummary> list = new List<SPGetDataCSResponse.ListCSSummary>();
+            int index = 1;
+            while ((reader.Read()))
+            {
+                list.Add(sp_GetDataCSResponse_GetListCSSummary_Reader(reader, index));
+                index++;
+            }
+            reader.Close();
+            return list;
+        }
+
+        private static SPGetDataCSResponse.ListCSSummary sp_GetDataCSResponse_GetListCSSummary_Reader(IDataReader reader, int index)
+        {
+            var Entity = new SPGetDataCSResponse.ListCSSummary();
+
+            Entity.index = index;
+            Entity.ID = Commond.FormatExtension.Nulltoint(reader["ID"]);
+            Entity.FullnameTH = Commond.FormatExtension.NullToString(reader["FullnameTH"]);
+            Entity.FullnameEN = Commond.FormatExtension.NullToString(reader["FullnameEN"]);
+            Entity.Email = Commond.FormatExtension.NullToString(reader["Email"]);
+            Entity.Mobile = Commond.FormatExtension.NullToString(reader["Mobile"]);
+            Entity.Cnt_Project = Commond.FormatExtension.Nulltoint(reader["Cnt_Project"]);
+            Entity.Cnt_UnitCode = Commond.FormatExtension.Nulltoint(reader["Cnt_UnitCode"]);
+
+            return Entity;
+        }
+
+
+        public static List<SPGetDataCSResponse.ListCountUnitStatus> sp_GetDataCSResponse_GetListCountUnitStatus_ListReader(IDataReader reader)
+        {
+            List<SPGetDataCSResponse.ListCountUnitStatus> list = new List<SPGetDataCSResponse.ListCountUnitStatus>();
+            int index = 1;
+            while ((reader.Read()))
+            {
+                list.Add(sp_GetDataCSResponse_GetListCountUnitStatus_Reader(reader, index));
+                index++;
+            }
+            reader.Close();
+            return list;
+        }
+
+        private static SPGetDataCSResponse.ListCountUnitStatus sp_GetDataCSResponse_GetListCountUnitStatus_Reader(IDataReader reader, int index)
+        {
+            var Entity = new SPGetDataCSResponse.ListCountUnitStatus();
+
+            Entity.index = index;
+            Entity.ProjectID = Commond.FormatExtension.NullToString(reader["ProjectID"]);
+            Entity.ProjectName = Commond.FormatExtension.NullToString(reader["ProjectName"]);
+            Entity.Cnt_UserUnits = Commond.FormatExtension.Nulltoint(reader["Cnt_UserUnits"]);
+            Entity.Cnt_Status1 = Commond.FormatExtension.Nulltoint(reader["Cnt_Status1"]);
+            Entity.Cnt_Status2 = Commond.FormatExtension.Nulltoint(reader["Cnt_Status2"]);
+            Entity.Cnt_Status3 = Commond.FormatExtension.Nulltoint(reader["Cnt_Status3"]);
+            Entity.Cnt_Status4 = Commond.FormatExtension.Nulltoint(reader["Cnt_Status4"]);
+
+            return Entity;
+        }
         #endregion
     }
 }

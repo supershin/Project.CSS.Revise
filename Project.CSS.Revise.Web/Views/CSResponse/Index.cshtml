@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_LayoutSite.cshtml";
-    @model List<Project.CSS.Revise.Web.Models.Pages.CSResponse.GetlistCountByCS>
+    // @model List<Project.CSS.Revise.Web.Models.Pages.CSResponse.GetlistCountByCS>
 }
 <style>
     .no-select {
@@ -176,162 +176,70 @@
                                 </div>
                             </div>
                             <div class="tab-pane fade" id="shop-event-filter" role="tabpanel" aria-labelledby="shop-event-tab">
-                                    <div class="p-3">
-                                    <div class="table-responsive">
-                                        <table class="table table-sm align-middle">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th style="width:36px;"></th>
-                                                    <th>User (TH / EN)</th>
-                                                    <th>Email</th>
-                                                    <th>Mobile</th>
-                                                    <th class="text-end">Projects</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach (var user in Model)
-                                                {
-                                                    // dedupe projects (in case of duplicates)
-                                                    var projects = user.Project
-                                                    .GroupBy(p => p.ProjectID)
-                                                    .Select(g => g.First())
-                                                    .OrderBy(p => p.ProjectName)
-                                                    .ToList();
+                                <div class="p-3">
+                                    <div class="row mb-3">
+                                            <div class="col-12">
+                                                <div class="card mb-3">
+                                                    <div class="card-body">
+                                                        <div class="row g-2 align-items-center">
+                                                            <div class="col-md-3">
+                                                                <label for="ddlBU_cs" class="form-label fw-bold">Business Unit</label>
+                                                                <select id="ddlBU_cs" class="form-select">
+                                                                    <option value="">-- All BU --</option>
+                                                                    @foreach (var bu in ViewBag.listBu2 ?? new List<dynamic>())
+                                                                    {
+                                                                        <option value="@bu.ID">@bu.Name</option>
+                                                                    }
+                                                                </select>
+                                                            </div>
 
-                                                    var userRowId = $"u_{user.ID}";
-                                                    var totalUnits = projects.Sum(p => p.CountUnit);
+                                                            <div class="col-md-3">
+                                                                <label for="ddlProject_cs" class="form-label fw-bold">โครงการ</label>
+                                                                <select id="ddlProject_cs" class="form-select" multiple></select>
+                                                            </div>
 
-                                                    <tr>
-                                                        <td>
-                                                            <button class="btn btn-outline-primary btn-sm"
-                                                                    type="button"
-                                                                    data-bs-toggle="collapse"
-                                                                    data-bs-target="#@userRowId"
-                                                                    aria-expanded="false"
-                                                                    aria-controls="@userRowId">
-                                                                <i class="bi bi-caret-down-square"></i>
-                                                            </button>
-                                                        </td>
-                                                        <td>
-                                                            <div class="fw-semibold">@user.FullnameTH</div>
-                                                            <div class="text-muted small">@user.FullnameEN</div>
-                                                        </td>
-                                                        <td>@user.Email</td>
-                                                        <td>@user.Mobile</td>
-                                                        <td class="text-end">
-                                                            <span class="badge bg-secondary">@projects.Count() projects</span>
-                                                            <span class="badge bg-dark-subtle text-dark">@totalUnits units</span>
-                                                        </td>
-                                                    </tr>
+                                                            <div class="col-md-4">
+                                                                <label for="txtCsName_cs" class="form-label fw-bold">ค้นหา CS</label>
+                                                                <input type="text" id="txtCsName_cs" class="form-control" placeholder="พิมพ์ชื่อ, Email, Mobile">
+                                                            </div>
 
-                                                    <!-- child: projects table -->
-                                                    <tr class="collapse" id="@userRowId">
-                                                        <td></td>
-                                                        <td colspan="4">
-                                                            <div class="card border-0">
-                                                                <div class="card-body p-2">
-                                                                    <div class="table-responsive">
-                                                                        <table class="table table-sm mb-0">
-                                                                            <thead>
-                                                                                <tr class="table-secondary">
-                                                                                    <th style="width:36px;"></th>
-                                                                                    <th>Project</th>
-                                                                                    <th class="text-end">Units</th>
-                                                                                    <th>Status</th>
-                                                                                </tr>
-                                                                            </thead>
-                                                                            <tbody>
-                                                                                @foreach (var proj in projects)
-                                                                                {
-                                                                                    var projRowId = $"p_{user.ID}_{proj.ProjectID}";
-                                                                                    <tr>
-                                                                                        <td>
-                                                                                            <button class="btn btn-outline-secondary btn-sm"
-                                                                                                    type="button"
-                                                                                                    data-bs-toggle="collapse"
-                                                                                                    data-bs-target="#@projRowId"
-                                                                                                    aria-expanded="false"
-                                                                                                    aria-controls="@projRowId">
-                                                                                                <i class="bi bi-caret-right-square"></i>
-                                                                                            </button>
-                                                                                        </td>
-                                                                                        <td class="fw-semibold">@proj.ProjectName</td>
-                                                                                        <td class="text-end">
-                                                                                            <span class="badge bg-dark-subtle text-dark">@proj.CountUnit</span>
-                                                                                        </td>
-                                                                                        <td>
-                                                                                            <!-- quick inline summary badges (collapsed detail below) -->
-                                                                                            @foreach (var uni in proj.Unit)
-                                                                                            {
-                                                                                                string summaryBadge = uni.UnitStatus switch
-                                                                                                {
-                                                                                                    1 => "badge bg-light text-dark", // ว่าง
-                                                                                                    2 => "badge bg-danger",          // จอง
-                                                                                                    3 => "badge bg-primary",         // สัญญา
-                                                                                                    4 => "badge bg-success",         // โอน
-                                                                                                    _ => "badge bg-secondary"
-                                                                                                };
-                                                                                                <span class="@summaryBadge me-1 mb-1">@uni.UnitStatusName @uni.TotalUnit</span>
-                                                                                            }
-                                                                                        </td>
-                                                                                    </tr>
-
-                                                                                    <!-- grandchild: per-project unit-status breakdown -->
-                                                                                    <tr class="collapse" id="@projRowId" data-bs-parent="#@userRowId">
-                                                                                        <td></td>
-                                                                                        <td colspan="3">
-                                                                                            <div class="card border-0">
-                                                                                                <div class="card-body py-2">
-                                                                                                    <div class="table-responsive">
-                                                                                                        <table class="table table-sm table-borderless mb-0">
-                                                                                                            <thead>
-                                                                                                                <tr class="text-muted">
-                                                                                                                    <th style="width:30%;">Unit Status</th>
-                                                                                                                    <th style="width:70%;">Count</th>
-                                                                                                                </tr>
-                                                                                                            </thead>
-                                                                                                            <tbody>
-                                                                                                                @foreach (var uni in proj.Unit)
-                                                                                                                {
-                                                                                                                    string badgeClass = uni.UnitStatus switch
-                                                                                                                    {
-                                                                                                                        1 => "badge bg-light text-dark", // ว่าง
-                                                                                                                        2 => "badge bg-danger",          // จอง
-                                                                                                                        3 => "badge bg-primary",         // สัญญา
-                                                                                                                        4 => "badge bg-success",         // โอน
-                                                                                                                        _ => "badge bg-secondary"
-                                                                                                                    };
-                                                                                                                    <tr>
-                                                                                                                        <td>
-                                                                                                                            <span class="@badgeClass">@uni.UnitStatusName</span>
-                                                                                                                        </td>
-                                                                                                                        <td>
-                                                                                                                            <div class="d-flex justify-content-between">
-                                                                                                                                <div class="fw-semibold">@uni.TotalUnit</div>
-                                                                                                                            </div>
-                                                                                                                        </td>
-                                                                                                                    </tr>
-                                                                                                                }
-                                                                                                            </tbody>
-                                                                                                        </table>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </td>
-                                                                                    </tr>
-                                                                                }
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </div>
+                                                            <div class="col-md-2">
+                                                                <div class="d-grid" style="margin-top:25px;">
+                                                                    <button id="btnSearch_cs" class="btn btn-primary w-100">
+                                                                        <i class="bi bi-search me-1"></i> ค้นหา
+                                                                    </button>
                                                                 </div>
                                                             </div>
-                                                        </td>
-                                                    </tr>
-                                                }
-                                            </tbody>
-                                        </table>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm align-middle" id="tbCSSummary">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th style="width:36px;"></th>
+                                                                <th>User (TH / EN)</th>
+                                                                <th>Email</th>
+                                                                <th>Mobile</th>
+                                                                <th class="text-end">Projects / Units</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tbCSSummaryBody">
+                                                            <!-- JS render -->
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                     </div>
-                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
