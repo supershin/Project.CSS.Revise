@@ -35,6 +35,20 @@
             box-shadow: 0 2px 0 rgba(0,0,0,.06);
         }
 
+    #div_Tb_CS_Response {
+        max-height: 550px; /* you already have this inline; moving here is cleaner */
+        overflow: auto; /* vertical + horizontal */
+    }
+
+        /* Sticky table header */
+        #div_Tb_CS_Response thead th {
+            position: sticky;
+            top: 0; /* pin to the top of the scroll container */
+            z-index: 3; /* above body cells */
+            background: var(--bs-light, #f8f9fa); /* keep background when overlapping */
+            background-clip: padding-box; /* avoid border bleed */
+            box-shadow: 0 2px 0 rgba(0,0,0,.06); /* subtle divider */
+        }
 
 </style>
 <div class="container-fluid">
@@ -186,23 +200,22 @@
                                                 </div>
                                             </div>
                                             <div class="card-body">
-                                                        <div class="table-responsive" id="div_Tb_CS_Response" style="display:block; max-height:550px; overflow-y:auto;">
-                                                    <table class="table table-bordered table-striped align-middle text-center" id="Tb_CS_Response">
-                                                        <thead class="table-light">
-                                                            <tr>
-                                                                <th scope="col" class="text-center">
-                                                                    <input class="form-check-input" type="checkbox" id="checkAll">
-                                                                </th>
-                                                                <th scope="col">Unit</th>
-                                                                <th scope="col">CS Name</th>
-                                                                <th scope="col">Update</th>
-                                                            </tr>
-                                                        </thead>
-                                                         <tbody id="Tb_CS_Response_body">
+                                                        <div class="table-responsive" id="div_Tb_CS_Response">
+                                                            <table class="table table-bordered table-striped align-middle text-center" id="Tb_CS_Response">
+                                                                <thead class="table-light">
+                                                                    <tr>
+                                                                        <th class="text-center">
+                                                                            <input class="form-check-input" type="checkbox" id="checkAll">
+                                                                        </th>
+                                                                        <th>Unit</th>
+                                                                        <th>CS Name</th>
+                                                                        <th>Update</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody id="Tb_CS_Response_body"></tbody>
+                                                            </table>
+                                                        </div>
 
-                                                        </tbody>
-                                                    </table>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>

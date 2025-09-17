@@ -56,6 +56,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                     ,U.[UnitType]
                                     ,U.[Area]
                                     ,U.[UnitStatus]
+                                    ,UST.[Name] AS UnitStatusName
 	                                ,UUM.[UserID] AS CSUserID
                                     ,US.[FirstName] + ' ' + US.[LastName] AS CSFullNameThai
                                     ,US.[FirstName_Eng] + ' ' + US.[LastName_Eng] AS CSFullNameEng
@@ -67,6 +68,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                 LEFT JOIN [TR_UnitUser_Mapping] UUM WITH (NOLOCK) ON P.ProjectID = UUM.ProjectID AND UUM.UnitCode = U.[UnitCode]
                                 LEFT JOIN [tm_User] US WITH (NOLOCK) ON UUM.UserID = US.[ID]
 								LEFT JOIN [tm_User] UPUS WITH (NOLOCK) ON UUM.UpdateBy = UPUS.[ID]
+                                LEFT JOIN [tm_UnitStatus] UST WITH (NOLOCK) ON U.[UnitStatus] = UST.[ID]
                             WHERE U.[FlagActive] = 1
                                 AND P.[FlagActive] = 1
                                 AND P.[ProjectID] =  @L_ProjectID
@@ -128,6 +130,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                 UnitType = Commond.FormatExtension.NullToString(reader["UnitType"]),
                                 Area = Commond.FormatExtension.NullToString(reader["Area"]),
                                 UnitStatus = Commond.FormatExtension.NullToString(reader["UnitStatus"]),
+                                UnitStatusName = Commond.FormatExtension.NullToString(reader["UnitStatusName"]),
 
                                 CSUserID = Commond.FormatExtension.NullToString(reader["CSUserID"]),
                                 CSFullNameThai = Commond.FormatExtension.NullToString(reader["CSFullNameThai"]),

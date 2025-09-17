@@ -27,7 +27,7 @@
             public string UnitType { get; set; } = "";
             public string Area { get; set; } = "";
             public string UnitStatus { get; set; } = "";
-
+            public string UnitStatusName{ get; set; } = "";
             public string CSUserID { get; set; } = "";
             public string CSFullNameThai { get; set; } = "";
             public string CSFullNameEng { get; set; } = "";

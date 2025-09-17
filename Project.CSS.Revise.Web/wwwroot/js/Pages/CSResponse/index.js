@@ -212,6 +212,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const rows = list.map((x, idx) => {
             const unitCode = safe(x.UnitCode);
+            const unitStatus = safe(x.UnitStatusName);
             const build = safe(x.Build);
             const floor = safe(x.Floor);
             const addr = safe(x.AddrNo);
@@ -222,7 +223,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const chkId = `chk_${unitCode || ('row' + idx)}`;
 
             const unitDisplay = `
-            <small class="d-block">${unitCode || '-'}</small>
+            <small class="d-block">${unitCode || '-'} / ${unitStatus || ''} </small>
             <small class="d-block text-muted">${addr ? `${addr} / ` : ''}อาคาร ${build || '-'} / ชั้น ${floor || '-'}</small>
         `;
 
