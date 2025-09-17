@@ -332,12 +332,22 @@ namespace Project.CSS.Revise.Web.Library.DAL
             Entity.index = index;
             Entity.ProjectID = Commond.FormatExtension.NullToString(reader["ProjectID"]);
             Entity.ProjectName = Commond.FormatExtension.NullToString(reader["ProjectName"]);
-            Entity.Cnt_UserUnits = Commond.FormatExtension.Nulltoint(reader["Cnt_UserUnits"]);
-            Entity.Cnt_Status1 = Commond.FormatExtension.Nulltoint(reader["Cnt_Status1"]);
-            Entity.Cnt_Status2 = Commond.FormatExtension.Nulltoint(reader["Cnt_Status2"]);
-            Entity.Cnt_Status3 = Commond.FormatExtension.Nulltoint(reader["Cnt_Status3"]);
-            Entity.Cnt_Status4 = Commond.FormatExtension.Nulltoint(reader["Cnt_Status4"]);
-
+            Entity.Total = Commond.FormatExtension.Nulltoint(reader["Total"]);
+            Entity.ID_62 = Commond.FormatExtension.Nulltoint(reader["ID_62"]);
+            Entity.ID_63 = Commond.FormatExtension.Nulltoint(reader["ID_63"]);
+            Entity.ID_64 = Commond.FormatExtension.Nulltoint(reader["ID_64"]);
+            Entity.ID_65 = Commond.FormatExtension.Nulltoint(reader["ID_65"]);
+            Entity.ID_67 = Commond.FormatExtension.Nulltoint(reader["ID_67"]);
+            Entity.ID_68 = Commond.FormatExtension.Nulltoint(reader["ID_68"]);
+            Entity.ID_69 = Commond.FormatExtension.Nulltoint(reader["ID_69"]);
+            Entity.ID_70 = Commond.FormatExtension.Nulltoint(reader["ID_70"]);
+            Entity.ID_71 = Commond.FormatExtension.Nulltoint(reader["ID_71"]);
+            Entity.ID_373 = Commond.FormatExtension.Nulltoint(reader["ID_373"]);
+            Entity.ID_408 = Commond.FormatExtension.Nulltoint(reader["ID_408"]);
+            Entity.ID_409 = Commond.FormatExtension.Nulltoint(reader["ID_409"]);
+            Entity.ID_435 = Commond.FormatExtension.Nulltoint(reader["ID_435"]);
+            Entity.ID_436 = Commond.FormatExtension.Nulltoint(reader["ID_436"]);
+            Entity.ID_438 = Commond.FormatExtension.Nulltoint(reader["ID_438"]);
             return Entity;
         }
         #endregion

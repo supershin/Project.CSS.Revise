@@ -36,6 +36,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                 -- ===== TEST CASE =====
 	                            --DECLARE @L_UserID NVARCHAR(100) = '';
                                 --DECLARE @L_ProjectID NVARCHAR(100) = '102C028';
+                                --DECLARE @L_UnitStatus NVARCHAR(100) = '';
 	                            --DECLARE @L_Build NVARCHAR(100) = 'A,B';
 	                            --DECLARE @L_Floor NVARCHAR(100) = '';
 	                            --DECLARE @L_Room NVARCHAR(100) = '10';
@@ -74,6 +75,10 @@ namespace Project.CSS.Revise.Web.Respositories
 		                            OR (N',' + @L_Build + N',' LIKE N'%,' + CONVERT(NVARCHAR(100), U.[Build]) + N',%')
 	                                )
                                 AND (
+		                            @L_UnitStatus = N''
+		                            OR (N',' + @L_UnitStatus + N',' LIKE N'%,' + CONVERT(NVARCHAR(100), U.[UnitStatus]) + N',%')
+	                                )
+                                AND (
                                         -- 3) ถ้าไม่ส่ง @Pairs มา → ผ่าน
                                         @L_Floor = N''
                                         -- 4) ถ้าส่ง @Pairs มา → จับคู่ Build-Floor แบบเป๊ะ ๆ
@@ -98,6 +103,7 @@ namespace Project.CSS.Revise.Web.Respositories
                 {
                     cmd.Parameters.Add(new SqlParameter("@L_UserID", filter.L_UserID ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_ProjectID", filter.L_ProjectID ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_UnitStatus", filter.L_UnitStatus ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_Build", filter.L_Build ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_Floor", filter.L_Floor ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_Room", filter.L_Room ?? ""));
@@ -178,35 +184,42 @@ namespace Project.CSS.Revise.Web.Respositories
                 {
                     foreach (var code in unitCodes)
                     {
-                        // WHERE ProjectID AND UnitCode
-                        var row = _context.TR_UnitUser_Mappings
-                            .FirstOrDefault(x => x.ProjectID == projectId && x.UnitCode == code);
+                        try
+                        {
+                            var row = _context.TR_UnitUser_Mappings.FirstOrDefault(x => x.ProjectID == projectId && x.UnitCode == code);
 
-                        if (row != null)
-                        {
-                            // UPDATE
-                            row.UserID = model.CSUserID;
-                            row.UpdateDate = now;
-                            row.UpdateBy = model.UpdateBy;
-                            _context.TR_UnitUser_Mappings.Update(row);
-                            updated++;
-                        }
-                        else
-                        {
-                            // INSERT
-                            var newRow = new TR_UnitUser_Mapping
+                            if (row != null)
                             {
-                                ProjectID = projectId,
-                                UnitCode = code,
-                                UserID = model.CSUserID,
-                                CreateDate = now,
-                                CreateBy = model.UpdateBy,
-                                UpdateDate = now,
-                                UpdateBy = model.UpdateBy
-                            };
+                                // UPDATE
+                                row.UserID = model.CSUserID;
+                                row.UpdateDate = now;
+                                row.UpdateBy = model.UpdateBy;
+                                _context.TR_UnitUser_Mappings.Update(row);
+                                updated++;
+                            }
+                            else
+                            {
+                                // INSERT
+                                var newRow = new TR_UnitUser_Mapping
+                                {
+                                    ID = Guid.NewGuid(),
+                                    ProjectID = projectId,
+                                    UnitCode = code,
+                                    UserID = model.CSUserID,
+                                    CreateDate = now,
+                                    CreateBy = model.UpdateBy,
+                                    UpdateDate = now,
+                                    UpdateBy = model.UpdateBy
+                                };
 
-                            _context.TR_UnitUser_Mappings.Add(newRow);
-                            inserted++;
+                                _context.TR_UnitUser_Mappings.Add(newRow);
+                                inserted++;
+                            }
+                        }
+                        catch (Exception)
+                        {
+
+                            throw;
                         }
                     }
 

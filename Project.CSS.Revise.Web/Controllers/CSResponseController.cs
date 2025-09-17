@@ -2,11 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.CSS.Revise.Web.Commond;
-using Project.CSS.Revise.Web.Library.DAL;
-using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Models.Pages.CSResponse;
-using Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling;
 using Project.CSS.Revise.Web.Service;
 
 namespace Project.CSS.Revise.Web.Controllers
@@ -52,9 +49,6 @@ namespace Project.CSS.Revise.Web.Controllers
             var listBu = _masterService.GetlistBU(new BUModel());
             ViewBag.listBu2 = listBu;
 
-            //var result = _configProject.sp_GetDataCSResponse(filter);
-            //var model = await _csResponseServic.GetListCountByCSAsync();
-
             return View();
         }
 
@@ -74,21 +68,32 @@ namespace Project.CSS.Revise.Web.Controllers
             return Json(new { success = true, data = result.CSSummary });
         }
 
+        [HttpPost]
+        public JsonResult GetListUnitStatusCS()
+        {
+            var filter = new GetDDLModel
+            {
+                Act = "Ext",
+                ID = 16
+            };
+            var result = _masterService.GetlisDDl(filter);
+            return Json(new { success = true, data = result });
+        }
 
         [HttpPost]
-        public JsonResult GetListCountUnitStatus([FromForm] int UserID)
+        public JsonResult GetListCountUnitStatus([FromForm] int UserID , string BUID , string ProjectID)
         {
             var filter = new SPGetDataCSResponse.FilterData
             {
                 Act = "GetListCountUnitStatus",
-                UserID = UserID
+                UserID = UserID,
+                BUID = BUID,
+                ProjectID = ProjectID
             };
 
             var result = _configProject.sp_GetDataCSResponse(filter);
             return Json(new { success = true, data = result.CountUnitStatus });
         }
-
-
 
         [HttpPost]
         public JsonResult GetlistBuildInProject(string ProjectID)
@@ -112,9 +117,9 @@ namespace Project.CSS.Revise.Web.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetlistDataTableUnitCSResponse(string USerID, string Showtype, string ProjectID, string Builds, string Floors , string Units)
+        public JsonResult GetlistDataTableUnitCSResponse(string USerID, string Showtype, string UnitStatus, string ProjectID, string Builds, string Floors , string Units)
         {
-            var result = _csResponseServic.GetlistUnitCSResponse(new GetlistUnitCSResponseModel.FilterData { L_UserID = USerID, L_TypeUserShow = Showtype, L_ProjectID = ProjectID, L_Build = Builds , L_Floor = Floors , L_Room = Units });
+            var result = _csResponseServic.GetlistUnitCSResponse(new GetlistUnitCSResponseModel.FilterData { L_UserID = USerID, L_TypeUserShow = Showtype, L_ProjectID = ProjectID,L_UnitStatus = UnitStatus, L_Build = Builds , L_Floor = Floors , L_Room = Units });
             return Json(new { success = true, data = result });
         }
 

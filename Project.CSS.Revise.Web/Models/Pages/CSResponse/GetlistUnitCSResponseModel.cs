@@ -6,6 +6,7 @@
         {
             public string L_UserID { get; set; } = "";
             public string L_ProjectID { get; set; } = "";
+            public string L_UnitStatus{ get; set; } = "";
             public string L_Build { get; set; } = "";
             public string L_Floor { get; set; } = "";
             public string L_Room { get; set; } = "";

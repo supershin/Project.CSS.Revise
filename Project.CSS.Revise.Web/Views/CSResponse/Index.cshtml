@@ -11,6 +11,31 @@
         user-select: none;
     }
 
+    #csChildModal {
+        z-index: 9999 !important;
+    }
+
+        /* Make the table's wrapper the scroll container */
+        #csChildModal .table-responsive {
+            /* adjust height to taste */
+            max-height: calc(100vh - 160px);
+            overflow: auto; /* both directions */
+        }
+
+        /* Sticky header */
+        #csChildModal .status-table thead th {
+            position: sticky;
+            top: 0; /* pin to top of the scrolling area */
+            z-index: 3; /* above body cells */
+            background: var(--bs-secondary-bg, #f8f9fa);
+        }
+
+        /* Optional: subtle divider under header */
+        #csChildModal .status-table thead tr {
+            box-shadow: 0 2px 0 rgba(0,0,0,.06);
+        }
+
+
 </style>
 <div class="container-fluid">
     <div class="page-title">
@@ -35,7 +60,6 @@
     </div>
 </div>
 <div id="secure-area" oncontextmenu="return false;" class="no-select">
-<!-- Container-fluid starts-->
 <div class="container-fluid">
         <div class="box-col-12">
         <div class="row">
@@ -102,6 +126,16 @@
                                                                                     <option value="@val">@text</option>
                                                                                 }
                                                                             </select>
+                                                                    </div>
+
+                                                                    <div class="job-filter mb-3">
+                                                                        <label for="ddlUnitStatus" class="form-label fw-bold">Unit Status (CRM)</label>
+                                                                        <select id="ddlUnitStatus" class="form-select" multiple>
+                                                                                <option value="1">ว่าง</option>
+                                                                                <option value="2">จอง</option>
+                                                                                <option value="3">สัญญา</option>
+                                                                                <option value="4">โอน</option>
+                                                                        </select>
                                                                     </div>
 
                                                                     <!-- 🏢 อาคาร -->
@@ -226,7 +260,7 @@
                                                                 <th>User (TH / EN)</th>
                                                                 <th>Email</th>
                                                                 <th>Mobile</th>
-                                                                <th class="text-end">Projects / Units</th>
+                                                                <th class="text-end">Summary</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody id="tbCSSummaryBody">
@@ -248,8 +282,31 @@
         </div>
     </div>
 </div>
-<!-- Container-fluid Ends-->
 </div>
+<!-- CS Child Modal -->
+<div class="modal fade" id="csChildModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="csChildModalTitle" class="modal-title">รายละเอียดโครงการ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0 status-table">
+                        <thead id="csChildModalThead"></thead>
+                        <tbody id="csChildModalTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <small class="text-muted me-auto">เลื่อนขวาเพื่อดูสถานะทั้งหมด</small>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @section Scripts {
     <script src="~/js/Pages/CSResponse/index.js?ver=@DateTime.Now.Ticks.ToString()"></script>

@@ -26,6 +26,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const buildChoices = new Choices('#buildingMultiSelect', { removeItemButton: true, placeholderValue: '🔍 เลือกอาคาร', searchEnabled: true, itemSelectText: '', shouldSort: false });
     const floorChoices = new Choices('#floorMultiSelect', { removeItemButton: true, placeholderValue: '🔍 เลือกชั้น (เช่น B-2)', searchEnabled: true, itemSelectText: '', shouldSort: false });
     const unitChoices = new Choices('#roomMultiSelect', { removeItemButton: true, placeholderValue: '🔍 เลือกยูนิต', searchEnabled: true, itemSelectText: '', shouldSort: false });
+    const UnitStatusChoices = new Choices('#ddlUnitStatus', { removeItemButton: true, placeholderValue: '🔍 เลือกสถานะยูนิต', searchEnabled: true, itemSelectText: '', shouldSort: false });
+
     // CS tab project multi-select
     const projectChoicesCs = new Choices('#ddlProject_cs', {
         removeItemButton: true,
@@ -267,6 +269,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const showTypeUi = $('#csUserSelectview')?.value || '';
         const showType = mapShowType(showTypeUi);
         const projectId = getProjectId();
+        const unitStatus = csv(getSelectedValues(UnitStatusChoices));
         const buildsCsv = csv(getSelectedValues(buildChoices));
         const floorsCsv = csv(getSelectedValues(floorChoices));
         const unitsCsv = csv(getSelectedValues(unitChoices));
@@ -279,6 +282,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 USerID: userId,
                 Showtype: showType,
                 ProjectID: projectId,
+                UnitStatus: unitStatus,
                 Builds: buildsCsv,
                 Floors: floorsCsv,
                 Units: unitsCsv
@@ -502,113 +506,258 @@ document.addEventListener("DOMContentLoaded", function () {
         renderSummary(res?.data || []);
     }
 
+    let __csStatuses = null;
+
+    async function getCSStatuses() {
+        if (Array.isArray(__csStatuses)) return __csStatuses;
+        const res = await formPost(baseUrl + 'CSResponse/GetListUnitStatusCS', {});
+        __csStatuses = (res?.data || []).map(x => ({
+            id: Number(x.ValueInt),
+            name: String(x.Text || '')
+        }));
+        return __csStatuses;
+    }
+
+    function buildChildHeaderRow(statuses) {
+        const statusThs = statuses
+            .map(s => `<th class="text-center text-nowrap status-col" title="${s.name}">${s.name}</th>`)
+            .join('');
+        return `
+                <tr class="table-secondary">
+                  <th class="text-nowrap">ลำดับ</th>
+                  <th class="text-nowrap">Project</th>
+                  <th class="text-end text-nowrap">Unit</th>
+                  ${statusThs}
+                </tr>`;
+    }
 
 
-    function renderSummary(list) {
+
+    function childColspan(statuses) {
+        return 3 + (statuses?.length || 0);
+    }
+
+    async function renderSummary(list) {
         const tbody = document.getElementById("tbCSSummaryBody");
         if (!tbody) return;
 
-        if (!list.length) {
+        if (!list?.length) {
             tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">ไม่พบข้อมูล</td></tr>`;
             return;
         }
 
         tbody.innerHTML = list.map(u => {
-            const rowId = `u_${u.ID}`;
             return `
-      <tr>
-        <td>
-          <button class="btn btn-outline-primary btn-sm btn-expand"
-                  type="button"
-                  data-id="${u.ID}"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#${rowId}"
-                  aria-expanded="false"
-                  aria-controls="${rowId}">
-            <i class="bi bi-caret-down-square"></i>
-          </button>
-        </td>
-        <td>
-          <div class="fw-semibold">${u.FullnameTH}</div>
-          <div class="text-muted small">${u.FullnameEN}</div>
-        </td>
-        <td>${u.Email || '-'}</td>
-        <td>${u.Mobile || '-'}</td>
-        <td class="text-end">
-          <span class="badge bg-secondary">${u.Cnt_Project} projects</span>
-          <span class="badge bg-dark-subtle text-dark">${u.Cnt_UnitCode} units</span>
-        </td>
-      </tr>
-      <tr class="collapse" id="${rowId}">
-        <td></td>
-        <td colspan="4">
-          <div class="card border-0">
-            <div class="card-body p-2">
-              <div class="table-responsive">
-                <table class="table table-sm mb-0">
-                  <thead>
-                    <tr class="table-secondary">
-                      <th>Project</th>
-                      <th class="text-end">My Units</th>
-                      <th>ว่าง</th>
-                      <th>จอง</th>
-                      <th>สัญญา</th>
-                      <th>จอง</th>
-                    </tr>
-                  </thead>
-                  <tbody id="child_${u.ID}">
-                    <tr><td colspan="6" class="text-center text-muted">กดเพื่อโหลดข้อมูล…</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </td>
-      </tr>`;
+                      <tr>
+                        <td>
+                          <button class="btn btn-outline-primary btn-sm btn-open-child"
+                                  type="button"
+                                  data-id="${u.ID}"
+                                  data-name="${(u.FullnameTH || '').replace(/"/g, '&quot;')}">
+                            <i class="bi bi-table"></i>
+                          </button>
+                        </td>
+                        <td>
+                          <div class="fw-semibold">${u.FullnameTH}</div>
+                          <div class="text-muted small">${u.FullnameEN}</div>
+                        </td>
+                        <td>${u.Email || '-'}</td>
+                        <td>${u.Mobile || '-'}</td>
+                        <td class="text-end">
+                          <span class="badge bg-secondary">${u.Cnt_Project} projects</span>
+                          <span class="badge bg-dark-subtle text-dark">${u.Cnt_UnitCode} units</span>
+                        </td>
+                      </tr>`;
         }).join("");
+
+        // เปิด modal และโหลดข้อมูลเมื่อคลิก
+        tbody.querySelectorAll('.btn-open-child').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const userId = e.currentTarget.getAttribute('data-id');
+                const nameTH = e.currentTarget.getAttribute('data-name') || '';
+                await openChildModal(userId, nameTH);
+            });
+        });
     }
 
+    async function openChildModal(userId, fullNameTH) {
+        const statuses = await getCSStatuses(); // [{id, name}, ...] ExtTypeID=16
+        const thead = document.getElementById('csChildModalThead');
+        const tbody = document.getElementById('csChildModalTbody');
+        const title = document.getElementById('csChildModalTitle');
 
-    async function loadChild(userId) {
-        const tbody = document.querySelector(`#child_${userId}`);
+        title.textContent = `${fullNameTH}`;
+        thead.innerHTML = buildChildHeaderRow(statuses);
+        tbody.innerHTML = `<tr><td colspan="${childColspan(statuses)}" class="text-center text-muted">กำลังโหลด...</td></tr>`;
+
+        // เปิด Modal
+        const modalEl = document.getElementById('csChildModal');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+
+        // โหลดข้อมูลลง tbody
+        await loadChildModalRows(userId, statuses);
+    }
+
+    function numberOrBlank(n) {
+        const v = Number(n ?? 0);
+        return v > 0 ? String(v) : '';
+    }
+
+    async function loadChildModalRows(userId, statuses) {
+        const tbody = document.getElementById('csChildModalTbody');
         if (!tbody) return;
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center">กำลังโหลด...</td></tr>`;
+
+        const colspan = childColspan(statuses);
+        tbody.innerHTML = `<tr><td colspan="${colspan}" class="text-center">กำลังโหลด...</td></tr>`;
 
         try {
-            const res = await formPost(baseUrl + "CSResponse/GetListCountUnitStatus", { UserID: userId });
+            const buid = document.querySelector('#ddlBU_cs')?.value || '';
+            const projectsCsv = (typeof getSelectedProjectsCsv === 'function') ? getSelectedProjectsCsv() : '';
+
+            const res = await formPost(baseUrl + "CSResponse/GetListCountUnitStatus", {
+                UserID: userId,
+                BUID: buid,
+                ProjectID: projectsCsv
+            });
+
             const list = res?.data || [];
             if (!list.length) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">ไม่พบข้อมูล</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${colspan}" class="text-center text-muted">ไม่พบข้อมูล</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = list.map(p => `
-            <tr>
-                <td>${p.ProjectName}</td>
-                <td class="text-end">${p.Cnt_UserUnits}</td>
-                <td>${p.Cnt_Status1 > 0 ? `<span class="badge bg-light text-dark">${p.Cnt_Status1}</span>` : ''}</td>
-                <td>${p.Cnt_Status2 > 0 ? `<span class="badge bg-danger">${p.Cnt_Status2}</span>` : ''}</td>
-                <td>${p.Cnt_Status3 > 0 ? `<span class="badge bg-primary">${p.Cnt_Status3}</span>` : ''}</td>
-                <td>${p.Cnt_Status4 > 0 ? `<span class="badge bg-success">${p.Cnt_Status4}</span>` : ''}</td>
-            </tr>
-        `).join("");
+            tbody.innerHTML = list.map(p => {
+                const statusTds = statuses.map(s => {
+                    const key = `ID_${s.id}`;                  // เช่น ID_62
+                    return `<td class="text-center status-col">${numberOrBlank(p[key])}</td>`;
+                }).join('');
+
+                return `
+        <tr>
+          <td>${p.index}</td>
+          <td>${p.ProjectName}</td>
+          <td class="text-end">${p.Total}</td>
+          ${statusTds}
+        </tr>`;
+            }).join('');
+
         } catch (err) {
             console.error(err);
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">โหลดผิดพลาด</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="${colspan}" class="text-center text-danger">โหลดผิดพลาด</td></tr>`;
         }
     }
 
+
+    //function renderSummary(list) {
+    //    const tbody = document.getElementById("tbCSSummaryBody");
+    //    if (!tbody) return;
+
+    //    if (!list.length) {
+    //        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">ไม่พบข้อมูล</td></tr>`;
+    //        return;
+    //    }
+
+    //    tbody.innerHTML = list.map(u => {
+    //        const rowId = `u_${u.ID}`;
+    //        return `
+    //  <tr>
+    //    <td>
+    //      <button class="btn btn-outline-primary btn-sm btn-expand"
+    //              type="button"
+    //              data-id="${u.ID}"
+    //              data-bs-toggle="collapse"
+    //              data-bs-target="#${rowId}"
+    //              aria-expanded="false"
+    //              aria-controls="${rowId}">
+    //        <i class="bi bi-caret-down-square"></i>
+    //      </button>
+    //    </td>
+    //    <td>
+    //      <div class="fw-semibold">${u.FullnameTH}</div>
+    //      <div class="text-muted small">${u.FullnameEN}</div>
+    //    </td>
+    //    <td>${u.Email || '-'}</td>
+    //    <td>${u.Mobile || '-'}</td>
+    //    <td class="text-end">
+    //      <span class="badge bg-secondary">${u.Cnt_Project} projects</span>
+    //      <span class="badge bg-dark-subtle text-dark">${u.Cnt_UnitCode} units</span>
+    //    </td>
+    //  </tr>
+    //  <tr class="collapse" id="${rowId}">
+    //    <td colspan="7">
+    //      <div class="card border-0">
+    //        <div class="card-body p-2">
+    //          <div class="table-responsive">
+    //            <table class="table table-sm mb-0">
+    //              <thead>
+    //                <tr class="table-secondary">
+    //                  <th>ลำดับ</th>
+    //                  <th>Project</th>
+    //                  <th class="text-end">My Units</th>
+    //                  <th>ว่าง</th>
+    //                  <th>จอง</th>
+    //                  <th>สัญญา</th>
+    //                  <th>โอน</th>
+    //                </tr>
+    //              </thead>
+    //              <tbody id="child_${u.ID}">
+    //                <tr><td colspan="6" class="text-center text-muted">กดเพื่อโหลดข้อมูล…</td></tr>
+    //              </tbody>
+    //            </table>
+    //          </div>
+    //        </div>
+    //      </div>
+    //    </td>
+    //  </tr>`;
+    //    }).join("");
+    //}
+
+
+    //async function loadChild(userId) {
+    //    const tbody = document.querySelector(`#child_${userId}`);
+    //    if (!tbody) return;
+    //    tbody.innerHTML = `<tr><td colspan="7" class="text-center">กำลังโหลด...</td></tr>`;
+
+    //    try {
+    //        const buid = document.querySelector('#ddlBU_cs')?.value || '';
+    //        const projectsCsv = getSelectedProjectsCsv();
+
+    //        const res = await formPost(baseUrl + "CSResponse/GetListCountUnitStatus", { UserID: userId, BUID: buid, ProjectID: projectsCsv });
+    //        const list = res?.data || [];
+    //        if (!list.length) {
+    //            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">ไม่พบข้อมูล</td></tr>`;
+    //            return;
+    //        }
+
+    //        tbody.innerHTML = list.map(p => `
+    //        <tr>
+    //            <td>${p.index}</td>
+    //            <td>${p.ProjectName}</td>
+    //            <td class="text-end">${p.Total}</td>
+    //            <td>${p.Cnt_Status1 > 0 ? `<span class="badge bg-light text-dark">${p.Cnt_Status1}</span>` : ''}</td>
+    //            <td>${p.Cnt_Status2 > 0 ? `<span class="badge bg-danger">${p.Cnt_Status2}</span>` : ''}</td>
+    //            <td>${p.Cnt_Status3 > 0 ? `<span class="badge bg-primary">${p.Cnt_Status3}</span>` : ''}</td>
+    //            <td>${p.Cnt_Status4 > 0 ? `<span class="badge bg-success">${p.Cnt_Status4}</span>` : ''}</td>
+    //        </tr>
+    //    `).join("");
+    //    } catch (err) {
+    //        console.error(err);
+    //        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">โหลดผิดพลาด</td></tr>`;
+    //    }
+    //}
+
     // delegate event: expand user
-    document.addEventListener("click", function (e) {
-        const btn = e.target.closest(".btn-expand");
-        if (!btn) return;
-        const uid = btn.dataset.id;
-        const placeholder = document.querySelector(`#child_${uid}`);
-        // load only once
-        if (placeholder && !placeholder.dataset.loaded) {
-            loadChild(uid).then(() => { placeholder.dataset.loaded = "1"; });
-        }
-    });
+    //document.addEventListener("click", function (e) {
+    //    const btn = e.target.closest(".btn-expand");
+    //    if (!btn) return;
+    //    const uid = btn.dataset.id;
+    //    const placeholder = document.querySelector(`#child_${uid}`);
+    //    // load only once
+    //    if (placeholder && !placeholder.dataset.loaded) {
+    //        loadChild(uid).then(() => { placeholder.dataset.loaded = "1"; });
+    //    }
+    //});
 
 
 

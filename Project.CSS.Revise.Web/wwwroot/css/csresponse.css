@@ -1,1 +1,8 @@
 ﻿
+.status-col {
+    white-space: nowrap;
+    min-width: 110px;
+}
+.status-table {
+    table-layout: fixed;
+}
