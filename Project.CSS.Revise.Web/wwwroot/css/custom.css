@@ -10,6 +10,10 @@
     }
 }
 
+.onhover-show-div notification-dropdown {
+    z-index: 3000 !important;
+}
+
 .btn-c {
     position: relative;
     width: 40px;
@@ -186,6 +190,7 @@
         font-size: .8rem;
     }
 }
+
 
 
 

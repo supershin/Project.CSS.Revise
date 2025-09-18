@@ -1,0 +1,92 @@
+﻿/* ---- Cards ---- */
+.card {
+    border: 0;
+    box-shadow: 0 1px 8px rgba(0,0,0,.06);
+}
+
+/* ---- Scroll container for the appointment table ---- */
+#div_Tb_Appointment {
+    max-height: 60vh; /* you can keep your inline 550px if you prefer */
+    overflow: auto; /* vertical + horizontal */
+}
+
+/* ---- Table visuals ---- */
+#Tb_Appointment thead th {
+    white-space: nowrap; /* keep hour labels on one line */
+}
+
+#Tb_Appointment tbody th,
+#Tb_Appointment tbody td {
+    vertical-align: middle;
+}
+
+/* zebra + hover */
+#Tb_Appointment tbody tr:nth-child(odd) {
+    background: #fafbfc;
+}
+
+#Tb_Appointment tbody tr:hover {
+    background: #f2f6ff;
+}
+
+/* ---- Editable cell focus ring ---- */
+#Tb_Appointment td.editable:focus {
+    outline: 2px solid rgba(32,130,255,.45);
+    outline-offset: -2px;
+    background: #fffef6;
+}
+
+/* ---- (Removed sticky styles) ----
+   No sticky header / first column and no z-index hacks.
+   Keeping these selectors here as no-ops for safety if referenced elsewhere. */
+#Tb_Appointment thead.sticky-top th,
+#Tb_Appointment .sticky-col {
+    position: static !important;
+    z-index: auto !important;
+    background: inherit !important;
+}
+
+/* ---- Optional: if you keep a wrapper with scroll shadows, you can remove these.
+   Left here in case you still use them somewhere else. ---- */
+.table-wrap {
+    position: relative;
+}
+
+/* add to your appointmentlimit.css */
+.table-loading {
+    position: relative;
+}
+
+.table-loading::after {
+    content: "Loading…";
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+
+.scroll-shadow {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 18px;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity .2s;
+    background: linear-gradient(to right, rgba(0,0,0,.12), rgba(0,0,0,0));
+}
+
+.scroll-shadow.right {
+    right: 0;
+    left: auto;
+    transform: rotate(180deg);
+}
+
+.scroll-shadow.show {
+    opacity: 1;
+}

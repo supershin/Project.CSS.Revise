@@ -1,7 +1,10 @@
 ﻿@{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_LayoutSite.cshtml";
+    var _projects = ViewBag.listDDlAllProject as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var times = ViewBag.listTimes as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
 }
+
 <div class="container-fluid">
     <div class="page-title">
         <div class="row">
@@ -13,7 +16,6 @@
                     <li class="breadcrumb-item">
                         <a href="index.html">
                             <svg class="stroke-icon">
-                                @* <use href="~/assets/svg/icon-sprite.svg#stroke-home"></use> *@
                                 <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-home")"></use>
                             </svg>
                         </a>
@@ -27,115 +29,75 @@
 </div>
 <!-- Container-fluid starts-->
 <div class="container-fluid">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive custom-scrollbar">
-                    <table class="table">
-                        <thead class="table-dark">
-                            <tr>
-                                <th scope="col">DayOfWork</th>
-                                <th scope="col">09:00</th>
-                                <th scope="col">10:00</th>
-                                <th scope="col">11:00</th>
-                                <th scope="col">12:00</th>
-                                <th scope="col">13:00</th>
-                                <th scope="col">14:00</th>
-                                <th scope="col">15:00</th>
-                                <th scope="col">16:00</th>
-                                <th scope="col">17:00</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <th class="fixed-col">MON</th>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                            </tr>
-                            <tr>
-                                <th class="fixed-col">TUE</th>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                            </tr>
-                            <tr>
-                                <th class="fixed-col">WED</th>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                            </tr>
-                            <tr>
-                                <th class="fixed-col">THU</th>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                            </tr>
-                            <tr>
-                                <th class="fixed-col">FRI</th>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                            </tr>
-                            <tr>
-                                <th class="fixed-col">SAT</th>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                            </tr>
-                            <tr>
-                                <th class="fixed-col">SUN</th>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">2</td>
-                                <td contenteditable="true" class="editable">3</td>
-                                <td contenteditable="true" class="editable">2</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+    <!-- Filter Card -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-lg-6">
+                    <label class="form-label fw-semibold">โครงการ</label>
+                    <select id="projectSelect" class="form-select" style="min-width:280px">
+                        @foreach (var p in _projects)
+                        {
+                            var val = (p.ValueString ?? p.ValueInt ?? p.Value ?? p.ID ?? "").ToString();
+                            var text = (p.Text ?? p.ProjectName ?? p.Name ?? "").ToString();
+                            <option value="@val">@text</option>
+                        }
+                    </select>
                 </div>
             </div>
         </div>
     </div>
+
+
+    <!-- Table Card -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <h6 id="name_project_selected" class="mb-0 text-muted">Select a project and search</h6>
+                <small id="row_count" class="text-muted"></small>
+            </div>
+            <div class="d-none d-md-block">
+                <span class="badge bg-light text-dark">Tip: scroll ↔ to see more hours</span>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive" id="div_Tb_Appointment" style="display:block; max-height:550px; overflow-y:auto;">
+                <table class="table table-bordered table-striped align-middle text-center" id="Tb_Appointment">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="text-start ps-3" style="min-width:140px">DayOfWork</th>
+                            @foreach (var t in times)
+                            {
+                                <th data-time-id="@t.ValueInt">@t.Text</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody id="Tb_Appointment_body">
+                        @foreach (var dn in new[] { "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN" })
+                        {
+                            <tr data-day="@dn">
+                                <th class="text-start ps-3">@dn</th>
+                                @foreach (var t in times)
+                                {
+                                    <td contenteditable="true" class="editable"></td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-end">
+            <button id="btnSave" class="btn btn-success">💾 Save</button>
+        </div>
+
+    </div>
 </div>
-<!-- Container-fluid Ends-->
+
+@section Scripts {
+    <link rel="stylesheet" type="text/css" href="~/css/appointmentlimit.css?ver=@DateTime.Now.Ticks.ToString()">
+    <script src="~/js/Pages/AppointmentLimit/index.js?ver=@DateTime.Now.Ticks.ToString()"></script>
+}

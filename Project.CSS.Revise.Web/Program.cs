@@ -43,6 +43,8 @@ builder.Services.AddScoped<IUserBankRepo, UserBankRepo>();
 builder.Services.AddScoped<IUserBankService, UserBankService>();
 builder.Services.AddScoped<ICSResponseRepo, CSResponseRepo>();
 builder.Services.AddScoped<ICSResponseService, CSResponseService>();
+builder.Services.AddScoped<IAppointmentLimitRepo, AppointmentLimitRepo>();
+builder.Services.AddScoped<IAppointmentLimitService, AppointmentLimitService>();
 
 // Add the new services for SQL and data access
 //builder.Services.AddScoped<SqlMasterManagementProject>();
