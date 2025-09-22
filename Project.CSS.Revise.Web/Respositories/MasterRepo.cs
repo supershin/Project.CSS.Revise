@@ -272,6 +272,17 @@ namespace Project.CSS.Revise.Web.Respositories
 
                     return extQuery.ToList();
 
+                case "listRole":
+                    var listRole = from t1 in _context.tm_Roles
+                                   where t1.FlagActive == true && t1.QCTypeID == 10
+                                   select new GetDDLModel
+                                   {
+                                       ValueInt = t1.ID,
+                                       Text = t1.Name
+                                   };
+
+                    return listRole.ToList();
+
                 case "listDDlAllProject":
                     var ListProject = from t1 in _context.tm_Projects
                                       join t2 in _context.tm_BUProject_Mappings on t1.ProjectID equals t2.ProjectID into joined
@@ -661,6 +672,28 @@ namespace Project.CSS.Revise.Web.Respositories
                                    };
 
                     return ListArea.ToList();
+
+                case "ListTitleTH":
+                    var ListTitleTH = from ext in _context.tm_TitleNames
+                                      where ext.FlagActive == true && ext.Lang == "Thai"
+                                      select new GetDDLModel
+                                      {
+                                        ValueInt = ext.ID,
+                                        Text = ext.Name
+                                      };
+
+                    return ListTitleTH.ToList();
+
+                case "ListTitleEN":
+                    var ListTitleEN = from ext in _context.tm_TitleNames
+                                      where ext.FlagActive == true && ext.Lang == "English"
+                                      select new GetDDLModel
+                                      {
+                                          ValueInt = ext.ID,
+                                          Text = ext.Name
+                                      };
+
+                    return ListTitleEN.ToList();
 
                 default:
 

@@ -436,5 +436,26 @@ namespace Project.CSS.Revise.Web.Commond
             return string.Empty;
         }
 
+        public static List<int> ParseCsvToIntList(string? csv)
+        {
+            var result = new List<int>();
+            if (string.IsNullOrWhiteSpace(csv)) return result;
+
+            foreach (var token in csv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                if (int.TryParse(token, out var val))
+                    result.Add(val);
+            }
+            return result;
+        }
+
+        public static int SafeToInt(object? val)
+        {
+            if (val == null) return 0;
+            if (val is int i) return i;
+            if (int.TryParse(val.ToString(), out var parsed)) return parsed;
+            return 0;
+        }
+
     }
 }

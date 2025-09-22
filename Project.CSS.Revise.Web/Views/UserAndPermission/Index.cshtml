@@ -1,0 +1,326 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutSite.cshtml";
+    var departments = ViewBag.listDepartments as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var roles = ViewBag.listRoles as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var buList = ViewBag.listBu as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var TitleTH = ViewBag.ListTitleTHs as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var TitleEN = ViewBag.ListTitleENs as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+}
+<div class="container-fluid">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-6">
+                <h4>User & Permission</h4>
+            </div>
+            <div class="col-6">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a>
+                            <svg class="stroke-icon">
+                                <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-home")"></use>
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">Pages</li>
+                    <li class="breadcrumb-item active">User & Permission</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <ul class="simple-wrapper nav nav-tabs" id="User-Permission-Tab-filter" role="tablist">
+                    <li class="nav-item"><a class="nav-link active txt-primary" id="user-tab" data-bs-toggle="tab" href="#user-filter" role="tab" aria-controls="user-tab" aria-selected="true"><i class="fa fa-user" aria-hidden="true"></i>User</a></li>
+                    <li class="nav-item"><a class="nav-link txt-primary" id="permission-tab" data-bs-toggle="tab" href="#permission-filter" role="tab" aria-controls="permission-tab" aria-selected="false"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>Permission</a></li>
+                </ul>
+                <div class="tab-content" id="User-Permission-Tab-filter-Content">
+                    <div class="tab-pane fade  show active" id="user-filter" role="tabpanel" aria-labelledby="user-tab">
+                        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <form id="userFilterForm" class="w-100">
+                                <div class="d-flex flex-wrap align-items-end gap-2 w-100">
+
+                                    <!-- Name search: กินพื้นที่เยอะสุด, เต็มแถวบนมือถือ -->
+                                    <div class="flex-fill minw-240 flex-basis-40 mb-2">
+                                        <label for="txtSearchName" class="form-label mb-1">ค้นหาชื่อ</label>
+                                        <input type="text"
+                                               id="txtSearchName"
+                                               class="form-control form-control-lg"
+                                               placeholder="🔍 พิมพ์ชื่อไทย/อังกฤษ หรือชื่อเต็ม เช่น 'สมชาย' หรือ 'John Doe'">
+                                    </div>
+
+                                    <!-- Department: ขนาดกลาง -->
+                                    <div class="minw-220 flex-basis-25 mb-2">
+                                        <label for="ddlDepartment" class="form-label mb-1">Department</label>
+                                        <select id="ddlDepartment" class="form-select" multiple>
+                                            @foreach (var d in departments)
+                                            {
+                                                var val = (d.ValueInt ?? d.Value ?? d.ID ?? "").ToString();
+                                                var text = (d.Text ?? d.Name ?? d.Display ?? "").ToString();
+                                                <option value="@val">@text</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <!-- Role: ขนาดกลาง -->
+                                    <div class="minw-220 flex-basis-25 mb-2">
+                                        <label for="ddlRole" class="form-label mb-1">Role</label>
+                                        <select id="ddlRole" class="form-select" multiple>
+                                            @foreach (var r in roles)
+                                            {
+                                                var val = (r.ValueInt ?? r.Value ?? r.ID ?? "").ToString();
+                                                var text = (r.Text ?? r.Name ?? r.Display ?? "").ToString();
+                                                <option value="@val">@text</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <!-- Search button: ชิดขวาเมื่อจอใหญ่, เต็มแถวเมื่อจอเล็ก -->
+                                    <div class="ms-auto mb-2">
+                                        <button type="button" id="btnSearchUser" class="btn btn-outline-secondary btn-lg">
+                                            <i class="fa fa-search me-1"></i> Search
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-body">
+                            <div class="row list-users" id="list-users-card-body">
+                                <div class="col-xl-4 xl-40 col-md-5">
+                                    <div class="vertical-scroll scroll-demo scroll-b-none"
+                                         style="height: 911px; overflow-y: auto; overflow-x: hidden;">
+                                         <div id="userList" class="list-group">
+                                         </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-8 xl-60 col-md-7">
+                                    <div class="card h-100">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h4 class="mb-0" id="user_name_show">กิติยา กัญยะโสภา</h4>
+                                            <button type="button" class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul class="nav nav-tabs border-tab mb-0" id="bottom-tab" role="tablist">
+                                                <li class="nav-item"><a class="nav-link nav-border txt-info tab-info active" id="bottom-home-tab" data-bs-toggle="tab" href="#bottom-home" role="tab" aria-controls="bottom-home" aria-selected="true"><i class="icofont icofont-ui-user"></i>Detail</a></li>
+                                                <li class="nav-item"><a class="nav-link nav-border txt-info tab-info " id="bottom-inbox-tab" data-bs-toggle="tab" href="#bottom-inbox" role="tab" aria-controls="bottom-inbox" aria-selected="false"><i class="icofont icofont-building-alt"></i>Project & BU</a></li>
+                                            </ul>
+                                            <div class="tab-content" id="bottom-tabContent">
+                                                <div class="tab-pane fade show active" id="bottom-home" role="tabpanel" aria-labelledby="bottom-home-tab">
+                                                    <form class="form theme-form" id="edit_user">
+                                                        <div class="card-body custom-input">
+                                                            <div class="row">
+                                                                <div class="col">
+                                                                    <div class="mb-3 row">
+                                                                        <label class="col-sm-3">Title</label>
+                                                                        <div class="col-sm-9">
+                                                                            <select class="form-select btn-square digits" id="ddl_Title_0">
+                                                                                <option selected>None</option>
+                                                                                <option>นาย - Mr. </option>
+                                                                                <option>นาง - Miss.</option>
+                                                                                <option>นางสาว - Mrs.</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mb-3 row">
+                                                                        <label class="col-sm-3">Name(TH)</label>
+                                                                        <div class="col-sm-9">
+                                                                            <div class="form-floating">
+                                                                                <input class="form-control" id="txt_first_name_th_0" type="text" placeholder="" value="กิติยา">
+                                                                                <label for="txt_first_name_th_0" class="fw-normal text-secondary">ชื่อ</label>
+                                                                            </div>
+                                                                            <div class="form-floating">
+                                                                                <input class="form-control" id="txt_last_name_th_0" type="text" placeholder="" value="กัญยะโสภา">
+                                                                                <label for="txt_last_name_th_0" class="fw-normal text-secondary">นามสกุล</label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mb-3 row">
+                                                                        <label class="col-sm-3">Name(EN)</label>
+                                                                        <div class="col-sm-9">
+                                                                            <div class="form-floating">
+                                                                                <input class="form-control" id="txt_first_name_en_0" type="text" placeholder="" value="Kittiya">
+                                                                                <label for="txt_first_name_en_0" class="fw-normal text-secondary">First name</label>
+                                                                            </div>
+                                                                            <div class="form-floating">
+                                                                                <input class="form-control" id="txt_last_name_en_0" type="text" placeholder="" value="Kanyasopa">
+                                                                                <label for="txt_last_name_en_0" class="fw-normal text-secondary">Last name</label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mb-3 row">
+                                                                        <label class="col-sm-3">Mobile</label>
+                                                                        <div class="col-sm-9">
+                                                                            <input class="form-control digits" id="txt_number_0" type="number" placeholder="Number" value="0995558888">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mb-3 row">
+                                                                        <label class="col-sm-3">Email</label>
+                                                                        <div class="col-sm-9">
+                                                                            <input class="form-control" id="txt_email_0" type="url" placeholder="Example@email.com" value="Example@email.com">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mb-3 row">
+                                                                        <label class="col-sm-3">Department</label>
+                                                                        <div class="col-sm-9">
+                                                                            <select class="form-select btn-square digits" id="ddl_Department_edit">
+                                                                                <option value="">— เลือกแผนก —</option>
+                                                                                @foreach (var d in departments)
+                                                                                {
+                                                                                    var val = (d.ValueInt ?? d.Value ?? d.ID ?? "").ToString();
+                                                                                    var text = (d.Text ?? d.Name ?? d.Display ?? "").ToString();
+                                                                                    <option value="@val">@text</option>
+                                                                                }
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mb-3 row">
+                                                                        <label class="col-sm-3">BU</label>
+                                                                        <div class="col-sm-9">
+                                                                            <select class="form-select btn-square digits" id="ddl_Bu_edit">
+                                                                                <option value="">— เลือก BU —</option>
+                                                                                @foreach (var bu in buList)
+                                                                                {
+                                                                                    var val = (bu.ID ?? bu.ValueInt ?? bu.Value ?? "").ToString();
+                                                                                    var text = (bu.Name ?? bu.Text ?? "").ToString();
+                                                                                    <option value="@val">@text</option>
+                                                                                }
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mb-3 row">
+                                                                        <label class="col-sm-3">User id</label>
+                                                                        <div class="col-sm-9">
+                                                                            <input class="form-control" id="txt_userid_0" type="text" placeholder="User name" value="Kittiya007">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mb-3 row">
+                                                                        <label class="col-sm-3">Password</label>
+                                                                        <div class="col-sm-9">
+                                                                            <input class="form-control" id="txt_password_0" type="password" placeholder="Password" value="1212312121">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mb-3 row">
+                                                                        <label class="col-sm-3">Comfirm</label>
+                                                                        <div class="col-sm-9">
+                                                                            <input class="form-control" id="txt_comfirm_password_0" type="password" placeholder="Comfirm Password" value="1212312121">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <label class="col-sm-3">Flag</label>
+                                                                        <div class="col-sm-9">
+                                                                            <div class="form-check form-switch">
+                                                                                <input class="form-check-input" id="chk_Flag_admin_0" type="checkbox" role="switch" onchange="updateSwitchLabel(this)">
+                                                                                <label class="form-check-label custom-switch-label" for="chk_Flag_admin_0">Flag Admin</label>
+                                                                            </div>
+                                                                            <div class="form-check form-switch">
+                                                                                <input class="form-check-input" id="chk_Flag_readonly_0" type="checkbox" role="switch" checked onchange="updateSwitchLabel(this)">
+                                                                                <label class="form-check-label custom-switch-label" for="chk_Flag_readonly_0">Flag Readonly</label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card-footer text-end">
+                                                            <div class="col-sm-9 offset-sm-3">
+                                                                <button class="btn btn-primary me-3" type="submit">Save</button>
+                                                                <input class="btn btn-light" type="reset" value="Cancel">
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                <div class="tab-pane fade" id="bottom-inbox" role="tabpanel" aria-labelledby="bottom-inbox-tab">
+                                                    <!-- ช่องค้นหาอยู่ใน card-header -->
+                                                    <div class="card-header">
+                                                        <input type="text" id="searchProject" class="form-control" placeholder="🔍 ค้นหา BU / ชื่อโครงการ / ชื่ออังกฤษ">
+                                                    </div>
+                                                    <!-- ตารางอยู่ใน card-body -->
+                                                    <div class="card-body p-0">
+                                                        <table class="table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th class="active">
+                                                                        <input type="checkbox" class="select-all checkbox" name="select-all" />
+                                                                    </th>
+                                                                    <th>BU</th>
+                                                                    <th>Project</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td class="active">
+                                                                        <input type="checkbox" class="select-item checkbox" name="select-item" value="1000" />
+                                                                    </td>
+                                                                    <td>BU1</td>
+                                                                    <td>
+                                                                        <div class="fw-semibold">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</div>
+                                                                        <div class="text-muted small">CHANN The Riverside Boromratchonnani</div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="active">
+                                                                        <input type="checkbox" class="select-item checkbox" name="select-item" value="1001" />
+                                                                    </td>
+                                                                    <td>BU1</td>
+                                                                    <td>
+                                                                        <div class="fw-semibold">เคฟ เอ็มบริโอ รังสิต</div>
+                                                                        <div class="text-muted small">Kave Embryo Rangsit</div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="active">
+                                                                        <input type="checkbox" class="select-item checkbox" name="select-item" value="1002" checked />
+                                                                    </td>
+                                                                    <td>BU2</td>
+                                                                    <td>
+                                                                        <div class="fw-semibold">แอทโมซ เดอ โซล ทิพวัล สเตชั่น</div>
+                                                                        <div class="text-muted small">Atmoz De Sol Thipphawan Station</div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="active">
+                                                                        <input type="checkbox" class="select-item checkbox" name="select-item" value="1003" checked />
+                                                                    </td>
+                                                                    <td>BU2</td>
+                                                                    <td>
+                                                                        <div class="fw-semibold">บ้านภูริปุรี ลาดพร้าว 41</div>
+                                                                        <div class="text-muted small">Baan Puri Puri Ladprao 41</div>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    <div class="card-footer text-end">
+                                                        <div class="col-sm-9 offset-sm-3">
+                                                            <button class="btn btn-primary me-3" type="submit">Save</button>
+                                                            <input class="btn btn-light" type="reset" value="Cancel">
+                                                        </div>
+                                                    </div>                                         
+                                                </div>
+                                            </div>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="tab-pane fade" id="permission-filter" role="tabpanel" aria-labelledby="permission-tab">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <link rel="stylesheet" type="text/css" href="~/css/userandpermission.css?ver=@DateTime.Now.Ticks.ToString()">
+    <script src="~/js/Pages/UserAndPermission/UserAndPermission.js?ver=@DateTime.Now.Ticks.ToString()"></script>
+}

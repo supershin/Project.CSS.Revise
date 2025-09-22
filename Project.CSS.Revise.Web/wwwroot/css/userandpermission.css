@@ -1,0 +1,58 @@
+﻿/* ให้ input ชื่อกินที่มากกว่า และยัง wrap ได้สวยงาม */
+.minw-240 {
+    min-width: 240px;
+}
+
+.minw-220 {
+    min-width: 220px;
+}
+
+/* ควบคุมสัดส่วนบนจอใหญ่: ชื่อ ~40%, dropdown อย่างละ ~25% */
+.flex-basis-40 {
+    flex: 1 1 40%;
+}
+
+.flex-basis-25 {
+    flex: 1 1 25%;
+}
+
+/* ปรับสำหรับแท็บเล็ต/มือถือ: สแต็กเป็นคอลัมน์เต็มความกว้าง */
+@media (max-width: 992px) {
+    .flex-basis-40, .flex-basis-25 {
+        flex: 1 1 100%;
+    }
+
+    .ms-auto {
+        margin-left: 0 !important;
+    }
+
+    #btnSearchUser {
+        width: 100%;
+    }
+}
+
+
+.form-control-lg {
+    min-height: 48px;
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.btn-lg {
+    min-height: 48px;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+}
+
+/* ให้ข้อความตัด ... เมื่อยาวเกิน */
+#userList .text-truncate {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* โทน hover ให้รู้สึกคลิกได้ (ถ้าไม่มีในธีม) */
+#userList .list-group-item.list-hover-primary:hover {
+    background-color: rgba(13, 110, 253, 0.06);
+}
+
