@@ -30,4 +30,7 @@ public partial class tm_BU
 
     [InverseProperty("BU")]
     public virtual ICollection<tm_BUProject_Mapping> tm_BUProject_Mappings { get; set; } = new List<tm_BUProject_Mapping>();
+
+    [InverseProperty("BU")]
+    public virtual ICollection<tm_BU_Mapping> tm_BU_Mappings { get; set; } = new List<tm_BU_Mapping>();
 }

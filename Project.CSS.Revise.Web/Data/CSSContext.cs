@@ -403,6 +403,8 @@ public partial class CSSContext : DbContext
 
     public virtual DbSet<tm_BUProject_Mapping> tm_BUProject_Mappings { get; set; }
 
+    public virtual DbSet<tm_BU_Mapping> tm_BU_Mappings { get; set; }
+
     public virtual DbSet<tm_Bank> tm_Banks { get; set; }
 
     public virtual DbSet<tm_CloseProject> tm_CloseProjects { get; set; }
@@ -1954,6 +1956,20 @@ public partial class CSSContext : DbContext
             entity.HasOne(d => d.Project).WithMany(p => p.tm_BUProject_Mappings).HasConstraintName("FK_tm_BUProject_Mapping_tm_Project");
         });
 
+        modelBuilder.Entity<tm_BU_Mapping>(entity =>
+        {
+            entity.Property(e => e.CreateDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.FlagActive).HasDefaultValue(true);
+
+            entity.HasOne(d => d.BU).WithMany(p => p.tm_BU_Mappings)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_tm_BU_Mapping_BU");
+
+            entity.HasOne(d => d.User).WithMany(p => p.tm_BU_Mappings)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_tm_BU_Mapping_User");
+        });
+
         modelBuilder.Entity<tm_Bank>(entity =>
         {
             entity.Property(e => e.ID).ValueGeneratedNever();
@@ -2128,7 +2144,6 @@ public partial class CSSContext : DbContext
         {
             entity.HasKey(e => e.ID).HasName("PK_TR_ProjectUser_Mapping");
 
-            entity.Property(e => e.ID).ValueGeneratedNever();
             entity.Property(e => e.CreateDate).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.UpdateDate).HasDefaultValueSql("(getdate())");
 
@@ -2241,7 +2256,6 @@ public partial class CSSContext : DbContext
 
         modelBuilder.Entity<tm_User>(entity =>
         {
-            entity.Property(e => e.ID).ValueGeneratedNever();
             entity.Property(e => e.CreateDate).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.FlagActive).HasDefaultValue(true);
             entity.Property(e => e.UpdateDate).HasDefaultValueSql("(getdate())");

@@ -108,9 +108,13 @@ function errorMessage(message, title = 'Update Failed') {
         customClass: {
             confirmButton: 'btn btn-danger'
         },
-        allowOutsideClick: false
+        allowOutsideClick: false,
+        didOpen: (popup) => {
+            popup.parentNode.style.zIndex = 200000; // container
+        }
     });
 }
+
 
 /**
  * Toast: Success มุมขวาบน (auto-hide)

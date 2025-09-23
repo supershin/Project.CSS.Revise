@@ -135,6 +135,9 @@ public partial class tm_User
     public virtual tm_TitleName? TitleID_EngNavigation { get; set; }
 
     [InverseProperty("User")]
+    public virtual ICollection<tm_BU_Mapping> tm_BU_Mappings { get; set; } = new List<tm_BU_Mapping>();
+
+    [InverseProperty("User")]
     public virtual ICollection<tm_ProjectUser_Mapping> tm_ProjectUser_Mappings { get; set; } = new List<tm_ProjectUser_Mapping>();
 
     [InverseProperty("UserID_MappingNavigation")]
