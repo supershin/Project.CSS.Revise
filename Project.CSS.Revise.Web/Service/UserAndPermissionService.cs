@@ -2,6 +2,7 @@
 using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Pages.UserAndPermission;
 using Project.CSS.Revise.Web.Respositories;
+using System.Threading.Tasks;
 using static Project.CSS.Revise.Web.Models.Pages.UserAndPermission.UserAndPermissionModel;
 
 namespace Project.CSS.Revise.Web.Service
@@ -14,6 +15,7 @@ namespace Project.CSS.Revise.Web.Service
         public DuplicateCheckResult CheckDuplicate(string? email, string? userId, string? firstNameTh, string? lastNameTh, string? firstNameEn, string? lastNameEn, int? excludeId = null);
         public UserAndPermissionModel.UserDetail? GetDetailsUser(UserAndPermissionModel.FiltersGetlistUser filters);
         public List<UserAndPermissionModel.GetlistProjects> GetlistProjects(UserAndPermissionModel.FiltersGetlistUser filters);
+        public bool IUDProjectUserMapping(UserAndPermissionModel.IUDProjectUserMapping model, int currentUserId);
     }
     public class UserAndPermissionService : IUserAndPermissionService
     {
@@ -49,9 +51,16 @@ namespace Project.CSS.Revise.Web.Service
             return _userAndPermissionRepo.InsertUser(model, currentUserId);
         }
 
+        public bool IUDProjectUserMapping(IUDProjectUserMapping model, int currentUserId)
+        {
+            return _userAndPermissionRepo.IUDProjectUserMapping(model, currentUserId);
+        }
+
         public bool UpdateUser(UserAndPermissionModel.UpdateUserRequest model, int currentUserId)
         {
             return _userAndPermissionRepo.UpdateUser(model, currentUserId);
         }
+
+
     }
 }

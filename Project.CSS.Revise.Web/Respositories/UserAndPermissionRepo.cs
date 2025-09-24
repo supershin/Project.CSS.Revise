@@ -15,6 +15,7 @@ namespace Project.CSS.Revise.Web.Respositories
         public DuplicateCheckResult CheckDuplicate(string? email, string? userId, string? firstNameTh, string? lastNameTh, string? firstNameEn, string? lastNameEn, int? excludeId = null);
         public UserAndPermissionModel.UserDetail? GetDetailsUser(UserAndPermissionModel.FiltersGetlistUser filters);
         public List<UserAndPermissionModel.GetlistProjects> GetlistProjects(UserAndPermissionModel.FiltersGetlistUser filters);
+        public bool IUDProjectUserMapping(UserAndPermissionModel.IUDProjectUserMapping model, int currentUserId);
     }
     public class UserAndPermissionRepo : IUserAndPermissionRepo
     {
@@ -72,7 +73,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                     )
 
                                 ORDER BY 
-                                     T1.[DepartmentID]
+                                     T1.[UpdateDate] DESC
                                     ,T1.[FirstName];
                                 ";
 
@@ -150,7 +151,7 @@ namespace Project.CSS.Revise.Web.Respositories
             };
 
             _context.tm_Users.Add(entity);
-            _context.SaveChanges(); 
+            _context.SaveChanges();
 
             // ===== Insert BU Mapping =====
             if (model.BUIds != null && model.BUIds.Count > 0)
@@ -289,7 +290,7 @@ namespace Project.CSS.Revise.Web.Respositories
             return true;
         }
 
-        public DuplicateCheckResult CheckDuplicate(string? email,string? userId,string? firstNameTh, string? lastNameTh,string? firstNameEn, string? lastNameEn,int? excludeId = null)
+        public DuplicateCheckResult CheckDuplicate(string? email, string? userId, string? firstNameTh, string? lastNameTh, string? firstNameEn, string? lastNameEn, int? excludeId = null)
         {
             email = (email ?? string.Empty).Trim();
             userId = (userId ?? string.Empty).Trim();
@@ -300,41 +301,57 @@ namespace Project.CSS.Revise.Web.Respositories
 
             var q = _context.tm_Users.AsNoTracking().Where(x => x.FlagActive == true);
 
-            if (excludeId.HasValue)q = q.Where(x => x.ID != excludeId.Value);
+            if (excludeId.HasValue)
+                q = q.Where(x => x.ID != excludeId.Value);
 
-            // สร้าง query เฉพาะที่ต้องใช้ เพื่อลดภาระ DB
+            // Create query variables
             int? emailId = null, userIdId = null, fullThId = null, fullEnId = null;
 
-            if (!string.IsNullOrEmpty(email))
-            {
-                emailId = q.Where(x => (x.Email ?? "").Trim().ToLower() == email.ToLower()).Select(x => (int?)x.ID).FirstOrDefault();
-            }
+            // --- Email check (disabled) ---
+            // if (!string.IsNullOrEmpty(email))
+            // {
+            //     emailId = q.Where(x => (x.Email ?? "").Trim().ToLower() == email.ToLower())
+            //                .Select(x => (int?)x.ID)
+            //                .FirstOrDefault();
+            // }
 
+            // --- UserID check (enabled) ---
             if (!string.IsNullOrEmpty(userId))
             {
-                userIdId = q.Where(x => (x.UserID ?? "").Trim().ToLower() == userId.ToLower()).Select(x => (int?)x.ID).FirstOrDefault();
+                userIdId = q.Where(x => (x.UserID ?? "").Trim().ToLower() == userId.ToLower())
+                            .Select(x => (int?)x.ID)
+                            .FirstOrDefault();
             }
 
-            if (!string.IsNullOrEmpty(firstNameTh) && !string.IsNullOrEmpty(lastNameTh))
-            {
-                fullThId = q.Where(x => (x.FirstName ?? "").Trim() == firstNameTh && (x.LastName ?? "").Trim() == lastNameTh).Select(x => (int?)x.ID).FirstOrDefault();
-            }
+            // --- FullName TH check (disabled) ---
+            // if (!string.IsNullOrEmpty(firstNameTh) && !string.IsNullOrEmpty(lastNameTh))
+            // {
+            //     fullThId = q.Where(x => (x.FirstName ?? "").Trim() == firstNameTh
+            //                          && (x.LastName ?? "").Trim() == lastNameTh)
+            //                 .Select(x => (int?)x.ID)
+            //                 .FirstOrDefault();
+            // }
 
-            if (!string.IsNullOrEmpty(firstNameEn) && !string.IsNullOrEmpty(lastNameEn))
-            {
-                fullEnId = q.Where(x => (x.FirstName_Eng ?? "").Trim().ToLower() == firstNameEn.ToLower() && (x.LastName_Eng ?? "").Trim().ToLower() == lastNameEn.ToLower()).Select(x => (int?)x.ID).FirstOrDefault();
-            }
+            // --- FullName EN check (disabled) ---
+            // if (!string.IsNullOrEmpty(firstNameEn) && !string.IsNullOrEmpty(lastNameEn))
+            // {
+            //     fullEnId = q.Where(x => (x.FirstName_Eng ?? "").Trim().ToLower() == firstNameEn.ToLower()
+            //                          && (x.LastName_Eng ?? "").Trim().ToLower() == lastNameEn.ToLower())
+            //                 .Select(x => (int?)x.ID)
+            //                 .FirstOrDefault();
+            // }
 
             return new DuplicateCheckResult
             {
-                EmailExists = emailId.HasValue,
+                // EmailExists = emailId.HasValue,
                 UserIdExists = userIdId.HasValue,
-                FullNameThExists = fullThId.HasValue,
-                FullNameEnExists = fullEnId.HasValue,
-                EmailConflictId = emailId,
+                // FullNameThExists = fullThId.HasValue,
+                // FullNameEnExists = fullEnId.HasValue,
+
+                // EmailConflictId = emailId,
                 UserIdConflictId = userIdId,
-                FullNameThConflictId = fullThId,
-                FullNameEnConflictId = fullEnId
+                // FullNameThConflictId = fullThId,
+                // FullNameEnConflictId = fullEnId
             };
         }
 
@@ -455,12 +472,17 @@ namespace Project.CSS.Revise.Web.Respositories
                             result.Add(new UserAndPermissionModel.GetlistProjects
                             {
 
-                                 index = idx
-                                ,BUName = Commond.FormatExtension.NullToString(reader["BUName"])
-                                ,ProjectID = Commond.FormatExtension.NullToString(reader["ProjectID"])
-                                ,ProjectName = Commond.FormatExtension.NullToString(reader["ProjectName"])
-                                ,ProjectName_Eng = Commond.FormatExtension.NullToString(reader["ProjectName_Eng"])
-                                ,ISCheck = reader["ISCheck"] != DBNull.Value && (bool)reader["ISCheck"]
+                                index = idx
+                                ,
+                                BUName = Commond.FormatExtension.NullToString(reader["BUName"])
+                                ,
+                                ProjectID = Commond.FormatExtension.NullToString(reader["ProjectID"])
+                                ,
+                                ProjectName = Commond.FormatExtension.NullToString(reader["ProjectName"])
+                                ,
+                                ProjectName_Eng = Commond.FormatExtension.NullToString(reader["ProjectName_Eng"])
+                                ,
+                                ISCheck = reader["ISCheck"] != DBNull.Value && (bool)reader["ISCheck"]
 
                             });
                         }
@@ -470,5 +492,58 @@ namespace Project.CSS.Revise.Web.Respositories
 
             return result;
         }
+
+        public bool IUDProjectUserMapping(UserAndPermissionModel.IUDProjectUserMapping model, int currentUserId)
+        {
+            if (model == null) throw new ArgumentNullException(nameof(model));
+
+            using var tx = _context.Database.BeginTransaction();
+            try
+            {
+                var now = DateTime.Now;
+
+                // 1) DELETE all existing mappings for this user
+                var existing = _context.tm_ProjectUser_Mappings
+                    .Where(m => m.UserID == model.UserID)
+                    .ToList();
+
+                if (existing.Count > 0)
+                {
+                    _context.tm_ProjectUser_Mappings.RemoveRange(existing);
+                    _context.SaveChanges();
+                }
+
+                // 2) INSERT new mappings
+                var projectIds = new HashSet<string>(
+                    model.ProjectID ?? new List<string>(),
+                    StringComparer.OrdinalIgnoreCase
+                );
+
+                foreach (var pid in projectIds.Where(p => !string.IsNullOrWhiteSpace(p)))
+                {
+                    var newMap = new tm_ProjectUser_Mapping
+                    {
+                        ProjectID = pid.Trim(),
+                        UserID = model.UserID,
+                        CreateDate = now,
+                        CreateBy = currentUserId,
+                        UpdateDate = now,
+                        UpdateBy = currentUserId
+                    };
+                    _context.tm_ProjectUser_Mappings.Add(newMap); // ✅ correct DbSet
+                }
+
+                _context.SaveChanges();
+                tx.Commit();
+                return true;
+            }
+            catch
+            {
+                tx.Rollback();
+                throw;
+            }
+        }
+
+
     }
 }

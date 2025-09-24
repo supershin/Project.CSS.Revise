@@ -6,6 +6,7 @@ using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
+using static Project.CSS.Revise.Web.Commond.Constants;
 
 namespace Project.CSS.Revise.Web.Respositories
 {
@@ -505,13 +506,12 @@ namespace Project.CSS.Revise.Web.Respositories
                         {
                             ValueInt = t1.ID,
                             Text = (
-                                (t2.Name ?? "") + " " +
                                 (t1.FirstName ?? "") + " " +
                                 (t1.LastName ?? "")
                             ).Trim()
                         };
 
-                    return listAllCSUser.ToList();
+                    return listAllCSUser.OrderBy(e => e.Text).ToList();
                 }
 
                 case "listBuildInProject":

@@ -45,8 +45,8 @@ namespace Project.CSS.Revise.Web.Models.Pages.UserAndPermission
             public int? RoleID { get; set; }
 
 
-            public bool? FlagAdmin { get; set; } 
-            public bool? FlagReadonly { get; set; } 
+            public bool? FlagAdmin { get; set; }
+            public bool? FlagReadonly { get; set; }
             public bool? FlagActive { get; set; }
 
             public List<int> BUIds { get; set; } = new List<int>();
@@ -54,7 +54,7 @@ namespace Project.CSS.Revise.Web.Models.Pages.UserAndPermission
 
         public class UpdateUserRequest
         {
-            [Required] public int? ID { get; set; } 
+            [Required] public int? ID { get; set; }
             public int? TitleID { get; set; }
             [Required] public string? UserID { get; set; }
             [Required] public string? FirstName { get; set; }
@@ -124,6 +124,13 @@ namespace Project.CSS.Revise.Web.Models.Pages.UserAndPermission
             public string? ProjectName_Eng { get; set; }
             public bool? ISCheck { get; set; }
 
+        }
+
+        public class IUDProjectUserMapping
+        {
+
+            public int? UserID { get; set; }
+            public List<string> ProjectID { get; set; } = new List<string>();
         }
     }
 }

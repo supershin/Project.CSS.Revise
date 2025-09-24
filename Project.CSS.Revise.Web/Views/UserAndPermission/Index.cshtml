@@ -255,8 +255,15 @@
                                                 </div>
                                                 <div class="tab-pane fade" id="bottom-inbox" role="tabpanel" aria-labelledby="bottom-inbox-tab">
                                                     <!-- ช่องค้นหาอยู่ใน card-header -->
-                                                    <div class="card-header">
-                                                        <input type="text" id="searchProjectsUserMapping" class="form-control" placeholder="🔍 ค้นหา BU / ชื่อโครงการ / ชื่ออังกฤษ">
+                                                    <div class="card-header d-flex gap-2 align-items-center">
+                                                        <input type="text" id="searchProjectsUserMapping" class="form-control"
+                                                               placeholder="🔍 ค้นหา BU / ชื่อโครงการ / ชื่ออังกฤษ">
+
+                                                        <select id="filterCheckedState" class="form-select" style="max-width:220px;">
+                                                            <option value="all">ทั้งหมด (All)</option>
+                                                            <option value="checked">ที่ติ๊กไว้ (Checked)</option>
+                                                            <option value="unchecked">ที่ยังไม่ติ๊ก (Unchecked)</option>
+                                                        </select>
                                                     </div>
                                                     <!-- ตารางอยู่ใน card-body -->
                                                     <div class="card-body p-0" style="height: 900px; overflow-y: auto; overflow-x: hidden;">
@@ -264,60 +271,20 @@
                                                             <thead>
                                                                 <tr>
                                                                     <th class="active">
-                                                                        <input type="checkbox" class="select-all checkbox" name="select-all" />
+                                                                        #
                                                                     </th>
                                                                     <th>BU</th>
                                                                     <th>Project</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
-                                                                <tr>
-                                                                    <td class="active">
-                                                                        <input type="checkbox" class="select-item checkbox" name="select-item" value="1000" />
-                                                                    </td>
-                                                                    <td>BU1</td>
-                                                                    <td>
-                                                                        <div class="fw-semibold">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</div>
-                                                                        <div class="text-muted small">CHANN The Riverside Boromratchonnani</div>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td class="active">
-                                                                        <input type="checkbox" class="select-item checkbox" name="select-item" value="1001" />
-                                                                    </td>
-                                                                    <td>BU1</td>
-                                                                    <td>
-                                                                        <div class="fw-semibold">เคฟ เอ็มบริโอ รังสิต</div>
-                                                                        <div class="text-muted small">Kave Embryo Rangsit</div>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td class="active">
-                                                                        <input type="checkbox" class="select-item checkbox" name="select-item" value="1002" checked />
-                                                                    </td>
-                                                                    <td>BU2</td>
-                                                                    <td>
-                                                                        <div class="fw-semibold">แอทโมซ เดอ โซล ทิพวัล สเตชั่น</div>
-                                                                        <div class="text-muted small">Atmoz De Sol Thipphawan Station</div>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td class="active">
-                                                                        <input type="checkbox" class="select-item checkbox" name="select-item" value="1003" checked />
-                                                                    </td>
-                                                                    <td>BU2</td>
-                                                                    <td>
-                                                                        <div class="fw-semibold">บ้านภูริปุรี ลาดพร้าว 41</div>
-                                                                        <div class="text-muted small">Baan Puri Puri Ladprao 41</div>
-                                                                    </td>
-                                                                </tr>
+
                                                             </tbody>
                                                         </table>
                                                     </div>
                                                     <div class="card-footer text-end">
                                                         <div class="col-sm-9 offset-sm-3">
-                                                            <button class="btn btn-primary me-3" type="submit">SaveX</button>
-                                                            <input class="btn btn-light" type="reset" value="Cancel">
+                                                            <button class="btn btn-primary me-3" type="submit" id="save_user_project">Save</button>
                                                         </div>
                                                     </div>                                         
                                                 </div>
@@ -329,6 +296,327 @@
                     </div>
                     </div>
                     <div class="tab-pane fade" id="permission-filter" role="tabpanel" aria-labelledby="permission-tab">
+
+
+                        <!-- Permission Tab Content (HTML-only mockup) -->
+                        
+                        <div class="card-body">
+                            <div class="row g-3">
+
+                                <!-- LEFT: Department & Role management -->
+                                <div class="col-lg-4">
+                                    <!-- Departments -->
+                                    <div class="card shadow-sm mb-3">
+                                        <div class="card-header d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <h6 class="mb-0">Departments</h6>
+                                                <small class="text-muted">Manage department list</small>
+                                            </div>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#mdlDeptAdd">
+                                                    <i class="bi bi-plus-lg"></i> Add
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="card-body pt-2">
+                                            <div class="list-group dept-list vertical-scroll scroll-demo scroll-b-none" style="height: 300px; overflow-y: auto; overflow-x: hidden;">
+                                                <!-- active item -->
+                                                @foreach (var d in departments)
+                                                {
+                                                    var text = (d.Text ?? d.Name ?? d.Display ?? "").ToString();
+                                                    <div class="list-group-item list-group-item-action d-flex align-items-center justify-content-between dept-item">
+                                                        <!-- Department name -->
+                                                        <div class="dept-name text-truncate" title="@text">
+                                                            <i class="bi bi-building text-primary me-2"></i>
+                                                            <span class="fw-semibold"> <a>@text</a> </span>
+                                                        </div>
+
+                                                        <!-- Single action button -->
+                                                        <button class="btn btn-light rounded-circle btn-icon" title="Edit" data-bs-toggle="modal" data-bs-target="#mdlDeptEdit">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </button>
+                                                    </div>
+                                                }
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Roles -->
+                                    <div class="card shadow-sm">
+                                        <div class="card-header d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <h6 class="mb-0">Roles</h6>
+                                                <small class="text-muted">Manage role list</small>
+                                            </div>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#mdlRoleAdd">
+                                                    <i class="bi bi-plus-lg"></i> Add
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="card-body pt-2">
+                                            <div class="list-group dept-list vertical-scroll scroll-demo scroll-b-none" style="height: 300px; overflow-y: auto; overflow-x: hidden;">
+                                                <!-- active item -->
+                                                @foreach (var r in roles)
+                                                {
+                                                    var text = (r.Text ?? r.Name ?? r.Display ?? "").ToString();
+                                                    <div class="list-group-item list-group-item-action d-flex align-items-center justify-content-between dept-item">
+                                                        <!-- Department name -->
+                                                        <div class="dept-name text-truncate" title="@text">
+                                                            <i class="bi bi-shield-lock text-primary me-2"></i>
+                                                            <span class="fw-semibold"> <a>@text</a> </span>
+                                                        </div>
+
+                                                        <!-- Single action button -->
+                                                        <button class="btn btn-light rounded-circle btn-icon" title="Edit" data-bs-toggle="modal" data-bs-target="#mdlDeptEdit">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </button>
+                                                    </div>
+                                                }
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- RIGHT: Permission Matrix -->
+                                <div class="col-lg-8">
+                                    <div class="card shadow-sm h-100">
+                                        <div class="card-header">
+                                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                                <div class="me-auto">
+                                                    <h6 class="mb-0">Permission Matrix</h6>
+                                                    <small class="text-muted">Department: <strong>Development</strong> • Role: <strong>Administrator</strong></small>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="card-body p-0">
+                                            <div class="permission-table-wrap">
+                                                <table class="table table-hover align-middle mb-0 permission-table">
+                                                    <thead class="table-light sticky-top">
+                                                        <tr>
+                                                            <th class="sticky-col">Page / Module</th>
+                                                            <th class="text-center">View</th>
+                                                            <th class="text-center">Add</th>
+                                                            <th class="text-center">Edit</th>
+                                                            <th class="text-center">Delete</th>
+                                                            <th class="text-center">Download</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <!-- Module header -->
+                                                        <tr class="module-row">
+                                                            <td class="sticky-col">
+                                                                <i class="bi bi-folder2-open me-1"></i> Projects
+                                                            </td>
+                                                            <td colspan="5" class="text-muted small">Module</td>
+                                                        </tr>
+
+                                                        <tr class="has-perm">
+                                                            <td class="sticky-col">
+                                                                <div class="fw-semibold">Project List</div>
+                                                                <div class="text-muted small">PRJ_LIST</div>
+                                                            </td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td class="sticky-col">
+                                                                <div class="fw-semibold">Project Editor</div>
+                                                                <div class="text-muted small">PRJ_EDIT</div>
+                                                            </td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                        </tr>
+
+                                                        <!-- Another module -->
+                                                        <tr class="module-row">
+                                                            <td class="sticky-col">
+                                                                <i class="bi bi-folder2-open me-1"></i> Users
+                                                            </td>
+                                                            <td colspan="5" class="text-muted small">Module</td>
+                                                        </tr>
+
+                                                        <tr class="has-perm">
+                                                            <td class="sticky-col">
+                                                                <div class="fw-semibold">User Directory</div>
+                                                                <div class="text-muted small">USR_LIST</div>
+                                                            </td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td class="sticky-col">
+                                                                <div class="fw-semibold">User Editor</div>
+                                                                <div class="text-muted small">USR_EDIT</div>
+                                                            </td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                        </tr>
+
+                                                        <!-- Reports -->
+                                                        <tr class="module-row">
+                                                            <td class="sticky-col">
+                                                                <i class="bi bi-folder2-open me-1"></i> Reports
+                                                            </td>
+                                                            <td colspan="5" class="text-muted small">Module</td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td class="sticky-col">
+                                                                <div class="fw-semibold">Export Reports</div>
+                                                                <div class="text-muted small">RPT_EXPORT</div>
+                                                            </td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <div class="card-footer d-flex justify-content-end gap-2">
+                                            <button class="btn btn-light" disabled>Reset</button>
+                                            <button class="btn btn-primary" disabled>Save</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        
+
+                        <!-- Mockup Modals (static) -->
+                        <div class="modal fade" id="mdlDeptAdd" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header"><h5 class="modal-title">Add Department</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Department Name</label>
+                                            <input type="text" class="form-control" placeholder="e.g., Development" disabled>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Code</label>
+                                            <input type="text" class="form-control" placeholder="e.g., DEV" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                        <button class="btn btn-primary" disabled>Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="mdlDeptEdit" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header"><h5 class="modal-title">Edit Department</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Department Name</label>
+                                            <input type="text" class="form-control" value="Development" disabled>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Code</label>
+                                            <input type="text" class="form-control" value="DEV" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                        <button class="btn btn-primary" disabled>Update</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="mdlDeptDelete" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header"><h5 class="modal-title">Delete Department</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete <strong>Development (DEV)</strong>?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                        <button class="btn btn-danger" disabled>Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="mdlRoleAdd" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header"><h5 class="modal-title">Add Role</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Role Name</label>
+                                            <input type="text" class="form-control" placeholder="e.g., Manager" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                        <button class="btn btn-primary" disabled>Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="mdlRoleEdit" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header"><h5 class="modal-title">Edit Role</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Role Name</label>
+                                            <input type="text" class="form-control" value="Administrator" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                        <button class="btn btn-primary" disabled>Update</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="mdlRoleDelete" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header"><h5 class="modal-title">Delete Role</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete <strong>Manager</strong> role?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                        <button class="btn btn-danger" disabled>Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
 
                     </div>
                 </div>

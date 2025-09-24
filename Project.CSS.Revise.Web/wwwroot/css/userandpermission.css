@@ -95,3 +95,129 @@
 }
 
 
+
+
+
+/* Layout helpers */
+.permission-admin .dept-list .list-group-item,
+.permission-admin .role-list .list-group-item {
+    border-left: 0;
+    border-right: 0;
+}
+
+    .permission-admin .dept-list .list-group-item .btn-group,
+    .permission-admin .role-list .list-group-item .btn-group {
+        opacity: .75;
+    }
+
+    .permission-admin .dept-list .list-group-item:hover .btn-group,
+    .permission-admin .role-list .list-group-item:hover .btn-group {
+        opacity: 1;
+    }
+
+/* Permission table */
+.permission-table-wrap {
+    max-height: 650px;
+    overflow: auto;
+}
+
+.permission-table thead.sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.permission-table th,
+.permission-table td {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.permission-table .sticky-col {
+    position: sticky;
+    left: 0;
+    background: #fff;
+    z-index: 4;
+    min-width: 260px;
+    box-shadow: 1px 0 0 rgba(0,0,0,.05);
+}
+
+.permission-table .module-row .sticky-col {
+    background: #f8f9fa;
+    font-weight: 600;
+}
+
+.permission-table tbody tr.has-perm {
+    background-color: #eef6ff;
+}
+
+/* Checkbox look */
+.permission-table input[type="checkbox"],
+.permission-admin input[type="checkbox"] {
+    transform: scale(1.12);
+    accent-color: #0d6efd;
+    cursor: default; /* mockup only */
+}
+
+/* Responsive tweaks */
+@media (max-width: 991.98px) {
+    .permission-table .sticky-col {
+        min-width: 220px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .permission-table .sticky-col {
+        min-width: 200px;
+    }
+
+    .permission-admin .card-header .btn-group .btn {
+        padding: .25rem .5rem;
+    }
+}
+
+
+
+/* Department list item */
+.dept-item {
+    padding-top: .65rem;
+    padding-bottom: .65rem;
+}
+
+    .dept-item .dept-name {
+        max-width: 75%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .dept-item:hover {
+        background-color: #f8f9fa;
+    }
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .btn-icon i {
+        font-size: 1rem;
+        line-height: 1;
+        position: relative;
+        left: 5px; /* ✅ nudge icon slightly to the right */
+    }
+
+
+.dept-item .btn-icon {
+    opacity: 0.75;
+    transition: opacity 0.2s;
+}
+
+.dept-item:hover .btn-icon {
+    opacity: 1;
+}
+

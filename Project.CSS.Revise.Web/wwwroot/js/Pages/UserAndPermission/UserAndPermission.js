@@ -376,9 +376,19 @@ function renderProjectsUserMapping(projects) {
                 tr.classList.remove('checked-row');
             }
         });
+
+        // ✅ reset filter dropdown to "All"
+        const stateEl = document.getElementById('filterCheckedState');
+        if (stateEl) {
+            stateEl.value = 'all';
+        }
+
+        // ✅ re-apply filters (show all rows by default)
+        if (typeof applyProjectFilters === 'function') {
+            applyProjectFilters();
+        }
     });
 }
-
 
 
 document.getElementById('searchProjectsUserMapping')?.addEventListener('input', (e) => {
@@ -497,7 +507,7 @@ async function onSaveEditUser(e) {
             const msg =
                 json?.message ||
                 (json?.duplicate ? 'ข้อมูลซ้ำ' : 'บันทึกไม่สำเร็จ');
-            errorToast(msg);
+            errorMessage(msg, 'บันทึกไม่สำเร็จ');
             if (json?.duplicate) {
                 console.warn('Duplicate detail:', json.duplicate);
             }
@@ -630,4 +640,143 @@ document.getElementById('modalCreateUser')?.addEventListener('show.bs.modal', ()
     if (chkReadonly) chkReadonly.checked = true; // default on
 });
 
+function getCheckedProjects() {
+    const checked = [];
+    document.querySelectorAll('#Tb_ProjectsUserMapping tbody .select-item:checked')
+        .forEach(cb => {
+            const row = cb.closest('tr');
+            checked.push({
+                ProjectID: cb.value,
+                BUName: row.children[1]?.innerText.trim() || '',
+                ProjectName: row.querySelector('.fw-semibold')?.innerText.trim() || '',
+                ProjectName_Eng: row.querySelector('.text-muted')?.innerText.trim() || ''
+            });
+        });
+    return checked;
+}
 
+document.getElementById('save_user_project')?.addEventListener('click', () => {
+    const selected = getCheckedProjects(); // [{ ProjectID, ... }]
+    const payload = {
+        UserID: currentEditUserId,
+        ProjectID: selected.map(p => p.ProjectID) // [] allowed for clear-all
+    };
+
+    // If nothing selected -> confirm "clear all"
+    if (selected.length === 0) {
+        Swal.fire({
+            icon: 'question',
+            title: 'Clear all projects?',
+            text: 'คุณต้องการลบการผูกโครงการทั้งหมดของผู้ใช้นี้หรือไม่',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, clear all',
+            cancelButtonText: 'Cancel'
+        }).then(result => {
+            if (!result.isConfirmed) return;
+            showLoading();
+            fetch(baseUrl + 'UserAndPermission/IUDProjectUserMapping', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload) // ProjectID: []
+            })
+                .then(res => res.json())
+                .then(json => {
+                    if (json.success) {
+                        hideLoading();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Cleared',
+                            text: 'ลบการผูกโครงการทั้งหมดเรียบร้อยแล้ว'
+                        });
+                    } else {
+                        hideLoading();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Save Failed',
+                            text: json.message || 'ไม่สามารถบันทึกได้'
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    hideLoading();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ'
+                    });
+                });
+        });
+        return; // stop here; handled by confirm branch
+    }
+    showLoading();
+    // Normal save (some projects selected)
+    fetch(baseUrl + 'UserAndPermission/IUDProjectUserMapping', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+        .then(res => res.json())
+        .then(json => {
+            if (json.success) {
+                hideLoading();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Saved!',
+                    text: 'บันทึกโครงการเรียบร้อยแล้ว'
+                });
+            } else {
+                hideLoading();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Save Failed',
+                    text: json.message || 'ไม่สามารถบันทึกได้'
+                });
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            hideLoading();
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ'
+            });
+        });
+});
+
+
+
+const searchEl = document.getElementById('searchProjectsUserMapping');
+const stateEl = document.getElementById('filterCheckedState');
+
+function applyProjectFilters() {
+    const kw = (searchEl?.value || '').trim().toLowerCase();
+    const mode = stateEl?.value || 'all';
+
+    document.querySelectorAll('#Tb_ProjectsUserMapping tbody tr').forEach(tr => {
+        const cb = tr.querySelector('.select-item');
+        const isChecked = !!(cb && cb.checked);
+
+        // status filter
+        let passState = true;
+        if (mode === 'checked') passState = isChecked;
+        if (mode === 'unchecked') passState = !isChecked;
+
+        // keyword filter
+        let passKw = true;
+        if (kw) {
+            const text = tr.innerText.toLowerCase();
+            passKw = text.includes(kw);
+        }
+
+        tr.style.display = (passState && passKw) ? '' : 'none';
+    });
+}
+
+// wire events
+searchEl?.addEventListener('input', applyProjectFilters);
+stateEl?.addEventListener('change', applyProjectFilters);
+
+// call once after rendering table
+applyProjectFilters();

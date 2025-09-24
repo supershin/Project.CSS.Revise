@@ -171,5 +171,20 @@ namespace Project.CSS.Revise.Web.Controllers
             }
         }
 
+
+        [HttpPost]
+        [Route("UserAndPermission/IUDProjectUserMapping")]
+        public IActionResult IUDProjectUserMapping([FromBody] UserAndPermissionModel.IUDProjectUserMapping model)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            string loginID = User.FindFirst("LoginID")?.Value;
+            string userID = SecurityManager.DecodeFrom64(loginID);
+            int currentUserID = Commond.FormatExtension.Nulltoint(userID);
+
+            var ok = _userAndPermissionService.IUDProjectUserMapping(model, currentUserID);
+            return Json(new { success = ok });
+        }
+
     }
 }
