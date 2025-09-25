@@ -406,88 +406,157 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <!-- Module header -->
-                                                        <tr class="module-row">
+
+                                                        <!-- LEVEL 1 (Mom) -->
+                                                        <tr class="tree-row l1">
                                                             <td class="sticky-col">
-                                                                <i class="bi bi-folder2-open me-1"></i> Projects
+                                                                <span class="tree-toggle disabled">
+                                                                    <i class="bi bi-caret-down-fill"></i>
+                                                                </span>
+                                                                <i class="bi bi-folder2-open text-primary me-1"></i>
+                                                                <span class="fw-semibold">Settings</span>
                                                             </td>
-                                                            <td colspan="5" class="text-muted small">Module</td>
                                                         </tr>
 
-                                                        <tr class="has-perm">
+                                                        <!-- LEVEL 2 (Child of Settings) -->
+                                                        <tr class="tree-row l2">
                                                             <td class="sticky-col">
-                                                                <div class="fw-semibold">Project List</div>
-                                                                <div class="text-muted small">PRJ_LIST</div>
+                                                                <span class="tree-indent"></span>
+                                                                <span class="tree-toggle disabled"><i class="bi bi-caret-down-fill"></i></span>
+                                                                <i class="bi bi-folder2 text-secondary me-1"></i>
+                                                                <span class="fw-semibold">User &amp; Permission</span>
                                                             </td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
+                                                            <td class="text-center"></td>
+                                                            <td class="text-center"></td>
+                                                            <td class="text-center"></td>
+                                                            <td class="text-center"></td>
+                                                            <td class="text-center"></td>
                                                         </tr>
 
-                                                        <tr>
+                                                        <!-- LEVEL 3 (Grandchildren of Settings -> User & Permission) -->
+                                                        <tr class="tree-row l3 has-perm">
                                                             <td class="sticky-col">
-                                                                <div class="fw-semibold">Project Editor</div>
-                                                                <div class="text-muted small">PRJ_EDIT</div>
+                                                                <span class="tree-indent l3"></span>
+                                                                <i class="bi bi-file-text me-1"></i>
+                                                                <span class="fw-semibold">User</span>
                                                             </td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                            <!-- From your tm_MenuAction seed for MenuID 30: V/A/U/Dl=1, Delete=0 -->
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input"></td>
+                                                            <td class="text-center"></td>
                                                         </tr>
 
-                                                        <!-- Another module -->
-                                                        <tr class="module-row">
+                                                        <tr class="tree-row l3 has-perm">
                                                             <td class="sticky-col">
-                                                                <i class="bi bi-folder2-open me-1"></i> Users
+                                                                <span class="tree-indent l3"></span>
+                                                                <i class="bi bi-file-text me-1"></i>
+                                                                <span class="fw-semibold">Permission</span>
                                                             </td>
-                                                            <td colspan="5" class="text-muted small">Module</td>
+                                                            <!-- For MenuID 31: V/A/U/Dl=1, Delete=0 -->
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"></td>
                                                         </tr>
 
-                                                        <tr class="has-perm">
+                                                        <!-- LEVEL 2 (Child of Settings) -->
+                                                        <tr class="tree-row l2 has-perm">
                                                             <td class="sticky-col">
-                                                                <div class="fw-semibold">User Directory</div>
-                                                                <div class="text-muted small">USR_LIST</div>
+                                                                <span class="tree-indent"></span>
+                                                                <i class="bi bi-folder2 text-secondary me-1"></i>
+                                                                <span class="fw-semibold">Project target &amp; rolling</span>
                                                             </td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                            <!-- For MenuID 21: View/Add/Update/Delete/Download = 1 -->
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
                                                         </tr>
 
-                                                        <tr>
+                                                        <tr class="tree-row l2 has-perm">
                                                             <td class="sticky-col">
-                                                                <div class="fw-semibold">User Editor</div>
-                                                                <div class="text-muted small">USR_EDIT</div>
+                                                                <span class="tree-indent"></span>
+                                                                <i class="bi bi-folder2 text-secondary me-1"></i>
+                                                                <span class="fw-semibold">Cs Response</span>
+
                                                             </td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"></td>
                                                         </tr>
 
-                                                        <!-- Reports -->
-                                                        <tr class="module-row">
+                                                        <tr class="tree-row l2">
                                                             <td class="sticky-col">
-                                                                <i class="bi bi-folder2-open me-1"></i> Reports
+                                                                <span class="tree-indent"></span>
+                                                                <span class="tree-toggle disabled"><i class="bi bi-caret-down-fill"></i></span>
+                                                                <i class="bi bi-folder2 text-secondary me-1"></i>
+                                                                <span class="fw-semibold">Other Settings</span>
                                                             </td>
-                                                            <td colspan="5" class="text-muted small">Module</td>
+                                                            <td class="text-center"></td>
+                                                            <td class="text-center"></td>
+                                                            <td class="text-center"></td>
+                                                            <td class="text-center"></td>
+                                                            <td class="text-center"></td>
                                                         </tr>
 
-                                                        <tr>
+                                                        <!-- LEVEL 3 (Grandchildren of Settings -> Other Settings) -->
+                                                        <tr class="tree-row l3 has-perm">
                                                             <td class="sticky-col">
-                                                                <div class="fw-semibold">Export Reports</div>
-                                                                <div class="text-muted small">RPT_EXPORT</div>
+                                                                <span class="tree-indent l3"></span>
+                                                                <i class="bi bi-file-text me-1"></i>
+                                                                <span class="fw-semibold">Shop &amp; Event</span>
                                                             </td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" disabled></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked disabled></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"></td>
+                                                        </tr>
+
+                                                        <tr class="tree-row l3 has-perm">
+                                                            <td class="sticky-col">
+                                                                <span class="tree-indent l3"></span>
+                                                                <i class="bi bi-file-text me-1"></i>
+                                                                <span class="fw-semibold">Counter</span>
+                                                            </td>
+                                                            <!-- For MenuID 28: V/A=1, Update=1, Delete=0, Download=1 -->
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                        </tr>
+
+                                                        <tr class="tree-row l2 has-perm">
+                                                            <td class="sticky-col">
+                                                                <span class="tree-indent"></span>
+                                                                <i class="bi bi-folder2 text-secondary me-1"></i>
+                                                                <span class="fw-semibold">Appointment limit</span>
+                                                            </td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"></td>
+                                                        </tr>
+
+                                                        <tr class="tree-row l2 has-perm">
+                                                            <td class="sticky-col">
+                                                                <span class="tree-indent"></span>
+                                                                <i class="bi bi-folder2 text-secondary me-1"></i>
+                                                                <span class="fw-semibold">User Bank</span>
+                                                            </td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
+                                                            <td class="text-center"></td>
                                                         </tr>
 
                                                     </tbody>
@@ -500,6 +569,7 @@
                                             <button class="btn btn-primary" disabled>Save</button>
                                         </div>
                                     </div>
+
                                 </div>
 
                             </div>
