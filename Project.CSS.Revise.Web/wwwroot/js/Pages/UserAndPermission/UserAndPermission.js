@@ -67,6 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     onSearchUsers();
 
+    loadPermissionMatrix();
+
     document.getElementById('btnSearchUser')?.addEventListener('click', onSearchUsers);
 
     document.getElementById('create_user_form')?.addEventListener('submit', onCreateUserSubmit);
@@ -780,3 +782,216 @@ stateEl?.addEventListener('change', applyProjectFilters);
 
 // call once after rendering table
 applyProjectFilters();
+
+async function loadPermissionMatrix() {
+    const tbody = document.getElementById('permissionMatrixBody');
+    if (!tbody) return console.warn('permissionMatrixBody not found');
+
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">Loading permissions…</td></tr>`;
+
+    try {
+        const res = await fetch(baseUrl + 'UserAndPermission/GetListPermissionMatrix', { method: 'POST' });
+        const json = await res.json();
+        const rows = Array.isArray(json?.data) ? json.data : [];
+
+        if (rows.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">No permission data</td></tr>`;
+            return;
+        }
+
+        const esc = (s) => (s ?? '').toString()
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
+        const parts = [];
+
+        for (const r of rows) {
+            const level = Number(r.Level) || 2;
+            const isLeaf = !!r.IsLeaf;
+            const hasAny = !!(r.CanView || r.CanAdd || r.CanEdit || r.CanDelete || r.CanDownload);
+            const nameEsc = esc(r.Name);
+
+            const indentSpan = level === 1
+                ? `<span class="tree-toggle disabled"><i class="bi bi-caret-down-fill"></i></span>`
+                : level === 2
+                    ? `<span class="tree-indent"></span>${isLeaf ? '' : `<span class="tree-toggle disabled"><i class="bi bi-caret-down-fill"></i></span>`}`
+                    : `<span class="tree-indent l3"></span>`;
+
+            const iconHtml = isLeaf
+                ? `<i class="bi bi-file-text me-1"></i>`
+                : (level === 1
+                    ? `<i class="bi bi-folder2-open text-primary me-1"></i>`
+                    : `<i class="bi bi-folder2 text-secondary me-1"></i>`);
+
+            const nameCell = `
+        <td class="sticky-col">
+          ${indentSpan}
+          ${iconHtml}
+          <span class="fw-semibold">${nameEsc}</span>
+        </td>`;
+
+            // helper to render an action cell with perm-chk + data attrs
+            const actionCell = (available, actionKey, initialChecked, menuId, nameEsc) => {
+                if (!available) return `<td class="text-center no-action">—</td>`;
+                const chk = initialChecked ? 'checked' : '';
+                return `<td class="text-center">
+            <input type="checkbox" class="form-check-input perm-chk"
+                   data-id="${menuId}" data-name="${nameEsc}"
+                   data-action="${actionKey}" ${chk}>
+          </td>`;
+            };
+
+
+            // If your API doesn’t send selected states yet, these will be false (unchecked).
+            const v = !!r.View, a = !!r.Add, u = !!r.Update, d = !!r.Delete, dl = !!r.Download;
+
+            const mid = Number(r.MenuID) || 0;
+            parts.push(`
+                          <tr class="tree-row l${level}${hasAny ? ' has-perm' : ''}">
+                            ${nameCell}
+                            ${actionCell(!!r.CanView, 'View', v, mid, nameEsc)}
+                            ${actionCell(!!r.CanAdd, 'Add', a, mid, nameEsc)}
+                            ${actionCell(!!r.CanEdit, 'Update', u, mid, nameEsc)}
+                            ${actionCell(!!r.CanDelete, 'Delete', d, mid, nameEsc)}
+                            ${actionCell(!!r.CanDownload, 'Download', dl, mid, nameEsc)}
+                          </tr>
+                        `);
+        }
+
+        tbody.innerHTML = parts.join('');
+    } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">Failed to load permissions</td></tr>`;
+    }
+}
+
+
+let currentDept = { id: null, name: '' };
+let currentRole = { id: null, name: '' };
+
+function setHeader(deptName, roleName) {
+    if (deptName !== null) document.getElementById('Dep_select').textContent = deptName || '—';
+    if (roleName !== null) document.getElementById('Role_select').textContent = roleName || '—';
+}
+
+function enableFooter(enabled) {
+    document.getElementById('btnSavePermissions').disabled = !enabled;
+    document.getElementById('btnResetPermissions').disabled = !enabled;
+}
+
+function wireDeptRoleClicks() {
+    document.querySelectorAll('.dept-item').forEach(el => {
+        el.addEventListener('click', () => {
+            document.querySelectorAll('.dept-item.active').forEach(a => a.classList.remove('active'));
+            el.classList.add('active');
+            currentDept.id = el.dataset.id;
+            currentDept.name = el.dataset.name;
+            setHeader(currentDept.name, null);
+            enableFooter(!!(currentDept.id && currentRole.id));
+        });
+    });
+
+    document.querySelectorAll('.role-item').forEach(el => {
+        el.addEventListener('click', () => {
+            document.querySelectorAll('.role-item.active').forEach(a => a.classList.remove('active'));
+            el.classList.add('active');
+            currentRole.id = el.dataset.id;
+            currentRole.name = el.dataset.name;
+            setHeader(null, currentRole.name);
+            enableFooter(!!(currentDept.id && currentRole.id));
+        });
+    });
+}
+
+// Collect checked actions grouped by menu name
+function collectPermissionItems() {
+    // key by MenuID (falls back to Name if MenuID missing)
+    const itemsByKey = new Map();
+
+    document.querySelectorAll('#permissionMatrixBody .perm-chk').forEach(chk => {
+        const idStr = chk.getAttribute('data-id');
+        const mid = idStr ? Number(idStr) : null;
+        const name = chk.getAttribute('data-name') || '';
+        const action = chk.getAttribute('data-action'); // View|Add|Update|Delete|Download
+        const val = chk.checked;
+
+        if (!action) return;
+
+        const key = (mid && !Number.isNaN(mid)) ? `id:${mid}` : `name:${name}`;
+        if (!itemsByKey.has(key)) {
+            itemsByKey.set(key, {
+                MenuID: (mid && !Number.isNaN(mid)) ? mid : undefined,
+                Name: (!mid || Number.isNaN(mid)) ? name : undefined,
+                View: false, Add: false, Update: false, Delete: false, Download: false
+            });
+        }
+        itemsByKey.get(key)[action] = val;
+    });
+
+    return Array.from(itemsByKey.values())
+        .filter(it => it.View || it.Add || it.Update || it.Delete || it.Download);
+}
+
+
+async function savePermissions() {
+    if (!currentDept.id || !currentRole.id) {
+        Swal?.fire({ icon: 'warning', title: 'Select Department & Role', text: 'กรุณาเลือก Department และ Role' });
+        return;
+    }
+
+    const items = collectPermissionItems();
+
+    const payload = {
+        QCTypeID: 10,
+        DepartmentID: Number(currentDept.id),
+        RoleID: Number(currentRole.id),
+        Items: items
+    };
+
+    try {
+        const res = await fetch(baseUrl + 'UserAndPermission/SaveRolePermissions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json?.success) {
+            Swal?.fire({ icon: 'success', title: 'Saved', text: 'บันทึกสิทธิสำเร็จ' });
+        } else {
+            Swal?.fire({ icon: 'error', title: 'Save failed', text: json?.message || 'ไม่สามารถบันทึกได้' });
+        }
+    } catch (err) {
+        console.error(err);
+        Swal?.fire({ icon: 'error', title: 'Error', text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ' });
+    }
+}
+
+function resetPermissions() {
+    document.querySelectorAll('#permissionMatrixBody .perm-chk').forEach(chk => chk.checked = false);
+}
+
+function wireFooterButtons() {
+    document.getElementById('btnSavePermissions')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        savePermissions();
+    });
+    document.getElementById('btnResetPermissions')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        resetPermissions();
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    wireDeptRoleClicks();
+    wireFooterButtons();
+
+    // Optional: auto-select first dept & role
+    const firstDept = document.querySelector('.dept-item');
+    const firstRole = document.querySelector('.role-item');
+    if (firstDept) firstDept.click();
+    if (firstRole) firstRole.click();
+
+    // Save/Reset stays disabled until both are selected
+    enableFooter(!!(currentDept.id && currentRole.id));
+});

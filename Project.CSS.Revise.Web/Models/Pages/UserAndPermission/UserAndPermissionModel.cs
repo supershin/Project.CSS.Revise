@@ -132,5 +132,38 @@ namespace Project.CSS.Revise.Web.Models.Pages.UserAndPermission
             public int? UserID { get; set; }
             public List<string> ProjectID { get; set; } = new List<string>();
         }
+
+        public class PermissionMatrixRow
+        {
+            public int MenuID { get; set; }        // ✅ add this
+            public string Name { get; set; } = string.Empty;   // menu name
+            public int Level { get; set; }                     // 1=Mom, 2=Child, 3=Grandchild
+            public bool CanView { get; set; }
+            public bool CanAdd { get; set; }
+            public bool CanEdit { get; set; }
+            public bool CanDelete { get; set; }
+            public bool CanDownload { get; set; }
+            public bool IsLeaf { get; set; }                   // helpful for UI styling
+            public string? ParentName { get; set; }            // optional for breadcrumbs
+        }
+
+        public class SaveRolePermissionRequest
+        {
+            public int QCTypeID { get; set; } = 10;
+            public int DepartmentID { get; set; }
+            public int RoleID { get; set; }
+            public List<PermissionSelectionItem> Items { get; set; } = new();
+        }
+
+        public class PermissionSelectionItem
+        {
+            public int? MenuID { get; set; }            // preferred if you have it
+            public string? Name { get; set; }           // or use Name, we’ll map to MenuID
+            public bool View { get; set; }
+            public bool Add { get; set; }
+            public bool Update { get; set; }
+            public bool Delete { get; set; }
+            public bool Download { get; set; }
+        }
     }
 }

@@ -320,18 +320,17 @@
                                         </div>
                                         <div class="card-body pt-2">
                                             <div class="list-group dept-list vertical-scroll scroll-demo scroll-b-none" style="height: 300px; overflow-y: auto; overflow-x: hidden;">
-                                                <!-- active item -->
+                                                <!-- Departments -->
                                                 @foreach (var d in departments)
                                                 {
                                                     var text = (d.Text ?? d.Name ?? d.Display ?? "").ToString();
-                                                    <div class="list-group-item list-group-item-action d-flex align-items-center justify-content-between dept-item">
-                                                        <!-- Department name -->
+                                                    var val = (d.ValueInt ?? d.Value ?? d.ID ?? "").ToString();
+                                                    <div class="list-group-item list-group-item-action d-flex align-items-center justify-content-between dept-item"
+                                                         data-id="@val" data-name="@text">
                                                         <div class="dept-name text-truncate" title="@text">
                                                             <i class="bi bi-building text-primary me-2"></i>
-                                                            <span class="fw-semibold"> <a>@text</a> </span>
+                                                            <span class="fw-semibold"><a>@text</a></span>
                                                         </div>
-
-                                                        <!-- Single action button -->
                                                         <button class="btn btn-light rounded-circle btn-icon" title="Edit" data-bs-toggle="modal" data-bs-target="#mdlDeptEdit">
                                                             <i class="bi bi-pencil"></i>
                                                         </button>
@@ -357,19 +356,18 @@
                                         </div>
                                         <div class="card-body pt-2">
                                             <div class="list-group dept-list vertical-scroll scroll-demo scroll-b-none" style="height: 300px; overflow-y: auto; overflow-x: hidden;">
-                                                <!-- active item -->
+                                                <!-- Roles -->
                                                 @foreach (var r in roles)
                                                 {
                                                     var text = (r.Text ?? r.Name ?? r.Display ?? "").ToString();
-                                                    <div class="list-group-item list-group-item-action d-flex align-items-center justify-content-between dept-item">
-                                                        <!-- Department name -->
+                                                    var val = (r.ValueInt ?? r.Value ?? r.ID ?? "").ToString();
+                                                    <div class="list-group-item list-group-item-action d-flex align-items-center justify-content-between role-item"
+                                                         data-id="@val" data-name="@text">
                                                         <div class="dept-name text-truncate" title="@text">
                                                             <i class="bi bi-shield-lock text-primary me-2"></i>
-                                                            <span class="fw-semibold"> <a>@text</a> </span>
+                                                            <span class="fw-semibold"><a>@text</a></span>
                                                         </div>
-
-                                                        <!-- Single action button -->
-                                                        <button class="btn btn-light rounded-circle btn-icon" title="Edit" data-bs-toggle="modal" data-bs-target="#mdlDeptEdit">
+                                                        <button class="btn btn-light rounded-circle btn-icon" title="Edit" data-bs-toggle="modal" data-bs-target="#mdlRoleEdit">
                                                             <i class="bi bi-pencil"></i>
                                                         </button>
                                                     </div>
@@ -387,189 +385,45 @@
                                             <div class="d-flex flex-wrap align-items-center gap-2">
                                                 <div class="me-auto">
                                                     <h6 class="mb-0">Permission Matrix</h6>
-                                                    <small class="text-muted">Department: <strong>Development</strong> • Role: <strong>Administrator</strong></small>
+                                                    <small class="text-muted">Department: <strong id="Dep_select"></strong> • Role: <strong id="Role_select"></strong></small>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div class="card-body p-0">
                                             <div class="permission-table-wrap">
-                                                <table class="table table-hover align-middle mb-0 permission-table">
-                                                    <thead class="table-light sticky-top">
-                                                        <tr>
-                                                            <th class="sticky-col">Page / Module</th>
-                                                            <th class="text-center">View</th>
-                                                            <th class="text-center">Add</th>
-                                                            <th class="text-center">Edit</th>
-                                                            <th class="text-center">Delete</th>
-                                                            <th class="text-center">Download</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
+                                                <div class="permission-table-wrap">
+                                                    <table id="permissionMatrixTable" class="table table-hover align-middle mb-0 permission-table">
+                                                        <thead class="table-light sticky-top">
+                                                            <tr>
+                                                                <th class="sticky-col">Page / Module</th>
+                                                                <th class="text-center">View</th>
+                                                                <th class="text-center">Add</th>
+                                                                <th class="text-center">Edit</th>
+                                                                <th class="text-center">Delete</th>
+                                                                <th class="text-center">Download</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="permissionMatrixBody">
+                                                            <!-- Rows will be rendered by JS -->
+                                                        </tbody>
+                                                    </table>
+                                                </div>
 
-                                                        <!-- LEVEL 1 (Mom) -->
-                                                        <tr class="tree-row l1">
-                                                            <td class="sticky-col">
-                                                                <span class="tree-toggle disabled">
-                                                                    <i class="bi bi-caret-down-fill"></i>
-                                                                </span>
-                                                                <i class="bi bi-folder2-open text-primary me-1"></i>
-                                                                <span class="fw-semibold">Settings</span>
-                                                            </td>
-                                                        </tr>
+                                            </div>
 
-                                                        <!-- LEVEL 2 (Child of Settings) -->
-                                                        <tr class="tree-row l2">
-                                                            <td class="sticky-col">
-                                                                <span class="tree-indent"></span>
-                                                                <span class="tree-toggle disabled"><i class="bi bi-caret-down-fill"></i></span>
-                                                                <i class="bi bi-folder2 text-secondary me-1"></i>
-                                                                <span class="fw-semibold">User &amp; Permission</span>
-                                                            </td>
-                                                            <td class="text-center"></td>
-                                                            <td class="text-center"></td>
-                                                            <td class="text-center"></td>
-                                                            <td class="text-center"></td>
-                                                            <td class="text-center"></td>
-                                                        </tr>
-
-                                                        <!-- LEVEL 3 (Grandchildren of Settings -> User & Permission) -->
-                                                        <tr class="tree-row l3 has-perm">
-                                                            <td class="sticky-col">
-                                                                <span class="tree-indent l3"></span>
-                                                                <i class="bi bi-file-text me-1"></i>
-                                                                <span class="fw-semibold">User</span>
-                                                            </td>
-                                                            <!-- From your tm_MenuAction seed for MenuID 30: V/A/U/Dl=1, Delete=0 -->
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input"></td>
-                                                            <td class="text-center"></td>
-                                                        </tr>
-
-                                                        <tr class="tree-row l3 has-perm">
-                                                            <td class="sticky-col">
-                                                                <span class="tree-indent l3"></span>
-                                                                <i class="bi bi-file-text me-1"></i>
-                                                                <span class="fw-semibold">Permission</span>
-                                                            </td>
-                                                            <!-- For MenuID 31: V/A/U/Dl=1, Delete=0 -->
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"></td>
-                                                        </tr>
-
-                                                        <!-- LEVEL 2 (Child of Settings) -->
-                                                        <tr class="tree-row l2 has-perm">
-                                                            <td class="sticky-col">
-                                                                <span class="tree-indent"></span>
-                                                                <i class="bi bi-folder2 text-secondary me-1"></i>
-                                                                <span class="fw-semibold">Project target &amp; rolling</span>
-                                                            </td>
-                                                            <!-- For MenuID 21: View/Add/Update/Delete/Download = 1 -->
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                        </tr>
-
-                                                        <tr class="tree-row l2 has-perm">
-                                                            <td class="sticky-col">
-                                                                <span class="tree-indent"></span>
-                                                                <i class="bi bi-folder2 text-secondary me-1"></i>
-                                                                <span class="fw-semibold">Cs Response</span>
-
-                                                            </td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"></td>
-                                                        </tr>
-
-                                                        <tr class="tree-row l2">
-                                                            <td class="sticky-col">
-                                                                <span class="tree-indent"></span>
-                                                                <span class="tree-toggle disabled"><i class="bi bi-caret-down-fill"></i></span>
-                                                                <i class="bi bi-folder2 text-secondary me-1"></i>
-                                                                <span class="fw-semibold">Other Settings</span>
-                                                            </td>
-                                                            <td class="text-center"></td>
-                                                            <td class="text-center"></td>
-                                                            <td class="text-center"></td>
-                                                            <td class="text-center"></td>
-                                                            <td class="text-center"></td>
-                                                        </tr>
-
-                                                        <!-- LEVEL 3 (Grandchildren of Settings -> Other Settings) -->
-                                                        <tr class="tree-row l3 has-perm">
-                                                            <td class="sticky-col">
-                                                                <span class="tree-indent l3"></span>
-                                                                <i class="bi bi-file-text me-1"></i>
-                                                                <span class="fw-semibold">Shop &amp; Event</span>
-                                                            </td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"></td>
-                                                        </tr>
-
-                                                        <tr class="tree-row l3 has-perm">
-                                                            <td class="sticky-col">
-                                                                <span class="tree-indent l3"></span>
-                                                                <i class="bi bi-file-text me-1"></i>
-                                                                <span class="fw-semibold">Counter</span>
-                                                            </td>
-                                                            <!-- For MenuID 28: V/A=1, Update=1, Delete=0, Download=1 -->
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                        </tr>
-
-                                                        <tr class="tree-row l2 has-perm">
-                                                            <td class="sticky-col">
-                                                                <span class="tree-indent"></span>
-                                                                <i class="bi bi-folder2 text-secondary me-1"></i>
-                                                                <span class="fw-semibold">Appointment limit</span>
-                                                            </td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"></td>
-                                                        </tr>
-
-                                                        <tr class="tree-row l2 has-perm">
-                                                            <td class="sticky-col">
-                                                                <span class="tree-indent"></span>
-                                                                <i class="bi bi-folder2 text-secondary me-1"></i>
-                                                                <span class="fw-semibold">User Bank</span>
-                                                            </td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"><input type="checkbox" class="form-check-input" checked></td>
-                                                            <td class="text-center"></td>
-                                                        </tr>
-
-                                                    </tbody>
-                                                </table>
+                                            <div class="px-3 py-2 border-top small text-muted">
+                                                <span class="me-3"><span class="legend-box legend-yes"></span> checkbox available</span>
+                                                <span><span class="legend-box legend-no"></span> no checkbox for this action</span>
                                             </div>
                                         </div>
 
+                                        <!-- Footer buttons -->
                                         <div class="card-footer d-flex justify-content-end gap-2">
-                                            <button class="btn btn-light" disabled>Reset</button>
-                                            <button class="btn btn-primary" disabled>Save</button>
+                                            <button id="btnResetPermissions" class="btn btn-light" disabled>Reset</button>
+                                            <button id="btnSavePermissions" class="btn btn-primary" disabled>Save</button>
                                         </div>
                                     </div>
-
                                 </div>
 
                             </div>

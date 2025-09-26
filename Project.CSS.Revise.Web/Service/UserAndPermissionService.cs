@@ -16,6 +16,8 @@ namespace Project.CSS.Revise.Web.Service
         public UserAndPermissionModel.UserDetail? GetDetailsUser(UserAndPermissionModel.FiltersGetlistUser filters);
         public List<UserAndPermissionModel.GetlistProjects> GetlistProjects(UserAndPermissionModel.FiltersGetlistUser filters);
         public bool IUDProjectUserMapping(UserAndPermissionModel.IUDProjectUserMapping model, int currentUserId);
+        public List<UserAndPermissionModel.PermissionMatrixRow> GetPermissionMatrix(int qcTypeId = 10);
+        bool SaveRolePermissions(UserAndPermissionModel.SaveRolePermissionRequest req, int currentUserId);
     }
     public class UserAndPermissionService : IUserAndPermissionService
     {
@@ -46,6 +48,11 @@ namespace Project.CSS.Revise.Web.Service
             return _userAndPermissionRepo.GetlistUser(filters);
         }
 
+        public List<PermissionMatrixRow> GetPermissionMatrix(int qcTypeId = 10)
+        {
+            return _userAndPermissionRepo.GetPermissionMatrix(qcTypeId);
+        }
+
         public int InsertUser(UserAndPermissionModel.CreateUserRequest model, int currentUserId)
         {
             return _userAndPermissionRepo.InsertUser(model, currentUserId);
@@ -61,6 +68,9 @@ namespace Project.CSS.Revise.Web.Service
             return _userAndPermissionRepo.UpdateUser(model, currentUserId);
         }
 
-
+        public bool SaveRolePermissions(UserAndPermissionModel.SaveRolePermissionRequest req, int currentUserId)
+        {
+            return _userAndPermissionRepo.SaveRolePermissions(req, currentUserId);
+        }
     }
 }

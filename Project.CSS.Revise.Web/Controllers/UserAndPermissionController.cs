@@ -186,5 +186,37 @@ namespace Project.CSS.Revise.Web.Controllers
             return Json(new { success = ok });
         }
 
+
+        [HttpPost]
+        [Route("UserAndPermission/GetListPermissionMatrix")]
+        public JsonResult GetListPermissionMatrix()
+        {
+            var data = _userAndPermissionService.GetPermissionMatrix(10);
+            return Json(new { data });
+        }
+
+        [HttpPost]
+        [Route("UserAndPermission/SaveRolePermissions")]
+        public JsonResult SaveRolePermissions([FromBody] UserAndPermissionModel.SaveRolePermissionRequest req)
+        {
+            if (req == null) return Json(new { success = false, message = "Invalid payload" });
+
+            string loginId = User.FindFirst("LoginID")?.Value;
+            string userId = SecurityManager.DecodeFrom64(loginId);
+            int currentUserId = Commond.FormatExtension.Nulltoint(userId);
+
+            try
+            {
+                //var ok = _userAndPermissionService.SaveRolePermissions(req, currentUserId);
+                var ok = true;
+                return Json(new { success = ok });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Save failed", detail = ex.Message });
+            }
+        }
+
+
     }
 }

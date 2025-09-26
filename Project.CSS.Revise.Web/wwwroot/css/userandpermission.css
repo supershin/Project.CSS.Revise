@@ -172,8 +172,7 @@
     z-index: 5;
 }
 
-.permission-table th,
-.permission-table td {
+.permission-table th, .permission-table td {
     vertical-align: middle;
     white-space: nowrap;
 }
@@ -183,7 +182,7 @@
     left: 0;
     background: #fff;
     z-index: 4;
-    min-width: 320px; /* more space for tree names */
+    min-width: 300px;
     box-shadow: 1px 0 0 rgba(0,0,0,.05);
 }
 
@@ -209,7 +208,6 @@
         width: 2rem;
     }
 
-/* Optional caret placeholder */
 .tree-toggle {
     display: inline-flex;
     align-items: center;
@@ -223,16 +221,60 @@
         opacity: .4;
     }
 
-/* Row with any permission true */
+/* Highlight rows that actually have any supported actions */
 .permission-table tbody tr.has-perm {
     background-color: #eef6ff;
 }
 
 /* Checkbox look */
 .permission-table input[type="checkbox"] {
-    transform: scale(1.1);
+    transform: scale(1.08);
     accent-color: #0d6efd;
     cursor: default; /* mockup only */
+}
+
+/* Unchecked checkbox – clearer border and background */
+.permission-table .form-check-input:not(:checked) {
+    background-color: #f8f9fa; /* light gray background */
+    border: 2px solid #6c757d; /* dark gray border for contrast */
+}
+
+/* Checked state – keep Bootstrap’s blue highlight */
+.permission-table .form-check-input:checked {
+    background-color: #0d6efd; /* Bootstrap blue */
+    border-color: #0d6efd;
+}
+
+/* Disabled "no-action" cells – consistent neutral */
+.permission-table .no-action {
+    color: #999;
+    font-style: italic;
+}
+
+
+/* Unsupported cells show a muted dash */
+.no-action {
+    color: #adb5bd;
+}
+
+/* Legend */
+.legend-box {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    margin-right: .35rem;
+    vertical-align: -2px;
+}
+
+.legend-yes {
+    background: #0d6efd;
+    opacity: .5;
+}
+
+.legend-no {
+    background: #adb5bd;
+    opacity: .4;
 }
 
 /* Responsive */

@@ -16,6 +16,8 @@ namespace Project.CSS.Revise.Web.Respositories
         public UserAndPermissionModel.UserDetail? GetDetailsUser(UserAndPermissionModel.FiltersGetlistUser filters);
         public List<UserAndPermissionModel.GetlistProjects> GetlistProjects(UserAndPermissionModel.FiltersGetlistUser filters);
         public bool IUDProjectUserMapping(UserAndPermissionModel.IUDProjectUserMapping model, int currentUserId);
+        public List<UserAndPermissionModel.PermissionMatrixRow> GetPermissionMatrix(int qcTypeId = 10);
+        bool SaveRolePermissions(UserAndPermissionModel.SaveRolePermissionRequest req, int currentUserId);
     }
     public class UserAndPermissionRepo : IUserAndPermissionRepo
     {
@@ -543,6 +545,184 @@ namespace Project.CSS.Revise.Web.Respositories
                 throw;
             }
         }
+
+        public List<UserAndPermissionModel.PermissionMatrixRow> GetPermissionMatrix(int qcTypeId = 10)
+        {
+            var result = new List<UserAndPermissionModel.PermissionMatrixRow>();
+            string connectionString = _context.Database.GetDbConnection().ConnectionString;
+
+            using (var conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                // Build the 3-level tree and pull action availability from tm_MenuAction
+                string sql = @"
+                    ;WITH MenuCTE AS (
+                        -- Level 1 (Mom)
+                        SELECT 
+                            m.ID,
+                            m.ParentID,
+                            m.Name,
+                            CAST(m.Name AS NVARCHAR(1000)) AS PathName,
+                            1 AS Depth
+                        FROM dbo.tm_Menu m WITH (NOLOCK)
+                        WHERE m.QCTypeID = @QCTypeID
+                          AND m.ParentID IS NULL
+
+                        UNION ALL
+
+                        -- Children/Grandchildren
+                        SELECT 
+                            c.ID,
+                            c.ParentID,
+                            c.Name,
+                            CAST(p.PathName + N' / ' + c.Name AS NVARCHAR(1000)) AS PathName,
+                            p.Depth + 1 AS Depth
+                        FROM dbo.tm_Menu c WITH (NOLOCK)
+                        JOIN MenuCTE p ON c.ParentID = p.ID
+                        WHERE c.QCTypeID = @QCTypeID
+                    ),
+                    Agg AS (
+                        SELECT 
+                            t.ID AS MenuID, 
+                            t.ParentID,
+                            t.Name,
+                            t.Depth,
+                            -- If a row exists in tm_MenuAction, it defines which actions are available.
+                            ISNULL(a.[View], 0)      AS CanView,
+                            ISNULL(a.[Add], 0)       AS CanAdd,
+                            ISNULL(a.[Update], 0)    AS CanEdit,
+                            ISNULL(a.[Delete], 0)    AS CanDelete,
+                            ISNULL(a.[Download], 0)  AS CanDownload,
+                            -- Detect leaf: no child in tm_Menu
+                            CASE 
+                                WHEN EXISTS (
+                                    SELECT 1 
+                                    FROM dbo.tm_Menu ch WITH (NOLOCK) 
+                                    WHERE ch.ParentID = t.ID 
+                                      AND ch.QCTypeID = @QCTypeID
+                                ) THEN CAST(0 AS BIT) 
+                                ELSE CAST(1 AS BIT) 
+                            END AS IsLeaf,
+                            -- Parent name (names only)
+                            (SELECT TOP (1) p.Name FROM dbo.tm_Menu p WITH (NOLOCK) WHERE p.ID = t.ParentID) AS ParentName,
+                            -- Sorting key (keeps hierarchy order stable)
+                            t.PathName
+                        FROM MenuCTE t
+                        LEFT JOIN dbo.tm_MenuAction a WITH (NOLOCK) ON a.MenuID = t.ID
+                    )
+                    SELECT 
+                        MenuID,
+                        Name,
+                        Depth AS [Level],
+                        CanView,
+                        CanAdd,
+                        CanEdit,
+                        CanDelete,
+                        CanDownload,
+                        IsLeaf,
+                        ParentName
+                    FROM Agg
+                    ORDER BY PathName;
+                ";
+
+                using (var cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.Add(new SqlParameter("@QCTypeID", qcTypeId));
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            result.Add(new UserAndPermissionModel.PermissionMatrixRow
+                            {
+                                MenuID = Commond.FormatExtension.Nulltoint(reader["MenuID"]),
+                                Name = Commond.FormatExtension.NullToString(reader["Name"]),
+                                Level = Commond.FormatExtension.Nulltoint(reader["Level"]),
+                                CanView = reader["CanView"] != DBNull.Value && (bool)reader["CanView"],
+                                CanAdd = reader["CanAdd"] != DBNull.Value && (bool)reader["CanAdd"],
+                                CanEdit = reader["CanEdit"] != DBNull.Value && (bool)reader["CanEdit"],
+                                CanDelete = reader["CanDelete"] != DBNull.Value && (bool)reader["CanDelete"],
+                                CanDownload = reader["CanDownload"] != DBNull.Value && (bool)reader["CanDownload"],
+                                IsLeaf = reader["IsLeaf"] != DBNull.Value && (bool)reader["IsLeaf"],
+                                ParentName = Commond.FormatExtension.NullToString(reader["ParentName"])
+                            });
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public bool SaveRolePermissions(UserAndPermissionModel.SaveRolePermissionRequest req, int currentUserId)
+        {
+            if (req == null) throw new ArgumentNullException(nameof(req));
+
+            using var tx = _context.Database.BeginTransaction();
+            var now = DateTime.Now;
+
+            try
+            {
+                // Build Name->ID map once (QC-scoped) for when Items only provide Name
+                var nameToId = _context.tm_Menus
+                    .AsNoTracking()
+                    .Where(m => m.QCTypeID == req.QCTypeID)
+                    .ToDictionary(m => (m.Name ?? "").Trim(), m => m.ID);
+
+                // 1) Wipe existing rows for this Dept/Role/QC
+                _context.Database.ExecuteSqlRaw(@"DELETE FROM dbo.TR_MenuRolePermission WHERE QCTypeID = {0} AND DepartmentID = {1} AND RoleID = {2};", req.QCTypeID, req.DepartmentID, req.RoleID);
+
+                // 2) Insert only rows that have any action = true
+                foreach (var it in req.Items ?? Enumerable.Empty<UserAndPermissionModel.PermissionSelectionItem>())
+                {
+                    bool any = it.View || it.Add || it.Update || it.Delete || it.Download;
+                    if (!any) continue;
+
+                    int menuId;
+                    if (it.MenuID.HasValue)
+                    {
+                        menuId = it.MenuID.Value;
+                    }
+                    else
+                    {
+                        var key = (it.Name ?? "").Trim();
+                        if (string.IsNullOrEmpty(key) || !nameToId.TryGetValue(key, out menuId))
+                            continue; // cannot resolve -> skip
+                    }
+
+                    var row = new TR_MenuRolePermission
+                    {
+                        QCTypeID = req.QCTypeID,
+                        MenuID = menuId,
+                        DepartmentID = req.DepartmentID,
+                        RoleID = req.RoleID,
+                        View = it.View,
+                        Add = it.Add,
+                        Update = it.Update,
+                        Delete = it.Delete,
+                        Download = it.Download,
+                        FlagActive = true,
+                        CreateDate = now,
+                        CreateBy = currentUserId,
+                        UpdateDate = now,
+                        UpdateBy = currentUserId
+                    };
+
+                    _context.Set<TR_MenuRolePermission>().Add(row);
+                }
+
+                _context.SaveChanges();
+                tx.Commit();
+                return true;
+            }
+            catch
+            {
+                tx.Rollback();
+                throw;
+            }
+        }
+
 
 
     }
