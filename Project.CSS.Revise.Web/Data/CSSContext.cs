@@ -445,6 +445,8 @@ public partial class CSSContext : DbContext
 
     public virtual DbSet<tm_Menu> tm_Menus { get; set; }
 
+    public virtual DbSet<tm_MenuAction> tm_MenuActions { get; set; }
+
     public virtual DbSet<tm_Position> tm_Positions { get; set; }
 
     public virtual DbSet<tm_Project> tm_Projects { get; set; }
@@ -2124,6 +2126,16 @@ public partial class CSSContext : DbContext
             entity.HasOne(d => d.QCType).WithMany(p => p.tm_Menus).HasConstraintName("FK_tm_Menu_tm_Ext");
         });
 
+        modelBuilder.Entity<tm_MenuAction>(entity =>
+        {
+            entity.HasKey(e => e.ID).HasName("PK__tm_MenuA__3214EC27F24ACE3E");
+
+            entity.Property(e => e.CreateDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.FlagActive).HasDefaultValue(true);
+
+            entity.HasOne(d => d.Menu).WithMany(p => p.tm_MenuActions).HasConstraintName("FK_tm_MenuAction_Menu");
+        });
+
         modelBuilder.Entity<tm_Position>(entity =>
         {
             entity.Property(e => e.ID).ValueGeneratedNever();
@@ -2185,8 +2197,6 @@ public partial class CSSContext : DbContext
 
         modelBuilder.Entity<tm_Role>(entity =>
         {
-            entity.Property(e => e.ID).ValueGeneratedNever();
-
             entity.HasOne(d => d.QCType).WithMany(p => p.tm_Roles).HasConstraintName("FK_tm_Role_tm_Ext");
         });
 

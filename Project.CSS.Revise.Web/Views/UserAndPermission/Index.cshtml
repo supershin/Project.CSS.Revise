@@ -312,15 +312,9 @@
                                                 <h6 class="mb-0">Departments</h6>
                                                 <small class="text-muted">Manage department list</small>
                                             </div>
-                                            <div class="btn-group">
-                                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#mdlDeptAdd">
-                                                    <i class="bi bi-plus-lg"></i> Add
-                                                </button>
-                                            </div>
                                         </div>
                                         <div class="card-body pt-2">
-                                            <div class="list-group dept-list vertical-scroll scroll-demo scroll-b-none" style="height: 300px; overflow-y: auto; overflow-x: hidden;">
-                                                <!-- Departments -->
+                                            <div class="list-group departments-list vertical-scroll scroll-demo scroll-b-none" style="height: 300px; overflow-y: auto; overflow-x: hidden;">
                                                 @foreach (var d in departments)
                                                 {
                                                     var text = (d.Text ?? d.Name ?? d.Display ?? "").ToString();
@@ -331,12 +325,8 @@
                                                             <i class="bi bi-building text-primary me-2"></i>
                                                             <span class="fw-semibold"><a>@text</a></span>
                                                         </div>
-                                                        <button class="btn btn-light rounded-circle btn-icon" title="Edit" data-bs-toggle="modal" data-bs-target="#mdlDeptEdit">
-                                                            <i class="bi bi-pencil"></i>
-                                                        </button>
                                                     </div>
                                                 }
-
                                             </div>
                                         </div>
                                     </div>
@@ -355,8 +345,7 @@
                                             </div>
                                         </div>
                                         <div class="card-body pt-2">
-                                            <div class="list-group dept-list vertical-scroll scroll-demo scroll-b-none" style="height: 300px; overflow-y: auto; overflow-x: hidden;">
-                                                <!-- Roles -->
+                                            <div class="list-group roles-list vertical-scroll scroll-demo scroll-b-none" style="height: 300px; overflow-y: auto; overflow-x: hidden;">
                                                 @foreach (var r in roles)
                                                 {
                                                     var text = (r.Text ?? r.Name ?? r.Display ?? "").ToString();
@@ -372,10 +361,10 @@
                                                         </button>
                                                     </div>
                                                 }
-
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
 
                                 <!-- RIGHT: Permission Matrix -->
@@ -428,68 +417,8 @@
 
                             </div>
                         </div>
-                        
 
-                        <!-- Mockup Modals (static) -->
-                        <div class="modal fade" id="mdlDeptAdd" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header"><h5 class="modal-title">Add Department</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                                    <div class="modal-body">
-                                        <div class="mb-3">
-                                            <label class="form-label">Department Name</label>
-                                            <input type="text" class="form-control" placeholder="e.g., Development" disabled>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label class="form-label">Code</label>
-                                            <input type="text" class="form-control" placeholder="e.g., DEV" disabled>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                        <button class="btn btn-primary" disabled>Save</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="modal fade" id="mdlDeptEdit" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header"><h5 class="modal-title">Edit Department</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                                    <div class="modal-body">
-                                        <div class="mb-3">
-                                            <label class="form-label">Department Name</label>
-                                            <input type="text" class="form-control" value="Development" disabled>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label class="form-label">Code</label>
-                                            <input type="text" class="form-control" value="DEV" disabled>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                        <button class="btn btn-primary" disabled>Update</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="modal fade" id="mdlDeptDelete" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header"><h5 class="modal-title">Delete Department</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                                    <div class="modal-body">
-                                        Are you sure you want to delete <strong>Development (DEV)</strong>?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                        <button class="btn btn-danger" disabled>Delete</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
+                        <!-- Add Role -->
                         <div class="modal fade" id="mdlRoleAdd" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
@@ -497,45 +426,32 @@
                                     <div class="modal-body">
                                         <div class="mb-3">
                                             <label class="form-label">Role Name</label>
-                                            <input type="text" class="form-control" placeholder="e.g., Manager" disabled>
+                                            <input type="text" id="roleAddName" class="form-control" placeholder="">
                                         </div>
                                     </div>
                                     <div class="modal-footer">
                                         <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                        <button class="btn btn-primary" disabled>Save</button>
+                                        <button class="btn btn-primary" id="btnRoleAddSave">Save</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Edit Role -->
                         <div class="modal fade" id="mdlRoleEdit" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
                                     <div class="modal-header"><h5 class="modal-title">Edit Role</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                                     <div class="modal-body">
+                                        <input type="hidden" id="roleEditId">
                                         <div class="mb-3">
                                             <label class="form-label">Role Name</label>
-                                            <input type="text" class="form-control" value="Administrator" disabled>
+                                            <input type="text" id="roleEditName" class="form-control" value="">
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                        <button class="btn btn-primary" disabled>Update</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="modal fade" id="mdlRoleDelete" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header"><h5 class="modal-title">Delete Role</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                                    <div class="modal-body">
-                                        Are you sure you want to delete <strong>Manager</strong> role?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                        <button class="btn btn-danger" disabled>Delete</button>
+                                        <button class="btn btn-danger" id="btnRoleEditDelete">Delete</button>
+                                        <button class="btn btn-primary" id="btnRoleEditUpdate">Update</button>
                                     </div>
                                 </div>
                             </div>

@@ -18,6 +18,13 @@ namespace Project.CSS.Revise.Web.Respositories
         public bool IUDProjectUserMapping(UserAndPermissionModel.IUDProjectUserMapping model, int currentUserId);
         public List<UserAndPermissionModel.PermissionMatrixRow> GetPermissionMatrix(int qcTypeId = 10);
         bool SaveRolePermissions(UserAndPermissionModel.SaveRolePermissionRequest req, int currentUserId);
+        List<UserAndPermissionModel.PermissionMatrixRow> GetPermissionMatrixFor(int qcTypeId, int departmentId, int roleId);
+        int DepartmentCreate(string name, int currentUserId);
+        bool DepartmentUpdate(int id, string name, int currentUserId);
+        object DepartmentSoftDelete(int id, int currentUserId);
+        int RoleCreate(string name, int currentUserId, int qcTypeId = 10);
+        bool RoleUpdate(int id, string name, int currentUserId, int qcTypeId = 10);
+        object RoleSoftDelete(int id, int currentUserId, int qcTypeId = 10);
     }
     public class UserAndPermissionRepo : IUserAndPermissionRepo
     {
@@ -655,6 +662,104 @@ namespace Project.CSS.Revise.Web.Respositories
             return result;
         }
 
+        public List<UserAndPermissionModel.PermissionMatrixRow> GetPermissionMatrixFor(int qcTypeId, int departmentId, int roleId)
+        {
+            var rows = new List<UserAndPermissionModel.PermissionMatrixRow>();
+            var connStr = _context.Database.GetDbConnection().ConnectionString;
+
+            using var conn = new SqlConnection(connStr);
+            conn.Open();
+
+            var sql = @"
+                        ;WITH MenuCTE AS (
+                            SELECT 
+                                m.ID,
+                                m.ParentID,
+                                m.Name,
+                                CAST(m.Name AS NVARCHAR(1000)) AS PathName,
+                                1 AS Depth
+                            FROM dbo.tm_Menu m WITH (NOLOCK)
+                            WHERE m.QCTypeID = @QCTypeID
+                              AND m.ParentID IS NULL
+
+                            UNION ALL
+
+                            SELECT 
+                                c.ID,
+                                c.ParentID,
+                                c.Name,
+                                CAST(p.PathName + N' / ' + c.Name AS NVARCHAR(1000)) AS PathName,
+                                p.Depth + 1 AS Depth
+                            FROM dbo.tm_Menu c WITH (NOLOCK)
+                            JOIN MenuCTE p ON c.ParentID = p.ID
+                            WHERE c.QCTypeID = @QCTypeID
+                        )
+                        SELECT 
+                            t.ID              AS MenuID,
+                            t.Name,
+                            t.Depth           AS [Level],
+
+                            ISNULL(a.[View], 0)      AS CanView,
+                            ISNULL(a.[Add], 0)       AS CanAdd,
+                            ISNULL(a.[Update], 0)    AS CanEdit,
+                            ISNULL(a.[Delete], 0)    AS CanDelete,
+                            ISNULL(a.[Download], 0)  AS CanDownload,
+
+                            ISNULL(rp.[View], 0)      AS SelView,
+                            ISNULL(rp.[Add], 0)       AS SelAdd,
+                            ISNULL(rp.[Update], 0)    AS SelEdit,
+                            ISNULL(rp.[Delete], 0)    AS SelDelete,
+                            ISNULL(rp.[Download], 0)  AS SelDownload,
+
+                            CASE WHEN EXISTS (SELECT 1 FROM dbo.tm_Menu ch WITH (NOLOCK) WHERE ch.ParentID = t.ID AND ch.QCTypeID = @QCTypeID)
+                                 THEN CAST(0 AS BIT) ELSE CAST(1 AS BIT) END AS IsLeaf,
+
+                            (SELECT TOP (1) p.Name FROM dbo.tm_Menu p WITH (NOLOCK) WHERE p.ID = t.ParentID) AS ParentName,
+                            t.PathName
+                        FROM MenuCTE t
+                        LEFT JOIN dbo.tm_MenuAction a  WITH (NOLOCK) ON a.MenuID = t.ID
+                        LEFT JOIN dbo.TR_MenuRolePermission rp WITH (NOLOCK)
+                               ON rp.QCTypeID = @QCTypeID
+                              AND rp.DepartmentID = @DepartmentID
+                              AND rp.RoleID = @RoleID
+                              AND rp.MenuID = t.ID
+                        ORDER BY t.PathName;
+            ";
+
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@QCTypeID", qcTypeId);
+            cmd.Parameters.AddWithValue("@DepartmentID", departmentId);
+            cmd.Parameters.AddWithValue("@RoleID", roleId);
+
+            using var rdr = cmd.ExecuteReader();
+            while (rdr.Read())
+            {
+                rows.Add(new UserAndPermissionModel.PermissionMatrixRow
+                {
+                    MenuID = rdr.GetInt32(rdr.GetOrdinal("MenuID")),
+                    Name = rdr["Name"]?.ToString() ?? "",
+                    Level = Convert.ToInt32(rdr["Level"]),
+
+                    CanView = Convert.ToBoolean(rdr["CanView"]),
+                    CanAdd = Convert.ToBoolean(rdr["CanAdd"]),
+                    CanEdit = Convert.ToBoolean(rdr["CanEdit"]),
+                    CanDelete = Convert.ToBoolean(rdr["CanDelete"]),
+                    CanDownload = Convert.ToBoolean(rdr["CanDownload"]),
+
+                    SelView = Convert.ToBoolean(rdr["SelView"]),
+                    SelAdd = Convert.ToBoolean(rdr["SelAdd"]),
+                    SelEdit = Convert.ToBoolean(rdr["SelEdit"]),
+                    SelDelete = Convert.ToBoolean(rdr["SelDelete"]),
+                    SelDownload = Convert.ToBoolean(rdr["SelDownload"]),
+
+                    IsLeaf = Convert.ToBoolean(rdr["IsLeaf"]),
+                    ParentName = rdr["ParentName"] as string
+                });
+            }
+
+            return rows;
+        }
+
         public bool SaveRolePermissions(UserAndPermissionModel.SaveRolePermissionRequest req, int currentUserId)
         {
             if (req == null) throw new ArgumentNullException(nameof(req));
@@ -723,7 +828,111 @@ namespace Project.CSS.Revise.Web.Respositories
             }
         }
 
+        public int DepartmentCreate(string name, int currentUserId)
+        {
+            var now = DateTime.Now;
 
+            // duplicate check (active only)
+            bool dup = _context.tm_Exts.Any(x => x.ExtTypeID == 9 && x.FlagActive == true && x.Name == name);
+            if (dup) throw new InvalidOperationException("มี Department ชื่อนี้อยู่แล้ว");
 
+            var e = new tm_Ext
+            {
+                ExtTypeID = 9,
+                Name = name,
+                FlagActive = true
+                // add audit cols if present in schema
+            };
+            _context.tm_Exts.Add(e);
+            _context.SaveChanges();
+            return e.ID;
+        }
+
+        public bool DepartmentUpdate(int id, string name, int currentUserId)
+        {
+            var e = _context.tm_Exts.FirstOrDefault(x => x.ID == id && x.ExtTypeID == 9 && x.FlagActive == true);
+            if (e == null) return false;
+
+            // duplicate name check
+            bool dup = _context.tm_Exts.Any(x => x.ExtTypeID == 9 && x.FlagActive == true && x.Name == name && x.ID != id);
+            if (dup) throw new InvalidOperationException("มี Department ชื่อนี้อยู่แล้ว");
+
+            e.Name = name;
+            _context.tm_Exts.Update(e);
+            _context.SaveChanges();
+            return true;
+        }
+
+        public object DepartmentSoftDelete(int id, int currentUserId)
+        {
+            // in use?
+            bool inUse = _context.tm_Users.Any(u => u.FlagActive == true && u.DepartmentID == id);
+            if (inUse)
+                return new { success = false, message = "ไม่สามารถลบได้ เนื่องจากมีผู้ใช้ที่ยังผูกกับแผนกนี้" };
+
+            var e = _context.tm_Exts.FirstOrDefault(x => x.ID == id && x.ExtTypeID == 9 && x.FlagActive == true);
+            if (e == null) return new { success = false, message = "ไม่พบข้อมูลแผนก" };
+
+            e.FlagActive = false;
+            _context.tm_Exts.Update(e);
+            _context.SaveChanges();
+            return new { success = true };
+        }
+
+        public int RoleCreate(string name, int currentUserId, int qcTypeId = 10)
+        {
+            var now = DateTime.Now;
+
+            bool dup = _context.tm_Roles.Any(x => x.QCTypeID == qcTypeId && x.FlagActive == true && x.Name == name);
+            if (dup) throw new InvalidOperationException("Role already exists");
+
+            var r = new tm_Role
+            {
+                QCTypeID = qcTypeId,
+                Name = name,
+                FlagActive = true,
+                CreateDate = now,
+                CreateBy = currentUserId,
+                UpdateDate = now,
+                UpdateBy = currentUserId
+            };
+            _context.tm_Roles.Add(r);
+            _context.SaveChanges();
+            return r.ID;
+        }
+
+        public bool RoleUpdate(int id, string name, int currentUserId, int qcTypeId = 10)
+        {
+            var r = _context.tm_Roles.FirstOrDefault(x => x.ID == id && x.QCTypeID == qcTypeId && x.FlagActive == true);
+            if (r == null) return false;
+
+            bool dup = _context.tm_Roles.Any(x => x.QCTypeID == qcTypeId && x.FlagActive == true && x.Name == name && x.ID != id);
+            if (dup) throw new InvalidOperationException("Role name already exists");
+
+            r.Name = name;
+            r.UpdateDate = DateTime.Now;
+            r.UpdateBy = currentUserId;
+            _context.tm_Roles.Update(r);
+            _context.SaveChanges();
+            return true;
+        }
+
+        public object RoleSoftDelete(int id, int currentUserId, int qcTypeId = 10)
+        {
+            // Block delete if any active user still uses this role
+            bool inUse = _context.tm_Users.Any(u => u.FlagActive == true && u.RoleID == id);
+            if (inUse)
+                return new { success = false, message = "Cannot delete. Role is in use by users." };
+
+            var r = _context.tm_Roles.FirstOrDefault(x => x.ID == id && x.QCTypeID == qcTypeId && x.FlagActive == true);
+            if (r == null) return new { success = false, message = "Role not found" };
+
+            r.FlagActive = false;
+            r.UpdateDate = DateTime.Now;
+            r.UpdateBy = currentUserId;
+            _context.tm_Roles.Update(r);
+            _context.SaveChanges();
+            return new { success = true };
+        }
     }
 }

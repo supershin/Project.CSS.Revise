@@ -982,6 +982,124 @@ function wireFooterButtons() {
     });
 }
 
+
+async function loadPermissionMatrixFor(deptId, roleId) {
+    const tbody = document.getElementById('permissionMatrixBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">Loading permissions…</td></tr>`;
+
+    try {
+        const res = await fetch(baseUrl + 'UserAndPermission/GetRolePermissions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ QCTypeID: 10, DepartmentID: Number(deptId), RoleID: Number(roleId) })
+        });
+        const json = await res.json();
+        const rows = (json?.success && Array.isArray(json?.data)) ? json.data : [];
+
+        if (rows.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">No permission data</td></tr>`;
+            return;
+        }
+
+        const esc = (s) => (s ?? '').toString()
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
+        const parts = [];
+
+        const actionCell = (available, actionKey, isChecked, menuId, nameEsc) => {
+            if (!available) return `<td class="text-center no-action">—</td>`;
+            return `<td class="text-center">
+                <input type="checkbox" class="form-check-input perm-chk"
+                       data-id="${menuId}"
+                       data-name="${nameEsc}"
+                       data-action="${actionKey}"
+                       ${isChecked ? 'checked' : ''}>
+              </td>`;
+        };
+
+        for (const r of rows) {
+            const level = Number(r.Level) || 2;
+            const isLeaf = !!r.IsLeaf;
+            const nameEsc = esc(r.Name);
+            const mid = Number(r.MenuID) || 0;
+            const hasAny = !!(r.CanView || r.CanAdd || r.CanEdit || r.CanDelete || r.CanDownload);
+
+            const indentSpan = level === 1
+                ? `<span class="tree-toggle disabled"><i class="bi bi-caret-down-fill"></i></span>`
+                : level === 2
+                    ? `<span class="tree-indent"></span>${isLeaf ? '' : `<span class="tree-toggle disabled"><i class="bi bi-caret-down-fill"></i></span>`}`
+                    : `<span class="tree-indent l3"></span>`;
+
+            const iconHtml = isLeaf
+                ? `<i class="bi bi-file-text me-1"></i>`
+                : (level === 1
+                    ? `<i class="bi bi-folder2-open text-primary me-1"></i>`
+                    : `<i class="bi bi-folder2 text-secondary me-1"></i>`);
+
+            const nameCell = `
+        <td class="sticky-col">
+          ${indentSpan}
+          ${iconHtml}
+          <span class="fw-semibold">${nameEsc}</span>
+        </td>`;
+
+            parts.push(`
+        <tr class="tree-row l${level}${hasAny ? ' has-perm' : ''}">
+          ${nameCell}
+          ${actionCell(!!r.CanView, 'View', !!r.SelView, mid, nameEsc)}
+          ${actionCell(!!r.CanAdd, 'Add', !!r.SelAdd, mid, nameEsc)}
+          ${actionCell(!!r.CanEdit, 'Update', !!r.SelEdit, mid, nameEsc)}
+          ${actionCell(!!r.CanDelete, 'Delete', !!r.SelDelete, mid, nameEsc)}
+          ${actionCell(!!r.CanDownload, 'Download', !!r.SelDownload, mid, nameEsc)}
+        </tr>
+      `);
+        }
+
+        tbody.innerHTML = parts.join('');
+
+        // Footer buttons enable when both selected
+        enableFooter(!!(currentDept.id && currentRole.id));
+    } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">Failed to load permissions</td></tr>`;
+    }
+}
+
+function wireDeptRoleClicks() {
+    document.querySelectorAll('.dept-item').forEach(el => {
+        el.addEventListener('click', () => {
+            document.querySelectorAll('.dept-item.active').forEach(a => a.classList.remove('active'));
+            el.classList.add('active');
+            currentDept.id = el.dataset.id;
+            currentDept.name = el.dataset.name;
+            setHeader(currentDept.name, null);
+            if (currentDept.id && currentRole.id) loadPermissionMatrixFor(currentDept.id, currentRole.id);
+            enableFooter(!!(currentDept.id && currentRole.id));
+        });
+    });
+
+    document.querySelectorAll('.role-item').forEach(el => {
+        el.addEventListener('click', () => {
+            document.querySelectorAll('.role-item.active').forEach(a => a.classList.remove('active'));
+            el.classList.add('active');
+            currentRole.id = el.dataset.id;
+            currentRole.name = el.dataset.name;
+            setHeader(null, currentRole.name);
+            if (currentDept.id && currentRole.id) loadPermissionMatrixFor(currentDept.id, currentRole.id);
+            enableFooter(!!(currentDept.id && currentRole.id));
+        });
+    });
+
+    if (currentDept.id && currentRole.id) {
+        loadPermissionMatrixFor(currentDept.id, currentRole.id);
+    }
+
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     wireDeptRoleClicks();
     wireFooterButtons();
@@ -995,3 +1113,165 @@ document.addEventListener('DOMContentLoaded', () => {
     // Save/Reset stays disabled until both are selected
     enableFooter(!!(currentDept.id && currentRole.id));
 });
+
+// Open Role Edit modal with selected item
+document.querySelectorAll('.role-item .btn-icon').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const item = e.currentTarget.closest('.role-item');
+        const id = item?.dataset.id;
+        const name = item?.dataset.name || '';
+        document.getElementById('roleEditId').value = id || '';
+        document.getElementById('roleEditName').value = name;
+    });
+});
+// Create
+document.getElementById('btnRoleAddSave')?.addEventListener('click', async () => {
+    const name = (document.getElementById('roleAddName').value || '').trim();
+    if (!name) {
+        Swal?.fire({ icon: 'warning', title: 'Enter role name', text: 'Role name is required' });
+        return;
+    }
+
+    try {
+        const res = await fetch(baseUrl + 'UserAndPermission/Role/Create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name })
+        });
+        const json = await res.json();
+        if (json?.success) {
+            bootstrap.Modal.getInstance(document.getElementById('mdlRoleAdd'))?.hide();
+            appendRoleToList(json.id, name);
+            Swal?.fire({ icon: 'success', title: 'Created', text: 'เพิ่ม Role สำเร็จ' });
+            document.getElementById('roleAddName').value = '';
+        } else {
+            Swal?.fire({ icon: 'error', title: 'Failed', text: json?.message || 'ไม่สามารถบันทึกได้' });
+        }
+    } catch (err) {
+        console.error(err);
+        Swal?.fire({ icon: 'error', title: 'Error', text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ' });
+    }
+});
+
+// Update
+document.getElementById('btnRoleEditUpdate')?.addEventListener('click', async () => {
+    const id = Number(document.getElementById('roleEditId').value) || 0;
+    const name = (document.getElementById('roleEditName').value || '').trim();
+    if (!id || !name) {
+        Swal?.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบ', text: 'ต้องมีรหัสและชื่อ Role' });
+        return;
+    }
+
+    try {
+        const res = await fetch(baseUrl + 'UserAndPermission/Role/Update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, name })
+        });
+        const json = await res.json();
+        if (json?.success) {
+            bootstrap.Modal.getInstance(document.getElementById('mdlRoleEdit'))?.hide();
+            updateRoleInList(id, name);
+            Swal?.fire({ icon: 'success', title: 'Updated', text: 'อัปเดต Role สำเร็จ' });
+        } else {
+            Swal?.fire({ icon: 'error', title: 'Failed', text: json?.message || 'ไม่สามารถอัปเดตได้' });
+        }
+    } catch (err) {
+        console.error(err);
+        Swal?.fire({ icon: 'error', title: 'Error', text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ' });
+    }
+});
+
+// Delete (soft)
+document.getElementById('btnRoleEditDelete')?.addEventListener('click', async () => {
+    const id = Number(document.getElementById('roleEditId').value) || 0;
+    const name = (document.getElementById('roleEditName').value || '').trim();
+    if (!id) return;
+
+    const confirm = await Swal?.fire({
+        icon: 'warning',
+        title: 'ลบ Role?',
+        html: `คุณต้องการลบ <b>${name}</b> หรือไม่?<br><small class="text-muted">* จะเป็นการปิดใช้งาน (soft delete)</small>`,
+        showCancelButton: true,
+        confirmButtonText: 'Delete',
+    });
+    if (!confirm?.isConfirmed) return;
+
+    try {
+        const res = await fetch(baseUrl + 'UserAndPermission/Role/Delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id })
+        });
+        const json = await res.json();
+        if (json?.success) {
+            bootstrap.Modal.getInstance(document.getElementById('mdlRoleEdit'))?.hide();
+            removeRoleFromList(id);
+            Swal?.fire({ icon: 'success', title: 'Deleted', text: 'ลบ Role สำเร็จ' });
+        } else {
+            Swal?.fire({ icon: 'error', title: 'Cannot delete', text: json?.message || 'ไม่สามารถลบได้' });
+        }
+    } catch (err) {
+        console.error(err);
+        Swal?.fire({ icon: 'error', title: 'Error', text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ' });
+    }
+});
+
+// Append a new role item to the roles list
+function appendRoleToList(id, name) {
+    const list = document.querySelector('.roles-list'); // <— updated
+    if (!list) return;
+
+    const el = document.createElement('div');
+    el.className = 'list-group-item list-group-item-action d-flex align-items-center justify-content-between role-item';
+    el.dataset.id = String(id);
+    el.dataset.name = name;
+
+    el.innerHTML = `
+    <div class="dept-name text-truncate" title="${escapeHtml(name)}">
+      <i class="bi bi-shield-lock text-primary me-2"></i>
+      <span class="fw-semibold"><a>${escapeHtml(name)}</a></span>
+    </div>
+    <button class="btn btn-light rounded-circle btn-icon" title="Edit" data-bs-toggle="modal" data-bs-target="#mdlRoleEdit">
+      <i class="bi bi-pencil"></i>
+    </button>
+  `;
+
+    list.prepend(el);
+}
+
+// Update an existing role item’s displayed name
+function updateRoleInList(id, name) {
+    const el = document.querySelector(`.roles-list .role-item[data-id="${id}"]`); // <— updated
+    if (!el) return;
+    el.dataset.name = name;
+    const nameSpan = el.querySelector('.dept-name span a');
+    const nameDiv = el.querySelector('.dept-name');
+    if (nameSpan) nameSpan.textContent = name;
+    if (nameDiv) nameDiv.title = name;
+}
+
+// Remove a role item from the roles list
+function removeRoleFromList(id) {
+    const el = document.querySelector(`.roles-list .role-item[data-id="${id}"]`); // <— updated
+    if (el?.parentElement) el.parentElement.removeChild(el);
+}
+
+// Delegate click for dynamically added edit buttons (safer than wiring one-by-one)
+document.querySelector('.roles-list')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-icon');
+    if (!btn) return;
+    const item = btn.closest('.role-item');
+    if (!item) return;
+    document.getElementById('roleEditId').value = item.dataset.id || '';
+    document.getElementById('roleEditName').value = item.dataset.name || '';
+});
+
+// Utility
+function escapeHtml(s) {
+    return (s ?? '').toString()
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+

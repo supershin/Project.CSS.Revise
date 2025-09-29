@@ -133,18 +133,35 @@ namespace Project.CSS.Revise.Web.Models.Pages.UserAndPermission
             public List<string> ProjectID { get; set; } = new List<string>();
         }
 
+        public class GetRolePermissionRequest
+        {
+            public int QCTypeID { get; set; } = 10;
+            public int DepartmentID { get; set; }
+            public int RoleID { get; set; }
+        }
+
         public class PermissionMatrixRow
         {
-            public int MenuID { get; set; }        // ✅ add this
-            public string Name { get; set; } = string.Empty;   // menu name
-            public int Level { get; set; }                     // 1=Mom, 2=Child, 3=Grandchild
+            public int MenuID { get; set; }              // menu id
+            public string Name { get; set; } = "";       // menu name
+            public int Level { get; set; }               // 1,2,3
+
+            // Availability (from tm_MenuAction)
             public bool CanView { get; set; }
             public bool CanAdd { get; set; }
             public bool CanEdit { get; set; }
             public bool CanDelete { get; set; }
             public bool CanDownload { get; set; }
-            public bool IsLeaf { get; set; }                   // helpful for UI styling
-            public string? ParentName { get; set; }            // optional for breadcrumbs
+
+            // Selected/saved (from TR_MenuRolePermission)
+            public bool SelView { get; set; }
+            public bool SelAdd { get; set; }
+            public bool SelEdit { get; set; }
+            public bool SelDelete { get; set; }
+            public bool SelDownload { get; set; }
+
+            public bool IsLeaf { get; set; }             // for UI
+            public string? ParentName { get; set; }      // optional
         }
 
         public class SaveRolePermissionRequest
@@ -165,5 +182,11 @@ namespace Project.CSS.Revise.Web.Models.Pages.UserAndPermission
             public bool Delete { get; set; }
             public bool Download { get; set; }
         }
+        public class DeptCreateRequest { public string Name { get; set; } = ""; }
+        public class DeptUpdateRequest { public int ID { get; set; } public string Name { get; set; } = ""; }
+        public class DeptDeleteRequest { public int ID { get; set; } }
+        public class RoleCreateRequest { public string Name { get; set; } = ""; }
+        public class RoleUpdateRequest { public int ID { get; set; } public string Name { get; set; } = ""; }
+        public class RoleDeleteRequest { public int ID { get; set; } }
     }
 }

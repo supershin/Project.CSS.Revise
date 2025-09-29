@@ -54,4 +54,7 @@ public partial class tm_Menu
 
     [InverseProperty("Menu")]
     public virtual ICollection<TR_MenuRolePermission> TR_MenuRolePermissions { get; set; } = new List<TR_MenuRolePermission>();
+
+    [InverseProperty("Menu")]
+    public virtual ICollection<tm_MenuAction> tm_MenuActions { get; set; } = new List<tm_MenuAction>();
 }
