@@ -8,7 +8,7 @@ namespace Project.CSS.Revise.Web.Respositories
 {
     public interface IFurnitureAndUnitFurnitureRepo
     {
-
+        public List<FurnitureAndUnitFurnitureModel.UnitFurnitureListItem> GetlistUnitFurniture(FurnitureAndUnitFurnitureModel.UnitFurnitureFilter filter);
     }
     public class FurnitureAndUnitFurnitureRepo : IFurnitureAndUnitFurnitureRepo
     {
@@ -42,6 +42,8 @@ namespace Project.CSS.Revise.Web.Respositories
                                 FROM [tm_Unit] T1 WITH (NOLOCK)
                                 LEFT JOIN TR_UnitFurniture T2 WITH (NOLOCK) ON T1.ID = T2.UnitID
                                 LEFT JOIN [tm_Ext] T3 WITH (NOLOCK) ON T3.ID = T2.[CheckStatusID]
+                                LEFT JOIN tm_BUProject_Mapping BPM WITH (NOLOCK) ON T1.ProjectID = BPM.ProjectID
+                                LEFT JOIN [tm_BU] BU WITH (NOLOCK) ON BPM.BUID = BU.ID
                                 LEFT JOIN (
                                     SELECT T1.[UnitFurnitureID]
                                         , SUM(T1.[Amount]) AS QTYFurnitureUnit
@@ -52,13 +54,27 @@ namespace Project.CSS.Revise.Web.Respositories
                                 LEFT JOIN [tm_User] T5 WITH (NOLOCK) ON T2.UpdateBy = T5.ID
                                 WHERE T1.[ProjectID] = @L_ProjectID
                                   AND T1.FlagActive = 1
+                                  AND (
+                                        @L_UnitType = ''
+                                        OR (',' + @L_UnitType + ',' LIKE '%,' + CONVERT(VARCHAR, T1.[UnitType]) + ',%')
+                                      )
+                                 AND (
+                                        @L_BUG = ''
+                                        OR (',' + @L_BUG + ',' LIKE '%,' + CONVERT(VARCHAR, BU.ID) + ',%')
+                                     )
+                                 AND (
+                                        @Src_UnitCode = ''
+                                        OR T1.[UnitCode] LIKE '%' + @Src_UnitCode + '%'
+                                     )
                                 ORDER BY T1.[UnitCode];
                             ";
 
                 using (var cmd = new SqlCommand(sql, conn))
                 {
+                    cmd.Parameters.Add(new SqlParameter("@L_BUG", filter.L_BUG ?? string.Empty));
                     cmd.Parameters.Add(new SqlParameter("@L_ProjectID", filter.L_ProjectID ?? string.Empty));
-
+                    cmd.Parameters.Add(new SqlParameter("@L_UnitType", filter.L_UnitType ?? string.Empty));
+                    cmd.Parameters.Add(new SqlParameter("@Src_UnitCode", filter.Src_UnitCode ?? string.Empty));
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -66,7 +82,7 @@ namespace Project.CSS.Revise.Web.Respositories
                             result.Add(new FurnitureAndUnitFurnitureModel.UnitFurnitureListItem
                             {
                                 ID = Commond.FormatExtension.NullToString(reader["ID"]),
-                                ISCheck = Commond.FormatExtension.Nulltoint(reader["ISCheck"]).ToString(),
+                                ISCheck = Commond.FormatExtension.Nulltoint(reader["ISCheck"]) == 1,
                                 UnitCode = Commond.FormatExtension.NullToString(reader["UnitCode"]),
                                 ProjectID = Commond.FormatExtension.NullToString(reader["ProjectID"]),
                                 UnitType = Commond.FormatExtension.NullToString(reader["UnitType"]),
@@ -74,7 +90,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                 CheckStatusID = Commond.FormatExtension.NullToString(reader["CheckStatusID"]),
                                 CheckStatusName = Commond.FormatExtension.NullToString(reader["CheckStatusName"]),
                                 FullnameTH = Commond.FormatExtension.NullToString(reader["FullnameTH"]),
-                                UpdateDate = Commond.FormatExtension.NullToString(reader["UpdateDate"]) // หรือ format เป็น dd/MM/yyyy ถ้ามี helper
+                                UpdateDate = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["UpdateDate"])
                             });
                         }
                     }

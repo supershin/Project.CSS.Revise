@@ -4,12 +4,15 @@
     {
         public class UnitFurnitureFilter
         {
+            public string? L_BUG { get; set; }
             public string? L_ProjectID { get; set; }
+            public string? L_UnitType { get; set; }
+            public string? Src_UnitCode { get; set; }
         }
         public class UnitFurnitureListItem
         {
             public string? ID { get; set; }
-            public string? ISCheck { get; set; }
+            public bool? ISCheck { get; set; }
             public string? UnitCode { get; set; }
             public string? ProjectID { get; set; }
             public string? UnitType { get; set; }

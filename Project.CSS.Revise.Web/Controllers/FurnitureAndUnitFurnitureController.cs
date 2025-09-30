@@ -2,10 +2,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.CSS.Revise.Web.Commond;
-using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Service;
-using static Project.CSS.Revise.Web.Models.Security.PermissionGuard;
+using static Project.CSS.Revise.Web.Models.Pages.FurnitureAndUnitFurniture.FurnitureAndUnitFurnitureModel;
 
 namespace Project.CSS.Revise.Web.Controllers
 {
@@ -14,10 +13,16 @@ namespace Project.CSS.Revise.Web.Controllers
     {
         private readonly IMasterService _masterService;
         private readonly IUserAndPermissionService _userAndPermissionService;
-        public FurnitureAndUnitFurnitureController(IHttpContextAccessor httpContextAccessor, IMasterService masterService, IUserAndPermissionService userAndPermissionService) : base(httpContextAccessor)
+        private readonly IFurnitureAndUnitFurnitureService _furnitureAndUnitFurnitureService;
+
+        public FurnitureAndUnitFurnitureController(IHttpContextAccessor httpContextAccessor
+                                                 , IMasterService masterService
+                                                 , IUserAndPermissionService userAndPermissionService
+                                                 , IFurnitureAndUnitFurnitureService furnitureAndUnitFurnitureService) : base(httpContextAccessor)
         {
             _masterService = masterService;
             _userAndPermissionService = userAndPermissionService;
+            _furnitureAndUnitFurnitureService = furnitureAndUnitFurnitureService;
         }
 
         public IActionResult Index()
@@ -56,6 +61,13 @@ namespace Project.CSS.Revise.Web.Controllers
         public JsonResult GetUnitTypeListByProjectID(string ProjectID)
         {
             var result = _masterService.GetlisDDl(new GetDDLModel { Act = "ListUnitTypeByProject", IDString = ProjectID });
+            return Json(new { success = true, data = result });
+        }
+
+        [HttpPost]
+        public JsonResult GetListTableUnitFurniture([FromForm] UnitFurnitureFilter model)
+        {
+            var result = _furnitureAndUnitFurnitureService.GetlistUnitFurniture(model);
             return Json(new { success = true, data = result });
         }
     }

@@ -47,6 +47,8 @@ builder.Services.AddScoped<IAppointmentLimitRepo, AppointmentLimitRepo>();
 builder.Services.AddScoped<IAppointmentLimitService, AppointmentLimitService>();
 builder.Services.AddScoped<IUserAndPermissionRepo, UserAndPermissionRepo>();
 builder.Services.AddScoped<IUserAndPermissionService, UserAndPermissionService>();
+builder.Services.AddScoped<IFurnitureAndUnitFurnitureRepo, FurnitureAndUnitFurnitureRepo>();
+builder.Services.AddScoped<IFurnitureAndUnitFurnitureService, FurnitureAndUnitFurnitureService>();
 
 
 // Add the new services for SQL and data access
