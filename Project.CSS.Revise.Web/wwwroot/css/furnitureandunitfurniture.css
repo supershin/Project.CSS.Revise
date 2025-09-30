@@ -1,0 +1,38 @@
+﻿/* ให้กล่อง Choices กว้าง 100% และไม่ดัน layout */
+.choices, .choices__inner {
+    width: 100%;
+}
+
+.choices {
+    min-width: 0;
+}
+
+/* ปุ่มเต็มแถวบนมือถือ สวยขึ้น */
+@media (max-width: 576px) {
+    #btnSearch, #btnClear {
+        flex: 1 1 auto;
+    }
+}
+
+/* ช่อง input-group ให้สูงเท่ากับ select ของ Bootstrap */
+.input-group > .form-control,
+.input-group > .input-group-text {
+    height: calc(2.25rem + 2px);
+}
+
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .btn-icon i {
+        font-size: 1rem;
+        line-height: 1;
+        position: relative;
+        left: 5px; /* ✅ nudge icon slightly to the right */
+    }

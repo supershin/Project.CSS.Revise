@@ -1094,9 +1094,9 @@ function wireDeptRoleClicks() {
         });
     });
 
-    if (currentDept.id && currentRole.id) {
-        loadPermissionMatrixFor(currentDept.id, currentRole.id);
-    }
+    //if (currentDept.id && currentRole.id) {
+    //    loadPermissionMatrixFor(currentDept.id, currentRole.id);
+    //}
 
 }
 
@@ -1112,6 +1112,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Save/Reset stays disabled until both are selected
     enableFooter(!!(currentDept.id && currentRole.id));
+
+    if (currentDept.id && currentRole.id) {
+        loadPermissionMatrixFor(currentDept.id, currentRole.id);
+    }
 });
 
 // Open Role Edit modal with selected item

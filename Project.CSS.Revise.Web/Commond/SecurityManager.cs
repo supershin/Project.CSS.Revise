@@ -22,7 +22,6 @@ namespace Project.CSS.Revise.Web.Commond
             string encryptPassword = System.Convert.ToBase64String(toEncodeAsBytes);
             return encryptPassword;
         }
-
         public static string DecodeFrom64Text(this string encryptData)
         {
             byte[] encodedDataAsBytes = System.Convert.FromBase64String(encryptData);

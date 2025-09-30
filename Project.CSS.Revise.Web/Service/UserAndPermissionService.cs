@@ -2,8 +2,10 @@
 using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Pages.UserAndPermission;
 using Project.CSS.Revise.Web.Respositories;
+using System.Security;
 using System.Threading.Tasks;
 using static Project.CSS.Revise.Web.Models.Pages.UserAndPermission.UserAndPermissionModel;
+using static Project.CSS.Revise.Web.Models.Security.PermissionGuard;
 
 namespace Project.CSS.Revise.Web.Service
 {
@@ -25,6 +27,8 @@ namespace Project.CSS.Revise.Web.Service
         int RoleCreate(string name, int currentUserId, int qcTypeId = 10);
         bool RoleUpdate(int id, string name, int currentUserId, int qcTypeId = 10);
         object RoleSoftDelete(int id, int currentUserId, int qcTypeId = 10);
+        PermissionResult GetPermissions(int qcTypeId, int menuId, int departmentId, int roleId);
+        bool HasPermission(int qcTypeId, int menuId, int departmentId, int roleId, PermissionAction action);
     }
     public class UserAndPermissionService : IUserAndPermissionService
     {
@@ -108,5 +112,12 @@ namespace Project.CSS.Revise.Web.Service
 
         public object RoleSoftDelete(int id, int currentUserId, int qcTypeId = 10)
             => _userAndPermissionRepo.RoleSoftDelete(id, currentUserId, qcTypeId);
+
+        // ---------- FIXED: forwarders to repo ----------
+        public PermissionResult GetPermissions(int qcTypeId, int menuId, int departmentId, int roleId)
+            => _userAndPermissionRepo.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+
+        public bool HasPermission(int qcTypeId, int menuId, int departmentId, int roleId, PermissionAction action)
+            => _userAndPermissionRepo.HasPermission(qcTypeId, menuId, departmentId, roleId, action);
     }
 }

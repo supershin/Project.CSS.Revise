@@ -695,6 +695,28 @@ namespace Project.CSS.Revise.Web.Respositories
 
                     return ListTitleEN.ToList();
 
+                case "ListUnitTypeByProject":
+                    var ListUnitTypeByProject = from u in _context.tm_Units
+                                                where u.ProjectID == model.IDString
+                                                select new GetDDLModel
+                                                {
+                                                    ValueString = u.UnitType,
+                                                    Text = u.UnitType
+                                                };
+
+                    return ListUnitTypeByProject.Distinct().ToList();
+
+                case "ListFuniture":
+                    var ListFuniture = from f in _context.tm_Funitures
+                                       where f.FlagActive == true
+                                      select new GetDDLModel
+                                      {
+                                          ValueInt = f.ID,
+                                          Text = f.Name
+                                      };
+
+                    return ListFuniture.ToList();
+
                 default:
 
                 return new List<GetDDLModel>();

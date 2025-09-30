@@ -1,9 +1,10 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models.Pages.UserAndPermission;
 using static Project.CSS.Revise.Web.Models.Pages.UserAndPermission.UserAndPermissionModel;
-using Project.CSS.Revise.Web.Commond;
+using static Project.CSS.Revise.Web.Models.Security.PermissionGuard;
 
 namespace Project.CSS.Revise.Web.Respositories
 {
@@ -25,6 +26,8 @@ namespace Project.CSS.Revise.Web.Respositories
         int RoleCreate(string name, int currentUserId, int qcTypeId = 10);
         bool RoleUpdate(int id, string name, int currentUserId, int qcTypeId = 10);
         object RoleSoftDelete(int id, int currentUserId, int qcTypeId = 10);
+        PermissionResult GetPermissions(int qcTypeId, int menuId, int departmentId, int roleId);
+        bool HasPermission(int qcTypeId, int menuId, int departmentId, int roleId, PermissionAction action);
     }
     public class UserAndPermissionRepo : IUserAndPermissionRepo
     {
@@ -933,6 +936,42 @@ namespace Project.CSS.Revise.Web.Respositories
             _context.tm_Roles.Update(r);
             _context.SaveChanges();
             return new { success = true };
+        }
+
+        public PermissionResult GetPermissions(int qcTypeId, int menuId, int departmentId, int roleId)
+        {
+            var perm = _context.TR_MenuRolePermissions
+                .AsNoTracking()
+                .FirstOrDefault(x =>
+                    x.FlagActive == true &&
+                    x.QCTypeID == qcTypeId &&
+                    x.MenuID == menuId &&
+                    x.DepartmentID == departmentId &&
+                    x.RoleID == roleId);
+
+            return new PermissionResult
+            {
+                View = perm?.View ?? false,
+                Add = perm?.Add ?? false,
+                Update = perm?.Update ?? false,
+                Delete = perm?.Delete ?? false,
+                Download = perm?.Download ?? false
+            };
+        }
+
+        public bool HasPermission(int qcTypeId, int menuId, int departmentId, int roleId, PermissionAction action)
+        {
+            var p = GetPermissions(qcTypeId, menuId, departmentId, roleId);
+
+            return action switch
+            {
+                PermissionAction.View => p.View,
+                PermissionAction.Add => p.Add,
+                PermissionAction.Update => p.Update,
+                PermissionAction.Delete => p.Delete,
+                PermissionAction.Download => p.Download,
+                _ => false
+            };
         }
     }
 }

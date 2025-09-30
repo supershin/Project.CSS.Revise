@@ -1,0 +1,158 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutSite.cshtml";
+    var buList = ViewBag.listBu as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var funitureList = ViewBag.ListFuniture as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+}
+<div class="container-fluid">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-6">
+                <h4>Furniture & Unit Furniture</h4>
+            </div>
+            <div class="col-6">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="index.html">
+                            <svg class="stroke-icon">
+                                <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-home")"></use>
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">Pages</li>
+                    <li class="breadcrumb-item active">Furniture & Unit Furniture</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-3">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h6 class="mb-0">Filter</h6>
+                    <button type="button" id="btnToggleFilters" class="btn btn-sm btn-outline-secondary d-lg-none">
+                        ตัวกรอง
+                    </button>
+                </div>
+                <div class="card-body" id="filterBody">
+                    <form id="filterForm">
+                        <div class="row g-3 align-items-end">
+                            <!-- BU -->
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <label class="form-label fw-semibold" for="ddl_Bu">BUG</label>
+                                <select class="form-select" id="ddl_Bu" multiple>
+                                    @foreach (var bu in buList)
+                                    {
+                                        var val = (bu.ID ?? bu.ValueInt ?? bu.Value ?? "").ToString();
+                                        var text = (bu.Name ?? bu.Text ?? "").ToString();
+                                        <option value="@val">@text</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Project -->
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <label class="form-label fw-semibold" for="ddl_project">โครงการ</label>
+                                <select id="ddl_project" class="form-select">
+                                    <option value="" selected disabled>— เลือก project —</option>
+                                </select>
+                            </div>
+
+                            <!-- Unit Type -->
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <label class="form-label fw-semibold" for="ddl_unittype">Unit Type</label>
+                                <select id="ddl_unittype" class="form-select">
+                                    <option value="" selected disabled>— เลือก Unit Type —</option>
+                                </select>
+                            </div>
+
+                            <!-- Unit search text -->
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <label for="txtSearchName" class="form-label fw-semibold">Unit</label>
+                                <input type="text" id="txtSearchName" class="form-control form-control-lg" placeholder="🔍 พิมพ์ Unit">
+                            </div>
+                        </div>
+
+                        <!-- Buttons row -->
+                        <div class="row mt-3">
+                            <div class="col-12 d-flex gap-2 justify-content-between justify-content-lg-end">
+                                <button type="button" id="btnClear" class="btn btn-outline-secondary">
+                                    ล้างค่า
+                                </button>
+                                <button type="button" id="btnSearch" class="btn btn-primary">
+                                    ค้นหา
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="row">
+                <div class="col-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="mb-0">Furnitures</h6>
+                                <small class="text-muted">
+                                    ทั้งหมด @ViewBag.FurnitureCount รายการ
+                                </small>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#mdlFurnitureAdd">
+                                    <i class="bi bi-plus-lg"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2">
+                            <!-- ✅ Check All -->
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="chkAllFurnitures" />
+                                <label class="form-check-label fw-semibold" for="chkAllFurnitures">
+                                    เลือกทั้งหมด
+                                </label>
+                            </div>
+
+                            <div id="furnitureList" class="list-group" style="height:300px;overflow-y:auto;">
+                                @foreach (var f in funitureList)
+                                {
+                                    var text = f.Text.ToString();
+                                    var val = f.ValueInt.ToString();
+
+                                    <div class="list-group-item d-flex justify-content-between align-items-center" data-id="@val" data-name="@text">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <!-- ✅ Checkbox -->
+                                            <input type="checkbox" class="form-check-input chkFurniture" value="@val" />
+                                            <span>@text</span>
+                                        </div>
+
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-light rounded-circle btn-icon" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            &nbsp;
+                                            <button type="button" class="btn btn-light rounded-circle btn-icon text-danger" title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <link rel="stylesheet" type="text/css" href="~/css/furnitureandunitfurniture.css?ver=@DateTime.Now.Ticks.ToString()">
+    <script src="~/js/Pages/FurnitureAndUnitFurniture/FurnitureAndUnitFurniture.js?ver=@DateTime.Now.Ticks.ToString()"></script>
+}

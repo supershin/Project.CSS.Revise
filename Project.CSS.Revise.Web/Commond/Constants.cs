@@ -102,5 +102,11 @@
                 public static readonly string USERNAME_AND_PASSWORD_CANNOT_BE_EMPTY = "Username and Password cannot be empty.";
             }
         }
+
+        public static class Menu
+        {
+            public static readonly int FurnitureAndUnitFurniture = 33;
+
+        }
     }
 }
