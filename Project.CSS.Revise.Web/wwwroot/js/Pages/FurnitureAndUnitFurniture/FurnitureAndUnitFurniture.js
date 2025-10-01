@@ -260,21 +260,17 @@ function toUFRowHTML(item) {
     const who = esc(item?.fullnameTH ?? item?.FullnameTH ?? '');
     const when = esc(item?.updateDate ?? item?.UpdateDate ?? '');
 
-    const chkBadge = isCheck
-        ? '<span class="badge bg-success">✓</span>'
-        : '<span class="badge bg-secondary">—</span>';
-
     return `
-    <tr>
-      <td class="text-center">${chkBadge}</td>
-      <td>${unitCode}</td>
-      <td>${unitType}</td>
-      <td class="text-end">${qty || '0'}</td>
-      <td>${status || '-'}</td>
-      <td>${who || '-'}</td>
-      <td>${when || '-'}</td>
-    </tr>
-  `;
+            <tr>
+            <td class="text-center"><input class="form-check-input" type="checkbox" /></td>
+            <td>${unitCode}</td>
+            <td>${unitType}</td>
+            <td class="text-center">${qty || '0'}</td>   <!-- เปลี่ยนตรงนี้ -->
+            <td>${status || '-'}</td>
+            <td>${who || '-'}</td>
+            <td>${when || '-'}</td>
+            </tr>`;
+
 }
 
 // tiny escape helper

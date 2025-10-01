@@ -30,9 +30,63 @@
     justify-content: center;
 }
 
-    .btn-icon i {
-        font-size: 1rem;
-        line-height: 1;
-        position: relative;
-        left: 5px; /* ✅ nudge icon slightly to the right */
+.btn-icon i {
+    font-size: 1rem;
+    line-height: 1;
+    position: relative;
+    left: 5px; /* ✅ nudge icon slightly to the right */
+}
+
+/* กล่องหุ้มตารางเป็นตัว scroll */
+.uf-scroll {
+    max-height: 400px; /* ปรับสูงได้ */
+    overflow-y: auto;
+}
+
+    /* sticky header */
+    .uf-scroll thead th {
+        position: sticky;
+        top: 0;
+/*        z-index: 1;*/
+        background: var(--bs-light, #f8f9fa);
     }
+
+.col-check {
+    width: 44px;
+}
+
+.col-unittype {
+    width: 100px;
+}
+/* ให้ Unit Type กว้างขึ้นเล็กน้อย */
+.col-qty {
+    width: 150px;
+}
+/* Qty ไม่เกิน 10, ชิดขวา */
+.col-date {
+    width: 140px;
+}
+
+
+
+/* อ่านง่ายขึ้น */
+.table td, .table th {
+    vertical-align: middle;
+    word-break: break-word;
+    white-space: normal;
+    padding: .5rem .75rem;
+}
+    .table td.text-end {
+        text-align: right !important;
+    }
+
+
+
+.table td,
+.table th {
+    vertical-align: middle; /* จัดกลางแนวตั้ง */
+    word-wrap: break-word; /* ให้ตัดบรรทัด */
+    word-break: break-word; /* รองรับข้อความยาวๆ เช่นโค้ด, ชื่อไฟล์ */
+    white-space: normal; /* ให้ตัดบรรทัดได้ */
+    padding: 0.5rem 0.75rem; /* padding ให้โปร่งขึ้น */
+}

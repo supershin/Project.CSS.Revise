@@ -152,24 +152,41 @@
                             <small class="text-muted" id="uf_count"></small>
                         </div>
                         <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-sm table-hover align-middle mb-0">
+                            <div class="table-responsive uf-scroll">
+                                <table class="table table-sm table-hover align-middle mb-0 w-100">
+                                    <colgroup>
+                                        <col class="col-check">
+                                        <col> <!-- Unit Code -->
+                                        <col class="col-unittype"> <!-- Unit Type -->
+                                        <col class="col-qty"> <!-- Furniture Qty -->
+                                        <col> <!-- Check Status -->
+                                        <col> <!-- Update By -->
+                                        <col class="col-date"> <!-- Update Date -->
+                                    </colgroup>
+
+
+
                                     <thead class="table-light">
                                         <tr>
-                                            <th style="width:44px;">Chk</th>
+                                            <th style="white-space:nowrap;">
+                                                <input class="form-check-input" type="checkbox" id="chkAllUnit" />
+                                            </th>
                                             <th>Unit Code</th>
                                             <th>Unit Type</th>
-                                            <th class="text-end">Furniture Qty</th>
+                                            <th>Furniture Qty</th>
                                             <th>Check Status</th>
                                             <th>Update By</th>
-                                            <th style="width:120px;">Update Date</th>
+                                            <th style="white-space:nowrap;">Update Date</th>
                                         </tr>
                                     </thead>
+
                                     <tbody id="tblUnitFurnitureBody">
-                                        <!-- rows will be injected by JS -->
+                                        <!-- rows injected by JS -->
                                     </tbody>
                                 </table>
                             </div>
+
+
 
                             <!-- empty state -->
                             <div id="uf_empty" class="text-center text-muted py-4 d-none">— No data —</div>
