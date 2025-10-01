@@ -26,6 +26,15 @@ function formatShort(n) {
     return out.replace(/\.?0+$/, ''); // trim .00 / trailing zeros
 }
 
+function formatShortHaveZero(n) {
+    if (n == null || isNaN(n)) return '';
+    const x = Number(n), abs = Math.abs(x);
+    if (abs >= 1_000_000) return (x / 1_000_000).toFixed(2);
+    if (abs >= 1_000) return (x / 1_000).toFixed(2);
+    return x.toFixed(2);
+}
+
+
 // sanitize pasted numeric text
 function sanitizeNumericText(t) {
     if (t == null) return '';
@@ -549,7 +558,7 @@ function recomputeRowTotals($row) {
         isEditMode ? (totalUnit ? toLocaleInt(totalUnit) : '-') : (totalUnit ? formatShort(totalUnit) : '-')
     );
     $row.find('td.total-value').text(
-        isEditMode ? (totalValue ? toLocaleMoney(totalValue) : '-') : (totalValue ? formatShort(totalValue) : '-')
+        isEditMode ? (totalValue ? toLocaleMoney(totalValue) : '-') : (totalValue ? formatShortHaveZero(totalValue) : '-')
     );
 }
 
@@ -663,48 +672,6 @@ function bindEditableHandlers() {
         savePendingEdits(); // <-- disable for now
     });
 }
-function setEditMode(on) {
-    isEditMode = !!on;
-
-    // toggle buttons
-    $('#btnEdit').toggleClass('d-none', isEditMode);
-    $('#btnCancelEdit').toggleClass('d-none', !isEditMode);
-
-    const $table = $('#rollingPlanTable');
-    if (!$table.length) return;
-
-    // ✅ format BOTH editable & actualrow cells on mode change
-    $table.find('td.editable, td.actualrow').each(function () {
-        const $cell = $(this);
-        const raw = $cell.data('raw');
-        const pid = Number($cell.data('planamountid')); // 183 = Unit, 184 = Value
-
-        if (isEditMode) {
-            // Edit mode: show full numbers (Value = money, Unit = int)
-            const txt = (raw == null || raw === '')
-                ? ''
-                : (pid === 184 ? toLocaleMoney(raw) : toLocaleInt(raw));
-            $cell.text(txt);
-
-            // only real editable cells are contenteditable
-            if ($cell.hasClass('editable')) {
-                this.setAttribute('contenteditable', 'true');
-            } else {
-                this.setAttribute('contenteditable', 'false'); // keep actualrow locked
-            }
-        } else {
-            // View mode: show short K/M format
-            const shortTxt = (raw == null || raw === '') ? '' : formatShort(raw);
-            $cell.text(shortTxt);
-            this.setAttribute('contenteditable', 'false');
-            if ($cell.hasClass('editable')) $cell.removeClass('dirty row-editing');
-        }
-    });
-
-    // refresh totals with current mode
-    $table.find('tbody tr').each(function () { recomputeRowTotals($(this)); });
-    $table.toggleClass('editing-active', isEditMode);
-}
 
 
 //function setEditMode(on) {
@@ -717,23 +684,31 @@ function setEditMode(on) {
 //    const $table = $('#rollingPlanTable');
 //    if (!$table.length) return;
 
-//    // switch each editable cell between short display and RAW display
-//    $table.find('td.editable').each(function () {
+//    // ✅ format BOTH editable & actualrow cells on mode change
+//    $table.find('td.editable, td.actualrow').each(function () {
 //        const $cell = $(this);
 //        const raw = $cell.data('raw');
-//        const pid = Number($cell.data('planamountid')); // 183 Unit, 184 Value
+//        const pid = Number($cell.data('planamountid')); // 183 = Unit, 184 = Value
 
 //        if (isEditMode) {
-//            // Show RAW with thousand separators; enable editing
-//            const txt = (raw == null || raw === '') ? '' : (pid === 184 ? toLocaleMoney(raw) : toLocaleInt(raw));
+//            // Edit mode: show full numbers (Value = money, Unit = int)
+//            const txt = (raw == null || raw === '')
+//                ? ''
+//                : (pid === 184 ? toLocaleMoney(raw) : toLocaleInt(raw));
 //            $cell.text(txt);
-//            this.setAttribute('contenteditable', 'true');
+
+//            // only real editable cells are contenteditable
+//            if ($cell.hasClass('editable')) {
+//                this.setAttribute('contenteditable', 'true');
+//            } else {
+//                this.setAttribute('contenteditable', 'false'); // keep actualrow locked
+//            }
 //        } else {
-//            // Back to short; disable editing
-//            const shortTxt = (raw == null || raw === '') ? '' : formatShort(raw);
+//            // View mode: show short K/M format
+//            const shortTxt = (raw == null || raw === '') ? '' : formatShortHaveZero(raw);
 //            $cell.text(shortTxt);
 //            this.setAttribute('contenteditable', 'false');
-//            $cell.removeClass('dirty row-editing');
+//            if ($cell.hasClass('editable')) $cell.removeClass('dirty row-editing');
 //        }
 //    });
 
@@ -741,6 +716,44 @@ function setEditMode(on) {
 //    $table.find('tbody tr').each(function () { recomputeRowTotals($(this)); });
 //    $table.toggleClass('editing-active', isEditMode);
 //}
+
+
+function setEditMode(on) {
+    isEditMode = !!on;
+
+    $('#btnEdit').toggleClass('d-none', isEditMode);
+    $('#btnCancelEdit').toggleClass('d-none', !isEditMode);
+
+    const $table = $('#rollingPlanTable');
+    if (!$table.length) return;
+
+    $table.find('td.editable, td.actualrow').each(function () {
+        const $cell = $(this);
+        const raw = $cell.data('raw');
+        const pid = Number($cell.data('planamountid')); // 183 = Unit, 184 = Value
+
+        if (isEditMode) {
+            const txt = (raw == null || raw === '')
+                ? ''
+                : (pid === 184 ? toLocaleMoney(raw) : toLocaleInt(raw));
+            $cell.text(txt);
+            this.setAttribute('contenteditable', $cell.hasClass('editable') ? 'true' : 'false');
+        } else {
+            // ✅ View mode:
+            // Value (pid=184) -> use HaveZero; Unit (pid=183) -> normal short (trim zeros)
+            const shortTxt = (raw == null || raw === '')
+                ? ''
+                : (pid === 184 ? formatShortHaveZero(raw) : formatShort(raw));
+            $cell.text(shortTxt);
+            this.setAttribute('contenteditable', 'false');
+            if ($cell.hasClass('editable')) $cell.removeClass('dirty row-editing');
+        }
+    });
+
+    $table.find('tbody tr').each(function () { recomputeRowTotals($(this)); });
+    $table.toggleClass('editing-active', isEditMode);
+}
+
 
 function cancelEditMode() {
     // discard staged changes
@@ -816,26 +829,6 @@ function upsertPendingEdit(change) {
         pendingEdits.push(change);
     }
 }
-
-//function recomputeRowTotals($row) {
-//    let totalUnit = 0, totalValue = 0;
-
-//    $row.find('td.editable').each(function () {
-//        const raw = $(this).data('raw');
-//        if (raw === '' || raw == null || isNaN(raw)) return;
-//        const n = Number(raw);
-//        const pid = Number($(this).data('planamountid')); // 183 unit / 184 value
-//        if (pid === 183) totalUnit += n; else if (pid === 184) totalValue += n;
-//    });
-
-//    // In edit mode show full numbers; in view mode show short (K/M)
-//    $row.find('td.total-unit').text(
-//        isEditMode ? (totalUnit ? toLocaleInt(totalUnit) : '-') : (totalUnit ? formatShort(totalUnit) : '-')
-//    );
-//    $row.find('td.total-value').text(
-//        isEditMode ? (totalValue ? toLocaleMoney(totalValue) : '-') : (totalValue ? formatShort(totalValue) : '-')
-//    );
-//}
 
 
 function savePendingEdits() {

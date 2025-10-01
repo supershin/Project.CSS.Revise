@@ -339,6 +339,24 @@ namespace Project.CSS.Revise.Web.Commond
             return defaultString;
         }
 
+        public static string ConvertToShortUnithaveZero(object obj, string defaultString = " - ")
+        {
+            string str = NullToAnyString(obj, defaultString);
+
+            if (decimal.TryParse(str, out decimal number))
+            {
+                if (number >= 1_000_000)
+                    return (number / 1_000_000M).ToString("0.00"); // ล้าน
+                else if (number >= 1_000)
+                    return (number / 1_000M).ToString("0.00");     // พัน
+                else
+                    return number.ToString("0.00");               // ค่าปกติ
+            }
+
+            return defaultString;
+        }
+
+
         public static string ConvertToMoney(object obj, string defaultString = " - ")
         {
             if (obj == null || obj == DBNull.Value)
