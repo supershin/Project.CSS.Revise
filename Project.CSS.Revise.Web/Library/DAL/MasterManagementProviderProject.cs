@@ -344,7 +344,6 @@ namespace Project.CSS.Revise.Web.Library.DAL
             Entity.ID_71 = Commond.FormatExtension.Nulltoint(reader["ID_71"]);
             Entity.ID_373 = Commond.FormatExtension.Nulltoint(reader["ID_373"]);
             Entity.ID_408 = Commond.FormatExtension.Nulltoint(reader["ID_408"]);
-            Entity.ID_409 = Commond.FormatExtension.Nulltoint(reader["ID_409"]);
             Entity.ID_435 = Commond.FormatExtension.Nulltoint(reader["ID_435"]);
             Entity.ID_436 = Commond.FormatExtension.Nulltoint(reader["ID_436"]);
             Entity.ID_438 = Commond.FormatExtension.Nulltoint(reader["ID_438"]);

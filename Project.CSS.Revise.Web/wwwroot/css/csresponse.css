@@ -1,8 +1,90 @@
-﻿
-.status-col {
-    white-space: nowrap;
-    min-width: 110px;
+﻿/* Let the modal body be the vertical scroller */
+.modal-dialog-scrollable .modal-body {
+    overflow-y: auto;
 }
+
+/* Only horizontal scroll on the table wrapper */
+.table-responsive {
+    position: relative;
+    overflow-x: auto !important;
+    overflow-y: visible !important; /* <-- important for sticky header on vertical scroll */
+}
+
+/* Table base */
 .status-table {
-    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: auto;
+}
+
+    /* Sticky header row */
+    .status-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 10; /* base for normal header cells */
+        background: #f8f9fa;
+    }
+
+/* IDs you asked: push these two headers to 999 */
+#headerOrder,
+#headerProject {
+    z-index: 999 !important; /* ensure these two sit above everything */
+}
+
+/* Sticky left columns (header + body) */
+
+/* ลำดับ (index) column */
+.status-table th.col-index,
+.status-table td.col-index {
+    position: sticky;
+    left: 0;
+    background-color: var(--bs-secondary-bg-subtle, #e2e3e5);
+    width: 72px;
+    white-space: nowrap;
+    text-align: left;
+    box-shadow: 1px 0 0 rgba(0,0,0,.05) inset;
+}
+/* Keep header above body cells */
+.status-table th.col-index {
+    z-index: 1000 !important;
+}
+/* header */
+.status-table td.col-index {
+    z-index: 998;
+}
+/* body */
+
+/* Project column (next to index) */
+.status-table th.col-project,
+.status-table td.col-project {
+    position: sticky;
+    left: 72px; /* = index width */
+    background-color: var(--bs-secondary-bg-subtle, #e2e3e5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 220px;
+    max-width: 320px;
+    box-shadow: 1px 0 0 rgba(0,0,0,.05) inset;
+}
+/* Header above body & below index header */
+.status-table th.col-project {
+    z-index: 999 !important;
+}
+/* header */
+.status-table td.col-project {
+    z-index: 997;
+}
+/* body */
+
+/* Summary/secondary rows grey */
+.status-table .table-secondary {
+    background-color: var(--bs-secondary-bg-subtle, #e2e3e5) !important;
+}
+
+/* Safari/WebKit quirks */
+.status-table th.col-index, .status-table td.col-index,
+.status-table th.col-project, .status-table td.col-project {
+    position: -webkit-sticky;
+    background-clip: padding-box;
 }
