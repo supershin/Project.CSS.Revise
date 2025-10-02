@@ -108,9 +108,17 @@
         UF.empty = $('#uf_empty');
         UF.loading = $('#uf_loading');
         UF.count = $('#uf_count');
+        
+        // Search / load table
+        document.getElementById('btnSearch')?.addEventListener('click', () => {
+            const projectId = choicesProject?.getValue(true) ?? '';
+            const projectName = getSelectedProjectLabelDOM(); // ← from native <select>
+            console.log("ProjectID:", projectId, "ProjectName:", projectName);
+            document.getElementById('uf_project_name').textContent = projectName || '';
+            document.getElementById('hfProjectID').value = projectId || '';
 
-        // search -> load table
-        $('#btnSearch')?.addEventListener('click', loadUnitFurnitureTable);
+            loadUnitFurnitureTable();
+        });
 
         // --- QTY modal wiring: open when Save Mapping clicked ---
     /*    $('#btnSaveMapping')?.addEventListener('click', () => openFurnitureQtyModal(1));*/
@@ -160,11 +168,13 @@
             const list = (json?.success && Array.isArray(json.data)) ? json.data : [];
 
             const items = list.map(p => ({
-                value: String(p.ProjectID ?? p.Value ?? p.ValueString ?? ''),
-                label: String(p.ProjectNameTH ?? p.ProjectNameEN ?? p.Text ?? p.Name ?? p.ProjectID ?? '')
+                value: String(p.ProjectID ?? ''),                            // ← value
+                label: String(p.ProjectNameTH ?? p.ProjectNameEN ??          // ← label
+                    p.ProjectID ?? '')
             }));
 
-            items.length ? fillChoices(choicesProject, items, true)
+            items.length
+                ? fillChoices(choicesProject, items, true)
                 : setChoicesEmpty(choicesProject, '— ไม่พบโครงการ —');
 
         } catch (err) {
@@ -173,6 +183,7 @@
             setChoicesEmpty(choicesProject, 'โหลดโครงการล้มเหลว');
         }
     }
+
 
     async function loadUnitTypesByProject(projectId, signal) {
         try {
@@ -256,23 +267,47 @@
         const unitCode = esc(item?.unitCode ?? item?.UnitCode ?? '');
         const unitType = esc(item?.unitType ?? item?.UnitType ?? '');
         const qty = esc(item?.qTYFurnitureUnit ?? item?.QTYFurnitureUnit ?? '');
-        const status = esc(item?.checkStatusName ?? item?.CheckStatusName ?? '');
+        const statusId = item?.checkStatusID ?? item?.CheckStatusID ?? '';
         const who = esc(item?.fullnameTH ?? item?.FullnameTH ?? '');
         const when = esc(item?.updateDate ?? item?.UpdateDate ?? '');
 
+        // ✅ Show checkbox only if statusId == '1'
+        const checkboxCol = statusId !== '309'
+            ? `<input class="form-check-input chkUnitItem" type="checkbox" value="${id}" style="border: 2px solid grey; accent-color: #0d6efd;" />`
+            : '';
+
+        // ✅ Status column: ✔ if 1, else ✘
+        let statusCol = '';
+        if (statusId === '309') {
+            statusCol = `<span class="text-success">✔</span>`;
+        } else if (statusId === '310') {
+            statusCol = `<span class="text-danger">✘</span>`;
+        } else {
+            statusCol = ''; // ไม่แสดงอะไร
+        }
+
+
         return `
       <tr data-id="${id}">
-        <td class="text-center">
-          <input class="form-check-input chkUnitItem" type="checkbox" value="${id}" />
-        </td>
+        <td class="text-center">${checkboxCol}</td>
         <td>${unitCode}</td>
         <td>${unitType}</td>
         <td class="text-center">${qty || '0'}</td>
-        <td>${status || '-'}</td>
+        <td class="text-center">${statusCol}</td>
         <td>${who || '-'}</td>
         <td>${when || '-'}</td>
       </tr>`;
     }
+
+    // helper: get selected project's label from Choices
+    function getSelectedProjectLabelDOM() {
+        const sel = document.getElementById('ddl_project');
+        if (!sel) return '';
+        const i = sel.selectedIndex;
+        if (i < 0) return '';
+        return (sel.options[i]?.text || '').trim();
+    }
+
 
     // select all in Unit table
     document.addEventListener('DOMContentLoaded', () => {
@@ -498,13 +533,15 @@
     }
 
     function buildMappingPayload() {
-        const projectId = choicesProject?.getValue(true) ?? ''; // from your dropdown
+        // prefer hidden field (locked by Search) for consistent save
+        const projectId = document.getElementById('hfProjectID')?.value || '';
         return {
             ProjectID: projectId,
             Furnitures: MW_state.furn, // [{id,name,qty}]
             Units: MW_state.units      // [{id,code,type}]
         };
     }
+
 
     // ---------- Misc ----------
     function escapeHtml(s) {
