@@ -32,11 +32,22 @@
             <div class="card mb-3">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h6 class="mb-0">Filter</h6>
-                    <button type="button" id="btnToggleFilters" class="btn btn-sm btn-outline-secondary d-lg-none">
+
+                    <!-- Show on ALL sizes; toggles collapse -->
+                    <button type="button"
+                            id="btnToggleFilters"
+                            class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#filterBody"
+                            aria-expanded="true"
+                            aria-controls="filterBody">
                         ตัวกรอง
+                        <i class="bi bi-chevron-up" id="filterChevron"></i>
                     </button>
                 </div>
-                <div class="card-body" id="filterBody">
+
+                <!-- 👇 Use Bootstrap collapse (visible by default with .show) -->
+                <div id="filterBody" class="card-body collapse show">
                     <form id="filterForm">
                         <div class="row g-3 align-items-end">
                             <!-- BU -->
@@ -78,21 +89,18 @@
                         <!-- Buttons row -->
                         <div class="row mt-3">
                             <div class="col-12 d-flex gap-2 justify-content-between justify-content-lg-end">
-                                <button type="button" id="btnClear" class="btn btn-outline-secondary">
-                                    ล้างค่า
-                                </button>
-                                <button type="button" id="btnSearch" class="btn btn-primary">
-                                    ค้นหา
-                                </button>
+                                <button type="button" id="btnClear" class="btn btn-outline-secondary">ล้างค่า</button>
+                                <button type="button" id="btnSearch" class="btn btn-primary">ค้นหา</button>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
+
         <div class="col-12">
-            <div class="row">
-                <div class="col-4">
+            <div class="row g-3">
+                <div class="col-12 col-lg-4">
                     <div class="card shadow-sm">
                         <div class="card-header d-flex align-items-center justify-content-between">
                             <div>
@@ -145,12 +153,21 @@
 
                     </div>
                 </div>
-                <div class="col-8">
+                <div class="col-12 col-lg-8">
                     <div class="card shadow-sm">
                         <div class="card-header d-flex align-items-center justify-content-between">
-                            <h6 class="mb-0">Unit Furniture</h6>
-                            <small class="text-muted" id="uf_count"></small>
+                            <div class="d-flex align-items-baseline gap-2">
+                                <h6 class="mb-0">Unit Furniture</h6>
+                                <small class="text-muted" id="uf_count"></small>
+                            </div>
+
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-primary" id="btnSaveMapping">
+                                    <i class="bi bi-save"></i> Save Mapping
+                                </button>
+                            </div>
                         </div>
+
                         <div class="card-body p-0">
                             <div class="table-responsive uf-scroll">
                                 <table class="table table-sm table-hover align-middle mb-0 w-100">
@@ -163,8 +180,6 @@
                                         <col> <!-- Update By -->
                                         <col class="col-date"> <!-- Update Date -->
                                     </colgroup>
-
-
 
                                     <thead class="table-light">
                                         <tr>
@@ -186,8 +201,6 @@
                                 </table>
                             </div>
 
-
-
                             <!-- empty state -->
                             <div id="uf_empty" class="text-center text-muted py-4 d-none">— No data —</div>
 
@@ -198,12 +211,102 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Mapping Stepper Modal -->
+<div class="modal fade" id="mdlMapWizard" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModal" aria-hidden="true" data-bs-keyboard="false" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    บันทึก Mapping (2 ขั้นตอน)
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+            </div>
+
+            <!-- Stepper header -->
+            <div class="px-3 pt-3">
+                <ol class="stepper mb-0">
+                    <li id="stp1" class="active">
+                        <span class="circle">1</span>
+                        <span class="label" style="color:#000;">กำหนด QTY Furniture</span>
+                    </li>
+                    <li id="stp2">
+                        <span class="circle">2</span>
+                        <span class="label" style=" color:#000;">ตรวจสอบ Unit ที่เลือก</span>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="modal-body">
+                <!-- STEP 1: Furnitures + QTY -->
+                <div id="stepPane1">
+                    <div class="card border-0">
+                        <div class="card-header bg-light py-2 d-flex justify-content-between align-items-center">
+                            <strong style="color:#000; font-weight:600;">Furnitures ที่เลือก</strong>
+                            <small class="text-muted"><span id="cntFurnSel">0</span> รายการ</small>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive" style="max-height:55vh;">
+                                <table class="table table-sm align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width:60px;" class="text-center">#</th>
+                                            <th>Furniture</th>
+                                            <th style="width:160px;" class="text-end pe-3">QTY</th>
+                                            <th style="width:80px;" class="text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="mw_furnBody"><!-- rows by JS --></tbody>
+                                </table>
+                            </div>
+                            <div id="mw_furnEmpty" class="text-center text-muted py-4 d-none">— ยังไม่ได้เลือก Furniture —</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Units -->
+                <div id="stepPane2" class="d-none">
+                    <div class="card border-0">
+                        <div class="card-header bg-light py-2 d-flex justify-content-between align-items-center">
+                            <strong style="color:#000; font-weight:600;">Unit ที่เลือก</strong>
+                            <small class="text-muted"><span id="cntUnitSel">0</span> รายการ</small>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive" style="max-height:55vh;">
+                                <table class="table table-sm align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width:60px;" class="text-center">#</th>
+                                            <th>Unit Code</th>
+                                            <th>Unit Type</th>
+                                            <th style="width:80px;" class="text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="mw_unitBody"><!-- rows by JS --></tbody>
+                                </table>
+                            </div>
+                            <div id="mw_unitEmpty" class="text-center text-muted py-4 d-none">— ยังไม่ได้เลือก Unit —</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary d-none" id="btnMWBack">ย้อนกลับ</button>
+                <button type="button" class="btn btn-primary" id="btnMWNext">ถัดไป</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 
 
 

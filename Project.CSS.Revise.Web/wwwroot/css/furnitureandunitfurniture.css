@@ -90,3 +90,71 @@
     white-space: normal; /* ให้ตัดบรรทัดได้ */
     padding: 0.5rem 0.75rem; /* padding ให้โปร่งขึ้น */
 }
+
+
+
+/* Simple stepper */
+.stepper {
+    display: flex;
+    list-style: none;
+    gap: 1rem;
+    padding-left: 0;
+}
+
+    .stepper li {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        color: #6c757d;
+    }
+
+        .stepper li .circle {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #adb5bd;
+            font-weight: 600;
+            font-size: .9rem;
+        }
+
+        .stepper li.active {
+            color: #0d6efd;
+        }
+
+            .stepper li.active .circle {
+                border-color: #0d6efd;
+                color: #0d6efd;
+            }
+
+.btn-icon-xs {
+    width: 28px;
+    height: 28px;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qty-input {
+    width: 110px;
+    text-align: right;
+}
+
+
+
+.qty-input {
+    width: 110px;
+    text-align: right;
+}
+
+.btn-icon-xs {
+    width: 28px;
+    height: 28px;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
