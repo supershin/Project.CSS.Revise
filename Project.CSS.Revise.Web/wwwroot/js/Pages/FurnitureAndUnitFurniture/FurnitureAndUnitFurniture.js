@@ -121,7 +121,6 @@
         });
 
         // --- QTY modal wiring: open when Save Mapping clicked ---
-    /*    $('#btnSaveMapping')?.addEventListener('click', () => openFurnitureQtyModal(1));*/
         $('#btnQtySave')?.addEventListener('click', onQtyModalSave);
 
         // optional initial load
@@ -271,26 +270,26 @@
         const who = esc(item?.fullnameTH ?? item?.FullnameTH ?? '');
         const when = esc(item?.updateDate ?? item?.UpdateDate ?? '');
 
-        // ✅ Show checkbox only if statusId == '1'
         const checkboxCol = statusId !== '309'
             ? `<input class="form-check-input chkUnitItem" type="checkbox" value="${id}" style="border: 2px solid grey; accent-color: #0d6efd;" />`
             : '';
 
-        // ✅ Status column: ✔ if 1, else ✘
         let statusCol = '';
-        if (statusId === '309') {
-            statusCol = `<span class="text-success">✔</span>`;
-        } else if (statusId === '310') {
-            statusCol = `<span class="text-danger">✘</span>`;
-        } else {
-            statusCol = ''; // ไม่แสดงอะไร
-        }
-
+        if (statusId === '309') statusCol = `<span class="text-success">✔</span>`;
+        else if (statusId === '310') statusCol = `<span class="text-danger">✘</span>`;
 
         return `
       <tr data-id="${id}">
         <td class="text-center">${checkboxCol}</td>
-        <td>${unitCode}</td>
+        <td>
+            <a href="javascript:void(0)"
+               class="edit-unit-furniture text-primary"
+               data-id="${id}"
+               data-code="${unitCode}"
+               onclick="openModalEditUnitFurniture(this.dataset.id, this.dataset.code)">
+              ${unitCode} <i class="bi bi-pencil"></i>
+            </a>
+        </td>
         <td>${unitType}</td>
         <td class="text-center">${qty || '0'}</td>
         <td class="text-center">${statusCol}</td>
@@ -298,6 +297,7 @@
         <td>${when || '-'}</td>
       </tr>`;
     }
+
 
     // helper: get selected project's label from Choices
     function getSelectedProjectLabelDOM() {
@@ -329,12 +329,50 @@
     });
 
 
+    // make it global so inline onclick can find it
+    window.openModalEditUnitFurniture = function (unitId, unitCode) {
+        const projectName = (document.getElementById('uf_project_name')?.textContent || '').trim() || '-';
+
+        // fill mock fields
+        document.getElementById('edit_unit_id').value = unitId || '';
+        document.getElementById('edit_unit_code').textContent = unitCode || '-';
+        document.getElementById('edit_project_name').textContent = projectName;
+
+        // show modal
+        const el = document.getElementById('mdlEditUnitFurniture');
+        bootstrap.Modal.getOrCreateInstance(el).show();
+    };
 
 
     // --------------------  Modal (mapping) --------------------
     // ---------- OPEN STEPPER ----------
     document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('btnSaveMapping')?.addEventListener('click', () => {
+        document.getElementById('btnSaveMapping')?.addEventListener('click', (e) => {
+            const projectId = document.getElementById('hfProjectID')?.value?.trim() || '';
+            const furn = getCheckedFurnitures(); // [{id,name}]
+            const units = getCheckedUnits();     // [{id,code,type}]
+            let ok = true;
+
+            if (!projectId) {
+                showWarning('กรุณาเลือกโครงการก่อน');
+                ok = false;
+            }
+            if (furn.length === 0) {
+                showWarning('กรุณาเลือกรายการ Furniture อย่างน้อย 1 รายการ');
+                ok = false;
+            }
+            if (units.length === 0) {
+                showWarning('กรุณาเลือกยูนิตอย่างน้อย 1 รายการจากตาราง');
+                ok = false;
+            }
+
+            if (!ok) {
+                e.preventDefault();
+                e.stopPropagation();
+                return; // ❌ ไม่เปิด modal ถ้ายังไม่ครบ
+            }
+
+            // ✅ พร้อมแล้วค่อยเปิด
             openMappingWizard();
         });
 
@@ -499,26 +537,63 @@
         }
     }
 
-    function onStepperNext() {
+    // make it async so we can await the fetch
+    async function onStepperNext() {
         if (MW_state.step === 1) {
-            // ensure at least 1 furniture with valid qty (>=0 allowed; adjust if you require >0)
+            // ensure at least 1 furniture with valid qty
             syncQtyFromInputs();
             if (MW_state.furn.length === 0) return;
             gotoStep(2);
-        } else {
-            // SAVE
-            const payload = buildMappingPayload();
-            // TODO: POST to your endpoint
-            // Example:
-            // const fd = new FormData();
-            // fd.append('ProjectID', choicesProject?.getValue(true) ?? '');
-            // fd.append('ItemsJson', JSON.stringify(payload));
-            // await fetch(baseUrl + 'FurnitureAndUnitFurniture/SaveFurnitureProjectMapping', { method:'POST', body: fd });
-
-            console.log('SAVE PAYLOAD →', payload);
-            bootstrap.Modal.getInstance(document.getElementById('mdlMapWizard'))?.hide();
+            return;
         }
+
+        // ----- SAVE (step 2) -----
+        const payload = buildMappingPayload();
+
+        // basic validation...
+        // (keep your existing validation code)
+        const btn = document.getElementById('btnMWNext');
+        const prevHtml = btn ? btn.innerHTML : '';
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>กำลังบันทึก...';
+        }
+
+        try {
+            showLoading();
+            const resp = await fetch(baseUrl + 'FurnitureAndUnitFurniture/SaveFurnitureProjectMapping', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'   // <-- IMPORTANT
+                },
+                body: JSON.stringify(payload)          // <-- send JSON that matches your C# model
+            });
+
+            const json = await resp.json().catch(() => ({}));
+
+            if (!resp.ok || json?.success === false) {
+                errorMessage(json?.message || 'บันทึกล้มเหลว');
+            }
+
+            // success
+            await loadUnitFurnitureTable();
+            successMessage('บันทึกสำเร็จ');  
+            bootstrap.Modal.getInstance(document.getElementById('mdlMapWizard'))?.hide();
+            
+
+        } catch (err) {
+            hideLoading();
+            errorMessage('บันทึกล้มเหลว');
+        } finally {
+            hideLoading();
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = prevHtml || 'บันทึก';
+            }
+        }
+
     }
+
 
     function syncQtyFromInputs() {
         const rows = Array.from(document.querySelectorAll('#mw_furnBody tr'));

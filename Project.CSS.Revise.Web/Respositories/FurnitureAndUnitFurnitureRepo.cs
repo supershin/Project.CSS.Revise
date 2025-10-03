@@ -3,12 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models.Pages.CSResponse;
 using Project.CSS.Revise.Web.Models.Pages.FurnitureAndUnitFurniture;
+using System.Data;
+using static Project.CSS.Revise.Web.Models.Pages.FurnitureAndUnitFurniture.FurnitureAndUnitFurnitureModel;
 
 namespace Project.CSS.Revise.Web.Respositories
 {
     public interface IFurnitureAndUnitFurnitureRepo
     {
         public List<FurnitureAndUnitFurnitureModel.UnitFurnitureListItem> GetlistUnitFurniture(FurnitureAndUnitFurnitureModel.UnitFurnitureFilter filter);
+        Task<bool> SaveFurnitureProjectMappingAsync(SaveFurnitureProjectMappingRequest req, int userId, CancellationToken ct = default);
     }
     public class FurnitureAndUnitFurnitureRepo : IFurnitureAndUnitFurnitureRepo
     {
@@ -98,6 +101,126 @@ namespace Project.CSS.Revise.Web.Respositories
             }
 
             return result;
+        }
+
+
+        public async Task<bool> SaveFurnitureProjectMappingAsync(SaveFurnitureProjectMappingRequest req,int userId,CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(req.ProjectID))
+            {
+                throw new ArgumentException("ProjectID is required.");
+            }               
+            if (req.Units is null || req.Units.Count == 0)
+            {
+                throw new ArgumentException("Units is required.");
+            }              
+            if (req.Furnitures is null || req.Furnitures.Count == 0)
+            {
+                throw new ArgumentException("Furnitures is required.");
+            }
+               
+            using var tx = await _context.Database.BeginTransactionAsync(ct);
+
+            try
+            {
+                var now = DateTime.UtcNow; // or DateTime.Now if you prefer
+
+                foreach (var u in req.Units)
+                {
+                    if (!Guid.TryParse(u.id, out var unitId))
+                    {
+                        throw new ArgumentException($"Invalid UnitID: {u.id}");
+                    }
+                        
+                    // ---- 1) Upsert TR_UnitFurniture via C# (EF) ----
+                    var uf = await _context.TR_UnitFurnitures.FirstOrDefaultAsync(x => x.ProjectID == req.ProjectID && x.UnitID == unitId, ct);
+
+                    if (uf == null)
+                    {
+                        uf = new TR_UnitFurniture
+                        {
+                            ID = Guid.NewGuid(),
+                            ProjectID = req.ProjectID!,
+                            UnitID = unitId,
+                            FlagActive = true,
+                            CreateDate = now,
+                            CreateBy = userId,
+                            UpdateDate = now,
+                            UpdateBy = userId
+                        };
+                        _context.TR_UnitFurnitures.Add(uf);
+                    }
+                    else
+                    {
+                        uf.FlagActive = true;
+                        uf.UpdateDate = now;
+                        uf.UpdateBy = userId;
+                        _context.TR_UnitFurnitures.Update(uf);
+                    }
+
+                    await _context.SaveChangesAsync(ct); // ensure uf.ID is persisted
+
+                    // ---- 2) REMOVE-FIRST (raw SQL bulk update) ----
+                    // Deactivate all existing details for this UnitFurniture
+                    await _context.Database.ExecuteSqlRawAsync(@" UPDATE TR_UnitFurniture_Detail SET FlagActive = 0, UpdateDate = GETDATE(),UpdateBy = {0} WHERE UnitFurnitureID = {1}", parameters: new object[] { userId, uf.ID }, cancellationToken: ct);
+
+                    // ---- 3) Re-apply selected furnitures via C# (EF) ----
+                    // Build a set of FurnitureIDs for quick lookups
+                    var furnitureIds = req.Furnitures
+                        .Select(f =>
+                        {
+                            if (!int.TryParse(f.id, out var fid))
+                                throw new ArgumentException($"Invalid FurnitureID: {f.id}");
+                            return (fid, qty: (decimal)f.qty);
+                        })
+                        .ToList();
+
+                    // Load all existing details for this UF once
+                    var existingDetails = await _context.TR_UnitFurniture_Details
+                        .Where(d => d.UnitFurnitureID == uf.ID)
+                        .ToListAsync(ct);
+
+                    foreach (var (fId, qty) in furnitureIds)
+                    {
+                        var d = existingDetails.FirstOrDefault(x => x.FurnitureID == fId);
+                        if (d != null)
+                        {
+                            // update existing
+                            d.Amount = Commond.FormatExtension.Nulltoint(qty);
+                            d.FlagActive = true;
+                            d.UpdateDate = now;
+                            d.UpdateBy = userId;
+                            _context.TR_UnitFurniture_Details.Update(d);
+                        }
+                        else
+                        {
+                            // insert new
+                            var nd = new TR_UnitFurniture_Detail
+                            {
+                                // ID is int and Identity
+                                UnitFurnitureID = uf.ID,
+                                FurnitureID = fId,
+                                Amount = Commond.FormatExtension.Nulltoint(qty),
+                                FlagActive = true,
+                                CreateDate = now,
+                                CreateBy = userId,
+                                UpdateDate = now,
+                                UpdateBy = userId
+                            };
+                            _context.TR_UnitFurniture_Details.Add(nd);
+                        }
+                    }
+                    await _context.SaveChangesAsync(ct);
+                }
+
+                await tx.CommitAsync(ct);
+                return true;
+            }
+            catch
+            {
+                await tx.RollbackAsync(ct);
+                throw;
+            }
         }
 
     }
