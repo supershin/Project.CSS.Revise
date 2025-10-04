@@ -107,7 +107,6 @@ namespace Project.CSS.Revise.Web.Controllers
             return Json(new { success = true, data = result });
         }
 
-
         [HttpPost]
         public async Task<IActionResult> SaveChangeFurnitureProjectMapping([FromBody] UpdateFurnitureProjectMappingRequest req)
         {
@@ -133,6 +132,77 @@ namespace Project.CSS.Revise.Web.Controllers
             {
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateFurniture(string name, CancellationToken ct)
+        {
+            if (!(User?.Identity?.IsAuthenticated ?? false))
+                return Unauthorized(new { success = false, message = "Unauthorized" });
+
+            string? loginId64 = User.FindFirst("LoginID")?.Value;
+            var userId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
+
+            try
+            {
+                var ok = await _furnitureAndUnitFurnitureService.CreateAsync(name, userId, ct);
+                return Json(new { success = ok });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateFurniture(int id, string name, CancellationToken ct)
+        {
+            if (!(User?.Identity?.IsAuthenticated ?? false))
+                return Unauthorized(new { success = false, message = "Unauthorized" });
+
+            string? loginId64 = User.FindFirst("LoginID")?.Value;
+            var userId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
+
+            try
+            {
+                var ok = await _furnitureAndUnitFurnitureService.UpdateAsync(id, name, userId, ct);
+                return Json(new { success = ok });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteFurniture(int id, CancellationToken ct)
+        {
+            if (!(User?.Identity?.IsAuthenticated ?? false))
+                return Unauthorized(new { success = false, message = "Unauthorized" });
+
+            string? loginId64 = User.FindFirst("LoginID")?.Value;
+            var userId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
+
+            var (ok, message) = await _furnitureAndUnitFurnitureService.DeleteAsync(id, userId, ct);
+            if (!ok)
+                return BadRequest(new { success = false, message });
+
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public IActionResult GetFurnitureList()
+        {
+            // however you build the list today:
+            var list = _masterService.GetlisDDl(new GetDDLModel { Act = "ListFuniture" });
+
+            // normalize to {id,name}
+            var data = list.Select(x => new {
+                id = x.ValueInt,
+                name = x.Text
+            });
+
+            return Json(new { success = true, data });
         }
 
     }

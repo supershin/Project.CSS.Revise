@@ -13,6 +13,9 @@ namespace Project.CSS.Revise.Web.Respositories
         Task<bool> SaveFurnitureProjectMappingAsync(SaveFurnitureProjectMappingRequest req, int userId, CancellationToken ct = default);
         public UnitFurnitureModel? GetUnitFurniture(Guid unitId);
         Task<bool> UpdateFurnitureProjectMappingAsync(UpdateFurnitureProjectMappingRequest req, int userId, CancellationToken ct = default);
+        Task<bool> CreateAsync(string name, int userId, CancellationToken ct = default);
+        Task<bool> UpdateAsync(int id, string name, int userId, CancellationToken ct = default);
+        Task<(bool ok, string message)> DeleteAsync(int id, int userId, CancellationToken ct = default);
     }
     public class FurnitureAndUnitFurnitureRepo : IFurnitureAndUnitFurnitureRepo
     {
@@ -258,7 +261,6 @@ namespace Project.CSS.Revise.Web.Respositories
             return result;
         }
 
-
         public async Task<bool> UpdateFurnitureProjectMappingAsync(UpdateFurnitureProjectMappingRequest req,int userId,CancellationToken ct = default)
         {
             if (string.IsNullOrWhiteSpace(req.ProjectID))
@@ -375,6 +377,77 @@ namespace Project.CSS.Revise.Web.Respositories
                 await tx.RollbackAsync(ct);
                 throw;
             }
+        }
+
+        public async Task<bool> CreateAsync(string name, int userId, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Name is required.", nameof(name));
+
+            // Optional: prevent duplicates (case-insensitive)
+            var exists = await _context.tm_Funitures.AnyAsync(x => x.Name.Trim().ToLower() == name.Trim().ToLower() && x.FlagActive == true, ct);
+            if (exists) throw new InvalidOperationException("Furniture name already exists.");
+
+            var now = DateTime.Now;
+
+            var entity = new tm_Funiture
+            {
+                Name = name.Trim(),
+                FlagActive = true,
+                CraeteDate = now,
+                CreateBy = userId,
+                UpdateDate = now,
+                UpdateBy = userId
+            };
+
+            _context.tm_Funitures.Add(entity);
+            await _context.SaveChangesAsync(ct);
+            return true;
+        }
+
+        public async Task<bool> UpdateAsync(int id, string name, int userId, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Name is required.", nameof(name));
+
+            var entity = await _context.tm_Funitures.FirstOrDefaultAsync(x => x.ID == id, ct);
+            if (entity is null) throw new InvalidOperationException("Furniture not found.");
+
+            // Optional: prevent duplicates (excluding self)
+            var exists = await _context.tm_Funitures.AnyAsync(x => x.ID != id && x.Name.Trim().ToLower() == name.Trim().ToLower() && x.FlagActive == true, ct);
+            if (exists) throw new InvalidOperationException("Furniture name already exists.");
+
+            entity.Name = name.Trim();
+            entity.UpdateDate = DateTime.Now;
+            entity.UpdateBy = userId;
+
+            _context.tm_Funitures.Update(entity);
+            await _context.SaveChangesAsync(ct);
+            return true;
+        }
+
+        public async Task<(bool ok, string message)> DeleteAsync(int id, int userId, CancellationToken ct = default)
+        {
+            var entity = await _context.tm_Funitures.FirstOrDefaultAsync(x => x.ID == id, ct);
+            if (entity is null) return (false, "Furniture not found.");
+
+            // 🔒 Guard: is this furniture still in use (active) in details?
+            var inUse = await _context.TR_UnitFurniture_Details.AnyAsync(d => d.FurnitureID == id && d.FlagActive == true, ct);
+
+            if (inUse)
+            {
+                // Block hard/soft delete if still referenced
+                return (false, "Cannot delete. Furniture is used in active unit furniture details.");
+            }
+
+            // Soft delete:
+            entity.FlagActive = false;
+            entity.UpdateDate = DateTime.Now;
+            entity.UpdateBy = userId;
+            _context.tm_Funitures.Update(entity);
+
+            await _context.SaveChangesAsync(ct);
+            return (true, "Deleted");
         }
 
     }

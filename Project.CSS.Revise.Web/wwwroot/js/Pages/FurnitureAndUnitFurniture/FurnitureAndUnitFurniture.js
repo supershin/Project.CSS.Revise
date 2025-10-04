@@ -1039,5 +1039,255 @@
     }
 
 
+    // ===========================
+    // Furniture CRUD (front-end)
+    // ===========================
+    (function () {
+        const furnitureList = document.getElementById('furnitureList'); // left panel list
+        const catalogLane = document.getElementById('mf_catalog');    // chips in the edit modal
+
+        // --- helpers ---
+        function escHtml(s) {
+            return String(s ?? '')
+                .replaceAll('&', '&amp;').replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;').replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function updateTotalBadge() {
+            try {
+                const el = document.querySelector('.card-header small.text-muted');
+                if (!el) return;
+                const count = furnitureList?.querySelectorAll('.list-group-item').length ?? 0;
+                el.textContent = `ทั้งหมด ${count} รายการ`;
+            } catch { }
+        }
+
+        // ===========================
+        // Row / Chip builders
+        // ===========================
+        function buildFurnitureRow(id, name) {
+            const div = document.createElement('div');
+            div.className = 'list-group-item d-flex justify-content-between align-items-center';
+            div.dataset.id = String(id);
+            div.dataset.name = String(name);
+            div.id = `frow_${id}`;
+            div.innerHTML = `
+      <div class="d-flex align-items-center gap-2">
+        <input type="checkbox"
+               class="form-check-input chkFurniture"
+               value="${escHtml(id)}"
+               style="border: 2px solid grey; accent-color: #0d6efd;" />
+        <span class="f-name">${escHtml(name)}</span>
+      </div>
+      <div class="btn-group">
+        <button type="button"
+                class="btn btn-light rounded-circle btn-icon btn-edit"
+                id="btnEditFurniture_${escHtml(id)}"
+                title="Edit"
+                onclick="openFurnitureEdit('${String(id).replace(/'/g, "\\'")}')">
+          <i class="bi bi-pencil"></i>
+        </button>
+        &nbsp;
+        <button type="button"
+                class="btn btn-light rounded-circle btn-icon text-danger btn-delete"
+                id="btnDeleteFurniture_${escHtml(id)}"
+                title="Delete"
+                onclick="openFurnitureDelete('${String(id).replace(/'/g, "\\'")}')">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>`;
+            return div;
+        }
+
+        function buildCatalogChip(id, name) {
+            const chip = document.createElement('div');
+            chip.className = 'chip chip-ghost dnd-src';
+            chip.setAttribute('draggable', 'true');
+            chip.dataset.id = String(id);
+            chip.dataset.name = String(name);
+            chip.textContent = name;
+            return chip;
+        }
+
+
+        // ===========================
+        // FULL refresh from server
+        // ===========================
+        async function fetchFurnitureList() {
+            // CHANGE this route if your API is different
+            const resp = await fetch(baseUrl + 'FurnitureAndUnitFurniture/GetFurnitureList', { method: 'POST' });
+            const json = await resp.json().catch(() => ({}));
+            if (!resp.ok || json?.success === false || !Array.isArray(json?.data)) {
+                throw new Error(json?.message || 'Fetch list failed');
+            }
+            // normalize: [{id,name}]
+            return json.data.map(x => ({
+                id: String(x.id ?? x.ID ?? x.ValueInt ?? x.Value ?? ''),
+                name: String(x.name ?? x.Name ?? x.Text ?? '')
+            })).filter(x => x.id);
+        }
+
+        function rebuildFurnitureUIFromList(items) {
+            // clear
+            if (furnitureList) furnitureList.innerHTML = '';
+            if (catalogLane) catalogLane.innerHTML = '';
+
+            // build
+            const fragList = document.createDocumentFragment();
+            const fragChips = document.createDocumentFragment();
+
+            items.forEach(it => {
+                fragList.appendChild(buildFurnitureRow(it.id, it.name));
+                fragChips.appendChild(buildCatalogChip(it.id, it.name));
+            });
+
+            furnitureList?.appendChild(fragList);
+            catalogLane?.appendChild(fragChips);
+            updateTotalBadge();
+        }
+
+        async function refreshFurnitureUI() {
+            try {
+                const items = await fetchFurnitureList();
+                rebuildFurnitureUIFromList(items);
+            } catch (e) {
+                // if no endpoint yet, fallback to page reload
+                console.warn('refreshFurnitureUI failed, fallback reload:', e?.message);
+                location.reload();
+            }
+        }
+
+        // ===========================
+        // Inline onclick helpers (global)
+        // ===========================
+        function getFurnitureRowAndName(id) {
+            const row = document.querySelector(`#furnitureList .list-group-item[data-id="${CSS.escape(String(id))}"]`);
+            const name = row?.dataset?.name || row?.querySelector('.f-name')?.textContent?.trim() || '';
+            return { row, name };
+        }
+
+        window.openFurnitureEdit = function (id) {
+            const { name } = getFurnitureRowAndName(id);
+            const m = document.getElementById('mdlFurnitureUpsert');
+            if (!m) return;
+
+            m.querySelector('#fu_modal_title').textContent = id ? 'Edit furniture' : 'Add furniture';
+            m.querySelector('#fu_id').value = id || '';
+            const input = m.querySelector('#fu_name');
+            input.value = name || '';
+            input.classList.remove('is-invalid');
+
+            bootstrap.Modal.getOrCreateInstance(m).show();
+        };
+
+        window.openFurnitureDelete = function (id) {
+            const { name } = getFurnitureRowAndName(id);
+            const m = document.getElementById('mdlFurnitureDelete');
+            if (!m) return;
+
+            m.querySelector('#fd_id').value = id;
+            m.querySelector('#fd_name').textContent = name || '';
+
+            bootstrap.Modal.getOrCreateInstance(m).show();
+        };
+
+        // ===========================
+        // Add button (open Upsert as Create)
+        // ===========================
+        document.getElementById('btnFurnitureAdd')?.addEventListener('click', () => {
+            openFurnitureEdit(''); // empty id => create
+        });
+
+        // ===========================
+        // Save (Create/Update)
+        // ===========================
+        document.getElementById('btnFurnitureSave')?.addEventListener('click', async (ev) => {
+            const btn = ev.currentTarget;
+            const m = document.getElementById('mdlFurnitureUpsert');
+            const id = (m.querySelector('#fu_id')?.value || '').trim();
+            const nameInput = m.querySelector('#fu_name');
+            const name = (nameInput?.value || '').trim();
+
+            if (!name) {
+                nameInput?.classList.add('is-invalid');
+                return;
+            }
+            nameInput?.classList.remove('is-invalid');
+
+            // loading UI
+            const label = btn.querySelector('.label') || btn;
+            const spin = btn.querySelector('.spinner-border');
+            label.classList?.add('d-none'); spin?.classList?.remove('d-none'); btn.disabled = true;
+
+            try {
+                const fd = new FormData();
+                if (id) fd.append('id', id);
+                fd.append('name', name);
+
+                const url = id
+                    ? (baseUrl + 'FurnitureAndUnitFurniture/UpdateFurniture')
+                    : (baseUrl + 'FurnitureAndUnitFurniture/CreateFurniture');
+
+                const resp = await fetch(url, { method: 'POST', body: fd });
+                const json = await resp.json().catch(() => ({}));
+
+                if (!resp.ok || json?.success === false) {
+                    throw new Error(json?.message || 'Save failed');
+                }
+
+                bootstrap.Modal.getInstance(m)?.hide();
+
+                // 🔄 always refresh from server so ordering/count/chips stay correct
+                await refreshFurnitureUI();
+
+                successMessage('Saved successfully');
+            } catch (err) {
+                showWarning(err?.message || 'Save failed');
+            } finally {
+                label.classList?.remove('d-none'); spin?.classList?.add('d-none'); btn.disabled = false;
+            }
+        });
+
+        // ===========================
+        // Delete (Confirm)
+        // ===========================
+        document.getElementById('btnFurnitureDeleteConfirm')?.addEventListener('click', async (ev) => {
+            const btn = ev.currentTarget;
+            const m = document.getElementById('mdlFurnitureDelete');
+            const id = (m.querySelector('#fd_id')?.value || '').trim();
+
+            const label = btn.querySelector('.label') || btn;
+            const spin = btn.querySelector('.spinner-border');
+            label.classList?.add('d-none'); spin?.classList?.remove('d-none'); btn.disabled = true;
+
+            try {
+                const fd = new FormData();
+                fd.append('id', id);
+
+                const resp = await fetch(baseUrl + 'FurnitureAndUnitFurniture/DeleteFurniture', {
+                    method: 'POST', body: fd
+                });
+                const json = await resp.json().catch(() => ({}));
+
+                if (!resp.ok || json?.success === false) {
+                    throw new Error(json?.message || 'Delete failed');
+                }
+
+                bootstrap.Modal.getInstance(m)?.hide();
+
+                // 🔄 refresh from server after delete
+                await refreshFurnitureUI();
+
+                successMessage('Deleted');
+            } catch (err) {
+                showWarning(err?.message || 'Delete failed');
+            } finally {
+                label.classList?.remove('d-none'); spin?.classList?.add('d-none'); btn.disabled = false;
+            }
+        });
+
+    })();
+
 
 })();

@@ -1,4 +1,5 @@
-﻿using Project.CSS.Revise.Web.Models.Pages.FurnitureAndUnitFurniture;
+﻿using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
+using Project.CSS.Revise.Web.Models.Pages.FurnitureAndUnitFurniture;
 using Project.CSS.Revise.Web.Respositories;
 using static Project.CSS.Revise.Web.Models.Pages.FurnitureAndUnitFurniture.FurnitureAndUnitFurnitureModel;
 
@@ -10,6 +11,9 @@ namespace Project.CSS.Revise.Web.Service
         Task<bool> SaveFurnitureProjectMappingAsync(SaveFurnitureProjectMappingRequest req, int userId, CancellationToken ct = default);
         public UnitFurnitureModel? GetUnitFurniture(Guid unitId);
         Task<bool> UpdateFurnitureProjectMappingAsync(UpdateFurnitureProjectMappingRequest req, int userId, CancellationToken ct = default);
+        Task<bool> CreateAsync(string name, int userId, CancellationToken ct = default);
+        Task<bool> UpdateAsync(int id, string name, int userId, CancellationToken ct = default);
+        Task<(bool ok, string message)> DeleteAsync(int id, int userId, CancellationToken ct = default);
     }
     public class FurnitureAndUnitFurnitureService : IFurnitureAndUnitFurnitureService
     {
@@ -55,5 +59,19 @@ namespace Project.CSS.Revise.Web.Service
             }
         }
 
+        public async Task<bool> CreateAsync(string name, int userId, CancellationToken ct = default)
+        {
+            return await _furnitureAndUnitFurnitureRepo.CreateAsync(name, userId, ct);
+        }
+
+        public async Task<bool> UpdateAsync(int id, string name, int userId, CancellationToken ct = default)
+        {
+            return await _furnitureAndUnitFurnitureRepo.UpdateAsync(id, name, userId, ct);
+        }
+
+        public async Task<(bool ok, string message)> DeleteAsync(int id, int userId, CancellationToken ct = default)
+        {
+            return await _furnitureAndUnitFurnitureRepo.DeleteAsync(id, userId, ct);
+        }
     }
 }
