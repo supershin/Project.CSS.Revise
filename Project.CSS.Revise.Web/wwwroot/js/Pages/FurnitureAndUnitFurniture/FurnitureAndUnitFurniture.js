@@ -330,18 +330,85 @@
 
 
     // make it global so inline onclick can find it
-    window.openModalEditUnitFurniture = function (unitId, unitCode) {
+    window.openModalEditUnitFurniture = async function (unitId, unitCode) {
         const projectName = (document.getElementById('uf_project_name')?.textContent || '').trim() || '-';
 
-        // fill mock fields
+        // fill header (even though modal not shown yet)
         document.getElementById('edit_unit_id').value = unitId || '';
         document.getElementById('edit_unit_code').textContent = unitCode || '-';
         document.getElementById('edit_project_name').textContent = projectName;
 
-        // show modal
+        // prep content so it's clean when it opens
+        try {
+            window.__ufDeck?.clear();
+            window.__ufDeck?.setRemark('');
+            const totalsI = document.getElementById('mf_total_items');
+            const totalsQ = document.getElementById('mf_total_qty');
+            if (totalsI) totalsI.textContent = ' 0';
+            if (totalsQ) totalsQ.textContent = ' 0';
+            const empty = document.getElementById('mf_empty');
+            if (empty) { empty.textContent = 'Loading…'; empty.classList.remove('d-none'); }
+        } catch { }
+
+        // optional: global spinner if you already have showLoading/hideLoading helpers
+        try { showLoading?.('กำลังโหลดข้อมูลยูนิต…'); } catch { }
+
+        // 1) load + render FIRST
+        const ok = await loadAndRenderUnitFurniture(unitId);
+
+        // 2) hide global spinner
+        try { hideLoading?.(); } catch { }
+
+        // 3) finally show modal (only after data is ready)
         const el = document.getElementById('mdlEditUnitFurniture');
-        bootstrap.Modal.getOrCreateInstance(el).show();
+        const modal = bootstrap.Modal.getOrCreateInstance(el);
+        modal.show();
+
+        // if failed, keep modal content in a friendly error state
+        if (!ok) {
+            const empty = document.getElementById('mf_empty');
+            if (empty) { empty.textContent = 'Failed to load'; empty.classList.remove('d-none'); }
+        }
     };
+
+    // POST -> GetDataUnitFurniture, then render to deck
+    async function loadAndRenderUnitFurniture(unitId) {
+        try {
+            const fd = new FormData();
+            fd.append('UnitID', unitId);
+
+            const resp = await fetch(baseUrl + 'FurnitureAndUnitFurniture/GetDataUnitFurniture', {
+                method: 'POST',
+                body: fd
+            });
+            const json = await resp.json();
+            if (!resp.ok || json?.success === false) throw new Error(json?.message || 'Load failed');
+
+            const data = json?.data || {};
+            const details = data?.details ?? data?.Details ?? [];
+            const remark = data?.checkRemark ?? data?.CheckRemark ?? '';
+            const status = Number(data?.checkStatusID ?? data?.CheckStatusID ?? 0);
+
+            // render
+            window.__ufDeck?.render(details);
+            window.__ufDeck?.setRemark(remark);
+
+            // NEW: lock the UI when status === 309
+            window.__ufDeck?.setReadOnly(status === 309);
+
+            // hide the inline empty/loading state
+            const empty = document.getElementById('mf_empty');
+            if (empty) empty.classList.add('d-none');
+
+            return true;
+        } catch (err) {
+            console.error('GetDataUnitFurniture error:', err);
+            return false;
+        }
+    }
+
+
+
 
 
     // --------------------  Modal (mapping) --------------------
@@ -625,6 +692,352 @@
             .replaceAll('>', '&gt;').replaceAll('"', '&quot;')
             .replaceAll("'", '&#39;');
     }
+
+
+
+    // -------------------- DnD Modal (enhanced catalog) -----------------
+    (function () {
+        const wrap = document.getElementById('mf_catalog_wrap');
+        const catalog = document.getElementById('mf_catalog');
+        const catMissBl = document.getElementById('mf_catalog_missing_block');
+        const catMiss = document.getElementById('mf_catalog_missing');
+        const deck = document.getElementById('unitDeck');
+        const totalsI = document.getElementById('mf_total_items');
+        const totalsQ = document.getElementById('mf_total_qty');
+        const search = document.getElementById('mf_search');
+
+        if (!catalog || !deck) return; // modal not present
+
+        let dragData = null;
+        let READONLY = false; // <--- central flag
+
+        // ---------- helpers ----------
+        const getDeckIds = () => new Set([...deck.querySelectorAll('.dnd-item')].map(x => x.dataset.id));
+        const getCatalogIds = () => new Set([...wrap.querySelectorAll('.dnd-src')].map(x => x.dataset.id));
+
+        function esc(s) {
+            return String(s ?? '')
+                .replaceAll('&', '&amp;').replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;').replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function updateTotals() {
+            const cards = deck.querySelectorAll('.dnd-item');
+            totalsI.textContent = String(cards.length);
+            let sum = 0;
+            cards.forEach(c => { const q = c.querySelector('.qty-input'); sum += Number(q?.value || 0); });
+            totalsQ.textContent = String(sum);
+        }
+
+        function makeDeckRow({ id, name, qty = 1 }) {
+            const row = document.createElement('div');
+            row.className = 'list-group-item d-flex align-items-center justify-content-between gap-3 dnd-item';
+            row.setAttribute('draggable', String(!READONLY));   // respect READONLY
+            row.dataset.id = id;
+            row.innerHTML = `
+      <div class="d-flex align-items-center gap-2 flex-grow-1">
+        <i class="bi bi-couch text-secondary"></i>
+        <span class="fw-semibold">${esc(name)}</span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <input type="number" class="form-control form-control-sm qty-input" min="0" step="1" value="${qty}">
+        <button class="btn btn-light btn-sm dnd-remove" title="Remove">
+          <i class="bi bi-trash text-danger"></i>
+        </button>
+      </div>`;
+
+            row.addEventListener('dragstart', (e) => {
+                if (READONLY) { e.preventDefault(); return; }     // guard
+                row.classList.add('dragging');
+                dragData = { type: 'reorder', el: row };
+            });
+            row.addEventListener('dragend', () => { row.classList.remove('dragging'); dragData = null; });
+
+            // make qty/removable reflect current state
+            const qtyInput = row.querySelector('.qty-input');
+            const rmBtn = row.querySelector('.dnd-remove');
+            qtyInput.disabled = READONLY; qtyInput.readOnly = READONLY;
+            rmBtn.disabled = READONLY;
+
+            return row;
+        }
+
+        function makeMissingChip(id, name) {
+            const div = document.createElement('div');
+            div.className = 'chip chip-ghost chip-missing dnd-src';
+            div.setAttribute('draggable', String(!READONLY));
+            div.dataset.id = id;
+            div.dataset.name = name || id;
+            div.title = 'This item is not in catalog — auto detected from Unit items';
+            div.innerHTML = `<i class="bi bi-exclamation-circle me-1"></i>${esc(name || id)}`;
+            return div;
+        }
+
+        // Build/refresh "missing" lane from deck
+        function ensureMissingCatalogChips() {
+            const deckIds = getDeckIds();
+            const catIds = getCatalogIds();
+
+            const missing = [];
+            deckIds.forEach(id => {
+                if (!catIds.has(id)) {
+                    const row = deck.querySelector(`.dnd-item[data-id="${CSS.escape(id)}"]`);
+                    const name = row?.querySelector('.fw-semibold')?.textContent?.trim() || id;
+                    missing.push({ id, name });
+                }
+            });
+
+            if (!missing.length) {
+                catMiss.innerHTML = '';
+                catMissBl.classList.add('d-none');
+            } else {
+                catMiss.innerHTML = '';
+                missing.forEach(m => catMiss.appendChild(makeMissingChip(m.id, m.name)));
+                catMissBl.classList.remove('d-none');
+            }
+
+            wrap.querySelectorAll('.dnd-src').forEach(chip => {
+                chip.classList.toggle('in-use', deckIds.has(chip.dataset.id));
+                chip.setAttribute('draggable', String(!READONLY));
+            });
+        }
+
+        // ---------- Catalog: drag & dblclick (delegated + guarded) ----------
+        wrap.addEventListener('dragstart', e => {
+            if (READONLY) return;
+            const chip = e.target.closest('.dnd-src'); if (!chip) return;
+            dragData = { type: 'add', id: chip.dataset.id, name: chip.dataset.name };
+            e.dataTransfer.setData('text/plain', chip.dataset.id);
+        });
+        wrap.addEventListener('dragend', () => dragData = null);
+
+        wrap.addEventListener('dblclick', e => {
+            if (READONLY) return;
+            const chip = e.target.closest('.dnd-src'); if (!chip) return;
+            if (deck.querySelector(`.dnd-item[data-id="${CSS.escape(chip.dataset.id)}"]`)) return;
+            deck.appendChild(makeDeckRow({ id: chip.dataset.id, name: chip.dataset.name, qty: 1 }));
+            updateTotals();
+            ensureMissingCatalogChips();
+        });
+
+        // ---------- Deck: drop + reorder (guarded) ----------
+        deck.addEventListener('dragover', e => {
+            if (READONLY) return;
+            e.preventDefault();
+            deck.classList.add('dragover');
+            const afterEl = getAfterElement(deck, e.clientY);
+            const dragging = deck.querySelector('.dnd-item.dragging');
+            if (dragging && afterEl == null) deck.appendChild(dragging);
+            else if (dragging && afterEl) deck.insertBefore(dragging, afterEl);
+        });
+        deck.addEventListener('dragleave', () => deck.classList.remove('dragover'));
+
+        deck.addEventListener('drop', e => {
+            if (READONLY) return;
+            e.preventDefault(); deck.classList.remove('dragover'); if (!dragData) return;
+            if (dragData.type === 'add') {
+                if (deck.querySelector(`.dnd-item[data-id="${CSS.escape(dragData.id)}"]`)) return;
+                const card = makeDeckRow({ id: dragData.id, name: dragData.name, qty: 1 });
+                const afterEl = getAfterElement(deck, e.clientY);
+                if (afterEl == null) deck.appendChild(card); else deck.insertBefore(card, afterEl);
+                updateTotals();
+                ensureMissingCatalogChips();
+            }
+        });
+
+        // remove + qty change
+        deck.addEventListener('click', e => {
+            if (READONLY) return;
+            const btn = e.target.closest('.dnd-remove');
+            if (btn) { btn.closest('.dnd-item')?.remove(); updateTotals(); ensureMissingCatalogChips(); }
+        });
+        deck.addEventListener('input', e => {
+            if (READONLY) { // keep displayed value unchanged if someone tries to type
+                if (e.target.classList.contains('qty-input')) {
+                    e.target.value = e.target.getAttribute('value') || e.target.value;
+                }
+                return;
+            }
+            if (e.target.classList.contains('qty-input')) updateTotals();
+        });
+
+        // search filter (filters both lanes)
+        search?.addEventListener('input', e => {
+            const term = e.target.value.trim().toLowerCase();
+            wrap.querySelectorAll('.dnd-src').forEach(chip => {
+                const name = (chip.dataset.name || chip.textContent || '').toLowerCase();
+                chip.style.display = name.includes(term) ? '' : 'none';
+            });
+        });
+
+        function getAfterElement(container, y) {
+            const els = [...container.querySelectorAll('.dnd-item:not(.dragging)')];
+            return els.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) { return { offset, element: child }; }
+                else { return closest; }
+            }, { offset: Number.NEGATIVE_INFINITY }).element || null;
+        }
+
+        // ---- Deck render helpers ----
+        function clearDeck() {
+            deck.querySelectorAll('.dnd-item').forEach(n => n.remove());
+        }
+
+        function renderDeck(details = []) {
+            clearDeck();
+            details.forEach(d => {
+                const id = String(d.furnitureID ?? d.FurnitureID ?? '');
+                const name = String(d.furnitureName ?? d.FurnitureName ?? `ID ${id}`);
+                const qty = Number(d.amount ?? d.Amount ?? 1);
+                if (!id) return;
+                deck.appendChild(makeDeckRow({ id, name, qty }));
+            });
+            updateTotals();
+            ensureMissingCatalogChips();
+            const empty = document.getElementById('mf_empty');
+            if (empty) empty.classList.toggle('d-none', deck.querySelector('.dnd-item') !== null);
+        }
+
+        function setRemark(text) {
+            const ta = document.getElementById('mf_remark');
+            if (ta) ta.value = text ?? '';
+        }
+
+        // central read-only toggler
+        function setReadOnly(ro) {
+            READONLY = !!ro;
+
+            const modal = document.getElementById('mdlEditUnitFurniture');
+            modal?.classList.toggle('uf-readonly', READONLY);
+
+            // disable qty + remove + draggable on rows
+            deck.querySelectorAll('.dnd-item').forEach(r => r.setAttribute('draggable', String(!READONLY)));
+            deck.querySelectorAll('.qty-input').forEach(i => { i.disabled = READONLY; i.readOnly = READONLY; });
+            deck.querySelectorAll('.dnd-remove').forEach(b => { b.disabled = READONLY; });
+
+            // freeze catalog chips
+            wrap.querySelectorAll('.dnd-src').forEach(chip => chip.setAttribute('draggable', String(!READONLY)));
+
+            // disable search while locked (optional UX)
+            if (search) search.disabled = READONLY;
+
+            // NEW: disable remark + save
+            const remark = document.getElementById('mf_remark');
+            if (remark) {
+                remark.disabled = READONLY;
+                remark.readOnly = READONLY;
+            }
+
+            const saveBtn = document.getElementById('btnEditUFSave');
+            if (saveBtn) {
+                saveBtn.disabled = READONLY;
+                // optional visual cue
+                saveBtn.classList.toggle('disabled', READONLY);
+                saveBtn.title = READONLY ? 'Approved unit — cannot save' : '';
+            }
+
+            // lock hint
+            const hdr = modal?.querySelector('.modal-header');
+            let hint = hdr?.querySelector('.uf-lock-hint');
+            if (hdr && !hint) {
+                hint = document.createElement('div');
+                hint.className = 'uf-lock-hint ms-3 small text-muted';
+                hint.innerHTML = '<i class="bi bi-lock-fill me-1"></i> This unit is approved (check status is pass) and cannot be edited.';
+                hdr.appendChild(hint);
+            }
+            hint?.classList.toggle('d-none', !READONLY);
+        }
+
+        // expose to opener
+        window.__ufDeck = { render: renderDeck, clear: clearDeck, setRemark: setRemark, setReadOnly: setReadOnly };
+
+        // initial paint
+        updateTotals();
+        ensureMissingCatalogChips();
+    })();
+
+    // ===== Save Change (Edit Unit Furniture modal) =====
+    document.addEventListener('DOMContentLoaded', () => {
+        const btnSave = document.getElementById('btnEditUFSave');
+        if (!btnSave) return;
+
+        btnSave.addEventListener('click', onEditUFSave);
+    });
+
+    async function onEditUFSave() {
+        // guard: if modal is read-only, do nothing
+        if (document.getElementById('mdlEditUnitFurniture')?.classList.contains('uf-readonly')) return;
+
+        const projectId = document.getElementById('hfProjectID')?.value?.trim() || '';
+        const unitIdStr = document.getElementById('edit_unit_id')?.value?.trim() || '';
+        const remark = document.getElementById('mf_remark')?.value ?? '';
+
+        // collect deck items → [{ id: "1", qty: 2 }, ...]
+        const deck = document.getElementById('unitDeck');
+        const items = [...deck.querySelectorAll('.dnd-item')].map(r => {
+            const id = r.dataset.id ?? '';
+            const qty = Number(r.querySelector('.qty-input')?.value ?? 0);
+            return { id, qty: Number.isFinite(qty) ? qty : 0 };
+        }).filter(x => x.id && x.qty > 0);
+
+        // basic validation to match controller rules
+        if (!projectId) { showWarning?.('กรุณาเลือกโครงการก่อน'); return; }
+        if (!unitIdStr) { showWarning?.('ไม่พบ UnitID'); return; }
+        if (items.length === 0) { showWarning?.('ต้องมีรายการอย่างน้อย 1 ชิ้น (Qty > 0)'); return; }
+
+        // payload must match UpdateFurnitureProjectMappingRequest
+        const payload = {
+            ProjectID: projectId,
+            UnitID: unitIdStr,      // Guid as string is fine for [FromBody]
+            Remark: remark,
+            Furnitures: items       // [{ id, qty }]
+        };
+
+        // lock UI
+        const btn = document.getElementById('btnEditUFSave');
+        const prevHTML = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+
+        try {
+            const resp = await fetch(baseUrl + 'FurnitureAndUnitFurniture/SaveChangeFurnitureProjectMapping', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const json = await resp.json().catch(() => ({}));
+
+            if (resp.status === 401) {
+                errorMessage?.(json?.message || 'Unauthorized');
+                return;
+            }
+            if (!resp.ok || json?.success === false) {
+                errorMessage?.(json?.message || 'Save failed');
+                return;
+            }
+
+            // success
+            successMessage?.('บันทึกสำเร็จ');
+            // refresh the main table (if you have this function)
+            typeof loadUnitFurnitureTable === 'function' && loadUnitFurnitureTable();
+
+            // close modal
+            const el = document.getElementById('mdlEditUnitFurniture');
+            bootstrap.Modal.getInstance(el)?.hide();
+
+        } catch (err) {
+            console.error('SaveChangeFurnitureProjectMapping error:', err);
+            errorMessage?.('เกิดข้อผิดพลาดระหว่างบันทึก');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = prevHTML;
+        }
+    }
+
 
 
 })();

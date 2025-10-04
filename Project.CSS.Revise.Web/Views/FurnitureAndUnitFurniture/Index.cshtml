@@ -148,7 +148,7 @@
                                         </div>
                                     </div>
                                 }
-                            
+                                
                             </div>
                         </div>
 
@@ -340,22 +340,35 @@
             <div class="modal-body p-0">
 
                 <!-- Catalog (drag from here) -->
+                <!-- Catalog (drag from here) -->
                 <div class="px-4 pt-4 pb-3 border-bottom bg-white">
                     <div class="d-flex align-items-center justify-content-between mb-2">
                         <label class="form-label mb-0 small text-muted">Catalog — drag into “Unit items”</label>
-                        <div class="input-group input-group-sm" style="max-width:260px;">
-                            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                            <input type="text" class="form-control" id="mf_search" placeholder="Search furniture…">
+                    </div>
+
+                    <!-- New wrapper so JS can manage multiple lanes -->
+                    <div id="mf_catalog_wrap" class="d-flex flex-column gap-3">
+
+                        <!-- Main catalog (your existing chips stay here) -->
+                        <div id="mf_catalog" class="d-flex gap-2 flex-wrap">
+                            @foreach (var f in funitureList)
+                            {
+                                var text = f.Text.ToString();
+                                var val = f.ValueInt.ToString();
+
+                                <div class="chip chip-ghost dnd-src" draggable="true" data-id="@val" data-name="@text">@text</div>
+                            }
+
+                        </div>
+
+                        <!-- NEW: auto-generated lane for items found in deck but missing from catalog -->
+                        <div id="mf_catalog_missing_block" class="d-none">
+                            <div class="small text-muted mb-2">Not in catalog (auto)</div>
+                            <div id="mf_catalog_missing" class="d-flex gap-2 flex-wrap"></div>
                         </div>
                     </div>
-                    <div id="mf_catalog" class="d-flex gap-2 flex-wrap">
-                        <div class="chip chip-ghost dnd-src" draggable="true" data-id="101" data-name="Sofa 2-seat">Sofa 2-seat</div>
-                        <div class="chip chip-ghost dnd-src" draggable="true" data-id="102" data-name="Coffee Table">Coffee Table</div>
-                        <div class="chip chip-ghost dnd-src" draggable="true" data-id="103" data-name="TV Stand">TV Stand</div>
-                        <div class="chip chip-ghost dnd-src" draggable="true" data-id="104" data-name="Dining Set">Dining Set</div>
-                        <div class="chip chip-ghost dnd-src" draggable="true" data-id="105" data-name="Wardrobe">Wardrobe</div>
-                    </div>
                 </div>
+
 
                 <!-- Content -->
                 <div class="row g-0">
@@ -372,55 +385,9 @@
                                  class="dnd-dropzone list-group"
                                  style="min-height: 160px; border:1px dashed #dee2e6; border-radius:.5rem;">
 
-                                <!-- Example row -->
-                                <div class="list-group-item d-flex align-items-center justify-content-between gap-3 dnd-item" data-id="101">
-                                    <div class="d-flex align-items-center gap-2 flex-grow-1">
-                                        <i class="bi bi-couch text-secondary"></i>
-                                        <span class="fw-semibold">Sofa 2-seat</span>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <input type="number" class="form-control form-control-sm qty-input" min="0" step="1" value="1">
-                                        <button class="btn btn-light btn-sm dnd-remove" title="Remove">
-                                            <i class="bi bi-trash text-danger"></i>
-                                        </button>
-                                    </div>
-                                </div>
+
 
                             </div>
-
-                            <style>
-                                #unitDeck .list-group-item {
-                                    border: 1px solid #e9ecef;
-                                    border-radius: .5rem;
-                                    padding: .5rem .75rem;
-                                    margin-bottom: .5rem;
-                                    transition: background .2s, transform .2s;
-                                    cursor: grab;
-                                }
-
-                                    #unitDeck .list-group-item:hover {
-                                        background: #f8f9fa;
-                                        transform: translateY(-1px);
-                                    }
-
-                                #unitDeck .fw-semibold {
-                                    font-size: .95rem;
-                                    color: #212529;
-                                }
-
-                                .qty-input {
-                                    width: 80px;
-                                }
-
-                                .dnd-remove {
-                                    border-radius: 50%;
-                                    padding: .25rem .45rem;
-                                }
-
-                                .dnd-dropzone.dragover {
-                                    background: rgba(13,110,253,.06);
-                                }
-                            </style>
 
 
                             <div class="text-center text-muted py-4 d-none" id="mf_empty">— No furniture —</div>
@@ -438,11 +405,11 @@
                             <div class="d-flex flex-column gap-2 small">
                                 <div class="d-flex justify-content-between">
                                     <span class="text-muted">Total items</span>
-                                    <span class="fw-semibold" id="mf_total_items">0</span>
+                                    <span class="fw-semibold" id="mf_total_items"> 0 </span>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-muted">Total quantity</span>
-                                    <span class="fw-semibold" id="mf_total_qty">0</span>
+                                    <span class="fw-semibold" id="mf_total_qty"> 0 </span>
                                 </div>
                             </div>
                         </div>
@@ -455,242 +422,13 @@
                 <input type="hidden" id="edit_unit_id" value="">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary" id="btnEditUFSave">
-                    <i class="bi bi-save me-1"></i> Save
+                    <i class="bi bi-save me-1"></i> Save Change
                 </button>
             </div>
 
         </div>
     </div>
 </div>
-
-<style>
-    .chip {
-        display: inline-flex;
-        align-items: center;
-        gap: .5rem;
-        padding: .35rem .7rem;
-        border-radius: 999px;
-        font-size: .875rem
-    }
-
-    .chip-muted {
-        background: #f1f3f5;
-        color: #495057
-    }
-
-    .chip-primary {
-        background: #e7f1ff;
-        color: #0d6efd
-    }
-
-    .chip-ghost {
-        background: #fff;
-        border: 1px solid #e9ecef;
-        color: #495057;
-        cursor: grab;
-        transition: .2s
-    }
-
-        .chip-ghost:hover {
-            border-color: #0d6efd;
-            color: #0d6efd;
-            box-shadow: 0 2px 6px rgba(13,110,253,.2)
-        }
-
-    .dnd-dropzone.dragover {
-        background: linear-gradient(0deg,rgba(13,110,253,.06),rgba(13,110,253,.06))
-    }
-
-    .dnd-item .card {
-        border: 1px solid #e9ecef;
-        border-radius: 1rem;
-        transition: .2s
-    }
-
-        .dnd-item .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,.08)
-        }
-
-    .dnd-item .card-body {
-        padding: 1rem
-    }
-
-    .dnd-item .fw-semibold {
-        font-size: 1rem;
-        color: #212529
-    }
-
-    .dnd-remove {
-        opacity: .7;
-        transition: .2s
-    }
-
-        .dnd-remove:hover {
-            opacity: 1;
-            color: #dc3545 !important
-        }
-
-    .qty-input {
-        max-width: 90px
-    }
-</style>
-
-<script>
-    // ---------- Tiny DnD mockup ----------
-    (function(){
-      const catalog = document.getElementById('mf_catalog');
-      const deck    = document.getElementById('unitDeck');
-      const totalsI = document.getElementById('mf_total_items');
-      const totalsQ = document.getElementById('mf_total_qty');
-      const search  = document.getElementById('mf_search');
-
-      let dragData = null;
-
-      function updateTotals(){
-        const cards = deck.querySelectorAll('.dnd-item');
-        totalsI.textContent = cards.length;
-        let sum = 0;
-        cards.forEach(c=>{
-          const q = c.querySelector('.qty-input');
-          sum += Number(q?.value || 0);
-        });
-        totalsQ.textContent = sum;
-      }
-
-      function makeCard({id,name,qty=1}){
-        const col = document.createElement('div');
-        col.className = 'col-12 col-md-6 col-xxl-4 dnd-item';
-        col.setAttribute('draggable','true');
-        col.dataset.id = id;
-
-        col.innerHTML = `
-          <div class="card h-100 shadow-sm">
-            <div class="card-body d-flex flex-column gap-2">
-              <div class="d-flex justify-content-between align-items-start">
-                <div class="fw-semibold">${name}</div>
-                <button class="btn btn-sm btn-link text-danger p-0 dnd-remove" title="Remove"><i class="bi bi-trash"></i></button>
-              </div>
-              <div class="mt-auto">
-                <label class="small text-muted mb-1">Qty</label>
-                <input type="number" class="form-control form-control-sm qty-input" min="0" step="1" value="${qty}">
-              </div>
-            </div>
-          </div>
-        `;
-        // Card drag
-        col.addEventListener('dragstart', e=>{
-          col.classList.add('dragging');
-          dragData = {type:'reorder', el: col};
-        });
-        col.addEventListener('dragend', ()=>{
-          col.classList.remove('dragging');
-          dragData = null;
-        });
-        return col;
-      }
-
-      // Catalog: start drag or double-click to add
-      catalog.addEventListener('dragstart', e=>{
-        const chip = e.target.closest('.dnd-src');
-        if(!chip) return;
-        dragData = {type:'add', id: chip.dataset.id, name: chip.dataset.name};
-        e.dataTransfer.setData('text/plain', chip.dataset.id);
-      });
-      catalog.addEventListener('dragend', ()=> dragData = null);
-
-      catalog.addEventListener('dblclick', e=>{
-        const chip = e.target.closest('.dnd-src'); if(!chip) return;
-        if(deck.querySelector(`.dnd-item[data-id="${CSS.escape(chip.dataset.id)}"]`)) return;
-        deck.appendChild(makeCard({id: chip.dataset.id, name: chip.dataset.name, qty:1}));
-        updateTotals();
-      });
-
-      // Deck: allow drop + internal reorder
-      deck.addEventListener('dragover', e=>{
-        e.preventDefault();
-        deck.classList.add('dragover');
-
-        const afterEl = getAfterElement(deck, e.clientY);
-        const dragging = deck.querySelector('.dnd-item.dragging');
-
-        if (dragging && afterEl == null) {
-          deck.appendChild(dragging);
-        } else if (dragging && afterEl) {
-          deck.insertBefore(dragging, afterEl);
-        }
-      });
-
-      deck.addEventListener('dragleave', ()=> deck.classList.remove('dragover'));
-
-      deck.addEventListener('drop', e=>{
-        e.preventDefault();
-        deck.classList.remove('dragover');
-        if(!dragData) return;
-
-        if (dragData.type === 'add') {
-          // add new if not exists
-          if (deck.querySelector(`.dnd-item[data-id="${CSS.escape(dragData.id)}"]`)) return;
-          const card = makeCard({id: dragData.id, name: dragData.name, qty:1});
-          const afterEl = getAfterElement(deck, e.clientY);
-          if (afterEl == null) deck.appendChild(card);
-          else deck.insertBefore(card, afterEl);
-          updateTotals();
-        }
-        // reorder handled in dragover for 'reorder'
-      });
-
-      // remove + qty change
-      deck.addEventListener('click', e=>{
-        const btn = e.target.closest('.dnd-remove');
-        if(btn){
-          btn.closest('.dnd-item')?.remove();
-          updateTotals();
-        }
-      });
-      deck.addEventListener('input', e=>{
-        if(e.target.classList.contains('qty-input')) updateTotals();
-      });
-
-      // simple filter for catalog
-      search?.addEventListener('input', e=>{
-        const term = e.target.value.trim().toLowerCase();
-        catalog.querySelectorAll('.dnd-src').forEach(chip=>{
-          const name = (chip.dataset.name || chip.textContent || '').toLowerCase();
-          chip.style.display = name.includes(term) ? '' : 'none';
-        });
-      });
-
-      function getAfterElement(container, y){
-        const els = [...container.querySelectorAll('.dnd-item:not(.dragging)')];
-        return els.reduce((closest, child) => {
-          const box = child.getBoundingClientRect();
-          const offset = y - box.top - box.height / 2;
-          if(offset < 0 && offset > closest.offset){
-            return {offset, element: child};
-          } else {
-            return closest;
-          }
-        }, {offset: Number.NEGATIVE_INFINITY}).element || null;
-      }
-
-      // Expose a tiny helper to read current list (for future save)
-      window.__mockGetUnitItems = function(){
-        return [...deck.querySelectorAll('.dnd-item')].map(card => ({
-          id: card.dataset.id,
-          name: card.querySelector('.fw-semibold')?.textContent?.trim() || '',
-          qty: Number(card.querySelector('.qty-input')?.value || 0)
-        }));
-      };
-    })();
-</script>
-
-
-
-
-
-
-
 
 
 @section Scripts {

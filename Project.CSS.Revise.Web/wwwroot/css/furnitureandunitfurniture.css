@@ -1,5 +1,15 @@
-﻿/* ให้กล่อง Choices กว้าง 100% และไม่ดัน layout */
-.choices, .choices__inner {
+﻿/* ============================================================
+   Furniture & Unit Furniture — Clean CSS
+   - Bootstrap friendly
+   - No duplicate rules
+   - Clear sections
+   ============================================================ */
+
+/* ------------------------------
+   1) Choices.js (full width)
+---------------------------------*/
+.choices,
+.choices__inner {
     width: 100%;
 }
 
@@ -7,50 +17,67 @@
     min-width: 0;
 }
 
-/* ปุ่มเต็มแถวบนมือถือ สวยขึ้น */
+/* ------------------------------
+   2) Responsive buttons (mobile)
+---------------------------------*/
 @media (max-width: 576px) {
     #btnSearch, #btnClear {
         flex: 1 1 auto;
     }
 }
 
-/* ช่อง input-group ให้สูงเท่ากับ select ของ Bootstrap */
+/* ------------------------------
+   3) Inputs alignment in input-group
+---------------------------------*/
 .input-group > .form-control,
 .input-group > .input-group-text {
     height: calc(2.25rem + 2px);
 }
 
-
-.btn-icon {
-    width: 36px;
-    height: 36px;
+/* ------------------------------
+   4) Generic icon buttons
+---------------------------------*/
+.btn-icon,
+.btn-icon-xs {
     padding: 0 !important;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
 }
 
+.btn-icon {
+    width: 36px;
+    height: 36px;
+}
+
+.btn-icon-xs {
+    width: 28px;
+    height: 28px;
+}
+
+/* Optional: nudge icon inside .btn-icon */
 .btn-icon i {
     font-size: 1rem;
     line-height: 1;
     position: relative;
-    left: 5px; /* ✅ nudge icon slightly to the right */
+    left: 5px;
 }
 
-/* กล่องหุ้มตารางเป็นตัว scroll */
+/* ------------------------------
+   5) Unit table (scroll + sticky header)
+---------------------------------*/
 .uf-scroll {
-    max-height: 400px; /* ปรับสูงได้ */
+    max-height: 400px; /* Adjust as needed */
     overflow-y: auto;
 }
 
-    /* sticky header */
     .uf-scroll thead th {
         position: sticky;
         top: 0;
-/*        z-index: 1;*/
         background: var(--bs-light, #f8f9fa);
     }
 
+/* Column widths */
 .col-check {
     width: 44px;
 }
@@ -58,47 +85,36 @@
 .col-unittype {
     width: 100px;
 }
-/* ให้ Unit Type กว้างขึ้นเล็กน้อย */
+
 .col-qty {
     width: 150px;
 }
-/* Qty ไม่เกิน 10, ชิดขวา */
+
 .col-date {
     width: 140px;
 }
 
-
-
-/* อ่านง่ายขึ้น */
+/* Readability */
 .table td, .table th {
     vertical-align: middle;
     word-break: break-word;
     white-space: normal;
     padding: .5rem .75rem;
 }
+
     .table td.text-end {
         text-align: right !important;
     }
 
-
-
-.table td,
-.table th {
-    vertical-align: middle; /* จัดกลางแนวตั้ง */
-    word-wrap: break-word; /* ให้ตัดบรรทัด */
-    word-break: break-word; /* รองรับข้อความยาวๆ เช่นโค้ด, ชื่อไฟล์ */
-    white-space: normal; /* ให้ตัดบรรทัดได้ */
-    padding: 0.5rem 0.75rem; /* padding ให้โปร่งขึ้น */
-}
-
-
-
-/* Simple stepper */
+/* ------------------------------
+   6) Stepper (wizard)
+---------------------------------*/
 .stepper {
     display: flex;
     list-style: none;
     gap: 1rem;
     padding-left: 0;
+    margin: 0;
 }
 
     .stepper li {
@@ -129,57 +145,70 @@
                 color: #0d6efd;
             }
 
-.btn-icon-xs {
-    width: 28px;
-    height: 28px;
-    padding: 0 !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
+/* ------------------------------
+   7) Qty input (single source of truth)
+---------------------------------*/
 .qty-input {
-    width: 110px;
+    max-width: 90px; /* compact */
+    width: 100%;
     text-align: right;
 }
 
-
-
-.qty-input {
-    width: 110px;
-    text-align: right;
-}
-
-.btn-icon-xs {
-    width: 28px;
-    height: 28px;
-    padding: 0 !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* chips */
+/* ------------------------------
+   8) Chips (tags)
+---------------------------------*/
 .chip {
     display: inline-flex;
     align-items: center;
-    padding: .25rem .6rem;
+    gap: .5rem;
+    padding: .35rem .7rem;
     border-radius: 999px;
-    font-size: .8rem;
+    font-size: .875rem;
     line-height: 1;
 }
 
 .chip-muted {
-    background: var(--bs-gray-100);
-    color: var(--bs-gray-700);
+    background: #f1f3f5;
+    color: #495057;
 }
 
 .chip-primary {
-    background: rgba(13,110,253,.1);
+    background: #e7f1ff;
     color: #0d6efd;
 }
 
-/* nicer list-group rows */
+.chip-ghost {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    color: #495057;
+    cursor: grab;
+    transition: .2s;
+}
+
+    .chip-ghost:hover {
+        border-color: #0d6efd;
+        color: #0d6efd;
+        box-shadow: 0 2px 6px rgba(13,110,253,.2);
+    }
+
+.chip.in-use {
+    opacity: .5;
+    pointer-events: none;
+}
+
+.chip-missing {
+    border: 1px dashed #dc3545;
+    color: #dc3545;
+    background: #fff;
+}
+
+    .chip-missing .bi-exclamation-circle {
+        vertical-align: -0.1rem;
+    }
+
+/* ------------------------------
+   9) Modern list (optional)
+---------------------------------*/
 .modern-list .list-group-item {
     border: 0;
     border-bottom: 1px solid var(--bs-border-color);
@@ -190,14 +219,126 @@
         border-bottom: 0;
     }
 
-/* compact buttons */
-.btn-icon-xs {
-    width: 32px;
-    height: 32px;
-    padding: 0;
+/* ------------------------------
+   10) DnD Deck (unit items)
+---------------------------------*/
+#unitDeck .list-group-item {
+    border: 1px solid #e9ecef;
+    border-radius: .5rem;
+    padding: .5rem .75rem;
+    margin-bottom: .5rem;
+    transition: background .2s, transform .2s;
+    cursor: grab;
+}
+
+    #unitDeck .list-group-item:hover {
+        background: #f8f9fa;
+        transform: translateY(-1px);
+    }
+
+#unitDeck .fw-semibold {
+    font-size: .95rem;
+    color: #212529;
+}
+
+/* Dropzone visual when dragging */
+.dnd-dropzone.dragover {
+    /* choose one of these backgrounds */
+    background: rgba(13,110,253,.06); /* solid, subtle */
+    /* background: linear-gradient(0deg, rgba(13,110,253,.06), rgba(13,110,253,.06)); */ /* alt style */
+}
+
+/* ------------------------------
+   11) Remove button in deck (clean, accessible)
+   - Single definition; no duplicates elsewhere
+---------------------------------*/
+#unitDeck .dnd-remove {
+    /* Bootstrap variables to keep size consistent */
+    --bs-btn-padding-y: .25rem;
+    --bs-btn-padding-x: .35rem;
+    --bs-btn-border-radius: 999px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    width: 28px;
+    height: 28px;
+    line-height: 1;
+    border: 1px solid #e9ecef;
+    background: #fff;
+    opacity: .85;
+    transition: background .2s, border-color .2s, opacity .2s, transform .12s;
 }
+
+    #unitDeck .dnd-remove i {
+        font-size: 1rem;
+        position: relative;
+        left: 5px;
+    }
+
+    #unitDeck .dnd-remove:hover {
+        opacity: 1;
+        background: #fff0f0; /* subtle danger */
+        border-color: #f1aeb5;
+        color: #dc3545 !important; /* ensure icon/text go red */
+        transform: scale(1.03);
+    }
+
+    #unitDeck .dnd-remove:active {
+        transform: scale(0.98);
+    }
+
+    #unitDeck .dnd-remove:focus-visible {
+        outline: 2px solid rgba(220,53,69,.35);
+        outline-offset: 1px;
+    }
+
+/* ให้ label กับตัวเลขมีระยะห่าง */
+#mf_total_items,
+#mf_total_qty {
+    margin-left: 0.5rem; /* ระยะเพิ่มขึ้น 8px */
+    font-weight: 600; /* ทำให้ตัวเลขเด่นขึ้น */
+}
+
+/* When modal is locked (status 309) */
+.uf-readonly .dnd-dropzone {
+    background: #f8f9fa;
+    border-color: #e9ecef !important;
+    cursor: not-allowed;
+}
+
+.uf-readonly .chip-ghost,
+.uf-readonly .chip-missing {
+    opacity: .5;
+    pointer-events: none;
+}
+
+.uf-readonly .qty-input {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+.uf-readonly .dnd-remove {
+    opacity: .5;
+    pointer-events: none;
+}
+
+.uf-lock-hint {
+    font-size: .875rem;
+    color: #6c757d;
+    display: inline-flex;
+    align-items: center;
+}
+
+.uf-readonly #mf_remark:disabled {
+    background: #f8f9fa;
+    cursor: not-allowed;
+}
+
+.uf-readonly .btn[disabled] {
+    pointer-events: none;
+    opacity: .65;
+    cursor: not-allowed;
+}
+
 
 

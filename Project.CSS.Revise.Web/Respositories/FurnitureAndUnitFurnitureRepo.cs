@@ -1,7 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Project.CSS.Revise.Web.Data;
-using Project.CSS.Revise.Web.Models.Pages.CSResponse;
 using Project.CSS.Revise.Web.Models.Pages.FurnitureAndUnitFurniture;
 using System.Data;
 using static Project.CSS.Revise.Web.Models.Pages.FurnitureAndUnitFurniture.FurnitureAndUnitFurnitureModel;
@@ -12,6 +11,8 @@ namespace Project.CSS.Revise.Web.Respositories
     {
         public List<FurnitureAndUnitFurnitureModel.UnitFurnitureListItem> GetlistUnitFurniture(FurnitureAndUnitFurnitureModel.UnitFurnitureFilter filter);
         Task<bool> SaveFurnitureProjectMappingAsync(SaveFurnitureProjectMappingRequest req, int userId, CancellationToken ct = default);
+        public UnitFurnitureModel? GetUnitFurniture(Guid unitId);
+        Task<bool> UpdateFurnitureProjectMappingAsync(UpdateFurnitureProjectMappingRequest req, int userId, CancellationToken ct = default);
     }
     public class FurnitureAndUnitFurnitureRepo : IFurnitureAndUnitFurnitureRepo
     {
@@ -102,7 +103,6 @@ namespace Project.CSS.Revise.Web.Respositories
 
             return result;
         }
-
 
         public async Task<bool> SaveFurnitureProjectMappingAsync(SaveFurnitureProjectMappingRequest req,int userId,CancellationToken ct = default)
         {
@@ -212,6 +212,160 @@ namespace Project.CSS.Revise.Web.Respositories
                     }
                     await _context.SaveChangesAsync(ct);
                 }
+
+                await tx.CommitAsync(ct);
+                return true;
+            }
+            catch
+            {
+                await tx.RollbackAsync(ct);
+                throw;
+            }
+        }
+
+        public UnitFurnitureModel? GetUnitFurniture(Guid unitId)
+        {
+            var result = (from u in _context.tm_Units
+                          join uf in _context.TR_UnitFurnitures
+                              on u.ID equals uf.UnitID into gj
+                          from uf in gj.DefaultIfEmpty()
+                          where u.ID == unitId
+                          select new UnitFurnitureModel
+                          {
+                              UnitID = u.ID,
+                              ProjectID = u.ProjectID,
+                              UnitCode = u.UnitCode,
+                              UnitFurnitureID = uf != null ? uf.ID : (Guid?)null,
+                              CheckStatusID = uf != null && uf.CheckStatusID.HasValue ? uf.CheckStatusID.Value : 0,
+                              CheckRemark = uf.CheckRemark,
+                              Details = (from d in _context.TR_UnitFurniture_Details
+                                         join f in _context.tm_Funitures on d.FurnitureID equals f.ID into fd
+                                         from f in fd.DefaultIfEmpty()
+                                         where uf != null
+                                               && d.UnitFurnitureID == uf.ID
+                                               && d.FlagActive == true
+                                         select new UnitFurnitureDetailModel
+                                         {
+                                             ID = Commond.FormatExtension.Nulltoint(d.ID, 0),
+                                             UnitFurnitureID = d.UnitFurnitureID,
+                                             FurnitureID = Commond.FormatExtension.Nulltoint(d.FurnitureID, 0),
+                                             FurnitureName = Commond.FormatExtension.NullToString(f.Name, ""),
+                                             Amount = Commond.FormatExtension.Nulltoint(d.Amount, 0),
+                                             FlagActive = d.FlagActive ?? false
+                                         }).ToList()
+                          }).FirstOrDefault();
+
+            return result;
+        }
+
+
+        public async Task<bool> UpdateFurnitureProjectMappingAsync(UpdateFurnitureProjectMappingRequest req,int userId,CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(req.ProjectID))
+                throw new ArgumentException("ProjectID is required.", nameof(req.ProjectID));
+
+            if (req.UnitID == Guid.Empty)
+                throw new ArgumentException("UnitID is required.", nameof(req.UnitID));
+
+            if (req.Furnitures is null || req.Furnitures.Count == 0)
+                throw new ArgumentException("Furnitures is required.", nameof(req.Furnitures));
+
+            // De-dup & validate incoming furnitures
+            var incoming = req.Furnitures
+                .Select(f =>
+                {
+                    if (!int.TryParse(f.id, out var fid))
+                        throw new ArgumentException($"Invalid FurnitureID: {f.id}");
+                    var qty = (int)Math.Max(0, f.qty); // no negative qty
+                    return new { FurnitureID = fid, Qty = qty };
+                })
+                .GroupBy(x => x.FurnitureID)
+                .Select(g => new { FurnitureID = g.Key, Qty = g.Sum(x => x.Qty) })
+                .ToList();
+
+            await using var tx = await _context.Database.BeginTransactionAsync(ct);
+            try
+            {
+                var now = DateTime.Now; // keep consistent with GETDATE() you use below
+
+                // 1) Upsert TR_UnitFurniture
+                var uf = await _context.TR_UnitFurnitures
+                    .FirstOrDefaultAsync(x => x.ProjectID == req.ProjectID && x.UnitID == req.UnitID, ct);
+
+                // Respect "approved/locked" (309)
+                if (uf is not null && uf.CheckStatusID == 309)
+                    throw new InvalidOperationException("This unit furniture is approved and cannot be edited.");
+
+                if (uf is null)
+                {
+                    uf = new TR_UnitFurniture
+                    {
+                        ID = Guid.NewGuid(),
+                        ProjectID = req.ProjectID,
+                        UnitID = req.UnitID,
+                        CheckRemark = req.Remark ?? string.Empty,
+                        FlagActive = true,
+                        CreateDate = now,
+                        CreateBy = userId,
+                        UpdateDate = now,
+                        UpdateBy = userId
+                    };
+                    _context.TR_UnitFurnitures.Add(uf);
+                }
+                else
+                {
+                    // update minimal fields (do NOT override status to approved here)
+                    uf.CheckRemark = req.Remark ?? uf.CheckRemark;
+                    uf.FlagActive = true;
+                    uf.UpdateDate = now;
+                    uf.UpdateBy = userId;
+                    _context.TR_UnitFurnitures.Update(uf);
+                }
+
+                await _context.SaveChangesAsync(ct); // ensure uf.ID is persisted
+
+                // 2) Deactivate all existing details for this UnitFurniture
+                await _context.Database.ExecuteSqlInterpolatedAsync($@"
+                    UPDATE TR_UnitFurniture_Detail
+                       SET FlagActive = 0,
+                           UpdateDate = {now},
+                           UpdateBy   = {userId}
+                     WHERE UnitFurnitureID = {uf.ID};", ct);
+
+                // 3) Re-apply selected furnitures (reactivate/update or insert)
+                var existingDetails = await _context.TR_UnitFurniture_Details
+                    .Where(d => d.UnitFurnitureID == uf.ID)
+                    .ToListAsync(ct);
+
+                foreach (var item in incoming)
+                {
+                    var d = existingDetails.FirstOrDefault(x => x.FurnitureID == item.FurnitureID);
+                    if (d is null)
+                    {
+                        d = new TR_UnitFurniture_Detail
+                        {
+                            UnitFurnitureID = uf.ID,
+                            FurnitureID = item.FurnitureID,
+                            Amount = item.Qty,
+                            FlagActive = true,
+                            CreateDate = now,
+                            CreateBy = userId,
+                            UpdateDate = now,
+                            UpdateBy = userId
+                        };
+                        _context.TR_UnitFurniture_Details.Add(d);
+                    }
+                    else
+                    {
+                        d.Amount = item.Qty;
+                        d.FlagActive = true;
+                        d.UpdateDate = now;
+                        d.UpdateBy = userId;
+                        _context.TR_UnitFurniture_Details.Update(d);
+                    }
+                }
+
+                await _context.SaveChangesAsync(ct);
 
                 await tx.CommitAsync(ct);
                 return true;

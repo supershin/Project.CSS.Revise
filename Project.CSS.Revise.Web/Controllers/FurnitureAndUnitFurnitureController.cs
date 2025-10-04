@@ -100,9 +100,40 @@ namespace Project.CSS.Revise.Web.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult GetDataUnitFurniture(Guid UnitID)
+        {
+            var result = _furnitureAndUnitFurnitureService.GetUnitFurniture(UnitID);
+            return Json(new { success = true, data = result });
+        }
 
 
+        [HttpPost]
+        public async Task<IActionResult> SaveChangeFurnitureProjectMapping([FromBody] UpdateFurnitureProjectMappingRequest req)
+        {
+            if (string.IsNullOrWhiteSpace(req.ProjectID))
+                return Json(new { success = false, message = "ProjectID is required" });
 
+            if (req.UnitID == Guid.Empty)
+                throw new ArgumentException("UnitID is required.");
+
+            try
+            {
+                if (!(User?.Identity?.IsAuthenticated ?? false))
+                    return Unauthorized(new { success = false, message = "Unauthorized" });
+
+                string? loginId64 = User.FindFirst("LoginID")?.Value;
+                string userIdDecoded = SecurityManager.DecodeFrom64(loginId64);
+                int userId = Commond.FormatExtension.Nulltoint(userIdDecoded);
+
+                var ok = await _furnitureAndUnitFurnitureService.UpdateFurnitureProjectMappingAsync(req, userId);
+                return Json(new { success = ok, message = ok ? null : "Save failed" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
 
     }
 }
