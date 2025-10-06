@@ -1,5 +1,5 @@
 ﻿let viewer;
-
+const FALLBACK_THUMB_PATH = window.floorplanFallbackThumb || '/assets/images/file-image-missing.jpg';
 function openViewer(imageSrc) {
 
     const viewerContainer = document.getElementById('imageViewerContainer');
@@ -30,6 +30,39 @@ function openViewer(imageSrc) {
     });
 
     viewer.show();
+}
+
+function isImageMime(mime) {
+    return typeof mime === 'string' && mime.toLowerCase().startsWith('image/');
+}
+
+function thumbIconHtml(fileName) {
+    // Bootstrap icon look-alike thumbnail
+    const name = escapeHtml(fileName || 'file');
+    return `
+      <div class="d-inline-flex align-items-center justify-content-center bg-light border rounded"
+           style="width:50px;height:50px;">
+        <i class="bi bi-file-earmark-image text-secondary" title="${name}" aria-label="${name}"></i>
+      </div>`;
+}
+
+// after you inject rows, call this to wire up fallback on broken images
+function wireThumbFallback(container) {
+    const fallback = FALLBACK_THUMB_PATH;
+    container.querySelectorAll('img.thumb-img').forEach(img => {
+        img.addEventListener('error', () => {
+            // prevent loops, swap to fallback, mark styling
+            img.onerror = null;
+            img.src = fallback;
+            img.classList.add('thumb-fallback');
+
+            // disable viewer click when file is missing
+            const link = img.closest('a');
+            if (link) {
+                link.replaceWith(img); // remove <a>, keep the img
+            }
+        }, { once: true });
+    });
 }
 
 function showLoading() {

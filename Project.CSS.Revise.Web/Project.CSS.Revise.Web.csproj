@@ -9,6 +9,7 @@
 		<Folder Include="Data\" />
 		<!-- ✅ make sure Thai fonts are copied -->
 		<Content Include="wwwroot\fonts\*.ttf" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Always" />
+		<Folder Include="ProjectFloorPlan\" />
 	</ItemGroup>
 
 	<ItemGroup>

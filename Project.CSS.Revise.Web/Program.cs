@@ -49,6 +49,8 @@ builder.Services.AddScoped<IUserAndPermissionRepo, UserAndPermissionRepo>();
 builder.Services.AddScoped<IUserAndPermissionService, UserAndPermissionService>();
 builder.Services.AddScoped<IFurnitureAndUnitFurnitureRepo, FurnitureAndUnitFurnitureRepo>();
 builder.Services.AddScoped<IFurnitureAndUnitFurnitureService, FurnitureAndUnitFurnitureService>();
+builder.Services.AddScoped<IProjectandunitfloorplanRepo, ProjectandunitfloorplanRepo>();
+builder.Services.AddScoped<IProjectandunitfloorplanService, ProjectandunitfloorplanService>();
 
 
 // Add the new services for SQL and data access

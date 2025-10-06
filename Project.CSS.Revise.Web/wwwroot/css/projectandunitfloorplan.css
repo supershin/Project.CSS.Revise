@@ -1,0 +1,71 @@
+﻿
+.styled-select {
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+    .styled-select:focus {
+        border-color: #0d6efd;
+        outline: none;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.25);
+    }
+
+.btn-outline-primary {
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.btn-success {
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.file-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.file-item {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    width: 90px;
+}
+
+    .file-item img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+    }
+
+    .file-item .file-remove {
+        position: absolute;
+        top: -6px;
+        right: -3px;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        background: #fff;
+        border-radius: 50%;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .file-item .file-remove i {
+            font-size: 25px; /* 🔼 Increase icon size */
+            color: #dc3545; /* Optional: ensure icon is red (Bootstrap's danger) */
+        }
+
+
+.file-remove i {
+    /* text-decoration: none !important; */
+    margin-right: 0px;
+}

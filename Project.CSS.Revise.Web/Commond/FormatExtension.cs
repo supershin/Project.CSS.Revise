@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualBasic;
+using System.Data.SqlTypes;
 using System.Globalization;
+
 
 namespace Project.CSS.Revise.Web.Commond
 {
@@ -275,6 +277,42 @@ namespace Project.CSS.Revise.Web.Commond
                 int.TryParse(obj.ToString(), out Temp);
             }
             return Temp;
+        }
+
+        /// <summary>
+        /// แปลง object เป็น Guid อย่างปลอดภัย
+        /// - null/DBNull/ค่าว่าง -> คืน defaultGuid (ค่าปริยาย Guid.Empty)
+        /// - รับ Guid/Guid?/SqlGuid ตรง ๆ ได้
+        /// - รับ string แล้ว Trim + ตัด {}, () และเครื่องหมาย quote ออกก่อน TryParse
+        /// </summary>
+        public static Guid NulltoGuid(object obj, Guid? defaultGuid = null)
+        {
+            var def = defaultGuid ?? Guid.Empty;
+
+            if (obj == null || obj == DBNull.Value) return def;
+
+            // Guid
+            if (obj is Guid g) return g;
+
+            // Guid? (boxed)
+            if (obj is Guid?)
+            {
+                var ng = (Guid?)obj;
+                if (ng.HasValue) return ng.Value;
+                return def;
+            }
+
+            // SqlGuid
+            if (obj is SqlGuid sg && !sg.IsNull) return sg.Value;
+
+            // string
+            var s = obj.ToString()?.Trim();
+            if (string.IsNullOrWhiteSpace(s)) return def;
+
+            // strip common wrappers
+            s = s.Trim('{', '}', '(', ')', '\'', '"');
+
+            return Guid.TryParse(s, out var parsed) ? parsed : def;
         }
 
         /// <summary>

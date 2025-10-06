@@ -106,7 +106,7 @@
         public static class Menu
         {
             public static readonly int FurnitureAndUnitFurniture = 33;
-
+            public static readonly int Projectandunitfloorplan = 34;
         }
     }
 }
