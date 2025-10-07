@@ -1,4 +1,6 @@
-﻿namespace Project.CSS.Revise.Web.Models.Pages.Projectandunitfloorplan
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace Project.CSS.Revise.Web.Models.Pages.Projectandunitfloorplan
 {
     public class ProjectandunitfloorplanModel
     {
@@ -32,5 +34,41 @@
             public string FilePath { get; set; } = string.Empty;
             public string MimeType { get; set; } = string.Empty;
         }
+
+        public class UploadFileProjectFloorPlan
+        {
+            public string ProjectID { get; set; } = string.Empty;
+            public string? ApplicationPath { get; set; }
+
+            public List<string> FileName { get; set; } = new();     // no FromForm(Name=...)
+            public List<IFormFile> Images { get; set; } = new();    // non-nullable list
+        }
+
+        public class UploadResult
+        {
+            public bool Success { get; set; }
+            public string Message { get; set; } = string.Empty;
+            public int SavedCount { get; set; }
+            public List<(Guid Id, string FileName, string FilePath)> Items { get; set; } = new();
+        }
+
+        public class UpdateFloorplanRequest
+        {
+            [FromForm] public Guid FloorPlanID { get; set; }
+            [FromForm] public string ProjectID { get; set; } = string.Empty;
+
+            // rename-only or used with NewImage
+            [FromForm] public string? NewFileName { get; set; }
+
+            // optional replacement
+            [FromForm] public IFormFile? NewImage { get; set; }
+        }
+
+        public class BasicResult
+        {
+            public bool Success { get; set; }
+            public string Message { get; set; } = string.Empty;
+        }
+
     }
 }

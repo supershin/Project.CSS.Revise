@@ -161,68 +161,190 @@
         if (h) h.value = val || '';
     };
 
-    // ====== RENDER: card_project_floor_plan ======
+    // ====== RENDER: card_project_floor_plan (viewer + edit + delete) ======
     function renderFloorPlans(list, totalCount) {
         const card = $id('card_project_floor_plan');
         if (!card) return;
 
         const counter = $id('count_Floor_plan_lists');
-        if (counter) counter.textContent = `ทั้งหมด ${totalCount ?? (Array.isArray(list) ? list.length : 0)}`;
-
         const container = card.querySelector('.vertical-scroll .list-group');
         if (!container) return;
 
+        // helper to set counter text
+        const setCounter = (n) => {
+            if (counter) counter.textContent = `ทั้งหมด ${Number.isFinite(n) ? n : (Array.isArray(list) ? list.length : 0)}`;
+        };
+
         if (!Array.isArray(list) || list.length === 0) {
             container.innerHTML = `<div class="list-group-item text-muted">— ไม่มีไฟล์ Floor plan —</div>`;
+            setCounter(0);
             bindCheckAll(false);
             refreshMappingState();
             return;
         }
+
+        // keep current project id for data attribute
+        const currentProjectId = $id('hd_ProjectID')?.value || '';
 
         const rows = list.map(item => {
             const id = escapeHtml(item.ID ?? '');
             const fileName = escapeHtml(item.FileName ?? '');
             const rawPath = item.FilePath ?? '';
             const mime = String(item.MimeType ?? '').toLowerCase();
-
             const url = encodeURI(rawPath);
 
             const thumbHtml = isImageMime(mime)
                 ? `<img src="${url}" width="50" height="50" class="img-thumbnail thumb-img" alt="${fileName}" />`
                 : thumbIconHtml(fileName);
 
+            // keep openViewer, but mark with class + data-url (handled below)
             const thumbWrapper = isImageMime(mime)
-                ? `<a href="javascript:void(0);" onclick='openViewer && openViewer("${url}")'>${thumbHtml}</a>`
+                ? `<a href="javascript:void(0);" class="viewer-link" data-url="${url}" title="Open view">${thumbHtml}</a>`
                 : thumbHtml;
 
             return `
-              <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary" data-id="${id}">
-                <div class="d-flex align-items-center gap-2">
-                  <input class="form-check-input chk-floorplan" type="checkbox" />
-                  ${thumbWrapper}
-                  <span title="${fileName}">${fileName}</span>
-                </div>
-                <div class="btn-group">
-                  <button type="button" class="btn-e btn-edit" title="Edit">
-                    <i class="bi bi-pencil"></i>
-                  </button>
-                  &nbsp;
-                  <button type="button" class="btn-c btn-delete" title="Delete">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                </div>
-              </div>`;
+          <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary"
+               data-id="${id}"
+               data-project="${escapeHtml(currentProjectId)}"
+               data-filename="${fileName}"
+               data-filepath="${escapeHtml(rawPath)}"
+               data-mime="${escapeHtml(mime)}">
+            <div class="d-flex align-items-center gap-2">
+              <input class="form-check-input chk-floorplan" type="checkbox" />
+              ${thumbWrapper}
+              <span title="${fileName}">${fileName}</span>
+            </div>
+            <div class="btn-group">
+              <button type="button" class="btn-e btn-edit" title="Edit">
+                <i class="bi bi-pencil"></i>
+              </button>
+              &nbsp;
+              <button type="button" class="btn-c btn-delete" title="Delete">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>`;
         }).join('');
 
         container.innerHTML = rows;
+        setCounter(list.length);
 
         if (typeof wireThumbFallback === 'function') wireThumbFallback(container);
         bindCheckAll(true);
 
+        // checklist change
         container.addEventListener('change', e => {
             if (e.target.classList.contains('chk-floorplan')) refreshMappingState();
         });
         $id('chkAllFloorplan')?.addEventListener('change', refreshMappingState);
+
+        // one delegated click handler for viewer + edit + delete
+        if (!container.dataset.boundClicks) {
+            container.addEventListener('click', async (e) => {
+                // 1) viewer link (keep your open view behavior)
+                const vlink = e.target.closest('a.viewer-link');
+                if (vlink) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const url = vlink.getAttribute('data-url') || '';
+                    if (url && typeof window.openViewer === 'function') {
+                        window.openViewer(url);
+                    }
+                    return;
+                }
+
+                // find the row once
+                const row = e.target.closest('.list-group-item');
+                if (!row) return;
+
+                // 2) edit button -> open modal
+                const editBtn = e.target.closest('.btn-e.btn-edit');
+                if (editBtn) {
+                    const payload = {
+                        id: row.dataset.id || '',
+                        projectId: row.dataset.project || '',
+                        fileName: row.dataset.filename || '',
+                        filePath: row.dataset.filepath || '',
+                        mimeType: row.dataset.mime || ''
+                    };
+                    if (typeof window.openEditFloorplanModal === 'function') {
+                        window.openEditFloorplanModal(payload);
+                    }
+                    return;
+                }
+
+                // 3) delete button -> confirm + soft delete + live update
+                const delBtn = e.target.closest('.btn-c.btn-delete');
+                if (delBtn) {
+                    const floorPlanId = row.dataset.id || '';
+                    const fileName = row.dataset.filename || row.querySelector('span[title]')?.getAttribute('title') || '';
+                    if (!floorPlanId) {
+                        (window.errorMessage || alert)('Missing FloorPlanID.');
+                        return;
+                    }
+
+                    // confirm
+                    let confirmed = false;
+                    if (typeof Swal !== 'undefined') {
+                        const res = await Swal.fire({
+                            icon: 'warning',
+                            title: 'Delete this floor plan?',
+                            html: `ชื่อไฟล์: <strong>${fileName || '-'}</strong><br>ระบบจะทำ Soft delete (FlagActive = false).`,
+                            showCancelButton: true,
+                            confirmButtonText: 'Delete',
+                            cancelButtonText: 'Cancel',
+                            buttonsStyling: false,
+                            customClass: { confirmButton: 'btn btn-danger', cancelButton: 'btn btn-secondary ms-2' }
+                        });
+                        confirmed = res.isConfirmed;
+                    } else {
+                        confirmed = confirm(`Delete this floor plan?\n${fileName || ''}`);
+                    }
+                    if (!confirmed) return;
+
+                    try {
+                        (window.showLoading || (() => { }))();
+
+                        const fd = new FormData();
+                        fd.append('FloorPlanID', floorPlanId);
+
+                        const resp = await fetch((window.baseUrl || '/') + 'Projectandunitfloorplan/DeleteFloorplan', {
+                            method: 'POST',
+                            body: fd
+                        });
+                        const json = await resp.json().catch(() => ({}));
+
+                        if (!resp.ok || json?.success !== true) {
+                            (window.errorMessage || alert)(json?.message || 'Delete failed.', 'Delete');
+                            return;
+                        }
+
+                        (window.successMessage || alert)(json?.message || 'Deleted.', 'Delete');
+
+                        // Remove row immediately and update UI
+                        const allItemsBefore = container.querySelectorAll('.list-group-item').length;
+                        row.remove();
+                        const remaining = container.querySelectorAll('.list-group-item').length;
+
+                        if (remaining === 0) {
+                            container.innerHTML = `<div class="list-group-item text-muted">— ไม่มีไฟล์ Floor plan —</div>`;
+                            bindCheckAll(false);
+                            setCounter(0);
+                        } else {
+                            bindCheckAll(true);
+                            setCounter(remaining);
+                        }
+                        refreshMappingState();
+                    } catch (err) {
+                        console.error(err);
+                        (window.errorMessage || alert)('Delete failed. Please try again.', 'Delete');
+                    } finally {
+                        (window.hideLoading || (() => { }))();
+                    }
+                }
+            });
+            container.dataset.boundClicks = '1';
+        }
 
         refreshMappingState();
     }
@@ -327,9 +449,16 @@
         refreshMappingState();
     }
 
-    async function loadUnitFloorPlans(unitId, fileListEl) {
-        if (fileListEl.dataset.loaded === '1') return Number(fileListEl.dataset.count || 0);
+    async function loadUnitFloorPlans(unitId, fileListEl, opts = {}) {
+        const force = !!opts.force;
 
+        // if already loaded and not forced, use cached DOM
+        if (!force && fileListEl.dataset.loaded === '1') {
+            return Number(fileListEl.dataset.count || 0);
+        }
+
+        // mark as loading
+        fileListEl.dataset.loaded = '0';
         fileListEl.innerHTML = `
         <div class="text-muted small d-flex align-items-center gap-2">
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -415,6 +544,11 @@
             return;
         }
 
+        // disable the clicked button while working
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+
         try {
             showLoading?.();
 
@@ -432,21 +566,18 @@
                 return;
             }
 
-            const item = btn.closest('.file-item');
+            // ✅ Re-fetch fresh data for this unit section
             const listWrap = btn.closest('.file-list');
-            if (item && listWrap) {
-                item.remove();
+            const parentItem = listWrap?.closest('.list-group-item'); // unit row
+            const unitId = parentItem?.getAttribute('data-id');
 
-                const newCount = listWrap.querySelectorAll('.file-item').length;
-                listWrap.dataset.count = String(newCount);
+            if (listWrap && unitId) {
+                // force reload from server (no cache)
+                const newCount = await loadUnitFloorPlans(unitId, listWrap, { force: true });
 
-                const parentItem = listWrap.closest('.list-group-item');
-                const badge = parentItem?.querySelector('.badge-imgcount .imgcount-val');
-                if (badge) badge.textContent = String(newCount);
-
-                if (newCount === 0) {
-                    listWrap.innerHTML = `<div class="text-muted small">— ไม่มีไฟล์ Floor plan —</div>`;
-                }
+                // update badge from fresh count
+                const badge = parentItem.querySelector('.badge-imgcount .imgcount-val');
+                if (badge) badge.textContent = String(newCount || 0);
             }
 
             successMessage?.(json?.message || 'Removed.', 'Success');
@@ -455,6 +586,8 @@
             errorMessage?.('Remove failed. Please try again.', 'Remove Failed');
         } finally {
             hideLoading?.();
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
         }
     }
 
@@ -633,18 +766,9 @@
             .map(chk => chk.closest('.list-group-item')?.dataset.id)
             .filter(Boolean);
 
-        if (!projectId) {
-            showWarning('กรุณาเลือกโครงการก่อนบันทึก');
-            return;
-        }
-        if (floorplanIds.length === 0) {
-            showWarning('กรุณาเลือก Floor plan อย่างน้อย 1 รายการ');
-            return;
-        }
-        if (unitIds.length === 0) {
-            showWarning('กรุณาเลือก Unit อย่างน้อย 1 รายการ');
-            return;
-        }
+        if (!projectId) { showWarning('กรุณาเลือกโครงการก่อนบันทึก'); return; }
+        if (floorplanIds.length === 0) { showWarning('กรุณาเลือก Floor plan อย่างน้อย 1 รายการ'); return; }
+        if (unitIds.length === 0) { showWarning('กรุณาเลือก Unit อย่างน้อย 1 รายการ'); return; }
 
         const fd = new FormData();
         fd.append('ProjectID', projectId);
@@ -671,6 +795,19 @@
 
             if (json && json.success) {
                 successMessage?.(json.message || 'บันทึก Mapping สำเร็จ', 'Success');
+
+                // ✅ Clear current selections
+                document.querySelectorAll('#card_project_floor_plan .chk-floorplan:checked')
+                    .forEach(chk => chk.checked = false);
+                document.querySelectorAll('#card_unit .chk-unit:checked')
+                    .forEach(chk => chk.checked = false);
+                document.getElementById('chkAllFloorplan') && (document.getElementById('chkAllFloorplan').checked = false);
+                document.getElementById('chkAllUnit') && (document.getElementById('chkAllUnit').checked = false);
+                refreshMappingState();
+
+                // ✅ Re-run search to fetch fresh data
+                // (keeps filters; same as clicking the Search button)
+                await window.ProjectUnitFloorplan?.onSearchClick?.();
             } else {
                 errorMessage?.(json?.message || 'บันทึกไม่สำเร็จ กรุณาลองใหม่', 'Save Failed');
             }
@@ -684,6 +821,7 @@
             refreshMappingState();
         }
     }
+
 
     // ====== Upload modal (Add -> pick multiple -> rename -> upload) ======
     function wireUploadModal() {
@@ -801,8 +939,8 @@
             fd.append('ProjectID', projectId);
             picks.forEach(p => {
                 const safe = (p.name || p.file.name || 'image.png').replace(/[\\/:*?"<>|]+/g, '_');
-                fd.append('files', p.file, safe);
-                fd.append('names', safe);
+                fd.append('Images', p.file, safe);    // matches DTO
+                fd.append('FileName', safe);          // matches DTO
             });
 
             const btn = $('fpBtnUpload');
@@ -840,5 +978,261 @@
             }
         }
     }
+
+    // ====== Edit Floorplan (open modal + preview + save) ======
+    (function () {
+        // small helpers (local)
+        const $$ = (id) => document.getElementById(id);
+        const _isImg = (mime) => /^image\//.test(String(mime || '').toLowerCase());
+        const _isPdf = (mimeOrName) => {
+            const s = String(mimeOrName || '').toLowerCase();
+            return s.includes('application/pdf') || s.endsWith('.pdf');
+        };
+
+        let _fpEditObjectUrl = null; // for preview revocation
+
+        // Open the modal with current row data
+        window.openEditFloorplanModal = function ({ id, projectId, fileName, filePath, mimeType }) {
+            const modalEl = $$('floorplanEditModal');
+            if (!modalEl) return;
+
+            // fill fields
+            $$('fpEdit_FloorPlanID') && ($$('fpEdit_FloorPlanID').value = id || '');
+            $$('fpEdit_ProjectID') && ($$('fpEdit_ProjectID').value = projectId || '');
+            $$('fpEdit_FileName') && ($$('fpEdit_FileName').value = fileName || '');
+
+            // preview + view link
+            const preview = $$('fpEdit_Preview');
+            const viewLink = $$('fpEdit_ViewLink');
+            const url = filePath || '';
+
+            if (preview) {
+                preview.src = _isImg(mimeType) ? url : (_isPdf(mimeType || fileName) ? '' : url);
+                preview.alt = fileName || '';
+                preview.style.opacity = _isImg(mimeType) ? '1' : '0.3';
+            }
+            if (viewLink) {
+                viewLink.href = url || '#';
+                viewLink.classList.toggle('disabled', !url);
+            }
+
+            // reset file input
+            const fileInp = $$('fpEdit_File');
+            if (fileInp) fileInp.value = '';
+
+            // show project name echo (optional)
+            const echo = $$('fpEdit_projectEcho');
+            if (echo) echo.textContent = projectId ? `Project: ${projectId}` : '';
+
+            // show modal
+            const bs = bootstrap.Modal.getOrCreateInstance(modalEl);
+            bs.show();
+        };
+
+        // live preview when user picks a new file
+        function _wireFilePreviewOnce() {
+            const fileInp = $$('fpEdit_File');
+            if (!fileInp || fileInp.dataset.bound === '1') return;
+
+            fileInp.addEventListener('change', () => {
+                const preview = $$('fpEdit_Preview');
+                const file = fileInp.files && fileInp.files[0];
+                if (!preview) return;
+
+                // revoke old
+                if (_fpEditObjectUrl) {
+                    URL.revokeObjectURL(_fpEditObjectUrl);
+                    _fpEditObjectUrl = null;
+                }
+
+                if (!file) {
+                    // no new file -> keep whatever existing UI had
+                    return;
+                }
+
+                if (_isPdf(file.type) || _isPdf(file.name)) {
+                    // pdf: no image preview; just dim the preview box
+                    preview.src = '';
+                    preview.style.opacity = '0.3';
+                    preview.alt = file.name;
+                } else if (_isImg(file.type)) {
+                    _fpEditObjectUrl = URL.createObjectURL(file);
+                    preview.src = _fpEditObjectUrl;
+                    preview.style.opacity = '1';
+                    preview.alt = file.name;
+                } else {
+                    // other types: clear src
+                    preview.src = '';
+                    preview.style.opacity = '0.3';
+                    preview.alt = file.name;
+                }
+            });
+
+            // cleanup when modal hides
+            const modalEl = $$('floorplanEditModal');
+            modalEl?.addEventListener('hidden.bs.modal', () => {
+                if (_fpEditObjectUrl) {
+                    URL.revokeObjectURL(_fpEditObjectUrl);
+                    _fpEditObjectUrl = null;
+                }
+            });
+
+            fileInp.dataset.bound = '1';
+        }
+
+        // save (POST -> UpdateFloorplan)
+        async function _wireSaveOnce() {
+            const btn = $$('fpEdit_Save');
+            if (!btn || btn.dataset.bound === '1') return;
+
+            btn.addEventListener('click', async () => {
+                const floorPlanId = $$('fpEdit_FloorPlanID')?.value || '';
+                const projectId = $$('fpEdit_ProjectID')?.value || '';
+                const newName = ($$('fpEdit_FileName')?.value || '').trim();
+                const fileInp = $$('fpEdit_File');
+                const file = fileInp?.files?.[0];
+
+                if (!floorPlanId) {
+                    (window.errorMessage || alert)('Missing FloorPlanID.');
+                    return;
+                }
+                if (!projectId) {
+                    (window.errorMessage || alert)('Please select a project first.');
+                    return;
+                }
+                // Note: allow both rename-only (no file) and file-replace (with/without rename)
+
+                const fd = new FormData();
+                fd.append('FloorPlanID', floorPlanId);
+                fd.append('ProjectID', projectId);
+                if (newName) fd.append('NewFileName', newName);
+                if (file) fd.append('NewImage', file, file.name);
+
+                const originalHtml = btn.innerHTML;
+                try {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Saving...';
+                    (window.showLoading || (() => { }))();
+
+                    const resp = await fetch((window.baseUrl || '/') + 'Projectandunitfloorplan/UpdateFloorplan', {
+                        method: 'POST',
+                        body: fd
+                    });
+                    const json = await resp.json().catch(() => ({}));
+
+                    if (!resp.ok || json?.success !== true) {
+                        (window.errorMessage || alert)(json?.message || 'Save failed.', 'Update');
+                        return;
+                    }
+
+                    (window.successMessage || alert)(json?.message || 'Saved.', 'Update');
+
+                    // close modal
+                    const modalEl = $$('floorplanEditModal');
+                    bootstrap.Modal.getInstance(modalEl)?.hide();
+
+                    // refresh floorplan list to reflect new name/thumbnail
+                    window.ProjectUnitFloorplan?.onSearchClick?.();
+                } catch (err) {
+                    console.error(err);
+                    (window.errorMessage || alert)('Save failed. Please try again.', 'Update');
+                } finally {
+                    (window.hideLoading || (() => { }))();
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            });
+
+            btn.dataset.bound = '1';
+        }
+
+        // bind once after DOM ready
+        document.addEventListener('DOMContentLoaded', () => {
+            _wireFilePreviewOnce();
+            _wireSaveOnce();
+        });
+    })();
+
+    // ====== Delete Floorplan (soft delete with confirm) ======
+    (function () {
+        const $id = (x) => document.getElementById(x);
+
+        function bindFloorplanDeleteOnce() {
+            const container = $id('card_project_floor_plan')?.querySelector('.vertical-scroll .list-group');
+            if (!container || container.dataset.boundDelete === '1') return;
+
+            container.addEventListener('click', async (e) => {
+                const delBtn = e.target.closest('.btn-c.btn-delete');
+                if (!delBtn) return;
+
+                const row = delBtn.closest('.list-group-item');
+                const floorPlanId = row?.dataset.id || '';
+                const fileName = row?.dataset.filename || row?.querySelector('span[title]')?.getAttribute('title') || '';
+
+                if (!floorPlanId) {
+                    (window.errorMessage || alert)('Missing FloorPlanID.');
+                    return;
+                }
+
+                // Confirm
+                let confirmed = false;
+                if (typeof Swal !== 'undefined') {
+                    const res = await Swal.fire({
+                        icon: 'warning',
+                        title: 'Delete this floor plan?',
+                        html: `ชื่อไฟล์: <strong>${fileName || '-'}</strong><br>การลบนี้เป็นแบบ <em>Soft delete</em> (FlagActive = false).<br><small class="text-muted">หากไฟล์นี้ถูกแมปกับ Unit อยู่ ระบบจะไม่ยอมลบ</small>`,
+                        showCancelButton: true,
+                        confirmButtonText: 'Delete',
+                        cancelButtonText: 'Cancel',
+                        buttonsStyling: false,
+                        customClass: { confirmButton: 'btn btn-danger', cancelButton: 'btn btn-secondary ms-2' }
+                    });
+                    confirmed = res.isConfirmed;
+                } else {
+                    confirmed = confirm(`Delete this floor plan?\n${fileName || ''}`);
+                }
+                if (!confirmed) return;
+
+                // Call API
+                try {
+                    (window.showLoading || (() => { }))();
+
+                    const fd = new FormData();
+                    fd.append('FloorPlanID', floorPlanId);
+
+                    const resp = await fetch((window.baseUrl || '/') + 'Projectandunitfloorplan/DeleteFloorplan', {
+                        method: 'POST',
+                        body: fd
+                    });
+                    const json = await resp.json().catch(() => ({}));
+
+                    if (!resp.ok || json?.success !== true) {
+                        (window.errorMessage || alert)(json?.message || 'Delete failed.', 'Delete');
+                        return;
+                    }
+
+                    (window.successMessage || alert)(json?.message || 'Deleted.', 'Delete');
+
+                    // วิธีที่ 1: รีเฟรชทั้งลิสต์ให้ชัวร์ (แนะนำ)
+                    window.ProjectUnitFloorplan?.onSearchClick?.();
+
+                    // วิธีที่ 2: ลบแถวออกทันที (ถ้าอยากเร็ว ไม่ต้องรีเฟรชทั้งหมด)
+                    // row?.remove();
+                    // refreshMappingState();
+
+                } catch (err) {
+                    console.error(err);
+                    (window.errorMessage || alert)('Delete failed. Please try again.', 'Delete');
+                } finally {
+                    (window.hideLoading || (() => { }))();
+                }
+            });
+
+            container.dataset.boundDelete = '1';
+        }
+
+        // bind once
+        document.addEventListener('DOMContentLoaded', bindFloorplanDeleteOnce);
+    })();
 
 })();

@@ -14,15 +14,17 @@ namespace Project.CSS.Revise.Web.Controllers
         private readonly IMasterService _masterService;
         private readonly IUserAndPermissionService _userAndPermissionService;
         private readonly IProjectandunitfloorplanService _projectandunitfloorplanService;
-
+        private readonly IHostEnvironment _hosting;
         public ProjectandunitfloorplanController(IHttpContextAccessor httpContextAccessor
                                          , IMasterService masterService
                                          , IUserAndPermissionService userAndPermissionService
-                                         , IProjectandunitfloorplanService projectandunitfloorplanService) : base(httpContextAccessor)
+                                         , IProjectandunitfloorplanService projectandunitfloorplanService
+                                         , IHostEnvironment hosting) : base(httpContextAccessor)
         {
             _masterService = masterService;
             _userAndPermissionService = userAndPermissionService;
             _projectandunitfloorplanService = projectandunitfloorplanService;
+            _hosting = hosting;
         }
 
         public IActionResult Index()
@@ -137,6 +139,38 @@ namespace Project.CSS.Revise.Web.Controllers
 
             var ok = _projectandunitfloorplanService.DeactivateUnitFloorPlan(id, userId);
             return Json(new { success = ok, message = ok ? "Removed." : "Remove failed." });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadFloorplan([FromForm] UploadFileProjectFloorPlan req, CancellationToken ct)
+        {
+            string? loginId64 = User.FindFirst("LoginID")?.Value;
+            var userId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
+
+            var result = await _projectandunitfloorplanService.UploadFloorplansAsync(req, userId, ct);
+            return Json(new { success = result.Success, message = result.Message, count = result.SavedCount, items = result.Items });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateFloorplan([FromForm] UpdateFloorplanRequest req, CancellationToken ct)
+        {
+            string? loginId64 = User.FindFirst("LoginID")?.Value;
+            var userId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
+
+            var result = await _projectandunitfloorplanService.UpdateFloorplanAsync(req, userId, ct);
+            return Json(new { success = result.Success, message = result.Message });
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteFloorplan(string FloorPlanID, CancellationToken ct)
+        {
+            string? loginId64 = User.FindFirst("LoginID")?.Value;
+            var userId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
+
+            Guid floorPlanId = Commond.FormatExtension.NulltoGuid(FloorPlanID);
+            var result = await _projectandunitfloorplanService.DeleteFloorplanAsync(floorPlanId, userId, ct);
+            return Json(new { success = result.Success, message = result.Message });
         }
 
     }

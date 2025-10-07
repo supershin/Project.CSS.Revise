@@ -11,6 +11,9 @@ namespace Project.CSS.Revise.Web.Service
         Task<bool> SaveMappingAsync(SaveMappingFloorplanModel model, int userId, CancellationToken ct = default);
         public List<ListFloorPlanByUnit> GetFloorPlansByUnit(Guid unitId);
         bool DeactivateUnitFloorPlan(Guid id, int userId);
+        Task<UploadResult> UploadFloorplansAsync(UploadFileProjectFloorPlan req, int userId, CancellationToken ct = default);
+        Task<BasicResult> UpdateFloorplanAsync(UpdateFloorplanRequest req, int userId, CancellationToken ct = default);
+        Task<BasicResult> DeleteFloorplanAsync(Guid floorPlanId, int userId, CancellationToken ct = default);
     }
     public class ProjectandunitfloorplanService : IProjectandunitfloorplanService
     {
@@ -25,6 +28,11 @@ namespace Project.CSS.Revise.Web.Service
         {
             var resp = _ProjectandunitfloorplanRepo.DeactivateUnitFloorPlan(id , userId);
             return resp;
+        }
+
+        public async Task<BasicResult> DeleteFloorplanAsync(Guid floorPlanId, int userId, CancellationToken ct = default)
+        {
+            return await _ProjectandunitfloorplanRepo.DeleteFloorplanAsync(floorPlanId, userId, ct);
         }
 
         public List<ListFloorPlanByUnit> GetFloorPlansByUnit(Guid unitId)
@@ -49,5 +57,16 @@ namespace Project.CSS.Revise.Web.Service
         {
             return await _ProjectandunitfloorplanRepo.SaveMappingAsync(model, userId, ct);
         }
+
+        public async Task<BasicResult> UpdateFloorplanAsync(UpdateFloorplanRequest req, int userId, CancellationToken ct = default)
+        {
+            return await _ProjectandunitfloorplanRepo.UpdateFloorplanAsync(req, userId, ct);
+        }
+
+        public async Task<UploadResult> UploadFloorplansAsync(UploadFileProjectFloorPlan req, int userId, CancellationToken ct = default)
+        {
+            return await _ProjectandunitfloorplanRepo.UploadFloorplansAsync(req, userId, ct);
+        }
+
     }
 }

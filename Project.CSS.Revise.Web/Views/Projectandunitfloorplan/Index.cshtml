@@ -205,6 +205,55 @@
         </div>
     </div>
 </div>
+<!-- Edit Floorplan Modal -->
+<div class="modal fade" id="floorplanEditModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Edit floor plan
+                    <small class="text-muted ms-2" id="fpEdit_projectEcho"></small>
+                </h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="fpEdit_FloorPlanID" />
+                <input type="hidden" id="fpEdit_ProjectID" />
+
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold">Current / New name</label>
+                        <input type="text" id="fpEdit_FileName" class="form-control" placeholder="File name..." />
+                        <div class="form-text">If you don’t upload a new image, this will rename the existing file on disk.</div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold">Replace image (optional)</label>
+                        <input type="file" id="fpEdit_File" class="form-control" accept="image/*,application/pdf" />
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Preview</label>
+                        <div class="d-flex align-items-center gap-3">
+                            <img id="fpEdit_Preview" src="" alt="" class="rounded border" style="width:120px;height:120px;object-fit:contain;">
+                            <a id="fpEdit_ViewLink" href="#" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-box-arrow-up-right"></i> Open original
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button class="btn btn-primary" id="fpEdit_Save">
+                    <i class="bi bi-save me-1"></i> Save changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <link rel="stylesheet" type="text/css" href="~/css/projectandunitfloorplan.css?ver=@DateTime.Now.Ticks.ToString()">
     <script src="~/js/Pages/Projectandunitfloorplan/Projectandunitfloorplan.js?ver=@DateTime.Now.Ticks.ToString()"></script>
