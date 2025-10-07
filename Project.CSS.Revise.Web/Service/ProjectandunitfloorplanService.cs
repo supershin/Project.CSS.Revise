@@ -8,6 +8,8 @@ namespace Project.CSS.Revise.Web.Service
     {
         public List<ListProjectFloorplan> GetlistProjectFloorPlan(ListProjectFloorplan model);
         public List<ListUnit> GetlistUnit(ListUnit model);
+        Task<bool> SaveMappingAsync(SaveMappingFloorplanModel model, int userId, CancellationToken ct = default);
+        public List<ListFloorPlanByUnit> GetFloorPlansByUnit(Guid unitId);
     }
     public class ProjectandunitfloorplanService : IProjectandunitfloorplanService
     {
@@ -16,6 +18,12 @@ namespace Project.CSS.Revise.Web.Service
         public ProjectandunitfloorplanService(IProjectandunitfloorplanRepo ProjectandunitfloorplanRepo)
         {
             _ProjectandunitfloorplanRepo = ProjectandunitfloorplanRepo;
+        }
+
+        public List<ListFloorPlanByUnit> GetFloorPlansByUnit(Guid unitId)
+        {
+            List<ListFloorPlanByUnit> resp = _ProjectandunitfloorplanRepo.GetFloorPlansByUnit(unitId);
+            return resp;
         }
 
         public List<ListProjectFloorplan> GetlistProjectFloorPlan(ListProjectFloorplan model)
@@ -28,6 +36,11 @@ namespace Project.CSS.Revise.Web.Service
         {
             List<ListUnit> resp = _ProjectandunitfloorplanRepo.GetlistUnit(model);
             return resp;
+        }
+
+        public async Task<bool> SaveMappingAsync(SaveMappingFloorplanModel model, int userId, CancellationToken ct = default)
+        {
+            return await _ProjectandunitfloorplanRepo.SaveMappingAsync(model, userId, ct);
         }
     }
 }

@@ -69,3 +69,69 @@
     /* text-decoration: none !important; */
     margin-right: 0px;
 }
+
+.mapping-dock {
+    position: sticky;
+    top: 96px;
+}
+
+@media (max-width: 1199.98px) { /* < xl */
+    .mapping-dock {
+        position: static;
+    }
+}
+
+#btnSaveMapping:disabled {
+    cursor: not-allowed;
+    opacity: .75;
+}
+
+/* Desktop equal-height cards with visible headers & footers */
+@media (min-width: 1200px) {
+    /* 1) Make the whole card a column: header(0) + body(1) + footer(0) */
+    #card_project_floor_plan,
+    #card_unit,
+    .mapping-dock {
+        height: 468.4px;
+        display: flex;
+        flex-direction: column;
+    }
+
+        /* 2) Header & footer should never shrink or hide */
+        #card_project_floor_plan .card-header,
+        #card_unit .card-header,
+        #card_project_floor_plan .card-footer,
+        #card_unit .card-footer,
+        .mapping-dock .card-header,
+        .mapping-dock .card-footer {
+            flex: 0 0 auto;
+        }
+
+        /* 3) Body grows to fill the gap (no clipping) */
+        #card_project_floor_plan .card-body,
+        #card_unit .card-body,
+        .mapping-dock .card-body {
+            flex: 1 1 auto;
+            min-height: 0; /* critical so children can shrink */
+            overflow: visible; /* keep footer visible outside body */
+            display: flex; /* so inner rows can flex */
+            flex-direction: column;
+        }
+
+        /* 4) Only the inner list area scrolls */
+        #card_project_floor_plan .vertical-scroll,
+        #card_unit .vertical-scroll {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: auto;
+        }
+}
+
+/* Keep the mapping dock sticky on desktop (optional) */
+@media (min-width: 1200px) {
+    .mapping-dock {
+        position: sticky;
+        top: 96px;
+    }
+}
+

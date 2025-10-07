@@ -64,14 +64,14 @@
                             </div>
 
                             <!-- Unit Type -->
-                            <div class="col-12 col-md-6 col-lg-6">
+                            <div class="col-12 col-md-6 col-lg-7">
                                 <label class="form-label fw-semibold" for="ddl_unittype">Unit Type</label>
                                 <select id="ddl_unittype" class="form-select" multiple>
                                     <option value="" selected disabled>— เลือก Unit Type —</option>
                                 </select>
                             </div>
 
-                            <div class="col-12 col-md-6 col-lg-3">
+                            <div class="col-12 col-md-6 col-lg-1">
                                 <button class="btn btn-success shadow-sm px-4" id="BtnSearch">
                                     <i class="icofont icofont-search"></i> Search
                                 </button>
@@ -84,13 +84,13 @@
         </div>
         <div class="col-12">
             <div class="row">
-                <div class="col-12 col-sm-6 col-xl-6">
+                <div class="col-12 col-sm-6 col-xl-5">
                     <div class="card shadow-sm" id="card_project_floor_plan">
                         <div class="card-header d-flex align-items-center justify-content-between">
                             <div>
                                 <h6 class="mb-0">Floor plan lists</h6>
                                 <small class="text-muted" id="count_Floor_plan_lists">
-                                    ทั้งหมด 4
+                                    ทั้งหมด 
                                 </small>
                             </div>
                             <div class="btn-group">
@@ -116,33 +116,53 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 col-xl-6">
+                <!-- MIDDLE: mapping dock -->
+                <div class="col-12 col-xl-2 d-flex align-items-stretch order-3 order-xl-2">
+                    <div class="mapping-dock card shadow-sm w-100 my-3 my-xl-0">
+                        <div class="card-body d-flex flex-column align-items-center justify-content-center gap-3">
+                            <div class="text-center">
+                                <div class="fw-semibold">Ready to map</div>
+                                <small class="text-muted" id="mapCounts">0 floorplans • 0 units</small>
+                            </div>
+
+                            <button class="btn btn-lg btn-primary px-4" id="btnSaveMapping" disabled>
+                                <i class="bi bi-link-45deg me-1"></i> Save Mapping
+                            </button>
+
+                            <small class="text-muted text-center d-none d-xl-block">
+                                Select items in both lists, then save.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-xl-5 order-2">
                     <div class="card" id="card_unit">
-                        <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
-                            <div class="d-flex align-items-center gap-2">
-                                <h4 class="mb-0">Floor plan lists</h4>
-                                <!-- ✅ ตัวนับทั้งหมด (JS จะอัปเดตข้อความให้เอง) -->
+                        <div class="card-header d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="mb-0">Unit lists</h6>
                                 <small class="text-muted" id="count_unit_total">ทั้งหมด 0</small>
                             </div>
-                            <input type="text" class="form-control w-100 w-md-50 shadow-sm" id="searchUnitInput" placeholder="🔍 Search unit..." />
+                            <div class="btn-group">
+                                <input type="text" class="form-control w-100 w-md-50 shadow-sm" id="searchUnitInput" placeholder="🔍 Search unit..." />
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div class="vertical-scroll scroll-demo">
-                                <!-- ✅ แถว Check all (JS จะ bind อัตโนมัติ) -->
-                                <div id="unitCheckAllRow" class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" id="chkAllUnit" style="border:2px solid grey; accent-color:#0d6efd;" />
-                                    <label class="form-check-label fw-semibold" for="chkAllUnit">เลือกทั้งหมด</label>
-                                </div>
+                        <div class="card-body pt-2">                            
+                            <!-- ✅ แถว Check all (JS จะ bind อัตโนมัติ) -->
+                            <div id="unitCheckAllRow" class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="chkAllUnit" style="border:2px solid grey; accent-color:#0d6efd;" />
+                                <label class="form-check-label fw-semibold" for="chkAllUnit">เลือกทั้งหมด</label>
+                            </div>
 
+                            <div class="vertical-scroll scroll-demo">
                                 <!-- ✅ รายการยูนิต (JS จะ render แทนที่ด้านใน) -->
                                 <div class="list-group">
+
                                     <!-- populated by JS -->
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
 

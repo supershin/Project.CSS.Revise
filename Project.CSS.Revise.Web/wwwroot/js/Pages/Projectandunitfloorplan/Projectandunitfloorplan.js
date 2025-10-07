@@ -163,63 +163,68 @@
         const card = $id('card_project_floor_plan');
         if (!card) return;
 
-        // header count
         const counter = $id('count_Floor_plan_lists');
         if (counter) counter.textContent = `ทั้งหมด ${totalCount ?? (Array.isArray(list) ? list.length : 0)}`;
 
-        // body list
         const container = card.querySelector('.vertical-scroll .list-group');
         if (!container) return;
 
         if (!Array.isArray(list) || list.length === 0) {
             container.innerHTML = `<div class="list-group-item text-muted">— ไม่มีไฟล์ Floor plan —</div>`;
             bindCheckAll(false);
+            refreshMappingState();
             return;
         }
 
         const rows = list.map(item => {
             const id = escapeHtml(item.ID ?? '');
             const fileName = escapeHtml(item.FileName ?? '');
-            const filePath = escapeHtml(item.FilePath ?? '');
+
+            // IMPORTANT: use raw path for encoding, then a separate HTML-escaped label
+            const rawPath = item.FilePath ?? '';
             const mime = String(item.MimeType ?? '').toLowerCase();
 
-            // If MIME is image/* -> try real img with JS fallback on error
-            // Else -> show icon immediately
+            // encodeURI handles spaces/(), etc. (DON'T use encodeURIComponent on the whole path)
+            const url = encodeURI(rawPath);
+
             const thumbHtml = isImageMime(mime)
-                ? `<img src="${filePath}" width="50" height="50" class="img-thumbnail thumb-img" alt="${fileName}" />`
+                ? `<img src="${url}" width="50" height="50" class="img-thumbnail thumb-img" alt="${fileName}" />`
                 : thumbIconHtml(fileName);
 
-            // Wrap in <a> for images only (so click opens viewer). If not image, no link.
             const thumbWrapper = isImageMime(mime)
-                ? `<a href="javascript:void(0);" onclick='openViewer && openViewer("${filePath}")'>${thumbHtml}</a>`
+                ? `<a href="javascript:void(0);" onclick='openViewer && openViewer("${url}")'>${thumbHtml}</a>`
                 : thumbHtml;
 
             return `
-        <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary" data-id="${id}">
-            <div class="d-flex align-items-center gap-2">
-                <input class="form-check-input chk-floorplan" type="checkbox" />
-                ${thumbWrapper}
-                <span title="${fileName}">${fileName}</span>
-            </div>
-            <div class="btn-group">
-                <button type="button" class="btn-e btn-edit" title="Edit">
-                    <i class="bi bi-pencil"></i>
-                </button>
-                &nbsp;
-                <button type="button" class="btn-c btn-delete" title="Delete">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </div>
-        </div>`;
+      <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary" data-id="${id}">
+        <div class="d-flex align-items-center gap-2">
+          <input class="form-check-input chk-floorplan" type="checkbox" />
+          ${thumbWrapper}
+          <span title="${fileName}">${fileName}</span>
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn-e btn-edit" title="Edit">
+            <i class="bi bi-pencil"></i>
+          </button>
+          &nbsp;
+          <button type="button" class="btn-c btn-delete" title="Delete">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>`;
         }).join('');
 
         container.innerHTML = rows;
 
-        // Wire fallback for broken images
-        wireThumbFallback(container);
-
-        // bind check-all
+        if (typeof wireThumbFallback === 'function') wireThumbFallback(container);
         bindCheckAll(true);
+
+        container.addEventListener('change', e => {
+            if (e.target.classList.contains('chk-floorplan')) refreshMappingState();
+        });
+        $id('chkAllFloorplan')?.addEventListener('change', refreshMappingState);
+
+        refreshMappingState();
     }
 
 
@@ -242,34 +247,27 @@
         const card = $id('card_unit');
         if (!card) return;
 
-        // สร้างแถว Check-all (ครั้งเดียว)
-        ensureUnitCheckAllRow();
-
         const group = card.querySelector('.vertical-scroll .list-group');
         if (!group) return;
 
-        // อัปเดตตัวนับทั้งหมด
-        const total = totalCount ?? (Array.isArray(list) ? list.length : 0);
+        const total = Number(totalCount ?? (Array.isArray(list) ? list.length : 0)) || 0;
         ensureUnitCounter(total);
 
         if (!Array.isArray(list) || list.length === 0) {
             group.innerHTML = `<div class="list-group-item text-muted">— ไม่พบ Unit —</div>`;
             const chkAll = $id('chkAllUnit');
-            if (chkAll) {
-                chkAll.checked = false;
-                chkAll.disabled = true;
-            }
-            wireUnitSearch([]); // clear search binding
+            if (chkAll) { chkAll.checked = false; chkAll.disabled = true; }
+            wireUnitSearch([]);
+            refreshMappingState();
             return;
         }
 
         const rows = list.map(u => {
             const id = escapeHtml(u.ID ?? '');
             const code = escapeHtml(u.UnitCode ?? '');
-            const type = escapeHtml(u.UnitType ?? ''); // ✅ NEW: unit type
+            const type = escapeHtml(u.UnitType ?? '');
             const collapseId = 'collapse_' + slug(code);
 
-            // แสดง badge ของ Unit Type ถ้ามีค่า
             const typeBadge = type
                 ? `<span class="badge rounded-pill text-bg-secondary ms-2" title="Unit Type">${type}</span>`
                 : '';
@@ -287,45 +285,55 @@
                 </button>
             </div>
             <div class="collapse mt-2" id="${collapseId}">
-                <div class="file-list"><!-- unit files here (future) --></div>
+                <div class="file-list"></div>
             </div>
         </div>`;
         }).join('');
 
         group.innerHTML = rows;
 
-        // เปิดการทำงาน check-all
+        // Check-all
         const chkAll = $id('chkAllUnit');
-        if (chkAll) {
-            chkAll.disabled = false;
-            chkAll.checked = false;
-        }
+        if (chkAll) { chkAll.disabled = false; chkAll.checked = false; }
         bindUnitCheckAll();
 
-        // live search
-        wireUnitSearch(list);
-    }
+        // selection change -> refresh mapping state
+        group.addEventListener('change', e => {
+            if (e.target.classList.contains('chk-unit')) refreshMappingState();
+        });
+        chkAll?.addEventListener('change', refreshMappingState);
 
+        wireUnitSearch(list);
+        refreshMappingState();
+    }
 
     function ensureUnitCounter(total) {
         const card = $id('card_unit');
         if (!card) return;
 
-        // เอา counter ไปไว้ข้างหัวข้อ (ถ้ายังไม่มี ให้สร้าง)
-        let header = card.querySelector('.card-header');
+        // 1) If the counter already exists, just update it
+        let cnt = card.querySelector('#count_unit_total');
+        if (cnt) {
+            cnt.textContent = `ทั้งหมด ${Number(total) || 0}`;
+            return;
+        }
+
+        // 2) Otherwise, create it next to the first heading in the header
+        const header = card.querySelector('.card-header');
         if (!header) return;
 
-        let title = header.querySelector('h4');
+        // find any heading tag or a title element with .mb-0
+        const title =
+            header.querySelector('h1, h2, h3, h4, h5, h6') ||
+            header.querySelector('.mb-0');
+
         if (!title) return;
 
-        let cnt = header.querySelector('#count_unit_total');
-        if (!cnt) {
-            cnt = document.createElement('small');
-            cnt.id = 'count_unit_total';
-            cnt.className = 'text-muted ms-2';
-            title.insertAdjacentElement('afterend', cnt);
-        }
-        cnt.textContent = `ทั้งหมด ${total}`;
+        cnt = document.createElement('small');
+        cnt.id = 'count_unit_total';
+        cnt.className = 'text-muted ms-2';
+        cnt.textContent = `ทั้งหมด ${Number(total) || 0}`;
+        title.insertAdjacentElement('afterend', cnt);
     }
 
     function ensureUnitCheckAllRow() {
@@ -338,10 +346,10 @@
         if (vscroll.querySelector('#unitCheckAllRow')) return;
 
         const html = `
-    <div id="unitCheckAllRow" class="form-check mb-2">
-        <input class="form-check-input" type="checkbox" id="chkAllUnit" style="border:2px solid grey; accent-color:#0d6efd;" />
-        <label class="form-check-label fw-semibold" for="chkAllUnit">เลือกทั้งหมด</label>
-    </div>`;
+                    <div id="unitCheckAllRow" class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="chkAllUnit" style="border:2px solid grey; accent-color:#0d6efd;" />
+                        <label class="form-check-label fw-semibold" for="chkAllUnit">เลือกทั้งหมด</label>
+                    </div>`;
         // แทรก check-all บนสุด เหนือ list-group
         vscroll.insertAdjacentHTML('afterbegin', html);
     }
@@ -357,7 +365,6 @@
             items.forEach(chk => { chk.checked = chkAll.checked; });
         };
     }
-
 
     function wireUnitSearch(dataList) {
         const input = $id('searchUnitInput');
@@ -381,7 +388,6 @@
             });
         };
     }
-
 
     // ====== INIT ======
     // replace your current init() with this
@@ -434,7 +440,6 @@
         }
     }
 
-
     // simple toast fallback (replace with Swal.fire ได้)
     function toastError(msg) {
         try { console.warn(msg); } catch { }
@@ -445,4 +450,95 @@
 
     // expose for partial reload
     window.ProjectUnitFloorplan = { init, onSearchClick };
+
+    // --- selection counters & mapping button state ---
+    function getSelectedCounts() {
+        const fp = document.querySelectorAll('#card_project_floor_plan .chk-floorplan:checked').length;
+        const un = document.querySelectorAll('#card_unit .chk-unit:checked').length;
+        return { fp, un };
+    }
+
+    function refreshMappingState() {
+        const { fp, un } = getSelectedCounts();
+        const label = document.getElementById('mapCounts');
+        const btn = document.getElementById('btnSaveMapping');
+
+        if (label) label.textContent = `${fp} floorplan${fp === 1 ? '' : 's'} • ${un} unit${un === 1 ? '' : 's'}`;
+        if (btn) btn.disabled = !(fp > 0 && un > 0);
+    }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('btnSaveMapping')?.addEventListener('click', onSaveMapping);
+    });
+
+    async function onSaveMapping() {
+        const btn = document.getElementById('btnSaveMapping');
+        if (!btn || btn.disabled) return;
+
+        const projectId = choicesProject?.getValue(true) || '';
+        const floorplanIds = [...document.querySelectorAll('#card_project_floor_plan .chk-floorplan:checked')]
+            .map(chk => chk.closest('.list-group-item')?.dataset.id)
+            .filter(Boolean);
+        const unitIds = [...document.querySelectorAll('#card_unit .chk-unit:checked')]
+            .map(chk => chk.closest('.list-group-item')?.dataset.id)
+            .filter(Boolean);
+
+        // client-side guards
+        if (!projectId) {
+            showWarning('กรุณาเลือกโครงการก่อนบันทึก');
+            return;
+        }
+        if (floorplanIds.length === 0) {
+            showWarning('กรุณาเลือก Floor plan อย่างน้อย 1 รายการ');
+            return;
+        }
+        if (unitIds.length === 0) {
+            showWarning('กรุณาเลือก Unit อย่างน้อย 1 รายการ');
+            return;
+        }
+
+        // Build FormData with arrays so ASP.NET binds to List<Guid>
+        const fd = new FormData();
+        fd.append('ProjectID', projectId);
+        floorplanIds.forEach(id => fd.append('FloorPlanIDs', id));
+        unitIds.forEach(id => fd.append('UnitIDs', id));
+
+        const originalHtml = btn.innerHTML;
+        try {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Saving...';
+            showLoading();
+
+            const resp = await fetch(baseUrl + 'Projectandunitfloorplan/SaveMapping', {
+                method: 'POST',
+                body: fd
+            });
+
+            const json = await resp.json().catch(() => ({}));
+
+            if (!resp.ok) {
+                errorMessage('บันทึกไม่สำเร็จ (HTTP ' + resp.status + ')', 'Save Failed');
+                return;
+            }
+
+            if (json && json.success) {
+                // server returns { success, message, selectedFloorPlans?, selectedUnits? }
+                successMessage(json.message || 'บันทึก Mapping สำเร็จ', 'Success');
+            } else {
+                // show server validation message if provided
+                errorMessage(json?.message || 'บันทึกไม่สำเร็จ กรุณาลองใหม่', 'Save Failed');
+            }
+        } catch (err) {
+            console.error(err);
+            errorMessage('เกิดข้อผิดพลาดระหว่างบันทึก กรุณาลองใหม่อีกครั้ง', 'Save Failed');
+        } finally {
+            hideLoading();
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+            refreshMappingState(); // recalc middle dock button state
+        }
+    }
+
+
 })();

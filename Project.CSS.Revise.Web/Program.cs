@@ -78,6 +78,20 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 var app = builder.Build();
 
+// Map physical "<contentroot>/ProjectFloorPlan" -> "/ProjectFloorPlan"
+var floorplanPhysical = Path.Combine(app.Environment.ContentRootPath, "ProjectFloorPlan");
+if (Directory.Exists(floorplanPhysical))
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(floorplanPhysical),
+        RequestPath = "/ProjectFloorPlan",
+        // Optional cache
+        OnPrepareResponse = ctx =>
+            ctx.Context.Response.Headers["Cache-Control"] = "public,max-age=604800"
+    });
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

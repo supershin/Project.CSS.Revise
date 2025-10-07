@@ -18,5 +18,18 @@
             public string UnitType { get; set; } = "";
 
         }
+        public class SaveMappingFloorplanModel
+        {
+            public string ProjectID { get; set; } = string.Empty;
+            public List<Guid> FloorPlanIDs { get; set; } = new();
+            public List<Guid> UnitIDs { get; set; } = new();
+        }
+        public class ListFloorPlanByUnit
+        {
+            public Guid? FloorPlanID { get; set; }
+            public string FileName { get; set; } = string.Empty;
+            public string FilePath { get; set; } = string.Empty;
+            public string MimeType { get; set; } = string.Empty;
+        }
     }
 }

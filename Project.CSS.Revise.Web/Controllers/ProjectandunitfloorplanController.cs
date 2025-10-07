@@ -66,5 +66,64 @@ namespace Project.CSS.Revise.Web.Controllers
             var Count = result.Count;
             return Json(new { success = true, data = result, count = Count });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveMapping([FromForm] SaveMappingFloorplanModel model, CancellationToken ct)
+        {
+            // Collect human-readable validation errors
+            var errors = new List<string>();
+
+            if (model is null)
+                return Json(new { success = false, message = "ไม่พบข้อมูลที่ส่งมา", errors = new[] { "payload is null" } });
+
+            // Normalize & de-dup inputs
+            var projectId = (model.ProjectID ?? string.Empty).Trim();
+            var floorIds = (model.FloorPlanIDs ?? new List<Guid>()).Where(g => g != Guid.Empty).Distinct().ToList();
+            var unitIds = (model.UnitIDs ?? new List<Guid>()).Where(g => g != Guid.Empty).Distinct().ToList();
+
+            if (string.IsNullOrWhiteSpace(projectId)) errors.Add("กรุณาเลือกโครงการ (ProjectID)");
+            if (floorIds.Count == 0) errors.Add("กรุณาเลือก Floor plan อย่างน้อย 1 รายการ");
+            if (unitIds.Count == 0) errors.Add("กรุณาเลือก Unit อย่างน้อย 1 รายการ");
+
+            if (errors.Count > 0)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = string.Join(" | ", errors),
+                    errors
+                });
+            }
+
+            // Put normalized values back to the model
+            model.ProjectID = projectId;
+            model.FloorPlanIDs = floorIds;
+            model.UnitIDs = unitIds;
+
+            // UserId from claims
+            string? loginId64 = User.FindFirst("LoginID")?.Value;
+            var userId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
+
+            var ok = await _projectandunitfloorplanService.SaveMappingAsync(model, userId, ct);
+
+            return Json(new
+            {
+                success = ok,
+                message = ok
+                    ? "บันทึก Mapping สำเร็จ"
+                    : "บันทึกไม่สำเร็จ กรุณาลองใหม่",
+                // Optional: include counts for UI feedback
+                selectedFloorPlans = floorIds.Count,
+                selectedUnits = unitIds.Count
+            });
+        }
+
+        [HttpPost]
+        public JsonResult GetListFloorPlansByUnit(string Unit)
+        {
+            Guid unitId = Commond.FormatExtension.NulltoGuid(Unit);
+            var result = _projectandunitfloorplanService.GetFloorPlansByUnit(unitId);
+            return Json(new { success = true, data = result});
+        }
     }
 }
