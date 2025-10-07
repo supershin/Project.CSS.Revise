@@ -62,7 +62,8 @@
                                     }
                                 </select>
                             </div>
-
+                            <!-- 🔒 keep current project id here -->
+                            <input type="hidden" id="hd_ProjectID" name="ProjectID" value="" />
                             <!-- Unit Type -->
                             <div class="col-12 col-md-6 col-lg-7">
                                 <label class="form-label fw-semibold" for="ddl_unittype">Unit Type</label>
@@ -94,9 +95,13 @@
                                 </small>
                             </div>
                             <div class="btn-group">
-                                <button class="btn btn-sm btn-primary" id="btnFloorplanAdd">
+                                <button class="btn btn-sm btn-primary"
+                                        id="btnFloorplanAdd"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#floorplanUploadModal">
                                     <i class="bi bi-plus-lg"></i> Add
                                 </button>
+
                             </div>
                         </div>
                         <div class="card-body pt-2">
@@ -165,10 +170,41 @@
                 </div>
             </div>
         </div>
-
     </div>
 </div>
+<!-- Minimal multi-upload modal -->
+<div class="modal fade" id="floorplanUploadModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add floorplan images</h5>
+                <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
 
+            <div class="modal-body">
+                <!-- pick files -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Choose images</label>
+                    <input id="fpFilesInput" type="file" class="form-control" accept="image/*" multiple />
+                    <div class="form-text">You can select multiple files.</div>
+                </div>
+
+                <!-- preview list -->
+                <div id="fpPreviewList" class="row g-3">
+                    <!-- JS will add preview cards here -->
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <small class="me-auto text-muted">Project: <span id="fpProjectEcho"></span></small>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" id="fpBtnUpload">
+                    <i class="bi bi-upload me-1"></i> Upload
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts {
     <link rel="stylesheet" type="text/css" href="~/css/projectandunitfloorplan.css?ver=@DateTime.Now.Ticks.ToString()">
     <script src="~/js/Pages/Projectandunitfloorplan/Projectandunitfloorplan.js?ver=@DateTime.Now.Ticks.ToString()"></script>

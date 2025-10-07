@@ -125,5 +125,19 @@ namespace Project.CSS.Revise.Web.Controllers
             var result = _projectandunitfloorplanService.GetFloorPlansByUnit(unitId);
             return Json(new { success = true, data = result});
         }
+
+        [HttpPost]
+        public JsonResult RemoveUnitFloorPlan(Guid id)
+        {
+            if (id == Guid.Empty)
+                return Json(new { success = false, message = "Invalid mapping ID." });
+
+            string? loginId64 = User.FindFirst("LoginID")?.Value;
+            var userId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
+
+            var ok = _projectandunitfloorplanService.DeactivateUnitFloorPlan(id, userId);
+            return Json(new { success = ok, message = ok ? "Removed." : "Remove failed." });
+        }
+
     }
 }

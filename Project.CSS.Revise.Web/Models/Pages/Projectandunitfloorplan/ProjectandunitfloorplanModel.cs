@@ -16,7 +16,7 @@
             public string ProjectID { get; set; } = "";
             public string UnitCode { get; set; } = "";
             public string UnitType { get; set; } = "";
-
+            public int Cnt_FloorPlan { get; set; } = 0;
         }
         public class SaveMappingFloorplanModel
         {
@@ -26,6 +26,7 @@
         }
         public class ListFloorPlanByUnit
         {
+            public Guid ID { get; set; }
             public Guid? FloorPlanID { get; set; }
             public string FileName { get; set; } = string.Empty;
             public string FilePath { get; set; } = string.Empty;
