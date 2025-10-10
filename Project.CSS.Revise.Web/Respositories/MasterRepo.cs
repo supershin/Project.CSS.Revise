@@ -1,12 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Data;
-using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Models.Pages.Shop_Event;
-using static Project.CSS.Revise.Web.Commond.Constants;
 
 namespace Project.CSS.Revise.Web.Respositories
 {
@@ -48,7 +45,12 @@ namespace Project.CSS.Revise.Web.Respositories
                 conn.Open();
 
                 string sql = @"
-                                SELECT 
+                               --DECLARE @L_BUID NVARCHAR(100) = ''
+	                           --DECLARE @L_ProjectStatus NVARCHAR(100) = ''
+	                           --DECLARE @L_ProjectPartner NVARCHAR(100) = ''
+
+
+	                           SELECT 
                                     p.ProjectID, 
                                     b.ID AS BUID, 
                                     b.Name AS BUname, 
@@ -57,10 +59,19 @@ namespace Project.CSS.Revise.Web.Respositories
                                 FROM tm_Project p
                                 LEFT JOIN tm_BUProject_Mapping m ON p.ProjectID = m.ProjectID
                                 LEFT JOIN tm_BU b ON m.BUID = b.ID
+		                        LEFT JOIN TR_ProjectStatus ps ON p.ProjectID = ps.ProjectID
                                 WHERE p.FlagActive = 1
-                                  AND (
+                                    AND (
                                         @L_BUID = ''
                                         OR CHARINDEX(',' + CAST(b.ID AS NVARCHAR) + ',', ',' + @L_BUID + ',') > 0
+                                    )
+                                    AND (
+                                        @L_ProjectStatus = ''
+                                        OR CHARINDEX(',' + CAST(ps.StatusID AS NVARCHAR) + ',', ',' + @L_ProjectStatus + ',') > 0
+                                    )
+			                        AND (
+                                        @L_ProjectPartner = ''
+                                        OR CHARINDEX(',' + CAST(p.PartnerID AS NVARCHAR) + ',', ',' + @L_ProjectPartner + ',') > 0
                                     )
                                 ORDER BY b.ID
                              ";
@@ -68,7 +79,8 @@ namespace Project.CSS.Revise.Web.Respositories
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.Parameters.Add(new SqlParameter("@L_BUID", filter.L_BUID ?? ""));
-
+                    cmd.Parameters.Add(new SqlParameter("@L_ProjectStatus", filter.L_ProjectStatus ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_ProjectPartner", filter.L_ProjectPartner ?? ""));
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())

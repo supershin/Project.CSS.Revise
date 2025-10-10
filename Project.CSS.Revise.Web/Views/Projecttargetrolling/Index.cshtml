@@ -27,153 +27,163 @@
 </div>
 
 <div class="container-fluid">
-    <div class="col-12 box-col-12">
-        <div class="md-sidebar">
-            <a class="btn btn-primary email-aside-toggle md-sidebar-toggle">Filters</a>
-            <div class="md-sidebar-aside job-sidebar">
-                <div class="default-according style-1 faq-accordion job-accordion">
-                    <div class="accordion" id="accordionExample">
-                        <div class="card">
-                            <div class="card-header" id="headingOne">
-                                <h2 class="mb-0">
-                                    <button class="btn btn-link btn-block text-start" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne"><h4 class="m-0">Filters</h4></button>
-                                </h2>
-                            </div>
-                            <div class="collapse show" id="collapseOne" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                                <div class="card-body filter-cards-view animate-chk">
-                                    <div class="row">
-                                        <div class="job-filter mb-3 col-3">
-                                            <label for="ddl_year" class="form-label fw-bold">Year</label>
-                                            <select id="ddl_year" class="form-control multi-select" multiple></select>
-                                        </div>
-                                        <div class="job-filter mb-3 col-3">
-                                            <label for="ddl_quarter" class="form-label fw-bold">Quarter</label>
-                                            <select id="ddl_quarter" class="form-control multi-select" multiple>
-                                                <option value="Q1">Q1</option>
-                                                <option value="Q2">Q2</option>
-                                                <option value="Q3">Q3</option>
-                                                <option value="Q4">Q4</option>
-                                            </select>
-                                        </div>
-                                        <div class="job-filter mb-3 col-3">
-                                            <label for="ddl_month" class="form-label fw-bold">Month</label>
-                                            <select id="ddl_month" class="form-control" multiple>
-                                                <option value="1">Jan</option>
-                                                <option value="2">Feb</option>
-                                                <option value="3">Mar</option>
-                                                <option value="4">Apr</option>
-                                                <option value="5">May</option>
-                                                <option value="6">Jun</option>
-                                                <option value="7">Jul</option>
-                                                <option value="8">Aug</option>
-                                                <option value="9">Sep</option>
-                                                <option value="10">Oct</option>
-                                                <option value="11">Nov</option>
-                                                <option value="12">Dec</option>
-                                            </select>
-                                        </div>
-                                        <div class="job-filter mb-3 col-3">
-                                            <label for="ddl_plantype" class="form-label fw-bold">Plan Type</label>
-                                            <select id="ddl_plantype" class="form-control" multiple>
-                                                @if (ViewBag.ListPlanType != null)
-                                                {
-                                                    foreach (var item in ViewBag.ListPlanType)
-                                                    {
-                                                        <option value="@item.ValueInt">@item.Text</option>
-                                                    }
-                                                }
-                                            </select>
-                                        </div>
-                                        <div class="job-filter mb-3 col-3">
-                                            <label for="ddl_bug" class="form-label fw-bold">BUG</label>
-                                            <select id="ddl_bug" class="form-control" multiple>
-                                                @if (ViewBag.listBu != null)
-                                                {
-                                                    foreach (var item in ViewBag.listBu)
-                                                    {
-                                                        <option value="@item.ID">@item.Name</option>
-                                                    }
-                                                }
-                                            </select>
-                                        </div>
-                                        <div class="job-filter mb-3 col-3">
-                                            <label for="ddl_project" class="form-label fw-bold">Project</label>
-                                            <select id="ddl_project" class="form-control" multiple>
+    <div class="card filter-card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="mb-0">Filters</h5>
+            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#fltCollapse"
+                    aria-expanded="true"
+                    aria-controls="fltCollapse">
+                <i class="fa fa-chevron-up"></i>
+            </button>
+        </div>
 
-                                            </select>
-                                        </div>
-                                        <div class="job-filter mb-3 col-3">
-                                            <label for="ddl_project_status" class="form-label fw-bold">Project Status</label>
-                                            <select id="ddl_project_status" class="form-control" multiple>
-                                                @if (ViewBag.ListProjectStatus != null)
-                                                {
-                                                    foreach (var item in ViewBag.ListProjectStatus)
-                                                    {
-                                                        <option value="@item.ValueInt">@item.Text</option>
-                                                    }
-                                                }
-                                            </select>
-                                        </div>
-                                        <div class="job-filter mb-3 col-3">
-                                            <label for="ddl_project_partner" class="form-label fw-bold">Project Partner</label>
-                                            <select id="ddl_project_partner" class="form-control" style="height: 50px; font-size: 1rem; padding: 10px 12px;">
-                                                @if (ViewBag.ListProjectPartner != null)
-                                                {
-                                                    <option value="">ทั้งหมด</option>
-                                                    foreach (var item in ViewBag.ListProjectPartner)
-                                                    {
-                                                        <option value="@item.ValueInt">@item.Text</option>
-                                                    }
-                                                }
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-footer d-flex justify-content-end gap-2">
-                                    <button class="btn btn-secondary" type="button" id="import_data_project_target_rolling" data-bs-toggle="modal" data-bs-target="#modalImportTargetRolling">
-                                        <i class="fa fa-upload me-1"></i> Import
-                                    </button>
-                                    <button class="btn btn-success" type="button" onclick="exportExcelProjectAndTargetRolling()">
-                                        <i class="fa fa-file-excel-o me-1"></i> Export
-                                    </button>
-                                    <button class="btn btn-primary" type="button">
-                                        <i class="fa fa-search me-1"></i> Search
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+        <div id="fltCollapse" class="collapse show">
+            <div class="card-body">
+                <div class="row g-3 filter-grid">
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <label for="ddl_year" class="form-label fw-bold">Year</label>
+                        <select id="ddl_year" class="form-control multi-select" multiple></select>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <label for="ddl_quarter" class="form-label fw-bold">Quarter</label>
+                        <select id="ddl_quarter" class="form-control multi-select" multiple>
+                            <option value="Q1">Q1</option>
+                            <option value="Q2">Q2</option>
+                            <option value="Q3">Q3</option>
+                            <option value="Q4">Q4</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <label for="ddl_month" class="form-label fw-bold">Month</label>
+                        <select id="ddl_month" class="form-control" multiple>
+                            <option value="1">Jan</option>
+                            <option value="2">Feb</option>
+                            <option value="3">Mar</option>
+                            <option value="4">Apr</option>
+                            <option value="5">May</option>
+                            <option value="6">Jun</option>
+                            <option value="7">Jul</option>
+                            <option value="8">Aug</option>
+                            <option value="9">Sep</option>
+                            <option value="10">Oct</option>
+                            <option value="11">Nov</option>
+                            <option value="12">Dec</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <label for="ddl_plantype" class="form-label fw-bold">Plan Type</label>
+                        <select id="ddl_plantype" class="form-control" multiple>
+                            @if (ViewBag.ListPlanType != null)
+                            {
+                                foreach (var item in ViewBag.ListPlanType)
+                                {
+                                    <option value="@item.ValueInt">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <label for="ddl_bug" class="form-label fw-bold">BUG</label>
+                        <select id="ddl_bug" class="form-control" multiple>
+                            @if (ViewBag.listBu != null)
+                            {
+                                foreach (var item in ViewBag.listBu)
+                                {
+                                    <option value="@item.ID">@item.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <label for="ddl_project_status" class="form-label fw-bold">Project Status</label>
+                        <select id="ddl_project_status" class="form-control" multiple>
+                            @if (ViewBag.ListProjectStatus != null)
+                            {
+                                foreach (var item in ViewBag.ListProjectStatus)
+                                {
+                                    <option value="@item.ValueInt">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <label for="ddl_project_partner" class="form-label fw-bold">Project Partner</label>
+                        <select id="ddl_project_partner" class="form-control" style="height:50px;font-size:1rem;padding:10px 12px;">
+                            <option value="" selected data-placeholder="true">ทั้งหมด</option>
+                            @if (ViewBag.ListProjectPartner != null)
+                            {
+                                foreach (var item in ViewBag.ListProjectPartner)
+                                {
+                                    <option value="@item.ValueInt">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <label for="ddl_project" class="form-label fw-bold">Project</label>
+                        <select id="ddl_project" class="form-control" multiple></select>
                     </div>
                 </div>
+            </div>
+
+            <div class="card-footer d-flex justify-content-end align-items-center gap-2 flex-nowrap footer-actions p-2">
+                <button class="btn btn-secondary btn-sm"
+                        type="button"
+                        id="import_data_project_target_rolling"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalImportTargetRolling">
+                    <i class="fa fa-upload me-1"></i> Import
+                </button>
+
+                <button class="btn btn-success btn-sm"
+                        type="button"
+                        onclick="exportExcelProjectAndTargetRolling()">
+                    <i class="fa fa-file-excel-o me-1"></i> Export
+                </button>
+
+                <button class="btn btn-primary btn-sm" type="button">
+                    <i class="fa fa-search me-1"></i> Search
+                </button>
             </div>
         </div>
     </div>
 </div>
+
 
 <div class="container-fluid">
-    <div class="col-12 box-col-12">
-        <div class="md-sidebar">
-            <a class="btn btn-primary email-aside-toggle md-sidebar-toggle">Summary</a>
-            <div class="md-sidebar-aside job-sidebar">
-                <div class="default-according style-1 faq-accordion job-accordion">
-                    <div class="accordion" id="accordionSummary">
-                        <div class="card">
-                            <div class="card-header" id="headingSummary">
-                                <h2 class="mb-0">
-                                    <button class="btn btn-link btn-block text-start" type="button" data-bs-toggle="collapse" data-bs-target="#collapsecardSummary" aria-expanded="true" aria-controls="collapsecardSummary"><h4 class="m-0">Summary</h4></button>
-                                </h2>
-                            </div>
-                            <div class="collapse show" id="collapsecardSummary" aria-labelledby="headingSummary" data-bs-parent="#accordionSummary">
-                                <div class="card-body pt-0">
-                                    <div id="cardSummary" class="summary-grid"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <div class="card summary-card mt-3">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="mb-0">Summary</h5>
+            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#collapseSummary"
+                    aria-expanded="true"
+                    aria-controls="collapseSummary">
+                <i class="fa fa-chevron-up"></i>
+            </button>
+        </div>
+
+        <div id="collapseSummary" class="collapse show">
+            <div id="summaryCardBody" class="card-body pt-2">
+                <div id="cardSummary" class="summary-grid">
+                    <!-- your summary grid items load here -->
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 
 
 <div class="container-fluid">

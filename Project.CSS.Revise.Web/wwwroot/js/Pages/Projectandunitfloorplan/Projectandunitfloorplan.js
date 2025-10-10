@@ -43,7 +43,7 @@
         if (reset) inst.removeActiveItems();
     };
 
-    const baseUrl = (typeof window.baseUrl === 'string' && window.baseUrl) ? window.baseUrl : '/';
+    //const baseUrl = (typeof window.baseUrl === 'string' && window.baseUrl) ? window.baseUrl : '/';
 
     const escapeHtml = (s) => String(s ?? '')
         .replace(/&/g, '&amp;')

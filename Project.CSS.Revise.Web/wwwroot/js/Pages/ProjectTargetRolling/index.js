@@ -13,7 +13,6 @@ const toLocaleMoney = (n) => {
     return isNaN(num) ? '0.00' : num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
-
 // mimic your C# ConvertToShortUnit for display mode (K/M)
 function formatShort(n) {
     if (n == null || isNaN(n)) return '';
@@ -25,7 +24,6 @@ function formatShort(n) {
     else out = x.toFixed(2);
     return out.replace(/\.?0+$/, ''); // trim .00 / trailing zeros
 }
-
 function formatShortHaveZero(n) {
     if (n == null || isNaN(n)) return '';
     const x = Number(n), abs = Math.abs(x);
@@ -34,22 +32,19 @@ function formatShortHaveZero(n) {
     return x.toFixed(2);
 }
 
-
 // sanitize pasted numeric text
 function sanitizeNumericText(t) {
     if (t == null) return '';
     const plain = String(t).replace(/<[^>]*>/g, '');
     const cleaned = plain.replace(/[^\d.\-]/g, '');
-    let sign = cleaned.startsWith('-') ? '-' : '';
+    let sign = cleaned.startsWith('-') ? '0.00' : '';
     let body = cleaned.replace(/^-/, '');
     let parts = body.split('.');
     if (parts.length > 2) body = parts.shift() + '.' + parts.join('');
     return sign + body;
 }
 
-
 // ------------------------ YEAR DROPDOWN ------------------------
-
 function populateYearDropdown() {
     const ddlYear = document.getElementById('ddl_year');
     if (!ddlYear) return;
@@ -168,46 +163,65 @@ function initPlanTypeDropdown() {
     });
 }
 
-let choicesBug;
-let choicesProject;
+
+// ------------------------ BU, PROJECT STATUS, PROJECT PARTNER, PROJECT DROPDOWN ------------------------
+const getChoicesVals = (choicesInstance) => {
+    try { return (choicesInstance?.getValue(true) || []).filter(Boolean); }
+    catch { return []; }
+};
+
+let choicesBu;              // BU dropdown
+let choicesProject;         // Project dropdown
+let choicesProjectStatus;   // Project Status dropdown
+let choicesProjectPartner;   // Project Status dropdown
 
 function initBuDropdown() {
-        choicesBug = new Choices('#ddl_bug', {
+    choicesBu = new Choices('#ddl_bug', {
         removeItemButton: true,
         placeholderValue: 'เลือกกลุ่มธุรกิจได้มากกว่า 1',
         searchEnabled: true,
         itemSelectText: '',
         shouldSort: false
     });
-
-    document.getElementById('ddl_bug').addEventListener('change', onBuChanged);
+    document.getElementById('ddl_bug').addEventListener('change', onFilterChanged);
 }
 
 function initProjectstatusDropdown() {
-    choicesBug = new Choices('#ddl_project_status', {
+    choicesProjectStatus = new Choices('#ddl_project_status', {
         removeItemButton: true,
         placeholderValue: 'เลือกสถานะโครงการได้มากกว่า 1',
         searchEnabled: true,
         itemSelectText: '',
         shouldSort: false
     });
-
-    document.getElementById('ddl_project_status').addEventListener('change', onBuChanged);
+    document.getElementById('ddl_project_status').addEventListener('change', onFilterChanged);
 }
 
+// --- Partner (single select) ---
 function initProjectpartnerDropdown() {
-    const ddlprojectpartner = document.getElementById('ddl_project_partner');
-    if (ddlprojectpartner) {
-        new Choices(ddlprojectpartner, {
-            removeItemButton: true,
-            searchEnabled: true,
-            placeholderValue: 'ทั้งหมด',     // ✅ เพิ่ม placeholder ตรงนี้
-            noResultsText: 'ไม่พบ Partner',
-            noChoicesText: 'ไม่มีตัวเลือก',
-            shouldSort: false
-        });
+    const el = document.getElementById('ddl_project_partner');
+    if (!el) return;
+
+    choicesProjectPartner = new Choices(el, {
+        removeItemButton: false,
+        searchEnabled: true,
+        placeholder: true,
+        placeholderValue: 'ทั้งหมด',
+        shouldSort: false
+    });
+
+    // ล้าง selection ที่ถูกเลือกอัตโนมัติ (option แรก)
+    choicesProjectPartner.removeActiveItems();
+    // ถ้าใน DOM ไม่มี option value="" ให้สร้าง placeholder เสมือน
+    if (![...el.options].some(o => o.value === '')) {
+        choicesProjectPartner.setChoices([{ value: '', label: 'ทั้งหมด', selected: true }], 'value', 'label', false);
+    } else {
+        choicesProjectPartner.setChoiceByValue(''); // จะเลือก option ว่างที่มีอยู่
     }
+
+    el.addEventListener('change', onFilterChanged);
 }
+
 
 // ------------------------ PROJECT ------------------------
 
@@ -220,43 +234,73 @@ function initProjectDropdown() {
         shouldSort: false
     });
 
-    loadProjectFromBU(); // load all initially
+    loadProjectFromFilters(); // initial load (all)
 }
 
-function onBuChanged() {
-    const selectedBUs = choicesBug.getValue(true); // array of selected BU IDs
-    loadProjectFromBU(selectedBUs);
+function onFilterChanged() {
+    loadProjectFromFilters();
 }
 
-function loadProjectFromBU(selectedBUs = []) {
-    const formData = new FormData();
-    formData.append("L_BUID", selectedBUs.join(",")); // join IDs or blank if none
 
-    fetch( baseUrl + 'Projecttargetrolling/GetProjectListByBU' , {
+// --- Project (load with filters) ---
+let projectReqAbort; // กันซ้อน request
+
+function loadProjectFromFilters() {
+    const selectedBUs = getChoicesVals(choicesBu);             // ["1","2"]
+    const selectedStatuses = getChoicesVals(choicesProjectStatus);  // ["10","20"]
+
+    // อ่านค่า partner แบบ single (string หรือ '' ถ้าไม่มี)
+    let partnerVal = '';
+    try {
+        // สำหรับ single-select, getValue(true) => ค่าตรงๆ (string)
+        partnerVal = choicesProjectPartner?.getValue(true) ?? '';
+        // กันค่าที่เป็น object กรณีพิเศษของบางเวอร์ชัน:
+        if (typeof partnerVal !== 'string') partnerVal = String(partnerVal ?? '');
+    } catch { partnerVal = ''; }
+
+    const fd = new FormData();
+    fd.append('L_BUID', selectedBUs.length ? selectedBUs.join(',') : '');
+    fd.append('L_ProjectStatus', selectedStatuses.length ? selectedStatuses.join(',') : '');
+    fd.append('L_ProjectPartner', partnerVal || ''); // single value หรือว่าง
+
+    // cancel previous fetch
+    try { projectReqAbort?.abort(); } catch { }
+    projectReqAbort = new AbortController();
+
+    fetch(baseUrl + 'Projecttargetrolling/GetProjectListByBU', {
         method: 'POST',
-        body: formData
+        body: fd,
+        signal: projectReqAbort.signal
     })
-        .then(response => response.json())
+        .then(r => r.json())
         .then(json => {
-            if (json.success) {
-                const projectList = json.data || [];
+            if (!json?.success) throw new Error('API returned success = false');
 
-                choicesProject.clearStore();
+            const list = json.data || [];
+            choicesProject.clearStore();
+            if (list.length === 0) {
                 choicesProject.setChoices(
-                    projectList.map(p => ({
-                        value: p.ProjectID,
-                        label: p.ProjectNameTH
-                    })),
-                    'value',
-                    'label',
-                    true
+                    [{ value: '', label: '— ไม่มีโปรเจกต์ —', disabled: true }],
+                    'value', 'label', true
                 );
+                return;
             }
+
+            choicesProject.setChoices(
+                list.map(p => ({ value: p.ProjectID, label: p.ProjectNameTH })),
+                'value', 'label', true
+            );
         })
-        .catch(error => {
-            console.error('Load project failed:', error);
+        .catch(err => {
+            console.error('Load project failed:', err);
+            choicesProject.clearStore();
+            choicesProject.setChoices(
+                [{ value: '', label: 'โหลดโปรเจกต์ล้มเหลว', disabled: true }],
+                'value', 'label', true
+            );
         });
 }
+
 
 // ------------------------ INIT ALL ------------------------
 
@@ -266,10 +310,11 @@ function initAllDropdowns() {
     initMonthDropdown();
     initPlanTypeDropdown();
     initBuDropdown();
-    initProjectstatusDropdown();
-    /*initProjectpartnerDropdown();*/
-    initProjectDropdown();
+    initProjectstatusDropdown();  // ✅ มีแล้ว
+    initProjectpartnerDropdown();
+    initProjectDropdown();        // ✅ โหลดครั้งแรก (all)
 }
+
 
 // 🔥 เรียกเลยโดยไม่ต้องใช้ DOMContentLoaded
 initAllDropdowns();
@@ -336,107 +381,6 @@ function searchRollingPlanData() {
 searchRollingPlanData();
 
 const pendingEdits = []; // {ProjectID, PlanTypeID, Year, Month, PlanAmountID, OldValue, NewValue}
-
-//function renderTableFromJson(data, selectedMonths) {
-//    const dec = s => (s ?? '').toString().replace(/,/g, ''); // "10,760,000.00" -> "10760000.00"
-
-//    let html = `
-//    <table id="rollingPlanTable" class="table table-bordered table-striped w-auto">
-//      <thead>
-//        <tr>
-//          <th>Project</th>
-//          <th>Bu</th>
-//          <th>Plan Type</th>
-//          <th>Year</th>`;
-
-//    selectedMonths.forEach(m => {
-//        html += `<th colspan="2">${monthLabels[m]}</th>`;
-//    });
-
-//    html += `<th colspan="2">Total</th>`;
-
-//    html += `</tr><tr>
-//      <th></th><th></th><th></th><th></th>`;
-
-//    selectedMonths.forEach(() => {
-//        html += `<th>Unit</th><th>Value (M)</th>`;
-//    });
-
-//    html += `<th>Unit</th><th>Value (M)</th></tr></thead><tbody>`;
-
-//    if (Array.isArray(data) && data.length) {
-//        data.forEach(row => {
-//            const pid = row.ProjectID ?? '';
-//            const ptypeId = row.PlanTypeID ?? 0;
-//            const year = Number(row.PlanYear ?? 0);
-
-//            html += `<tr data-projectid="${pid}" data-plantypeid="${ptypeId}" data-year="${year}">
-//                        <td>${row.ProjectName ?? ''}</td>
-//                        <td>${row.BuName ?? ''}</td>
-//                        <td>${row.PlanTypeName ?? ''}</td>
-//                        <td>${row.PlanYear ?? ''}</td>
-//                    `;
-
-//            selectedMonths.forEach(m => {
-//                const key = monthLabels[m]; // e.g. "Jan"
-
-//                // short display (1, 1.2, etc.)
-//                const unitShort = row[`${key}_Unit`] ?? '';
-//                const valueShort = row[`${key}_Value`] ?? '';
-
-//                // full with commas ("10,760,000.00"), convert to RAW numeric string for editing
-//                const unitComma = row[`${key}_Unit_comma`] ?? '';
-//                const valueComma = row[`${key}_Value_comma`] ?? '';
-
-//                const unitRaw = dec(unitComma);   // "10760000.00"
-//                const valueRaw = dec(valueComma);  // "10760000.00"
-
-//                html += `
-//                          <td class="editable unit-cell"
-//                              contenteditable="false"
-//                              data-field="${key}_Unit"
-//                              data-month="${m}"
-//                              data-planamountid="183"
-//                              data-raw="${unitRaw}"
-//                              data-old="${unitRaw}">${unitShort}</td>
-
-//                          <td class="editable value-cell"
-//                              contenteditable="false"
-//                              data-field="${key}_Value"
-//                              data-month="${m}"
-//                              data-planamountid="184"
-//                              data-raw="${valueRaw}"
-//                              data-old="${valueRaw}">${valueShort}</td>`;
-//                            });
-
-//            // Totals (show short, keep raw on attrs too for later if needed)
-//            const totalUnitShort = row.Total_Unit ?? '-';
-//            const totalValueShort = row.Total_Value ?? '-';
-//            const totalUnitRaw = dec(row.Total_Unit_comma ?? '');
-//            const totalValueRaw = dec(row.Total_Value_comma ?? '');
-
-//            html += `
-//                        <td class="total-unit"  data-raw="${totalUnitRaw}">${totalUnitShort}</td>
-//                        <td class="total-value" data-raw="${totalValueRaw}">${totalValueShort}</td>
-//                      </tr>
-//                    `;
-//        });
-//    } else {
-//        html += `<tr><td colspan="${3 + selectedMonths.length * 2 + 2}" class="text-center">ไม่พบข้อมูล</td></tr>`;
-//    }
-
-//    html += `</tbody></table>`;
-//    $('#rolling-plan-container').html(html);
-
-//    // (Re)bind editing behaviors
-//    bindEditableHandlers();
-
-//    // Initial totals recompute (uses data-raw if your recompute function reads from data-raw)
-//    $('#rollingPlanTable tbody tr').each(function () {
-//        recomputeRowTotals($(this));
-//    });
-//}
-
 function renderTableFromJson(data, selectedMonths) {
     const dec = s => (s ?? '').toString().replace(/,/g, ''); // "10,760,000.00" -> "10760000.00"
 
@@ -514,10 +458,10 @@ function renderTableFromJson(data, selectedMonths) {
             });
 
             // Totals (show short, keep raw on attrs too for later if needed)
-            const totalUnitShort = row.Total_Unit ?? '-';
-            const totalValueShort = row.Total_Value ?? '-';
-            const totalUnitRaw = dec(row.Total_Unit_comma ?? '');
-            const totalValueRaw = dec(row.Total_Value_comma ?? '');
+            const totalUnitShort = row.Total_Unit ?? '0.00';
+            const totalValueShort = row.Total_Value ?? '0.00';
+            const totalUnitRaw = dec(row.Total_Unit_comma ?? '0.00');
+            const totalValueRaw = dec(row.Total_Value_comma ?? '0.00');
 
             html += `
                         <td class="total-unit"  data-raw="${totalUnitRaw}">${totalUnitShort}</td>
@@ -555,10 +499,10 @@ function recomputeRowTotals($row) {
 
     // In edit mode show full numbers; in view mode show short (K/M)
     $row.find('td.total-unit').text(
-        isEditMode ? (totalUnit ? toLocaleInt(totalUnit) : '-') : (totalUnit ? formatShort(totalUnit) : '-')
+        isEditMode ? (totalUnit ? toLocaleInt(totalUnit) : '0.00') : (totalUnit ? formatShort(totalUnit) : '0.00')
     );
     $row.find('td.total-value').text(
-        isEditMode ? (totalValue ? toLocaleMoney(totalValue) : '-') : (totalValue ? formatShortHaveZero(totalValue) : '-')
+        isEditMode ? (totalValue ? toLocaleMoney(totalValue) : '0.00') : (totalValue ? formatShortHaveZero(totalValue) : '0.00')
     );
 }
 
@@ -627,7 +571,7 @@ function bindEditableHandlers() {
 
         const $cell = $(this);
         let newVal = $cell.text().replace(/,/g, '').trim();
-        if (newVal === '' || newVal === '-') newVal = '';
+        if (newVal === '' || newVal === '0.00') newVal = '';
 
         // invalid number → revert
         if (newVal !== '' && isNaN(newVal)) {
@@ -1141,3 +1085,29 @@ window.exportExcelProjectAndTargetRolling = function () {
         });
 
 };
+
+document.addEventListener("DOMContentLoaded", function () {
+    const toggleBtn = document.querySelector('[data-bs-target="#fltCollapse"]');
+    const icon = toggleBtn.querySelector("i");
+    const collapse = document.getElementById("fltCollapse");
+
+    collapse.addEventListener("show.bs.collapse", () => {
+        icon.classList.replace("fa-chevron-down", "fa-chevron-up");
+    });
+    collapse.addEventListener("hide.bs.collapse", () => {
+        icon.classList.replace("fa-chevron-up", "fa-chevron-down");
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const summaryToggle = document.querySelector('[data-bs-target="#collapseSummary"]');
+    const summaryIcon = summaryToggle.querySelector("i");
+    const summaryCollapse = document.getElementById("collapseSummary");
+
+    summaryCollapse.addEventListener("show.bs.collapse", () => {
+        summaryIcon.classList.replace("fa-chevron-down", "fa-chevron-up");
+    });
+    summaryCollapse.addEventListener("hide.bs.collapse", () => {
+        summaryIcon.classList.replace("fa-chevron-up", "fa-chevron-down");
+    });
+});

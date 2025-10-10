@@ -360,7 +360,7 @@ namespace Project.CSS.Revise.Web.Commond
             return number.ToString("#,0", CultureInfo.InvariantCulture);
         }
 
-        public static string ConvertToShortUnit(object obj, string defaultString = " - ")
+        public static string ConvertToShortUnit(object obj, string defaultString = "0")
         {
             string str = NullToAnyString(obj, defaultString);
 
@@ -377,7 +377,7 @@ namespace Project.CSS.Revise.Web.Commond
             return defaultString;
         }
 
-        public static string ConvertToShortUnithaveZero(object obj, string defaultString = " - ")
+        public static string ConvertToShortUnithaveZero(object obj, string defaultString = "0.00")
         {
             string str = NullToAnyString(obj, defaultString);
 
@@ -395,7 +395,7 @@ namespace Project.CSS.Revise.Web.Commond
         }
 
 
-        public static string ConvertToMoney(object obj, string defaultString = " - ")
+        public static string ConvertToMoney(object obj, string defaultString = "0.00")
         {
             if (obj == null || obj == DBNull.Value)
                 return defaultString;

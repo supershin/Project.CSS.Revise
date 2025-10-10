@@ -222,6 +222,25 @@
 }
 
 
+/* force buttons to stay on ONE line and align right */
+.footer-actions {
+    white-space: nowrap;
+}
+
+    .footer-actions .btn {
+        display: inline-flex !important;
+        width: auto !important;
+        white-space: nowrap !important;
+    }
+
+/* ===== Summary card body (white area inside colored summary card) ===== */
+#summaryCardBody {
+    background-color: #ffffff; /* solid white background */
+    border-top: 1px solid rgba(0,0,0,0.1); /* soft separation line from header */
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    padding: 1rem 1rem 1.25rem 1rem; /* adjust spacing if needed */
+}
 
 
 
