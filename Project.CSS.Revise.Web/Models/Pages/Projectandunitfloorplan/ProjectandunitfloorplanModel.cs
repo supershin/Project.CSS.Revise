@@ -18,6 +18,7 @@ namespace Project.CSS.Revise.Web.Models.Pages.Projectandunitfloorplan
             public string ProjectID { get; set; } = "";
             public string UnitCode { get; set; } = "";
             public string UnitType { get; set; } = "";
+            public string AddrNo { get; set; } = "";
             public int Cnt_FloorPlan { get; set; } = 0;
         }
         public class SaveMappingFloorplanModel

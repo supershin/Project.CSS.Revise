@@ -161,6 +161,45 @@
         if (h) h.value = val || '';
     };
 
+    // keep last loaded list for filtering
+    let _floorplanData = [];
+
+    // simple case-insensitive contains
+    function _contains(hay, needle) {
+        return (hay || '').toLowerCase().includes((needle || '').toLowerCase());
+    }
+
+    // filter the DOM by query (no re-render)
+    function filterFloorPlans(query) {
+        const card = document.getElementById('card_project_floor_plan');
+        if (!card) return;
+
+        const container = card.querySelector('.vertical-scroll .list-group');
+        const counter = document.getElementById('count_Floor_plan_lists');
+        if (!container) return;
+
+        const rows = container.querySelectorAll('.list-group-item');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            // skip the empty placeholder row, if any
+            if (!row.dataset || !row.dataset.filename) return;
+
+            const name = row.dataset.filename || '';
+            const match = !query || _contains(name, query);
+            row.classList.toggle('d-none', !match);
+            if (match) visibleCount++;
+        });
+
+        // update counter to reflect visible items
+        if (counter) counter.textContent = `ทั้งหมด ${visibleCount}`;
+
+        // If you want "Check All" to act only on visible rows, you can reset it:
+        const chkAll = document.getElementById('chkAllFloorplan');
+        if (chkAll) chkAll.checked = false;
+    }
+
+
     // ====== RENDER: card_project_floor_plan (viewer + edit + delete) ======
     function renderFloorPlans(list, totalCount) {
         const card = $id('card_project_floor_plan');
@@ -169,6 +208,9 @@
         const counter = $id('count_Floor_plan_lists');
         const container = card.querySelector('.vertical-scroll .list-group');
         if (!container) return;
+
+        // keep data for future filtering
+        _floorplanData = Array.isArray(list) ? list.slice() : [];
 
         // helper to set counter text
         const setCounter = (n) => {
@@ -179,7 +221,7 @@
             container.innerHTML = `<div class="list-group-item text-muted">— ไม่มีไฟล์ Floor plan —</div>`;
             setCounter(0);
             bindCheckAll(false);
-            refreshMappingState();
+            refreshMappingState?.();
             return;
         }
 
@@ -203,27 +245,27 @@
                 : thumbHtml;
 
             return `
-          <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary"
-               data-id="${id}"
-               data-project="${escapeHtml(currentProjectId)}"
-               data-filename="${fileName}"
-               data-filepath="${escapeHtml(rawPath)}"
-               data-mime="${escapeHtml(mime)}">
-            <div class="d-flex align-items-center gap-2">
-              <input class="form-check-input chk-floorplan" type="checkbox" />
-              ${thumbWrapper}
-              <span title="${fileName}">${fileName}</span>
-            </div>
-            <div class="btn-group">
-              <button type="button" class="btn-e btn-edit" title="Edit">
-                <i class="bi bi-pencil"></i>
-              </button>
-              &nbsp;
-              <button type="button" class="btn-c btn-delete" title="Delete">
-                <i class="bi bi-trash"></i>
-              </button>
-            </div>
-          </div>`;
+      <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary"
+           data-id="${id}"
+           data-project="${escapeHtml(currentProjectId)}"
+           data-filename="${fileName}"
+           data-filepath="${escapeHtml(rawPath)}"
+           data-mime="${escapeHtml(mime)}">
+        <div class="d-flex align-items-center gap-2">
+          <input class="form-check-input chk-floorplan" type="checkbox" />
+          ${thumbWrapper}
+          <span title="${fileName}">${fileName}</span>
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn-e btn-edit" title="Edit">
+            <i class="bi bi-pencil"></i>
+          </button>
+          &nbsp;
+          <button type="button" class="btn-c btn-delete" title="Delete">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>`;
         }).join('');
 
         container.innerHTML = rows;
@@ -234,9 +276,9 @@
 
         // checklist change
         container.addEventListener('change', e => {
-            if (e.target.classList.contains('chk-floorplan')) refreshMappingState();
+            if (e.target.classList.contains('chk-floorplan')) refreshMappingState?.();
         });
-        $id('chkAllFloorplan')?.addEventListener('change', refreshMappingState);
+        $id('chkAllFloorplan')?.addEventListener('change', () => refreshMappingState?.());
 
         // one delegated click handler for viewer + edit + delete
         if (!container.dataset.boundClicks) {
@@ -322,9 +364,8 @@
                         (window.successMessage || alert)(json?.message || 'Deleted.', 'Delete');
 
                         // Remove row immediately and update UI
-                        const allItemsBefore = container.querySelectorAll('.list-group-item').length;
                         row.remove();
-                        const remaining = container.querySelectorAll('.list-group-item').length;
+                        const remaining = container.querySelectorAll('.list-group-item[data-filename]').length;
 
                         if (remaining === 0) {
                             container.innerHTML = `<div class="list-group-item text-muted">— ไม่มีไฟล์ Floor plan —</div>`;
@@ -334,7 +375,7 @@
                             bindCheckAll(true);
                             setCounter(remaining);
                         }
-                        refreshMappingState();
+                        refreshMappingState?.();
                     } catch (err) {
                         console.error(err);
                         (window.errorMessage || alert)('Delete failed. Please try again.', 'Delete');
@@ -346,8 +387,25 @@
             container.dataset.boundClicks = '1';
         }
 
-        refreshMappingState();
+        // apply current search filter if any
+        const q = $id('fpSearch')?.value || '';
+        if (q) filterFloorPlans(q);
+
+        refreshMappingState?.();
     }
+
+    // ====== Wire search input once ======
+    document.addEventListener('DOMContentLoaded', () => {
+        const inp = $id('fpSearch');
+        if (inp && !inp.dataset.bound) {
+            inp.addEventListener('input', (e) => {
+                filterFloorPlans(e.target.value);
+            });
+            inp.dataset.bound = '1';
+        }
+    });
+
+
 
     function bindCheckAll(enable) {
         const chkAll = $id('chkAllFloorplan');
@@ -386,6 +444,7 @@
         const rows = list.map(u => {
             const id = escapeHtml(u.ID ?? '');
             const code = escapeHtml(u.UnitCode ?? '');
+            const addrno = escapeHtml(u.AddrNo ?? '');
             const type = escapeHtml(u.UnitType ?? '');
             const cnt = Number(u.Cnt_FloorPlan ?? 0) || 0;
             const collapseId = 'collapse_' + slug(code);
@@ -400,7 +459,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-2">
                     <input class="form-check-input chk-unit" type="checkbox" />
-                    <span>Unit : <strong>${code}</strong></span>
+                    <span> Unit : <strong>${code}</strong> Address : <strong>${addrno}</strong>  </span>
                     ${typeBadge}
                     ${countBadge}
                 </div>
@@ -743,10 +802,10 @@
 
     function refreshMappingState() {
         const { fp, un } = getSelectedCounts();
-        const label = document.getElementById('mapCounts');
+        /*const label = document.getElementById('mapCounts');*/
         const btn = document.getElementById('btnSaveMapping');
 
-        if (label) label.textContent = `${fp} floorplan${fp === 1 ? '' : 's'} • ${un} unit${un === 1 ? '' : 's'}`;
+        /*if (label) label.textContent = `${fp} floorplan${fp === 1 ? '' : 's'} • ${un} unit${un === 1 ? '' : 's'}`;*/
         if (btn) btn.disabled = !(fp > 0 && un > 0);
     }
 

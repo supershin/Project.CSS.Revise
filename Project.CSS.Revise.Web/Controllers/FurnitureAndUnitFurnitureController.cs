@@ -42,6 +42,8 @@ namespace Project.CSS.Revise.Web.Controllers
             var listBu = _masterService.GetlistBU(new BUModel());
             ViewBag.listBu = listBu;
 
+            var ListCheckstatus = _masterService.GetlisDDl(new GetDDLModel { Act = "Ext" , ID = 56 });
+            ViewBag.ListCheckstatus = ListCheckstatus;
 
             var ListFuniture = _masterService.GetlisDDl(new GetDDLModel { Act = "ListFuniture" });
             ViewBag.ListFuniture = ListFuniture;

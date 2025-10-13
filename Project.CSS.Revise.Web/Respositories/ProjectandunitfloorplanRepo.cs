@@ -58,6 +58,7 @@ namespace Project.CSS.Revise.Web.Respositories
 	                      SELECT T1.[ID]
                                 ,T1.[UnitCode]
                                 ,T1.[UnitType]
+                                ,T1.[AddrNo]
 			                    ,T2.Cnt_FloorPlan
                             FROM [tm_Unit] T1 WITH (NOLOCK)
 		                    LEFT JOIN (
@@ -93,6 +94,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                 ID = Commond.FormatExtension.NulltoGuid(reader["ID"]),
                                 UnitCode = Commond.FormatExtension.NullToString(reader["UnitCode"]),
                                 UnitType = Commond.FormatExtension.NullToString(reader["UnitType"]),
+                                AddrNo = Commond.FormatExtension.NullToString(reader["AddrNo"]),
                                 Cnt_FloorPlan = Commond.FormatExtension.Nulltoint(reader["Cnt_FloorPlan"])
                             });
                         }

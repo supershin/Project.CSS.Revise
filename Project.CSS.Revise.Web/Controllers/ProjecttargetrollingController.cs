@@ -17,16 +17,29 @@ namespace Project.CSS.Revise.Web.Controllers
     {
         private readonly IMasterService _masterService;
         private readonly IProjectAndTargetRollingService _projectAndTargetRollingService;
+        private readonly IUserAndPermissionService _userAndPermissionService;
         private readonly MasterManagementConfigProject _configProject;
-        public ProjecttargetrollingController(IHttpContextAccessor httpContextAccessor, IMasterService masterService, IProjectAndTargetRollingService projectAndTargetRollingService, MasterManagementConfigProject configProject) : base(httpContextAccessor)
+        public ProjecttargetrollingController(IHttpContextAccessor httpContextAccessor, IMasterService masterService, IUserAndPermissionService userAndPermissionService, IProjectAndTargetRollingService projectAndTargetRollingService, MasterManagementConfigProject configProject) : base(httpContextAccessor)
         {
             _masterService = masterService;
             _projectAndTargetRollingService = projectAndTargetRollingService;
             _configProject = configProject;
+            _userAndPermissionService = userAndPermissionService;
         }
 
         public IActionResult Index()
         {
+
+            int menuId = Constants.Menu.Projecttargetrolling;
+            string? dep64 = User.FindFirst("DepartmentID")?.Value;
+            string? rol64 = User.FindFirst("RoleID")?.Value;
+            int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+            int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+            var perms = _userAndPermissionService.GetPermissions(10, menuId, departmentId, roleId);
+            if (!perms.View) return RedirectToAction("NoPermission", "Home");
+            ViewBag.Permission = perms;
+
             var listBu = _masterService.GetlistBU(new BUModel());
             ViewBag.listBu = listBu;
 
@@ -114,6 +127,22 @@ namespace Project.CSS.Revise.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> ImportExcel(IFormFile file)
         {
+
+            int menuId = Constants.Menu.Projecttargetrolling;
+            int qcTypeId = 10; // ตามที่ใช้ใน Index()
+
+            string? dep64 = User.FindFirst("DepartmentID")?.Value;
+            string? rol64 = User.FindFirst("RoleID")?.Value;
+
+            int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+            int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+            var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+            if (perms is null || !perms.Add)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { success = false, message = "No permission to import." });
+            }
+
             if (file == null || file.Length == 0)
             {
                 return BadRequest("No file uploaded.");
@@ -133,8 +162,8 @@ namespace Project.CSS.Revise.Web.Controllers
                     {
                         var item = new ImportDataProjectTargetRolling
                         {
-                            ProjectID = worksheet.Cells[row, 1].Text?.Trim(),
-                            ProjectName = worksheet.Cells[row, 2].Text?.Trim(),
+                            ProjectID = worksheet.Cells[row, 2].Text?.Trim(),
+                            ProjectName = worksheet.Cells[row, 3].Text?.Trim(),
                             ProjectPlanType = worksheet.Cells[row, 4].Text?.Trim(),
                             Year = int.TryParse(worksheet.Cells[row, 5].Text, out var year) ? year : 0,
 
@@ -324,6 +353,21 @@ namespace Project.CSS.Revise.Web.Controllers
         {
             try
             {
+                int menuId = Constants.Menu.Projecttargetrolling;
+                int qcTypeId = 10; // ตามที่ใช้ใน Index()
+
+                string? dep64 = User.FindFirst("DepartmentID")?.Value;
+                string? rol64 = User.FindFirst("RoleID")?.Value;
+
+                int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+                int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+                var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+                if (perms is null || !perms.Download)
+                {
+                    return BadRequest(new { success = false, message = "No permission to import"});
+                }
+
                 model.L_Act = "GetListTargetRollingPlan";
                 model.IS_Export = true;
                 List<RollingPlanSummaryModel> dataList = _configProject.sp_GetProjecTargetRollingPlanList_GetListTargetRollingPlan(model);
@@ -418,23 +462,28 @@ namespace Project.CSS.Revise.Web.Controllers
 
         private static object ToDbNullableDecimal(object? v)
         {
-            if (v == null) return DBNull.Value;
-            if (v is string s && string.IsNullOrWhiteSpace(s)) return DBNull.Value;
+            if (v == null) return 0.00m;
+            if (v is string s && string.IsNullOrWhiteSpace(s)) return 0.00m;
             if (v is decimal d) return d;
             if (v is double db) return Convert.ToDecimal(db);
             if (v is int i) return Convert.ToDecimal(i);
-            if (decimal.TryParse(Convert.ToString(v), out var dec)) return dec;
-            return DBNull.Value;
+
+            if (decimal.TryParse(Convert.ToString(v), out var dec))
+                return dec;
+
+            // ถ้า parse ไม่ได้ ให้คืน 0.00
+            return 0.00m;
         }
+
 
         private DataTable ConvertToDataTable(List<RollingPlanSummaryModel> dataList)
         {
             var dt = new DataTable();
 
             // Fixed columns
+            dt.Columns.Add("Bu", typeof(string));
             dt.Columns.Add("ProjectID", typeof(string));
             dt.Columns.Add("ProjectName", typeof(string));
-            dt.Columns.Add("Bu", typeof(string));
             dt.Columns.Add("ProjectPlanType", typeof(string));
             dt.Columns.Add("Year", typeof(int));
 
@@ -453,10 +502,9 @@ namespace Project.CSS.Revise.Web.Controllers
             foreach (var item in dataList)
             {
                 var row = dt.NewRow();
-
+                row["Bu"] = item.BuName ?? (object)DBNull.Value;
                 row["ProjectID"] = item.ProjectID ?? (object)DBNull.Value;
                 row["ProjectName"] = item.ProjectName ?? (object)DBNull.Value;
-                row["Bu"] = item.BuName ?? (object)DBNull.Value;
                 row["ProjectPlanType"] = item.PlanTypeName ?? (object)DBNull.Value;
                 row["Year"] = int.TryParse(item.PlanYear, out var y) ? y : (object)DBNull.Value;
 
@@ -522,9 +570,9 @@ namespace Project.CSS.Revise.Web.Controllers
                 int c = 1;
 
                 // ===== Row 1: Fixed headers (5 columns now) =====
+                ws.Cells[r1, c].Value = "Bu"; c++;
                 ws.Cells[r1, c].Value = "ProjectID"; c++;
                 ws.Cells[r1, c].Value = "Project Name"; c++;
-                ws.Cells[r1, c].Value = "Bu"; c++;
                 ws.Cells[r1, c].Value = "Project Plan Type"; c++;
                 ws.Cells[r1, c].Value = "Year"; c++;
 
@@ -599,16 +647,16 @@ namespace Project.CSS.Revise.Web.Controllers
                     int excelRow = dataStartRow + i;
                     int dc = 1;
 
-                    // Fixed cols (match DataTable column names)
-                    ws.Cells[excelRow, dc++].Value = dr.Table.Columns.Contains("ProjectID") ? dr["ProjectID"] : null;
-                    ws.Cells[excelRow, dc++].Value = dr.Table.Columns.Contains("ProjectName") ? dr["ProjectName"] : null;
-
                     // ✅ BU: use "Bu" (not "BuName")
                     object bu = dr.Table.Columns.Contains("Bu") ? dr["Bu"] : null;
                     // ถ้า BU เป็นค่าว่าง "" ให้ใส่ช่องว่างหนึ่งตัว (ป้องกัน Excel ตีความอะไรแปลก ๆ)
                     if (bu == null || bu == DBNull.Value || (bu is string sBu && string.IsNullOrWhiteSpace(sBu)))
                         bu = " ";
                     ws.Cells[excelRow, dc++].Value = bu;
+
+                    // Fixed cols (match DataTable column names)
+                    ws.Cells[excelRow, dc++].Value = dr.Table.Columns.Contains("ProjectID") ? dr["ProjectID"] : null;
+                    ws.Cells[excelRow, dc++].Value = dr.Table.Columns.Contains("ProjectName") ? dr["ProjectName"] : null;
 
                     ws.Cells[excelRow, dc++].Value = dr.Table.Columns.Contains("ProjectPlanType") ? dr["ProjectPlanType"] : null;
                     ws.Cells[excelRow, dc++].Value = dr.Table.Columns.Contains("Year") ? dr["Year"] : null;
@@ -645,9 +693,9 @@ namespace Project.CSS.Revise.Web.Controllers
                 }
 
                 // ===== Column widths (update for 5 fixed cols) =====
-                ws.Column(1).Width = 15;  // ProjectID
-                ws.Column(2).Width = 28;  // Project Name
-                ws.Column(3).Width = 18;  // Bu  (เพิ่มความกว้างกัน "####")
+                ws.Column(1).Width = 18;  // Bu  (เพิ่มความกว้างกัน "####")
+                ws.Column(2).Width = 15;  // ProjectID
+                ws.Column(3).Width = 28;  // Project Name
                 ws.Column(4).Width = 20;  // Project Plan Type
                 ws.Column(5).Width = 10;  // Year
 
@@ -738,6 +786,27 @@ namespace Project.CSS.Revise.Web.Controllers
         {
             try
             {
+                // ------- Permission check (Update) -------
+                int menuId = Constants.Menu.Projecttargetrolling;
+                int qcTypeId = 10; // same QC type you used elsewhere
+
+                string? dep64 = User.FindFirst("DepartmentID")?.Value;
+                string? rol64 = User.FindFirst("RoleID")?.Value;
+
+                int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+                int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+                var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+                if (perms is null || !perms.Update)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, new
+                    {
+                        success = false,
+                        message = "No permission to update."
+                    });
+                }
+                // -----------------------------------------
+
                 if (edits == null || edits.Count == 0)
                     return Ok(new { success = false, message = "No edits received." });
 
@@ -798,6 +867,7 @@ namespace Project.CSS.Revise.Web.Controllers
                 });
             }
         }
+
 
     }
 }

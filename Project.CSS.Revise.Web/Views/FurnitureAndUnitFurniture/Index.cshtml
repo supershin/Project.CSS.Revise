@@ -3,6 +3,7 @@
     Layout = "~/Views/Shared/_LayoutSite.cshtml";
     var buList = ViewBag.listBu as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
     var funitureList = ViewBag.ListFuniture as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var checkstatusList = ViewBag.ListCheckstatus as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
 }
 <div class="container-fluid">
     <div class="page-title">
@@ -41,7 +42,6 @@
                             data-bs-target="#filterBody"
                             aria-expanded="true"
                             aria-controls="filterBody">
-                        ตัวกรอง
                         <i class="bi bi-chevron-up" id="filterChevron"></i>
                     </button>
                 </div>
@@ -65,7 +65,7 @@
 
                             <!-- Project -->
                             <div class="col-12 col-md-6 col-lg-3">
-                                <label class="form-label fw-semibold" for="ddl_project">โครงการ</label>
+                                <label class="form-label fw-semibold" for="ddl_project">Project</label>
                                 <select id="ddl_project" class="form-select">
                                     <option value="" selected disabled>— เลือก project —</option>
                                 </select>
@@ -79,6 +79,19 @@
                                 </select>
                             </div>
 
+                            <!-- Check status -->
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <label class="form-label fw-semibold" for="ddl_checkstatus">Check status</label>
+                                <select id="ddl_checkstatus" class="form-select" multiple>
+                                    @foreach (var chks in checkstatusList)
+                                    {
+                                        var val = (chks.ID ?? chks.ValueInt ?? chks.Value ?? "").ToString();
+                                        var text = (chks.Name ?? chks.Text ?? "").ToString();
+                                        <option value="@val">@text</option>
+                                    }
+                                </select>
+                            </div>
+
                             <!-- Unit search text -->
                             <div class="col-12 col-md-6 col-lg-3">
                                 <label for="txtSearchName" class="form-label fw-semibold">Unit</label>
@@ -89,8 +102,8 @@
                         <!-- Buttons row -->
                         <div class="row mt-3">
                             <div class="col-12 d-flex gap-2 justify-content-between justify-content-lg-end">
-                                <button type="button" id="btnClear" class="btn btn-outline-secondary">ล้างค่า</button>
-                                <button type="button" id="btnSearch" class="btn btn-primary">ค้นหา</button>
+                                <button type="button" id="btnClear" class="btn btn-outline-secondary">Clear</button>
+                                <button type="button" id="btnSearch" class="btn btn-primary">Search</button>
                             </div>
                         </div>
                     </form>
@@ -120,7 +133,7 @@
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" id="chkAllFurnitures" style="border: 2px solid grey; accent-color: #0d6efd;" />
                                 <label class="form-check-label fw-semibold" for="chkAllFurnitures">
-                                    เลือกทั้งหมด
+                                    All
                                 </label>
                             </div>
 
@@ -183,7 +196,7 @@
 
                             <div class="btn-group">
                                 <button class="btn btn-sm btn-outline-primary" id="btnSaveMapping">
-                                    <i class="bi bi-save"></i> Save Mapping
+                                    <i class="bi bi-save"></i> Mapping
                                 </button>
                             </div>
                         </div>
@@ -208,7 +221,7 @@
                                             </th>
                                             <th>Unit Code</th>
                                             <th>Unit Type</th>
-                                            <th>Furniture Qty</th>
+                                            <th>Qty</th>
                                             <th>Check Status</th>
                                             <th>Update By</th>
                                             <th style="white-space:nowrap;">Update Date</th>
@@ -431,7 +444,7 @@
                 <input type="hidden" id="edit_unit_id" value="">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary" id="btnEditUFSave">
-                    <i class="bi bi-save me-1"></i> Save Change
+                    <i class="bi bi-save me-1"></i> Save
                 </button>
             </div>
 

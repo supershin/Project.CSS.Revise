@@ -8,6 +8,7 @@
     let choicesBug;      // #ddl_Bu (multi)
     let choicesProject;  // #ddl_project (single)
     let choicesUnitType; // #ddl_unittype (single)
+    let choicesCheckstatus; // #ddl_checkstatus (multi)
 
     // abort controllers
     let acProject = null;
@@ -67,6 +68,11 @@
         choicesUnitType = new Choices('#ddl_unittype', {
             shouldSort: false, searchEnabled: true, itemSelectText: '',
             removeItemButton: true, placeholder: true, placeholderValue: '— เลือก Unit Type —'
+        });
+
+        choicesCheckstatus = new Choices('#ddl_checkstatus', {
+            shouldSort: false, searchEnabled: true, itemSelectText: '',
+            removeItemButton: true, placeholder: true, placeholderValue: '— เลือก Check status —'
         });
 
         // start placeholders
@@ -214,12 +220,13 @@
         const projId = choicesProject?.getValue(true) ?? '';
         const utCsv = (choicesUnitType?.getValue(true) ?? []).join(',');
         const unitTxt = ($('#txtSearchName')?.value || '').trim();
-
+        const chklCsv = (choicesCheckstatus?.getValue(true) ?? []).join(',');
         const fd = new FormData();
         fd.append('L_BUG', buCsv);
         fd.append('L_ProjectID', projId || '');
         fd.append('L_UnitType', utCsv);
         fd.append('Src_UnitCode', unitTxt);
+        fd.append('L_CheckStatus', chklCsv);
         return fd;
     }
 

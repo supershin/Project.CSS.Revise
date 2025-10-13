@@ -8,6 +8,7 @@
             public string? L_ProjectID { get; set; }
             public string? L_UnitType { get; set; }
             public string? Src_UnitCode { get; set; }
+            public string? L_CheckStatus { get; set; }
         }
         public class UnitFurnitureListItem
         {

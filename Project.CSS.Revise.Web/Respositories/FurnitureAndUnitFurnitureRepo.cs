@@ -36,7 +36,7 @@ namespace Project.CSS.Revise.Web.Respositories
                 conn.Open();
 
                 string sql = @"
-                                SELECT T1.[ID]
+								SELECT T1.[ID]
                                     , CASE WHEN T2.ID IS NOT NULL THEN 1 ELSE 0 END AS ISCheck
                                     , T1.[UnitCode]
                                     , T1.[ProjectID]
@@ -73,6 +73,10 @@ namespace Project.CSS.Revise.Web.Respositories
                                         @Src_UnitCode = ''
                                         OR T1.[UnitCode] LIKE '%' + @Src_UnitCode + '%'
                                      )
+                                  AND (
+                                        @L_CheckStatus = ''
+                                        OR (',' + @L_CheckStatus + ',' LIKE '%,' + CONVERT(VARCHAR, T2.[CheckStatusID]) + ',%')
+                                      )
                                 ORDER BY T1.[UnitCode];
                             ";
 
@@ -82,6 +86,7 @@ namespace Project.CSS.Revise.Web.Respositories
                     cmd.Parameters.Add(new SqlParameter("@L_ProjectID", filter.L_ProjectID ?? string.Empty));
                     cmd.Parameters.Add(new SqlParameter("@L_UnitType", filter.L_UnitType ?? string.Empty));
                     cmd.Parameters.Add(new SqlParameter("@Src_UnitCode", filter.Src_UnitCode ?? string.Empty));
+                    cmd.Parameters.Add(new SqlParameter("@L_CheckStatus", filter.L_CheckStatus ?? string.Empty));
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
