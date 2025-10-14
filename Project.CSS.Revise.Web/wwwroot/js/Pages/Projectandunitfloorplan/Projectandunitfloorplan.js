@@ -781,7 +781,7 @@
 
         // Choices: Project (single)
         choicesProject = new Choices(projectEl, {
-            placeholderValue: '🔍 พิมพ์ค้นหาโครงการ...',
+            placeholderValue: '🔍 Search projects...',
             searchEnabled: true,
             itemSelectText: '',
             shouldSort: false
@@ -886,9 +886,9 @@
             .map(chk => chk.closest('.list-group-item')?.dataset.id)
             .filter(Boolean);
 
-        if (!projectId) { showWarning('กรุณาเลือกโครงการก่อนบันทึก'); return; }
-        if (floorplanIds.length === 0) { showWarning('กรุณาเลือก Floor plan อย่างน้อย 1 รายการ'); return; }
-        if (unitIds.length === 0) { showWarning('กรุณาเลือก Unit อย่างน้อย 1 รายการ'); return; }
+        if (!projectId) { showWarning('Please select a project before saving.'); return; }
+        if (floorplanIds.length === 0) { showWarning('Please select at least one floor plan.'); return; }
+        if (unitIds.length === 0) { showWarning('Please select at least one unit.'); return; }
 
         const fd = new FormData();
         fd.append('ProjectID', projectId);
@@ -1123,7 +1123,7 @@
             // preview + view link
             const preview = $$('fpEdit_Preview');
             const viewLink = $$('fpEdit_ViewLink');
-            const url = filePath || '';
+            const url = toFullUrl(filePath);
 
             if (preview) {
                 preview.src = _isImg(mimeType) ? url : (_isPdf(mimeType || fileName) ? '' : url);

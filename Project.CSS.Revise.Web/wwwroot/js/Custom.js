@@ -1,5 +1,5 @@
 ﻿let viewer;
-const FALLBACK_THUMB_PATH = window.floorplanFallbackThumb || '/assets/images/file-image-missing.jpg';
+const FALLBACK_THUMB_PATH = window.floorplanFallbackThumb || baseUrl + 'assets/images/file-image-missing.jpg';
 function openViewer(imageSrc) {
 
     const viewerContainer = document.getElementById('imageViewerContainer');
