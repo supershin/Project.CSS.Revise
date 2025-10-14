@@ -57,27 +57,28 @@
         // init Choices
         choicesBug = new Choices('#ddl_Bu', {
             shouldSort: false, searchEnabled: true, itemSelectText: '',
-            removeItemButton: true, placeholder: true, placeholderValue: '— เลือก BUG —'
+            removeItemButton: true, placeholder: true, placeholderValue: 'Select one or more BUs'
         });
 
         choicesProject = new Choices('#ddl_project', {
             shouldSort: false, searchEnabled: true, itemSelectText: '',
-            removeItemButton: true, placeholder: true, placeholderValue: '— เลือก project —'
+            removeItemButton: true, placeholder: true, placeholderValue: 'Select one or more projects'
         });
 
         choicesUnitType = new Choices('#ddl_unittype', {
             shouldSort: false, searchEnabled: true, itemSelectText: '',
-            removeItemButton: true, placeholder: true, placeholderValue: '— เลือก Unit Type —'
+            removeItemButton: true, placeholder: true, placeholderValue: 'Select one or more Unit Types'
         });
 
         choicesCheckstatus = new Choices('#ddl_checkstatus', {
             shouldSort: false, searchEnabled: true, itemSelectText: '',
-            removeItemButton: true, placeholder: true, placeholderValue: '— เลือก Check status —'
+            removeItemButton: true, placeholder: true, placeholderValue: 'Select check status'
         });
 
         // start placeholders
-        setChoicesEmpty(choicesProject, '— เลือก project —');
-        setChoicesEmpty(choicesUnitType, '— เลือก Unit Type —');
+        setChoicesEmpty(choicesProject, 'Select one or more projects');
+        setChoicesEmpty(choicesUnitType, 'Select one or more Unit Types');
+
 
         // events
         $('#ddl_Bu')?.addEventListener('change', onBuChanged);
@@ -415,69 +416,61 @@
     }
 
 
-
-
-
-    // --------------------  Modal (mapping) --------------------
-    // ---------- OPEN STEPPER ----------
+    // -------------------- Modal (mapping via tabs) --------------------
     document.addEventListener('DOMContentLoaded', () => {
+        // Open modal only when selections valid
         document.getElementById('btnSaveMapping')?.addEventListener('click', (e) => {
             const projectId = document.getElementById('hfProjectID')?.value?.trim() || '';
             const furn = getCheckedFurnitures(); // [{id,name}]
-            const units = getCheckedUnits();     // [{id,code,type}]
+            const units = getCheckedUnits();      // [{id,code,type}]
             let ok = true;
 
-            if (!projectId) {
-                showWarning('กรุณาเลือกโครงการก่อน');
-                ok = false;
-            }
-            if (furn.length === 0) {
-                showWarning('กรุณาเลือกรายการ Furniture อย่างน้อย 1 รายการ');
-                ok = false;
-            }
-            if (units.length === 0) {
-                showWarning('กรุณาเลือกยูนิตอย่างน้อย 1 รายการจากตาราง');
-                ok = false;
-            }
+            if (!projectId) { showWarning('Please select a project first.'); ok = false; }
+            if (furn.length === 0) { showWarning('Please select at least one furniture item.'); ok = false; }
+            if (units.length === 0) { showWarning('Please select at least one unit.'); ok = false; }
 
-            if (!ok) {
-                e.preventDefault();
-                e.stopPropagation();
-                return; // ❌ ไม่เปิด modal ถ้ายังไม่ครบ
-            }
+            if (!ok) { e.preventDefault(); e.stopPropagation(); return; }
 
-            // ✅ พร้อมแล้วค่อยเปิด
             openMappingWizard();
         });
 
-        // footer buttons
-        document.getElementById('btnMWNext')?.addEventListener('click', onStepperNext);
-        document.getElementById('btnMWBack')?.addEventListener('click', () => gotoStep(1));
+        // Save
+        document.getElementById('btnMWSave')?.addEventListener('click', onSaveMappingFromModal);
 
-        // delete handlers (delegated)
+        // delegated deletes
         document.getElementById('mw_furnBody')?.addEventListener('click', onFurnRowClick);
         document.getElementById('mw_unitBody')?.addEventListener('click', onUnitRowClick);
+
+        // When switching tabs away from Furniture, sync qty inputs
+        const tabEl = document.getElementById('tab-units-tab');
+        if (tabEl) {
+            tabEl.addEventListener('show.bs.tab', () => {
+                syncQtyFromInputs(); // keep state accurate before viewing units tab
+            });
+        }
     });
 
     let MW_state = {
-        step: 1,
-        furn: [], // [{id,name,qty}]
-        units: [] // [{id,code,type}]
+        furn: [],  // [{id,name,qty}]
+        units: []  // [{id,code,type}]
     };
 
     function openMappingWizard(defaultQty = 1) {
         MW_state.furn = getCheckedFurnitures().map(x => ({ id: x.id, name: x.name, qty: defaultQty }));
         MW_state.units = getCheckedUnits();
         renderStep1();
-        renderStep2(); // pre-render so step 2 is ready
-        gotoStep(1);
+        renderStep2();
 
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('mdlMapWizard')).show();
+        const modalEl = document.getElementById('mdlMapWizard');
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+
+        // Ensure tab #1 is active when opening
+        const firstTab = document.querySelector('#tab-furn-tab');
+        if (firstTab) new bootstrap.Tab(firstTab).show();
     }
 
-    // ---------- GATHER SELECTIONS ----------
+    // ---------- gather selections (unchanged) ----------
     function getCheckedFurnitures() {
-        // expects .list-group-item[data-id][data-name] with .chkFurniture
         return Array.from(document.querySelectorAll('#furnitureList .chkFurniture:checked'))
             .map(cb => {
                 const row = cb.closest('.list-group-item');
@@ -487,20 +480,19 @@
                 };
             }).filter(x => x.id);
     }
-
     function getCheckedUnits() {
-        // expects unit table rows <tr data-id> with .chkUnitItem
-        return Array.from(document.querySelectorAll('#tblUnitFurnitureBody .chkUnitItem:checked')).map(cb => {
-            const tr = cb.closest('tr');
-            return {
-                id: tr?.dataset.id ?? cb.value ?? '',
-                code: tr?.children?.[1]?.textContent?.trim() ?? '',
-                type: tr?.children?.[2]?.textContent?.trim() ?? ''
-            };
-        }).filter(x => x.id);
+        return Array.from(document.querySelectorAll('#tblUnitFurnitureBody .chkUnitItem:checked'))
+            .map(cb => {
+                const tr = cb.closest('tr');
+                return {
+                    id: tr?.dataset.id ?? cb.value ?? '',
+                    code: tr?.children?.[1]?.textContent?.trim() ?? '',
+                    type: tr?.children?.[2]?.textContent?.trim() ?? ''
+                };
+            }).filter(x => x.id);
     }
 
-    // ---------- RENDER STEP 1 (FURN + QTY) ----------
+    // ---------- render furniture tab ----------
     function renderStep1() {
         const tbody = document.getElementById('mw_furnBody');
         const empty = document.getElementById('mw_furnEmpty');
@@ -519,17 +511,17 @@
           <input type="number" class="form-control form-control-sm qty-input" min="0" step="1" value="${Number(it.qty) || 0}">
         </td>
         <td class="text-center">
-          <button class="btn btn-light btn-icon-xs mw-del-furn" title="Remove"><i class="bi bi-x-lg text-danger"></i></button>
+          <button class="btn btn-light btn-icon-xs mw-del-furn" title="Remove">
+            <i class="bi bi-x-lg text-danger"></i>
+          </button>
         </td>
       </tr>
     `).join('');
         }
         cnt.textContent = MW_state.furn.length.toString();
-        // disable Next if no furniture
-        document.getElementById('btnMWNext').disabled = MW_state.furn.length === 0;
     }
 
-    // ---------- RENDER STEP 2 (UNITS) ----------
+    // ---------- render units tab ----------
     function renderStep2() {
         const tbody = document.getElementById('mw_unitBody');
         const empty = document.getElementById('mw_unitEmpty');
@@ -546,129 +538,37 @@
         <td>${escapeHtml(it.code)}</td>
         <td>${escapeHtml(it.type)}</td>
         <td class="text-center">
-          <button class="btn btn-light btn-icon-xs mw-del-unit" title="Remove"><i class="bi bi-x-lg text-danger"></i></button>
+          <button class="btn btn-light btn-icon-xs mw-del-unit" title="Remove">
+            <i class="bi bi-x-lg text-danger"></i>
+          </button>
         </td>
       </tr>
     `).join('');
         }
         cnt.textContent = MW_state.units.length.toString();
-        // save enabled only if at least 1 unit + 1 furniture
-        const canSave = MW_state.units.length > 0 && MW_state.furn.length > 0;
-        document.getElementById('btnMWNext').disabled = !canSave && MW_state.step === 2;
     }
 
-    // ---------- DELETE HANDLERS ----------
+    // ---------- delete handlers (same behavior) ----------
     function onFurnRowClick(e) {
         const btn = e.target.closest('.mw-del-furn');
         if (!btn) return;
-
         const tr = btn.closest('tr');
         const id = tr?.getAttribute('data-id');
         MW_state.furn = MW_state.furn.filter(x => x.id !== id);
         renderStep1();
     }
-
     function onUnitRowClick(e) {
         const btn = e.target.closest('.mw-del-unit');
         if (!btn) return;
-
         const tr = btn.closest('tr');
         const id = tr?.getAttribute('data-id');
         MW_state.units = MW_state.units.filter(x => x.id !== id);
-
-        // also uncheck in main table
         const mainCb = document.querySelector(`#tblUnitFurnitureBody .chkUnitItem[value="${CSS.escape(id)}"]`);
         if (mainCb) mainCb.checked = false;
-
         renderStep2();
     }
 
-    // ---------- NAVIGATION ----------
-    function gotoStep(n) {
-        MW_state.step = n;
-        const s1 = document.getElementById('stepPane1');
-        const s2 = document.getElementById('stepPane2');
-        const li1 = document.getElementById('stp1');
-        const li2 = document.getElementById('stp2');
-        const back = document.getElementById('btnMWBack');
-        const next = document.getElementById('btnMWNext');
-
-        if (n === 1) {
-            s1.classList.remove('d-none'); s2.classList.add('d-none');
-            li1.classList.add('active'); li2.classList.remove('active');
-            back.classList.add('d-none');
-            next.textContent = 'ถัดไป';
-            next.disabled = MW_state.furn.length === 0;
-        } else {
-            // before entering step 2, sync qtys from inputs
-            syncQtyFromInputs();
-            s1.classList.add('d-none'); s2.classList.remove('d-none');
-            li1.classList.remove('active'); li2.classList.add('active');
-            back.classList.remove('d-none');
-            next.textContent = 'บันทึก';
-            const canSave = MW_state.units.length > 0 && MW_state.furn.length > 0;
-            next.disabled = !canSave;
-        }
-    }
-
-    // make it async so we can await the fetch
-    async function onStepperNext() {
-        if (MW_state.step === 1) {
-            // ensure at least 1 furniture with valid qty
-            syncQtyFromInputs();
-            if (MW_state.furn.length === 0) return;
-            gotoStep(2);
-            return;
-        }
-
-        // ----- SAVE (step 2) -----
-        const payload = buildMappingPayload();
-
-        // basic validation...
-        // (keep your existing validation code)
-        const btn = document.getElementById('btnMWNext');
-        const prevHtml = btn ? btn.innerHTML : '';
-        if (btn) {
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>กำลังบันทึก...';
-        }
-
-        try {
-            showLoading();
-            const resp = await fetch(baseUrl + 'FurnitureAndUnitFurniture/SaveFurnitureProjectMapping', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'   // <-- IMPORTANT
-                },
-                body: JSON.stringify(payload)          // <-- send JSON that matches your C# model
-            });
-
-            const json = await resp.json().catch(() => ({}));
-
-            if (!resp.ok || json?.success === false) {
-                errorMessage(json?.message || 'บันทึกล้มเหลว');
-            }
-
-            // success
-            await loadUnitFurnitureTable();
-            successMessage('บันทึกสำเร็จ');  
-            bootstrap.Modal.getInstance(document.getElementById('mdlMapWizard'))?.hide();
-            
-
-        } catch (err) {
-            hideLoading();
-            errorMessage('บันทึกล้มเหลว');
-        } finally {
-            hideLoading();
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = prevHtml || 'บันทึก';
-            }
-        }
-
-    }
-
-
+    // ---------- qty sync ----------
     function syncQtyFromInputs() {
         const rows = Array.from(document.querySelectorAll('#mw_furnBody tr'));
         MW_state.furn = rows.map(tr => {
@@ -681,8 +581,55 @@
         });
     }
 
+    // ---------- save ----------
+    async function onSaveMappingFromModal() {
+        // Make sure latest qty values are captured
+        syncQtyFromInputs();
+
+        // basic validation
+        if (MW_state.furn.length === 0) { showWarning('Please select at least one furniture item.'); return; }
+        if (MW_state.units.length === 0) { showWarning('Please select at least one unit.'); return; }
+
+        const payload = buildMappingPayload();
+
+        const btn = document.getElementById('btnMWSave');
+        const prevHtml = btn ? btn.innerHTML : '';
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+        }
+
+        try {
+            showLoading?.();
+            const resp = await fetch(baseUrl + 'FurnitureAndUnitFurniture/SaveFurnitureProjectMapping', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const json = await resp.json().catch(() => ({}));
+
+            if (!resp.ok || json?.success === false) {
+                errorMessage?.(json?.message || 'Save failed.');
+                return;
+            }
+
+            await loadUnitFurnitureTable?.();
+            successMessage?.('Saved successfully.');
+            bootstrap.Modal.getInstance(document.getElementById('mdlMapWizard'))?.hide();
+
+        } catch (err) {
+            console.error(err);
+            errorMessage?.('Save failed. Please try again.');
+        } finally {
+            hideLoading?.();
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = prevHtml || 'Save';
+            }
+        }
+    }
+
     function buildMappingPayload() {
-        // prefer hidden field (locked by Search) for consistent save
         const projectId = document.getElementById('hfProjectID')?.value || '';
         return {
             ProjectID: projectId,
@@ -690,6 +637,8 @@
             Units: MW_state.units      // [{id,code,type}]
         };
     }
+    // -------------------- END --------------------
+
 
 
     // ---------- Misc ----------
@@ -991,9 +940,9 @@
         }).filter(x => x.id && x.qty > 0);
 
         // basic validation to match controller rules
-        if (!projectId) { showWarning?.('กรุณาเลือกโครงการก่อน'); return; }
-        if (!unitIdStr) { showWarning?.('ไม่พบ UnitID'); return; }
-        if (items.length === 0) { showWarning?.('ต้องมีรายการอย่างน้อย 1 ชิ้น (Qty > 0)'); return; }
+        if (!projectId) { showWarning?.('Please select a project first.'); return; }
+        if (!unitIdStr) { showWarning?.('No UnitID found.'); return; }
+        if (items.length === 0) { showWarning?.('At least one item is required (Qty > 0).'); return; }
 
         // payload must match UpdateFurnitureProjectMappingRequest
         const payload = {
@@ -1028,7 +977,7 @@
             }
 
             // success
-            successMessage?.('บันทึกสำเร็จ');
+            successMessage?.('Saved successfully.');
             // refresh the main table (if you have this function)
             typeof loadUnitFurnitureTable === 'function' && loadUnitFurnitureTable();
 
@@ -1066,7 +1015,7 @@
                 const el = document.querySelector('.card-header small.text-muted');
                 if (!el) return;
                 const count = furnitureList?.querySelectorAll('.list-group-item').length ?? 0;
-                el.textContent = `ทั้งหมด ${count} รายการ`;
+                el.textContent = `Total ${count}`;
             } catch { }
         }
 

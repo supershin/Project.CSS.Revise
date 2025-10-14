@@ -77,18 +77,38 @@ namespace Project.CSS.Revise.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveFurnitureProjectMapping([FromBody] SaveFurnitureProjectMappingRequest req)
         {
+            int menuId = Constants.Menu.Projectandunitfloorplan;
+            int qcTypeId = 10;
+
+            string? dep64 = User.FindFirst("DepartmentID")?.Value;
+            string? rol64 = User.FindFirst("RoleID")?.Value;
+
+            int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+            int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+            var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+            if (perms is null || !perms.Update)
+            {
+                return Json(new { success = false, message = "No Permission" });
+            }
+
             if (string.IsNullOrWhiteSpace(req.ProjectID))
+            {
                 return Json(new { success = false, message = "ProjectID is required" });
-
-            if (req.Furnitures == null || req.Furnitures.Count == 0
-                || req.Units == null || req.Units.Count == 0)
+            }
+                
+            if (req.Furnitures == null || req.Furnitures.Count == 0 || req.Units == null || req.Units.Count == 0)
+            {
                 return Json(new { success = false, message = "Need at least 1 furniture and 1 unit" });
-
+            }
+                
             try
             {
                 if (!(User?.Identity?.IsAuthenticated ?? false))
+                {
                     return Unauthorized(new { success = false, message = "Unauthorized" });
-
+                }
+                    
                 string? loginId64 = User.FindFirst("LoginID")?.Value;
                 string userIdDecoded = SecurityManager.DecodeFrom64(loginId64);
                 int userId = Commond.FormatExtension.Nulltoint(userIdDecoded);
@@ -112,16 +132,37 @@ namespace Project.CSS.Revise.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveChangeFurnitureProjectMapping([FromBody] UpdateFurnitureProjectMappingRequest req)
         {
+            int menuId = Constants.Menu.Projectandunitfloorplan;
+            int qcTypeId = 10;
+
+            string? dep64 = User.FindFirst("DepartmentID")?.Value;
+            string? rol64 = User.FindFirst("RoleID")?.Value;
+
+            int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+            int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+            var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+            if (perms is null || !perms.Update)
+            {
+                return Json(new { success = false, message = "No Permission" });
+            }
+
             if (string.IsNullOrWhiteSpace(req.ProjectID))
+            {
                 return Json(new { success = false, message = "ProjectID is required" });
+            }
 
             if (req.UnitID == Guid.Empty)
+            {
                 throw new ArgumentException("UnitID is required.");
+            }
 
             try
             {
                 if (!(User?.Identity?.IsAuthenticated ?? false))
+                {
                     return Unauthorized(new { success = false, message = "Unauthorized" });
+                }
 
                 string? loginId64 = User.FindFirst("LoginID")?.Value;
                 string userIdDecoded = SecurityManager.DecodeFrom64(loginId64);
@@ -139,9 +180,27 @@ namespace Project.CSS.Revise.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateFurniture(string name, CancellationToken ct)
         {
-            if (!(User?.Identity?.IsAuthenticated ?? false))
-                return Unauthorized(new { success = false, message = "Unauthorized" });
 
+            int menuId = Constants.Menu.Projectandunitfloorplan;
+            int qcTypeId = 10;
+
+            string? dep64 = User.FindFirst("DepartmentID")?.Value;
+            string? rol64 = User.FindFirst("RoleID")?.Value;
+
+            int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+            int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+            var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+            if (perms is null || !perms.Add)
+            {
+                return Json(new { success = false, message = "No Permission" });
+            }
+
+            if (!(User?.Identity?.IsAuthenticated ?? false))
+            {
+                return Unauthorized(new { success = false, message = "Unauthorized" });
+            }
+                
             string? loginId64 = User.FindFirst("LoginID")?.Value;
             var userId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
 
@@ -159,8 +218,25 @@ namespace Project.CSS.Revise.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateFurniture(int id, string name, CancellationToken ct)
         {
+            int menuId = Constants.Menu.Projectandunitfloorplan;
+            int qcTypeId = 10;
+
+            string? dep64 = User.FindFirst("DepartmentID")?.Value;
+            string? rol64 = User.FindFirst("RoleID")?.Value;
+
+            int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+            int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+            var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+            if (perms is null || !perms.Update)
+            {
+                return Json(new { success = false, message = "No Permission" });
+            }
+
             if (!(User?.Identity?.IsAuthenticated ?? false))
+            {
                 return Unauthorized(new { success = false, message = "Unauthorized" });
+            }
 
             string? loginId64 = User.FindFirst("LoginID")?.Value;
             var userId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
@@ -179,15 +255,34 @@ namespace Project.CSS.Revise.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteFurniture(int id, CancellationToken ct)
         {
+            int menuId = Constants.Menu.Projectandunitfloorplan;
+            int qcTypeId = 10;
+
+            string? dep64 = User.FindFirst("DepartmentID")?.Value;
+            string? rol64 = User.FindFirst("RoleID")?.Value;
+
+            int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+            int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+            var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+            if (perms is null || !perms.Delete)
+            {
+                return Json(new { success = false, message = "No Permission" });
+            }
+
             if (!(User?.Identity?.IsAuthenticated ?? false))
+            {
                 return Unauthorized(new { success = false, message = "Unauthorized" });
+            }
 
             string? loginId64 = User.FindFirst("LoginID")?.Value;
             var userId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
 
             var (ok, message) = await _furnitureAndUnitFurnitureService.DeleteAsync(id, userId, ct);
             if (!ok)
+            {
                 return BadRequest(new { success = false, message });
+            }
 
             return Json(new { success = true });
         }

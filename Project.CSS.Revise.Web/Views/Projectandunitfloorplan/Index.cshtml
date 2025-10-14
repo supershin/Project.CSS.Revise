@@ -7,7 +7,7 @@
     <div class="page-title">
         <div class="row">
             <div class="col-6">
-                <h4>Project & unit floor plan</h4>
+                <h4>Floor plan</h4>
             </div>
             <div class="col-6">
                 <ol class="breadcrumb">
@@ -19,7 +19,7 @@
                         </a>
                     </li>
                     <li class="breadcrumb-item">Setting</li>
-                    <li class="breadcrumb-item active">Project & unit floor plan </li>
+                    <li class="breadcrumb-item active">Floor plan</li>
                 </ol>
             </div>
         </div>
@@ -39,8 +39,9 @@
                             data-bs-target="#filterBody"
                             aria-expanded="true"
                             aria-controls="filterBody">
-                        <i class="bi bi-chevron-up"></i>
+                        <i id="filterChevron" class="bi bi-chevron-up"></i>
                     </button>
+
                 </div>
 
                 <div id="filterBody" class="card-body collapse show">
@@ -48,7 +49,7 @@
                         <div class="row g-3 align-items-end">
                             <!-- Project -->
                             <div class="col-12 col-md-6 col-lg-3">
-                                <label class="form-label fw-semibold" for="projectSelect">โครงการ</label>
+                                <label class="form-label fw-semibold" for="projectSelect">Project</label>
                                 <select id="projectSelect" class="form-select">
                                     @foreach (var p in _projects)
                                     {
@@ -74,9 +75,13 @@
                                 <button type="button" class="btn btn-primary btn-lg flex-fill px-4 py-2" id="BtnSearch">
                                     Search
                                 </button>
-                                <button type="button" class="btn btn-success btn-lg flex-fill px-4 py-2" id="btnSaveMapping" disabled>
-                                    Save
-                                </button>
+                                @if (ViewBag.Permission != null && ViewBag.Permission.Update)
+                                {
+                                    <button type="button" class="btn btn-lg flex-fill px-4 py-2" id="btnSaveMapping" disabled
+                                            style="background-color: #b0b0b0; color: #fff; border: none; opacity: 0.8;">
+                                        Save
+                                    </button>
+                                }
                             </div>
 
 
@@ -93,9 +98,9 @@
                     <div class="card shadow-sm" id="card_project_floor_plan">
                         <div class="card-header d-flex align-items-center justify-content-between">
                             <div>
-                                <h6 class="mb-0">Floor plan lists</h6>
+                                <h6 class="mb-0">Floor plan list</h6>
                                 <small class="text-muted" id="count_Floor_plan_lists">
-                                    ทั้งหมด 
+                                    Total
                                 </small>
                             </div>
                             <div class="btn-group align-items-center gap-2">
@@ -103,11 +108,14 @@
                                        id="fpSearch"
                                        class="form-control form-control-sm"
                                        placeholder="🔍 Search file..." />
-                                <button class="btn btn-sm btn-primary"
-                                        id="btnFloorplanAdd"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#floorplanUploadModal"> Add
-                                </button>
+                                        @if (ViewBag.Permission != null && ViewBag.Permission.Add)
+                                        {
+                                            <button class="btn btn-sm btn-primary"
+                                                    id="btnFloorplanAdd"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#floorplanUploadModal"> Add
+                                            </button>
+                                        }
                             </div>
 
                         </div>
@@ -151,8 +159,8 @@
                     <div class="card" id="card_unit">
                         <div class="card-header d-flex align-items-center justify-content-between">
                             <div>
-                                <h6 class="mb-0">Unit lists</h6>
-                                <small class="text-muted" id="count_unit_total">ทั้งหมด 0</small>
+                                <h6 class="mb-0">Unit list</h6>
+                                <small class="text-muted" id="count_unit_total">Total 0</small>
                             </div>
                             <div class="btn-group">
                                 <input type="text" class="form-control w-100 w-md-50 shadow-sm" id="searchUnitInput" placeholder="🔍 Search unit..." />
@@ -206,7 +214,7 @@
                 <small class="me-auto text-muted">Project: <span id="fpProjectEcho"></span></small>
                 <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button class="btn btn-primary" id="fpBtnUpload">
-                    <i class="bi bi-upload me-1"></i> Usert
+                    <i class="bi bi-upload me-1"></i> Upsert
                 </button>
             </div>
         </div>
@@ -262,6 +270,15 @@
 </div>
 
 @section Scripts {
+    <script>
+        window.APP_PERM = {
+          view:   @((ViewBag.Permission?.View ?? false).ToString().ToLower()),
+          add:    @((ViewBag.Permission?.Add ?? false).ToString().ToLower()),
+          update: @((ViewBag.Permission?.Update ?? false).ToString().ToLower()),
+          delete: @((ViewBag.Permission?.Delete ?? false).ToString().ToLower())
+        };
+    </script>
+
     <link rel="stylesheet" type="text/css" href="~/css/projectandunitfloorplan.css?ver=@DateTime.Now.Ticks.ToString()">
     <script src="~/js/Pages/Projectandunitfloorplan/Projectandunitfloorplan.js?ver=@DateTime.Now.Ticks.ToString()"></script>
 }

@@ -72,20 +72,37 @@ namespace Project.CSS.Revise.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveMapping([FromForm] SaveMappingFloorplanModel model, CancellationToken ct)
         {
-            // Collect human-readable validation errors
+            int menuId = Constants.Menu.Projectandunitfloorplan;
+            int qcTypeId = 10; 
+
+            string? dep64 = User.FindFirst("DepartmentID")?.Value;
+            string? rol64 = User.FindFirst("RoleID")?.Value;
+
+            int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+            int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+            var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+            if (perms is null || !perms.Update)
+            {
+                return Json(new { success = false, message = "No Permission", errors = new[] { "payload is null" } });
+            }
+
             var errors = new List<string>();
 
             if (model is null)
-                return Json(new { success = false, message = "ไม่พบข้อมูลที่ส่งมา", errors = new[] { "payload is null" } });
+            {
+                return Json(new { success = false, message = "No data was received.", errors = new[] { "Payload is null." } });
+            }
 
             // Normalize & de-dup inputs
             var projectId = (model.ProjectID ?? string.Empty).Trim();
             var floorIds = (model.FloorPlanIDs ?? new List<Guid>()).Where(g => g != Guid.Empty).Distinct().ToList();
             var unitIds = (model.UnitIDs ?? new List<Guid>()).Where(g => g != Guid.Empty).Distinct().ToList();
 
-            if (string.IsNullOrWhiteSpace(projectId)) errors.Add("กรุณาเลือกโครงการ (ProjectID)");
-            if (floorIds.Count == 0) errors.Add("กรุณาเลือก Floor plan อย่างน้อย 1 รายการ");
-            if (unitIds.Count == 0) errors.Add("กรุณาเลือก Unit อย่างน้อย 1 รายการ");
+            if (string.IsNullOrWhiteSpace(projectId)) errors.Add("Please select a project (ProjectID).");
+            if (floorIds.Count == 0) errors.Add("Please select at least one floor plan.");
+            if (unitIds.Count == 0) errors.Add("Please select at least one unit.");
+
 
             if (errors.Count > 0)
             {
@@ -112,12 +129,13 @@ namespace Project.CSS.Revise.Web.Controllers
             {
                 success = ok,
                 message = ok
-                    ? "บันทึก Mapping สำเร็จ"
-                    : "บันทึกไม่สำเร็จ กรุณาลองใหม่",
+                    ? "Mapping saved successfully."
+                    : "Save failed. Please try again.",
                 // Optional: include counts for UI feedback
                 selectedFloorPlans = floorIds.Count,
                 selectedUnits = unitIds.Count
             });
+
         }
 
         [HttpPost]
@@ -131,9 +149,26 @@ namespace Project.CSS.Revise.Web.Controllers
         [HttpPost]
         public JsonResult RemoveUnitFloorPlan(Guid id)
         {
-            if (id == Guid.Empty)
-                return Json(new { success = false, message = "Invalid mapping ID." });
+            int menuId = Constants.Menu.Projectandunitfloorplan;
+            int qcTypeId = 10;
 
+            string? dep64 = User.FindFirst("DepartmentID")?.Value;
+            string? rol64 = User.FindFirst("RoleID")?.Value;
+
+            int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+            int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+            var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+            if (perms is null || !perms.Delete)
+            {
+                return Json(new { success = false, message = "No Permission"});
+            }
+
+            if (id == Guid.Empty)
+            {
+                return Json(new { success = false, message = "Invalid mapping ID." });
+            }
+                
             string? loginId64 = User.FindFirst("LoginID")?.Value;
             var userId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
 
@@ -144,6 +179,21 @@ namespace Project.CSS.Revise.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadFloorplan([FromForm] UploadFileProjectFloorPlan req, CancellationToken ct)
         {
+            int menuId = Constants.Menu.Projectandunitfloorplan;
+            int qcTypeId = 10;
+
+            string? dep64 = User.FindFirst("DepartmentID")?.Value;
+            string? rol64 = User.FindFirst("RoleID")?.Value;
+
+            int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+            int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+            var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+            if (perms is null || !perms.Add)
+            {
+                return Json(new { success = false, message = "No Permission" });
+            }
+
             string? loginId64 = User.FindFirst("LoginID")?.Value;
             var userId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
 
@@ -154,6 +204,21 @@ namespace Project.CSS.Revise.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateFloorplan([FromForm] UpdateFloorplanRequest req, CancellationToken ct)
         {
+            int menuId = Constants.Menu.Projectandunitfloorplan;
+            int qcTypeId = 10;
+
+            string? dep64 = User.FindFirst("DepartmentID")?.Value;
+            string? rol64 = User.FindFirst("RoleID")?.Value;
+
+            int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+            int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+            var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+            if (perms is null || !perms.Update)
+            {
+                return Json(new { success = false, message = "No Permission" });
+            }
+
             string? loginId64 = User.FindFirst("LoginID")?.Value;
             var userId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
 
@@ -161,10 +226,24 @@ namespace Project.CSS.Revise.Web.Controllers
             return Json(new { success = result.Success, message = result.Message });
         }
 
-
         [HttpPost]
         public async Task<IActionResult> DeleteFloorplan(string FloorPlanID, CancellationToken ct)
         {
+            int menuId = Constants.Menu.Projectandunitfloorplan;
+            int qcTypeId = 10;
+
+            string? dep64 = User.FindFirst("DepartmentID")?.Value;
+            string? rol64 = User.FindFirst("RoleID")?.Value;
+
+            int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+            int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+            var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+            if (perms is null || !perms.Delete)
+            {
+                return Json(new { success = false, message = "No Permission" });
+            }
+
             string? loginId64 = User.FindFirst("LoginID")?.Value;
             var userId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
 

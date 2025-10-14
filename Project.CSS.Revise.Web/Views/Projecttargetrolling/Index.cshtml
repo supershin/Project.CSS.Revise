@@ -7,7 +7,7 @@
     <div class="page-title">
         <div class="row">
             <div class="col-6">
-                <h4>Project target & rolling Tables</h4>
+                <h4>Target & rolling</h4>
             </div>
             <div class="col-6">
                 <ol class="breadcrumb">
@@ -19,7 +19,7 @@
                         </a>
                     </li>
                     <li class="breadcrumb-item">Setting</li>
-                    <li class="breadcrumb-item active">Project target & rolling </li>
+                    <li class="breadcrumb-item active">Target & rolling</li>
                 </ol>
             </div>
         </div>
@@ -118,7 +118,7 @@
                     <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                         <label for="ddl_project_partner" class="form-label fw-bold">Project Partner</label>
                         <select id="ddl_project_partner" class="form-control" style="height:50px;font-size:1rem;padding:10px 12px;">
-                            <option value="" selected data-placeholder="true">ทั้งหมด</option>
+                            @* <option value="" selected data-placeholder="true">ทั้งหมด</option> *@
                             @if (ViewBag.ListProjectPartner != null)
                             {
                                 foreach (var item in ViewBag.ListProjectPartner)

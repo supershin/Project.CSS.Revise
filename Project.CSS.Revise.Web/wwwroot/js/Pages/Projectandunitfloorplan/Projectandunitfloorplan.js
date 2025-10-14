@@ -3,6 +3,7 @@
 // Requires: Choices.js + Bootstrap JS
 
 (function () {
+
     // ====== private state ======
     let choicesProject;
     let choicesUnitType;
@@ -18,7 +19,7 @@
         return fd;
     };
 
-    const setChoicesEmpty = (inst, text = '— ไม่มีข้อมูล —') => {
+    const setChoicesEmpty = (inst, text = '— No Data —') => {
         if (!inst) return;
         try {
             inst.clearStore();
@@ -27,7 +28,7 @@
         } catch { }
     };
 
-    const setChoicesLoading = (inst, text = 'กำลังโหลด...') => {
+    const setChoicesLoading = (inst, text = 'Loading...') => {
         if (!inst) return;
         try {
             inst.clearStore();
@@ -54,15 +55,30 @@
 
     const slug = (s) => String(s ?? '').replace(/[^a-zA-Z0-9_-]/g, '_');
 
+    function joinUrl(base, path) {
+        const b = String(base || '').replace(/\/+$/, '');     // trim trailing /
+        const p = String(path || '').replace(/^\/+/, '');     // trim leading /
+        return b && p ? `${b}/${p}` : (b || p);
+    }
+
+    function toFullUrl(path) {
+        const p = String(path || '');
+        // if already absolute (http/https/protocol-relative/data/blob), return as-is
+        if (/^(?:https?:|data:|blob:|\/\/)/i.test(p)) return p;
+        return joinUrl(baseUrl, p); // baseUrl is guaranteed to have value
+    }
+
+
+
     // ====== filter chain: Project -> UnitType ======
     async function onProjectChanged() {
         const projectId = choicesProject?.getValue(true);
         if (!projectId) {
-            setChoicesEmpty(choicesUnitType, '— เลือก Unit Type —');
+            setChoicesEmpty(choicesUnitType, '— Select one or more Unit Types —');
             return;
         }
 
-        setChoicesLoading(choicesUnitType, 'กำลังโหลด Unit Type...');
+        setChoicesLoading(choicesUnitType, 'Loading Unit Type...');
 
         if (acUnitType) acUnitType.abort();
         acUnitType = new AbortController();
@@ -120,12 +136,12 @@
             alert('กรุณาเลือกโครงการ');
             return;
         }
-
+        showLoading();
         try {
             if (acSearch) acSearch.abort();
             acSearch = new AbortController();
 
-            if (btn) { btn.disabled = true; btn.dataset.originalHtml = btn.innerHTML; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Searching...'; }
+            //if (btn) { btn.disabled = true; btn.dataset.originalHtml = btn.innerHTML; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Searching...'; }
 
             const [resFloor, resUnit] = await Promise.all([
                 fetch(baseUrl + 'Projectandunitfloorplan/GetlistProjectFloorPlan', {
@@ -146,13 +162,16 @@
 
             renderFloorPlans(floorList, jFloor?.count ?? floorList.length);
             renderUnits(unitList, jUnit?.count ?? unitList.length);
+            hideLoading();
         } catch (err) {
             if (err?.name !== 'AbortError') {
                 console.error('Search failed:', err);
+                hideLoading();
                 toastError('ค้นหาล้มเหลว กรุณาลองใหม่');
             }
         } finally {
-            if (btn) { btn.disabled = false; btn.innerHTML = btn.dataset.originalHtml || '<i class="icofont icofont-search"></i> Search'; }
+            //if (btn) { btn.disabled = false; btn.innerHTML = btn.dataset.originalHtml || '<i class="icofont icofont-search"></i> Search'; }
+            hideLoading();
         }
     }
 
@@ -192,7 +211,7 @@
         });
 
         // update counter to reflect visible items
-        if (counter) counter.textContent = `ทั้งหมด ${visibleCount}`;
+        if (counter) counter.textContent = `Total ${visibleCount}`;
 
         // If you want "Check All" to act only on visible rows, you can reset it:
         const chkAll = document.getElementById('chkAllFloorplan');
@@ -214,16 +233,21 @@
 
         // helper to set counter text
         const setCounter = (n) => {
-            if (counter) counter.textContent = `ทั้งหมด ${Number.isFinite(n) ? n : (Array.isArray(list) ? list.length : 0)}`;
+            if (counter) counter.textContent = `Total ${Number.isFinite(n) ? n : (Array.isArray(list) ? list.length : 0)}`;
         };
 
+        // empty state
         if (!Array.isArray(list) || list.length === 0) {
-            container.innerHTML = `<div class="list-group-item text-muted">— ไม่มีไฟล์ Floor plan —</div>`;
+            container.innerHTML = `<div class="list-group-item text-muted">— Not found floor plan —</div>`;
             setCounter(0);
             bindCheckAll(false);
             refreshMappingState?.();
             return;
         }
+
+        // permissions (fallback false)
+        const canEdit = !!(window.APP_PERM && window.APP_PERM.update);
+        const canDelete = !!(window.APP_PERM && window.APP_PERM.delete);
 
         // keep current project id for data attribute
         const currentProjectId = $id('hd_ProjectID')?.value || '';
@@ -233,16 +257,32 @@
             const fileName = escapeHtml(item.FileName ?? '');
             const rawPath = item.FilePath ?? '';
             const mime = String(item.MimeType ?? '').toLowerCase();
-            const url = encodeURI(rawPath);
+            const fileUrl = encodeURI(toFullUrl(rawPath));
 
             const thumbHtml = isImageMime(mime)
-                ? `<img src="${url}" width="50" height="50" class="img-thumbnail thumb-img" alt="${fileName}" />`
+                ? `<img src="${fileUrl}" width="50" height="50" class="img-thumbnail thumb-img" alt="${fileName}" />`
                 : thumbIconHtml(fileName);
 
-            // keep openViewer, but mark with class + data-url (handled below)
+            // keep openViewer, but mark with class + data-url
             const thumbWrapper = isImageMime(mime)
-                ? `<a href="javascript:void(0);" class="viewer-link" data-url="${url}" title="Open view">${thumbHtml}</a>`
+                ? `<a href="javascript:void(0);" class="viewer-link" data-url="${fileUrl}" title="Open view">${thumbHtml}</a>`
                 : thumbHtml;
+
+            // action buttons by permission
+            const actions = [];
+            if (canEdit) {
+                actions.push(`
+        <button type="button" class="btn-e btn-edit" title="Edit">
+          <i class="bi bi-pencil"></i>
+        </button>`);
+            }
+            if (canDelete) {
+                actions.push(`
+        <button type="button" class="btn-c btn-delete" title="Delete">
+          <i class="bi bi-trash"></i>
+        </button>`);
+            }
+            const actionsHtml = actions.length ? `<div class="btn-group">${actions.join('&nbsp;')}</div>` : '';
 
             return `
       <div class="list-group-item d-flex justify-content-between align-items-center list-hover-primary"
@@ -256,15 +296,7 @@
           ${thumbWrapper}
           <span title="${fileName}">${fileName}</span>
         </div>
-        <div class="btn-group">
-          <button type="button" class="btn-e btn-edit" title="Edit">
-            <i class="bi bi-pencil"></i>
-          </button>
-          &nbsp;
-          <button type="button" class="btn-c btn-delete" title="Delete">
-            <i class="bi bi-trash"></i>
-          </button>
-        </div>
+        ${actionsHtml}
       </div>`;
         }).join('');
 
@@ -283,7 +315,7 @@
         // one delegated click handler for viewer + edit + delete
         if (!container.dataset.boundClicks) {
             container.addEventListener('click', async (e) => {
-                // 1) viewer link (keep your open view behavior)
+                // viewer link
                 const vlink = e.target.closest('a.viewer-link');
                 if (vlink) {
                     e.preventDefault();
@@ -299,9 +331,8 @@
                 const row = e.target.closest('.list-group-item');
                 if (!row) return;
 
-                // 2) edit button -> open modal
-                const editBtn = e.target.closest('.btn-e.btn-edit');
-                if (editBtn) {
+                // edit (will only match when canEdit == true; button not rendered otherwise)
+                if (e.target.closest('.btn-e.btn-edit')) {
                     const payload = {
                         id: row.dataset.id || '',
                         projectId: row.dataset.project || '',
@@ -315,9 +346,8 @@
                     return;
                 }
 
-                // 3) delete button -> confirm + soft delete + live update
-                const delBtn = e.target.closest('.btn-c.btn-delete');
-                if (delBtn) {
+                // delete (will only match when canDelete == true; button not rendered otherwise)
+                if (e.target.closest('.btn-c.btn-delete')) {
                     const floorPlanId = row.dataset.id || '';
                     const fileName = row.dataset.filename || row.querySelector('span[title]')?.getAttribute('title') || '';
                     if (!floorPlanId) {
@@ -331,12 +361,15 @@
                         const res = await Swal.fire({
                             icon: 'warning',
                             title: 'Delete this floor plan?',
-                            html: `ชื่อไฟล์: <strong>${fileName || '-'}</strong><br>ระบบจะทำ Soft delete (FlagActive = false).`,
+                            html: `File name: <strong>${fileName || '-'}</strong>`,
                             showCancelButton: true,
                             confirmButtonText: 'Delete',
                             cancelButtonText: 'Cancel',
                             buttonsStyling: false,
-                            customClass: { confirmButton: 'btn btn-danger', cancelButton: 'btn btn-secondary ms-2' }
+                            customClass: {
+                                confirmButton: 'btn btn-danger',
+                                cancelButton: 'btn btn-secondary ms-2'
+                            }
                         });
                         confirmed = res.isConfirmed;
                     } else {
@@ -350,7 +383,7 @@
                         const fd = new FormData();
                         fd.append('FloorPlanID', floorPlanId);
 
-                        const resp = await fetch((window.baseUrl || '/') + 'Projectandunitfloorplan/DeleteFloorplan', {
+                        const resp = await fetch(baseUrl + 'Projectandunitfloorplan/DeleteFloorplan', {
                             method: 'POST',
                             body: fd
                         });
@@ -368,7 +401,7 @@
                         const remaining = container.querySelectorAll('.list-group-item[data-filename]').length;
 
                         if (remaining === 0) {
-                            container.innerHTML = `<div class="list-group-item text-muted">— ไม่มีไฟล์ Floor plan —</div>`;
+                            container.innerHTML = `<div class="list-group-item text-muted">— Not found floor plan —</div>`;
                             bindCheckAll(false);
                             setCounter(0);
                         } else {
@@ -393,6 +426,8 @@
 
         refreshMappingState?.();
     }
+
+
 
     // ====== Wire search input once ======
     document.addEventListener('DOMContentLoaded', () => {
@@ -521,7 +556,7 @@
         fileListEl.innerHTML = `
         <div class="text-muted small d-flex align-items-center gap-2">
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            กำลังโหลด...
+            Loading...
         </div>`;
 
         try {
@@ -536,7 +571,7 @@
             const list = (j?.success && Array.isArray(j.data)) ? j.data : [];
 
             if (!list.length) {
-                fileListEl.innerHTML = `<div class="text-muted small">— ไม่มีไฟล์ Floor plan —</div>`;
+                fileListEl.innerHTML = `<div class="text-muted small">— Not found floor plan —</div>`;
                 fileListEl.dataset.loaded = '1';
                 fileListEl.dataset.count = '0';
                 return 0;
@@ -547,23 +582,28 @@
                 const name = escapeHtml(fp.FileName ?? '');
                 const raw = fp.FilePath ?? '';
                 const mime = String(fp.MimeType ?? '').toLowerCase();
-                const url = encodeURI(String(raw || ''));
+                const fileUrl = encodeURI(toFullUrl(raw));
 
                 const thumbImg = isImageMime(mime)
-                    ? `<img src="${url}" width="50" height="50" class="img-thumbnail thumb-img" alt="${name}" />`
+                    ? `<img src="${fileUrl}" width="50" height="50" class="img-thumbnail thumb-img" alt="${name}" />`
                     : thumbIconHtml(name);
 
                 const thumbWrapped = isImageMime(mime)
-                    ? `<a class="viewer-link" href="javascript:void(0);" onclick='openViewer && openViewer("${url}")' title="${name}">${thumbImg}</a>`
+                    ? `<a class="viewer-link" href="javascript:void(0);" onclick='openViewer && openViewer("${fileUrl}")' title="${name}">${thumbImg}</a>`
                     : thumbImg;
 
+                const canDelete = !!(window.APP_PERM && window.APP_PERM.delete);    
+                const actions = [];
+                if (canDelete) {
+                    actions.push(`<button type="button" class="btn btn-sm text-danger file-remove" title="Remove file"
+                                          onclick="onRemoveUnitFloorPlan('${mapId}', this)">
+                                    <i class="fa fa-times-circle"></i>
+                                </button>`);
+                }
                 return `
                 <div class="file-item d-inline-flex flex-column align-items-center me-2 mb-2" data-mapid="${mapId}">
                     ${thumbWrapped}
-                    <button type="button" class="btn btn-sm text-danger file-remove" title="Remove file"
-                            onclick="onRemoveUnitFloorPlan('${mapId}', this)">
-                        <i class="fa fa-times-circle"></i>
-                    </button>
+                    ${actions}
                     <div class="text-center small mt-1" title="${name}">${name}</div>
                 </div>`;
             }).join('');
@@ -577,7 +617,7 @@
             return list.length;
         } catch (err) {
             console.error(err);
-            fileListEl.innerHTML = `<div class="text-danger small">โหลดไฟล์ไม่สำเร็จ</div>`;
+            fileListEl.innerHTML = `<div class="text-danger small">Failed to load file</div>`;
             fileListEl.dataset.loaded = '1';
             fileListEl.dataset.count = '0';
             return 0;
@@ -659,7 +699,7 @@
 
         let cnt = card.querySelector('#count_unit_total');
         if (cnt) {
-            cnt.textContent = `ทั้งหมด ${Number(total) || 0}`;
+            cnt.textContent = `Total ${Number(total) || 0}`;
             return;
         }
 
@@ -757,9 +797,9 @@
             searchEnabled: true,
             shouldSort: false,
             placeholder: true,
-            placeholderValue: '— เลือก Unit Type —'
+            placeholderValue: '— Select one or more Unit Types —'
         });
-        setChoicesEmpty(choicesUnitType, '— เลือก Unit Type —');
+        setChoicesEmpty(choicesUnitType, '— Select one or more Unit Types —');
 
         // Bind change
         projectEl.addEventListener('change', onProjectChanged);
@@ -778,9 +818,16 @@
         const body = $id('filterBody');
         const chev = $id('filterChevron');
         if (body && chev) {
-            body.addEventListener('shown.bs.collapse', () => chev.classList.replace('bi-chevron-down', 'bi-chevron-up'));
-            body.addEventListener('hidden.bs.collapse', () => chev.classList.replace('bi-chevron-up', 'bi-chevron-down'));
+            const sync = () => {
+                const open = body.classList.contains('show');
+                chev.classList.toggle('bi-chevron-up', open);
+                chev.classList.toggle('bi-chevron-down', !open);
+            };
+            body.addEventListener('shown.bs.collapse', sync);
+            body.addEventListener('hidden.bs.collapse', sync);
+            sync(); // set initial state
         }
+
 
         // --- Upload modal wiring (Add button) ---
         wireUploadModal();
@@ -802,12 +849,26 @@
 
     function refreshMappingState() {
         const { fp, un } = getSelectedCounts();
-        /*const label = document.getElementById('mapCounts');*/
         const btn = document.getElementById('btnSaveMapping');
+        if (!btn) return;
 
-        /*if (label) label.textContent = `${fp} floorplan${fp === 1 ? '' : 's'} • ${un} unit${un === 1 ? '' : 's'}`;*/
-        if (btn) btn.disabled = !(fp > 0 && un > 0);
+        const enabled = fp > 0 && un > 0;
+        btn.disabled = !enabled;
+
+        // Only change color style (don’t touch class)
+        if (enabled) {
+            btn.style.backgroundColor = '#28a745'; // green (Bootstrap success tone)
+            btn.style.borderColor = '#28a745';
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+        } else {
+            btn.style.backgroundColor = '#6c757d'; // grey (Bootstrap secondary)
+            btn.style.borderColor = '#6c757d';
+            btn.style.opacity = '0.65';
+            btn.style.cursor = 'not-allowed';
+        }
     }
+
 
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('btnSaveMapping')?.addEventListener('click', onSaveMapping);
@@ -837,7 +898,7 @@
         const originalHtml = btn.innerHTML;
         try {
             btn.disabled = true;
-            btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Saving...';
+            //btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Saving...';
             showLoading?.();
 
             const resp = await fetch(baseUrl + 'Projectandunitfloorplan/SaveMapping', {
@@ -853,8 +914,6 @@
             }
 
             if (json && json.success) {
-                successMessage?.(json.message || 'บันทึก Mapping สำเร็จ', 'Success');
-
                 // ✅ Clear current selections
                 document.querySelectorAll('#card_project_floor_plan .chk-floorplan:checked')
                     .forEach(chk => chk.checked = false);
@@ -875,9 +934,10 @@
             errorMessage?.('เกิดข้อผิดพลาดระหว่างบันทึก กรุณาลองใหม่อีกครั้ง', 'Save Failed');
         } finally {
             hideLoading?.();
-            btn.innerHTML = originalHtml;
+            //btn.innerHTML = originalHtml;
             btn.disabled = false;
             refreshMappingState();
+            successMessage?.('Mapping saved successfully');
         }
     }
 
@@ -1173,7 +1233,7 @@
                     btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Saving...';
                     (window.showLoading || (() => { }))();
 
-                    const resp = await fetch((window.baseUrl || '/') + 'Projectandunitfloorplan/UpdateFloorplan', {
+                    const resp = await fetch(baseUrl + 'Projectandunitfloorplan/UpdateFloorplan', {
                         method: 'POST',
                         body: fd
                     });
@@ -1239,7 +1299,8 @@
                     const res = await Swal.fire({
                         icon: 'warning',
                         title: 'Delete this floor plan?',
-                        html: `ชื่อไฟล์: <strong>${fileName || '-'}</strong><br>การลบนี้เป็นแบบ <em>Soft delete</em> (FlagActive = false).<br><small class="text-muted">หากไฟล์นี้ถูกแมปกับ Unit อยู่ ระบบจะไม่ยอมลบ</small>`,
+                        html: `File name: <strong>${fileName || '-'}</strong><br><small class="text-muted">If this file is mapped to a Unit, the system will not allow deletion.</small>
+`,
                         showCancelButton: true,
                         confirmButtonText: 'Delete',
                         cancelButtonText: 'Cancel',
@@ -1259,7 +1320,7 @@
                     const fd = new FormData();
                     fd.append('FloorPlanID', floorPlanId);
 
-                    const resp = await fetch((window.baseUrl || '/') + 'Projectandunitfloorplan/DeleteFloorplan', {
+                    const resp = await fetch(baseUrl + 'Projectandunitfloorplan/DeleteFloorplan', {
                         method: 'POST',
                         body: fd
                     });

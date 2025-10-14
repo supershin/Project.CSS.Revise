@@ -115,7 +115,7 @@ function initYearDropdown() {
     // ✅ สร้าง Choices และบังคับเลือกปีปัจจุบันหลังจาก init
     const choicesYear = new Choices('#ddl_year', {
         removeItemButton: true,
-        placeholderValue: 'เลือกปีได้มากกว่า 1',
+        placeholderValue: 'Select one or more years',
         searchEnabled: true,
         itemSelectText: '',
         shouldSort: false
@@ -127,13 +127,13 @@ function initYearDropdown() {
 
 
 function initQuarterDropdown() {
-    choicesQuarter = new Choices('#ddl_quarter', { removeItemButton: true, placeholderValue: 'เลือก Quarterได้มากกว่า 1', shouldSort: false });
+    choicesQuarter = new Choices('#ddl_quarter', { removeItemButton: true, placeholderValue: 'Select one or more quarters', shouldSort: false });
     document.getElementById('ddl_quarter').addEventListener('change', () => updateMonthDropdown(choicesQuarter.getValue(true)));
 }
 
 function initMonthDropdown() {
-    choicesMonth = new Choices('#ddl_month', { removeItemButton: true, placeholderValue: 'เลือกเดือนได้มากกว่า 1', shouldSort: false });
-    updateMonthDropdown([]); // all months initially
+    choicesMonth = new Choices('#ddl_month', { removeItemButton: true, placeholderValue: 'Select one or more months', shouldSort: false });
+    updateMonthDropdown([]);
 }
 function updateMonthDropdown(selectedQuarters) {
     let allowed = [];
@@ -148,31 +148,31 @@ function updateMonthDropdown(selectedQuarters) {
 }
 
 function initPlanTypeDropdown() {
-    new Choices('#ddl_plantype', { removeItemButton: true, placeholderValue: 'เลือกประเภทแผนได้มากกว่า 1', searchEnabled: true, itemSelectText: '', shouldSort: false });
+    new Choices('#ddl_plantype', { removeItemButton: true, placeholderValue: 'Select one or more plan types', searchEnabled: true, itemSelectText: '', shouldSort: false });
 }
 
 function initBuDropdown() {
-    choicesBu = new Choices('#ddl_bug', { removeItemButton: true, placeholderValue: 'เลือกกลุ่มธุรกิจได้มากกว่า 1', searchEnabled: true, itemSelectText: '', shouldSort: false });
+    choicesBu = new Choices('#ddl_bug', { removeItemButton: true, placeholderValue: 'Select one or more BUGs', searchEnabled: true, itemSelectText: '', shouldSort: false });
     document.getElementById('ddl_bug').addEventListener('change', onFilterChanged);
 }
 function initProjectstatusDropdown() {
-    choicesProjectStatus = new Choices('#ddl_project_status', { removeItemButton: true, placeholderValue: 'เลือกสถานะโครงการได้มากกว่า 1', searchEnabled: true, itemSelectText: '', shouldSort: false });
+    choicesProjectStatus = new Choices('#ddl_project_status', { removeItemButton: true, placeholderValue: 'Select one or more project statuses', searchEnabled: true, itemSelectText: '', shouldSort: false });
     document.getElementById('ddl_project_status').addEventListener('change', onFilterChanged);
 }
 function initProjectpartnerDropdown() {
     const el = document.getElementById('ddl_project_partner'); if (!el) return;
-    choicesProjectPartner = new Choices(el, { removeItemButton: false, searchEnabled: true, placeholder: true, placeholderValue: 'ทั้งหมด', shouldSort: false });
+    choicesProjectPartner = new Choices(el, { removeItemButton: false, searchEnabled: true, placeholder: true, placeholderValue: 'All', shouldSort: false });
     // ensure blank default
     choicesProjectPartner.removeActiveItems();
     if (![...el.options].some(o => o.value === '')) {
-        choicesProjectPartner.setChoices([{ value: '', label: 'ทั้งหมด', selected: true }], 'value', 'label', false);
+        choicesProjectPartner.setChoices([{ value: '', label: 'All', selected: true }], 'value', 'label', false);
     } else {
         choicesProjectPartner.setChoiceByValue('');
     }
     el.addEventListener('change', onFilterChanged);
 }
 function initProjectDropdown() {
-    choicesProject = new Choices('#ddl_project', { removeItemButton: true, placeholderValue: 'เลือกโปรเจกต์ได้มากกว่า 1', searchEnabled: true, itemSelectText: '', shouldSort: false });
+    choicesProject = new Choices('#ddl_project', { removeItemButton: true, placeholderValue: 'elect one or more projects', searchEnabled: true, itemSelectText: '', shouldSort: false });
     loadProjectFromFilters();
 }
 
@@ -205,7 +205,7 @@ function loadProjectFromFilters() {
             const list = json?.data || [];
             choicesProject.clearStore();
             if (!json?.success || list.length === 0) {
-                choicesProject.setChoices([{ value: '', label: '— ไม่มีโปรเจกต์ —', disabled: true }], 'value', 'label', true);
+                choicesProject.setChoices([{ value: '', label: '— No projects —', disabled: true }], 'value', 'label', true);
                 return;
             }
             choicesProject.setChoices(list.map(p => ({ value: p.ProjectID, label: p.ProjectNameTH })), 'value', 'label', true);
@@ -213,7 +213,7 @@ function loadProjectFromFilters() {
         .catch(err => {
             console.error('Load project failed:', err);
             choicesProject.clearStore();
-            choicesProject.setChoices([{ value: '', label: 'โหลดโปรเจกต์ล้มเหลว', disabled: true }], 'value', 'label', true);
+            choicesProject.setChoices([{ value: '', label: 'Failed to load projects', disabled: true }], 'value', 'label', true);
         });
 }
 
@@ -300,7 +300,7 @@ function renderTableFromJson(data, selectedMonths) {
     <thead>
       <tr>
         <th>Project</th>
-        <th>Bu</th>
+        <th>Bug</th>
         <th>Plan Type</th>
         <th>Year</th>`;
     selectedMonths.forEach(m => { html += `<th colspan="2">${monthLabels[m]}</th>`; });
