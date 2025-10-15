@@ -275,7 +275,7 @@ namespace Project.CSS.Revise.Web.Library.DAL
             Entity.index = index;
             Entity.PlanTypeName = Commond.FormatExtension.NullToString(reader["PlanTypeName"]);
             Entity.PlanAmountName = Commond.FormatExtension.NullToString(reader["PlanAmountName"]);
-            Entity.TOTAL = Commond.FormatExtension.ConvertToShortUnithaveZero(reader["TOTAL"]);
+            Entity.TOTAL = Commond.FormatExtension.ConvertToShortUnitV2(reader["TOTAL"],Entity.PlanAmountName);
             Entity.COLORS = Commond.FormatExtension.NullToString(reader["COLORS"]);
 
             return Entity;
