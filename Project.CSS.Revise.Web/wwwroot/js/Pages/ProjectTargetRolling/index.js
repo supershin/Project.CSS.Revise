@@ -172,7 +172,7 @@ function initProjectpartnerDropdown() {
     el.addEventListener('change', onFilterChanged);
 }
 function initProjectDropdown() {
-    choicesProject = new Choices('#ddl_project', { removeItemButton: true, placeholderValue: 'elect one or more projects', searchEnabled: true, itemSelectText: '', shouldSort: false });
+    choicesProject = new Choices('#ddl_project', { removeItemButton: true, placeholderValue: 'Select one or more projects', searchEnabled: true, itemSelectText: '', shouldSort: false });
     loadProjectFromFilters();
 }
 

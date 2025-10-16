@@ -6,7 +6,7 @@
     <div class="page-title">
         <div class="row">
             <div class="col-6">
-                <h4>Main Page</h4>
+                <h4>Project</h4>
             </div>
             <div class="col-6">
                 <ol class="breadcrumb">
@@ -18,7 +18,7 @@
                         </a>
                     </li>
                     <li class="breadcrumb-item">Pages</li>
-                    <li class="breadcrumb-item active">Main</li>
+                    <li class="breadcrumb-item active">Project</li>
                 </ol>
             </div>
         </div>
@@ -28,148 +28,20 @@
 <div class="container-fluid">
     <div class="row size-column">
         <div class="box-col-12">
-            <div class="row">
-                <div class="col-12">
-                    <!-- Cards Container -->
-                    <div class="card p-3">
-                        <!-- Search Bar -->
-                        <div class="card-header card-no-border total-revenue">
-                            <h4 class="m-0">Company</h4>
-                        </div>
-                        <div class="card-body pt-0">
-                            <div class="form-floating mb-3">
-                                <input class="form-control" id="searchInput" type="email" placeholder="name@example.com">
-                                <label for="searchInput">🔍 ค้นหาบริษัท / Search Company</label>
-                            </div>
-                            <div id="cardContainer" class="d-flex overflow-auto gap-3" style="white-space: nowrap; scroll-behavior: smooth;">
-                                <!-- Company Cards -->
-                                <div class="card small-widget flex-shrink-0 company-card clickable-card"
-                                     style="min-width: 300px;"
-                                     data-name="บริษัท เอสเตท คิว จำกัด Estate Q Co.,Ltd."
-                                     data-bs-toggle="collapse" data-bs-target="#Bucard"
-                                     onclick="handleCardClick(this)">
-                                    <div class="card o-hidden small-widget">
-                                        <div class="card-body total-project border-b-primary border-2">
-                                            <span class="f-light f-w-500 f-14">บริษัท เอสเตท คิว จำกัด</span>
-                                            <div class="project-details">
-                                                <div class="project-counter">
-                                                    <h5 class="f-w-600">Estate Q Co.,Ltd.</h5>
-                                                </div>
-                                                <div class="product-sub bg-primary">
-                                                    <img src="@Url.Content("~/assets/images/logo/ASW_Logo_Rac_dark-bg.png")"
-                                                         alt="Company Icon" width="52" height="45">
-                                                </div>
-                                                <ul class="bubbles">
-                                                    <li class="bubble"></li>
-                                                    <li class="bubble"></li>
-                                                    <li class="bubble"></li>
-                                                    <li class="bubble"></li>
-                                                    <li class="bubble"></li>
-                                                    <li class="bubble"></li>
-                                                    <li class="bubble"></li>
-                                                    <li class="bubble"></li>
-                                                    <li class="bubble"></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Company Card: ABJV Co.,Ltd -->
-                                <div class="card small-widget flex-shrink-0 company-card clickable-card"
-                                     style="min-width: 300px;"
-                                     data-name="บริษัท เอ บี เจ วี จำกัด ABJV Co.,Ltd"
-                                     onclick="handleCardClick(this)">
-                                    <div class="card o-hidden small-widget">
-                                        <div class="card-body total-project border-b-primary border-2">
-                                            <span class="f-light f-w-500 f-14">บริษัท เอ บี เจ วี จำกัด</span>
-                                            <div class="project-details">
-                                                <div class="project-counter">
-                                                    <h5 class="f-w-600">ABJV Co.,Ltd</h5>
-                                                </div>
-                                                <div class="product-sub bg-primary">
-                                                    <img src="@Url.Content("~/assets/images/logo/ASW_Logo_Rac_dark-bg.png")" alt="Company Icon" width="52" height="45">
-                                                </div>
-                                            </div>
-                                            <ul class="bubbles">
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Company Card: 39 Estate Co.,Ltd -->
-                                <div class="card small-widget flex-shrink-0 company-card clickable-card"
-                                     style="min-width: 300px;"
-                                     data-name="บริษัท 39 เอสเตท จำกัด 39 Estate Co.,Ltd."
-                                     onclick="handleCardClick(this)">
-                                    <div class="card o-hidden small-widget">
-                                        <div class="card-body total-project border-b-primary border-2">
-                                            <span class="f-light f-w-500 f-14">บริษัท 39 เอสเตท จำกัด</span>
-                                            <div class="project-details">
-                                                <div class="project-counter">
-                                                    <h5 class="f-w-600">39 Estate Co.,Ltd.</h5>
-                                                </div>
-                                                <div class="product-sub bg-primary">
-                                                    <img src="@Url.Content("~/assets/images/logo/ASW_Logo_Rac_dark-bg.png")" alt="Company Icon" width="52" height="45">
-                                                </div>
-                                            </div>
-                                            <ul class="bubbles">
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Company Card: CEREBIUM Co., Ltd -->
-                                <div class="card small-widget flex-shrink-0 company-card clickable-card"
-                                     style="min-width: 300px;"
-                                     data-name="บริษัท เซเรเบียม จำกัด CEREBIUM Co., Ltd"
-                                     onclick="handleCardClick(this)">
-                                    <div class="card o-hidden small-widget">
-                                        <div class="card-body total-project border-b-primary border-2">
-                                            <span class="f-light f-w-500 f-14">บริษัท เซเรเบียม จำกัด</span>
-                                            <div class="project-details">
-                                                <div class="project-counter">
-                                                    <h5 class="f-w-600">CEREBIUM Co., Ltd</h5>
-                                                </div>
-                                                <div class="product-sub bg-primary">
-                                                    <img src="@Url.Content("~/assets/images/logo/ASW_Logo_Rac_dark-bg.png")" alt="Company Icon" width="52" height="45">
-                                                </div>
-                                            </div>
-                                            <ul class="bubbles">
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                                <li class="bubble"></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Add more cards as needed -->
-                            </div>
+            <!-- Filter Card -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-lg-6">
+                            <label class="form-label fw-semibold">โครงการ</label>
+                            <select id="projectSelect" class="form-select" style="min-width:280px">
+@*                                 @foreach (var p in _projects)
+                                {
+                                    var val = (p.ValueString ?? p.ValueInt ?? p.Value ?? p.ID ?? "").ToString();
+                                    var text = (p.Text ?? p.ProjectName ?? p.Name ?? "").ToString();
+                                    <option value="@val">@text</option>
+                                } *@
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -380,6 +252,7 @@
     </div>
 </div>
 <!-- Container-fluid Ends-->
+
 <!-- JavaScript for Searching -->
 <script>
     document.getElementById('searchInput').addEventListener('input', function () {
