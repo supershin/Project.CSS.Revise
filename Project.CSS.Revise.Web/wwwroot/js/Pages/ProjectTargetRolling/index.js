@@ -171,6 +171,42 @@ function initProjectpartnerDropdown() {
     }
     el.addEventListener('change', onFilterChanged);
 }
+
+let choicesShowType;
+
+function initShowtypeDropdown() {
+    const el = document.getElementById('ddl_showtype');
+    if (!el) return;
+
+    // ทำลายอินสแตนซ์เดิมถ้ามี
+    if (choicesShowType && typeof choicesShowType.destroy === 'function') {
+        choicesShowType.destroy();
+    }
+
+    // สร้างเป็น single-select (ค่าเริ่มต้น New)
+    choicesShowType = new Choices(el, {
+        removeItemButton: false,
+        searchEnabled: false,
+        shouldSort: false,
+        itemSelectText: '',
+        placeholder: false,
+        duplicateItemsAllowed: false,
+        // single-select เป็นค่า default ของ Choices ถ้า <select> ไม่มี multiple
+    });
+
+    // บังคับค่าเริ่มต้น = "New"
+    const defaultVal = 'GetListTargetRollingPlanCuttoltal';
+    el.value = defaultVal;
+    choicesShowType.setChoiceByValue(defaultVal);
+
+    // แจ้ง change หนึ่งครั้งให้ฟิลเตอร์อื่น ๆ อัพเดต
+    el.dispatchEvent(new Event('change'));
+
+    // ผูกอีเวนต์เปลี่ยนค่า
+    el.addEventListener('change', onFilterChanged);
+}
+
+
 function initProjectDropdown() {
     choicesProject = new Choices('#ddl_project', { removeItemButton: true, placeholderValue: 'Select one or more projects', searchEnabled: true, itemSelectText: '', shouldSort: false });
     loadProjectFromFilters();
@@ -229,7 +265,8 @@ function collectRollingPlanFilters() {
         L_Bu: ($('#ddl_bug').val() || []).join(','),
         L_ProjectID: ($('#ddl_project').val() || []).join(','),
         L_ProjectStatus: ($('#ddl_project_status').val() || []).join(','),
-        L_ProjectPartner: $('#ddl_project_partner').val() || ''
+        L_ProjectPartner: $('#ddl_project_partner').val() || '',
+        L_Act: $('#ddl_showtype').val() || ''
     };
 }
 
@@ -765,6 +802,7 @@ function initAllDropdowns() {
     initBuDropdown();
     initProjectstatusDropdown();
     initProjectpartnerDropdown();
+    initShowtypeDropdown()
     initProjectDropdown();
 }
 

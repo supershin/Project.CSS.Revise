@@ -32,246 +32,58 @@
             <div class="card mb-3">
                 <div class="card-body">
                     <div class="row g-3 align-items-end">
-                        <div class="col-lg-6">
-                            <label class="form-label fw-semibold">โครงการ</label>
-                            <select id="projectSelect" class="form-select" style="min-width:280px">
-@*                                 @foreach (var p in _projects)
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <label for="ddl_company" class="form-label fw-bold">Company</label>
+                            <select id="ddl_company" class="form-control" multiple>
+                                @if (ViewBag.listCompany != null)
                                 {
-                                    var val = (p.ValueString ?? p.ValueInt ?? p.Value ?? p.ID ?? "").ToString();
-                                    var text = (p.Text ?? p.ProjectName ?? p.Name ?? "").ToString();
-                                    <option value="@val">@text</option>
-                                } *@
+                                    foreach (var c in ViewBag.listCompany)
+                                    {
+                                        <option value="@c.ValueInt">@c.Text</option>
+                                    }
+                                }
                             </select>
                         </div>
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <label for="ddl_bug" class="form-label fw-bold">BUG</label>
+                            <select id="ddl_bug" class="form-control" multiple>
+                                @if (ViewBag.listBu != null)
+                                {
+                                    foreach (var b in ViewBag.listBu)
+                                    {
+                                        <option value="@b.ID">@b.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <label for="ddl_project" class="form-label fw-bold">Project</label>
+                            <select id="ddl_project" class="form-control" multiple></select>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="col-12">
+                            <div class="d-flex justify-content-end gap-2 flex-wrap">
+                                <button id="btnFilterCancel" type="button" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fa fa-undo me-1"></i> Cancel
+                                </button>
+                                <button id="btnFilterSearch" type="button" class="btn btn-primary btn-sm">
+                                    <i class="fa fa-search me-1"></i> Search
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+
         </div>
-        <div class="box-col-12">
-            <div class="row">
-                <div class="col-md-4 col-12 collapse" id="Bucard">
-                    <!-- Cards Container -->
-                    <div class="card p-3">
-                        <div class="card-header card-no-border total-revenue">
-                            <h4 class="m-0">BU</h4>
-                        </div>
-                        <div class="card-body pt-0">
-                            <div class="col-xl-12">
-                                <div class="card product-widget">
-                                    <div class="card-body new-product">
-                                        <div class="product-cost">
-                                            <div class="add-product">
-                                                <div class="product-icon bg-light-primary">
-                                                    <svg>
-                                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#box-add")"></use>
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <h6 class="mb-1">BUG1</h6>
-                                                </div>
-                                            </div>
-                                            <div class="product-icon" data-bs-toggle="collapse" data-bs-target="#Projectcard" style="cursor: pointer;">
-                                                <svg>
-                                                    <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#arrow-down")"></use>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-12">
-                                <div class="card product-widget">
-                                    <div class="card-body new-product">
-                                        <div class="product-cost">
-                                            <div class="add-product">
-                                                <div class="product-icon bg-light-primary">
-                                                    <svg>
-                                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#box-add")"></use>
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <h6 class="mb-1">BUG2</h6>
-                                                </div>
-                                            </div>
-                                            <div class="product-icon">
-                                                <svg>
-                                                    <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#arrow-down")"></use>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-12">
-                                <div class="card product-widget">
-                                    <div class="card-body new-product">
-                                        <div class="product-cost">
-                                            <div class="add-product">
-                                                <div class="product-icon bg-light-primary">
-                                                    <svg>
-                                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#box-add")"></use>
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <h6 class="mb-1">BUG3</h6>
-                                                </div>
-                                            </div>
-                                            <div class="product-icon">
-                                                <svg>
-                                                    <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#arrow-down")"></use>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-8 col-12 collapse" id="Projectcard">
-                    <div class="card p-3">
-                        <div class="card-header card-no-border total-revenue">
-                            <h4 class="m-0">Project</h4>
-                        </div>
-                        <div class="card-body pt-0">
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Name</th>
-                                            <th>Status</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                400H006
-                                                <br>
-                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
-                                            </td>
 
-                                            <td>
-                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
-                                                <br>
-                                                CHANN The Riverside Boromratchonnani
-                                            </td>
-                                            <td><span class="badge bg-primary">Active</span></td>
-                                            <td>
-                                                <button class="btn btn-pill btn-warning active">
-                                                    <i class="icofont icofont-edit"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                400H006
-                                                <br>
-                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
-                                            </td>
-
-                                            <td>
-                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
-                                                <br>
-                                                CHANN The Riverside Boromratchonnani
-                                            </td>
-                                            <td><span class="badge bg-primary">Active</span></td>
-                                            <td>
-                                                <button class="btn btn-pill btn-warning active">
-                                                    <i class="icofont icofont-edit"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                400H006
-                                                <br>
-                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
-                                            </td>
-
-                                            <td>
-                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
-                                                <br>
-                                                CHANN The Riverside Boromratchonnani
-                                            </td>
-                                            <td><span class="badge bg-primary">Active</span></td>
-                                            <td>
-                                                <button class="btn btn-pill btn-warning active">
-                                                    <i class="icofont icofont-edit"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                400H006
-                                                <br>
-                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
-                                            </td>
-
-                                            <td>
-                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
-                                                <br>
-                                                CHANN The Riverside Boromratchonnani
-                                            </td>
-                                            <td><span class="badge bg-primary">Active</span></td>
-                                            <td>
-                                                <button class="btn btn-pill btn-warning active">
-                                                    <i class="icofont icofont-edit"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                400H006
-                                                <br>
-                                                <i class="icofont icofont-building-alt"></i>: <span class="text-muted">Condo</span>
-                                            </td>
-
-                                            <td>
-                                                <small class="text-muted">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</small>
-                                                <br>
-                                                CHANN The Riverside Boromratchonnani
-                                            </td>
-                                            <td><span class="badge bg-primary">Active</span></td>
-                                            <td>
-                                                <button class="btn btn-pill btn-warning active">
-                                                    <i class="icofont icofont-edit"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
     </div>
 </div>
-<!-- Container-fluid Ends-->
 
-<!-- JavaScript for Searching -->
-<script>
-    document.getElementById('searchInput').addEventListener('input', function () {
-        let searchText = this.value.toLowerCase();
-        let cards = document.querySelectorAll('.company-card');
-
-        cards.forEach(card => {
-            let companyName = card.getAttribute('data-name').toLowerCase();
-            if (companyName.includes(searchText)) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    });
-
-    function handleCardClick(element) {
-        let companyName = element.getAttribute("data-name");
-        // alert("You clicked on: " + companyName);
-    }
-
-</script>
+@section Scripts {
+    <script src="~/js/Pages/Project/Project.js?ver=@DateTime.Now.Ticks.ToString()"></script>
+    <link rel="stylesheet" type="text/css" href="~/css/project.css?ver=@DateTime.Now.Ticks.ToString()">
+}

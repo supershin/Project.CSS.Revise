@@ -45,35 +45,41 @@ namespace Project.CSS.Revise.Web.Respositories
                 conn.Open();
 
                 string sql = @"
-                               --DECLARE @L_BUID NVARCHAR(100) = ''
-	                           --DECLARE @L_ProjectStatus NVARCHAR(100) = ''
-	                           --DECLARE @L_ProjectPartner NVARCHAR(100) = ''
+                                 --DECLARE @L_BUID NVARCHAR(100) = ''
+                                 --DECLARE @L_ProjectStatus NVARCHAR(100) = ''
+                                 --DECLARE @L_ProjectPartner NVARCHAR(100) = ''
+                                 --DECLARE @L_Company NVARCHAR(100) = ''
 
+                                 SELECT 
+                                      p.ProjectID, 
+                                      b.ID AS BUID, 
+                                      b.Name AS BUname, 
+                                      p.ProjectName, 
+                                      p.ProjectName_Eng
+                                  FROM tm_Project p
+                                  LEFT JOIN tm_BUProject_Mapping m ON p.ProjectID = m.ProjectID
+                                  LEFT JOIN tm_BU b ON m.BUID = b.ID
+                                  LEFT JOIN TR_ProjectStatus ps ON p.ProjectID = ps.ProjectID
+                                  LEFT JOIN TR_CompanyProject cp ON p.ProjectID = cp.ProjectID
+                                  WHERE p.FlagActive = 1
+                                      AND (
+                                          @L_BUID = ''
+                                          OR CHARINDEX(',' + CAST(b.ID AS NVARCHAR) + ',', ',' + @L_BUID + ',') > 0
+                                      )
+                                      AND (
+                                          @L_ProjectStatus = ''
+                                          OR CHARINDEX(',' + CAST(ps.StatusID AS NVARCHAR) + ',', ',' + @L_ProjectStatus + ',') > 0
+                                      )
+                                      AND (
+                                          @L_ProjectPartner = ''
+                                          OR CHARINDEX(',' + CAST(p.PartnerID AS NVARCHAR) + ',', ',' + @L_ProjectPartner + ',') > 0
+                                      )
+                                      AND (
+                                          @L_Company = ''
+                                          OR CHARINDEX(',' + CAST(cp.CompanyID AS NVARCHAR) + ',', ',' + @L_Company + ',') > 0
+                                      )
+                                  ORDER BY b.ID
 
-	                           SELECT 
-                                    p.ProjectID, 
-                                    b.ID AS BUID, 
-                                    b.Name AS BUname, 
-                                    p.ProjectName, 
-                                    p.ProjectName_Eng
-                                FROM tm_Project p
-                                LEFT JOIN tm_BUProject_Mapping m ON p.ProjectID = m.ProjectID
-                                LEFT JOIN tm_BU b ON m.BUID = b.ID
-		                        LEFT JOIN TR_ProjectStatus ps ON p.ProjectID = ps.ProjectID
-                                WHERE p.FlagActive = 1
-                                    AND (
-                                        @L_BUID = ''
-                                        OR CHARINDEX(',' + CAST(b.ID AS NVARCHAR) + ',', ',' + @L_BUID + ',') > 0
-                                    )
-                                    AND (
-                                        @L_ProjectStatus = ''
-                                        OR CHARINDEX(',' + CAST(ps.StatusID AS NVARCHAR) + ',', ',' + @L_ProjectStatus + ',') > 0
-                                    )
-			                        AND (
-                                        @L_ProjectPartner = ''
-                                        OR CHARINDEX(',' + CAST(p.PartnerID AS NVARCHAR) + ',', ',' + @L_ProjectPartner + ',') > 0
-                                    )
-                                ORDER BY b.ID
                              ";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
@@ -81,6 +87,7 @@ namespace Project.CSS.Revise.Web.Respositories
                     cmd.Parameters.Add(new SqlParameter("@L_BUID", filter.L_BUID ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_ProjectStatus", filter.L_ProjectStatus ?? ""));
                     cmd.Parameters.Add(new SqlParameter("@L_ProjectPartner", filter.L_ProjectPartner ?? ""));
+                    cmd.Parameters.Add(new SqlParameter("@L_Company", filter.L_Company ?? ""));
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -295,6 +302,17 @@ namespace Project.CSS.Revise.Web.Respositories
                                    };
 
                     return listRole.ToList();
+
+                case "listCompany":
+                    var listCompany = from t1 in _context.tm_Companies
+                                      where t1.FlagActive == true 
+                                   select new GetDDLModel
+                                   {
+                                       ValueInt = t1.ID,
+                                       Text = t1.Name
+                                   };
+
+                    return listCompany.ToList();
 
                 case "listDDlAllProject":
                     var ListProject = from t1 in _context.tm_Projects

@@ -84,13 +84,13 @@ namespace Project.CSS.Revise.Web.Controllers
         public JsonResult GetDataTableProjectAndTargetRolling([FromForm] RollingPlanSummaryModel model)
         {
             // Fix: The method returns a List<RollingPlanSummaryModel>, not a single RollingPlanSummaryModel
-            model.L_Act = "GetListTargetRollingPlan";
+            //model.L_Act = "GetListTargetRollingPlan";
             model.IS_Export = false;
             List<RollingPlanSummaryModel> result = _configProject.sp_GetProjecTargetRollingPlanList_GetListTargetRollingPlan(model);
 
             var filter = new RollingPlanTotalModel
             {
-                L_Act = "GetDataTotalTargetRollingPlan",
+                L_Act = model.L_Act,
                 L_Year = model.L_Year,
                 L_Quarter = model.L_Quarter,
                 L_Month = model.L_Month,
@@ -102,6 +102,7 @@ namespace Project.CSS.Revise.Web.Controllers
             };
 
             //var resultsum = _projectAndTargetRollingService.GetDataTotalTargetRollingPlan(filter);
+            filter.L_Act = "GetDataTotalTargetRollingPlan";
             List<RollingPlanTotalModel> resultsum = _configProject.sp_GetProjecTargetRollingPlanList_GetDataTotalTargetRollingPlan(filter);
 
             // ✅ Group & reshape datasum for summary cards
