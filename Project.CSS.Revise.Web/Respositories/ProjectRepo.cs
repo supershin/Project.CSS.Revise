@@ -8,6 +8,7 @@ namespace Project.CSS.Revise.Web.Respositories
     public interface IProjectRepo
     {
         public List<ProjectSettingModel.ListProjectItem> GetlistProjectTable(ProjectSettingModel.ProjectFilter filter);
+        public ProjectSettingModel.ReturnMessage SaveEditProject(ProjectSettingModel.DataProjectIUD Model);
     }
     public class ProjectRepo : IProjectRepo
     {
@@ -144,6 +145,156 @@ namespace Project.CSS.Revise.Web.Respositories
             }
 
             return result;
+        }
+
+        public ProjectSettingModel.ReturnMessage SaveEditProject(ProjectSettingModel.DataProjectIUD Model)
+        {
+            var ret = new ProjectSettingModel.ReturnMessage { IsSuccess = false, Message = "" };
+
+            // ---------- Validate required ----------
+            var missing = new System.Collections.Generic.List<string>();
+            string projectId = (Model?.ProjectID ?? "").Trim();
+
+            if (string.IsNullOrWhiteSpace(projectId)) missing.Add(nameof(Model.ProjectID));
+            if (!Model?.BUID.HasValue ?? true) missing.Add(nameof(Model.BUID));
+            if (!Model?.PartnerID.HasValue ?? true) missing.Add(nameof(Model.PartnerID));
+            if (string.IsNullOrWhiteSpace(Model?.ProjectName)) missing.Add(nameof(Model.ProjectName));
+            if (string.IsNullOrWhiteSpace(Model?.ProjectType)) missing.Add(nameof(Model.ProjectType));
+            if (!Model?.ProjectStatus.HasValue ?? true) missing.Add(nameof(Model.ProjectStatus));
+            if (!Model?.ProjectZoneID.HasValue ?? true) missing.Add(nameof(Model.ProjectZoneID));
+            if (!Model?.UserID.HasValue ?? true) missing.Add(nameof(Model.UserID));
+
+            var type = (Model?.ProjectType ?? "").Trim().ToUpperInvariant();
+            if (!(type == "C" || type == "H"))
+                missing.Add(nameof(Model.ProjectType) + " must be 'C' or 'H'");
+
+            if (missing.Count > 0)
+            {
+                ret.Message = "Required fields missing/invalid: " + string.Join(", ", missing);
+                return ret;
+            }
+
+            using var tx = _context.Database.BeginTransaction();
+            try
+            {
+                // ---------- tm_Project ----------
+                var proj = _context.tm_Projects.SingleOrDefault(p => p.ProjectID == projectId);
+                if (proj == null)
+                {
+                    ret.Message = $"Project not found: {projectId}";
+                    return ret;
+                }
+
+                proj.PartnerID = Model?.PartnerID;
+                proj.ProjectName = Model?.ProjectName?.Trim();
+                proj.ProjectName_Eng = Model?.ProjectName_Eng?.Trim();
+                proj.ProjectType = type;                  // "C" or "H"
+                proj.UpdateDate = DateTime.Now;
+                proj.UpdateBy = Model?.UserID;
+
+                _context.SaveChanges();
+
+                // ---------- TR_ProjectStatus (upsert by ProjectID) ----------
+                var statusRow = _context.TR_ProjectStatuses.SingleOrDefault(s => s.ProjectID == projectId);
+                if (statusRow == null)
+                {
+                    statusRow = new TR_ProjectStatus
+                    {
+                        ProjectID = projectId,
+                        StatusID = Model?.ProjectStatus
+                    };
+                    _context.TR_ProjectStatuses.Add(statusRow);
+                }
+                else
+                {
+                    statusRow.StatusID = Model?.ProjectStatus;
+                    _context.TR_ProjectStatuses.Update(statusRow);
+                }
+                _context.SaveChanges();
+
+                // ---------- tm_BUProject_Mapping (upsert by ProjectID) ----------
+                var buMap = _context.tm_BUProject_Mappings.SingleOrDefault(m => m.ProjectID == projectId);
+                if (buMap == null)
+                {
+                    buMap = new tm_BUProject_Mapping
+                    {
+                        ProjectID = projectId,
+                        BUID = Model?.BUID
+                    };
+                    _context.tm_BUProject_Mappings.Add(buMap);
+                }
+                else
+                {
+                    buMap.BUID = Model?.BUID;
+                    _context.tm_BUProject_Mappings.Update(buMap);
+                }
+                _context.SaveChanges();
+
+                // ---------- NEW: TR_CompanyProject (upsert by ProjectID) ----------
+                if (Model?.CompanyID.HasValue == true)
+                {
+                    var compMap = _context.TR_CompanyProjects.SingleOrDefault(x => x.ProjectID == projectId);
+                    if (compMap == null)
+                    {
+                        compMap = new TR_CompanyProject
+                        {
+                            ProjectID = projectId,
+                            CompanyID = Model.CompanyID
+                        };
+                        _context.TR_CompanyProjects.Add(compMap);
+                    }
+                    else
+                    {
+                        compMap.CompanyID = Model.CompanyID;
+                        _context.TR_CompanyProjects.Update(compMap);
+                    }
+                    _context.SaveChanges();
+                }
+                // If CompanyID is null, we leave existing mapping as-is (no delete).
+
+                // ---------- TR_ProjectLandOffice (upsert by ProjectID) ----------
+                var landOf = _context.TR_ProjectLandOffices.SingleOrDefault(m => m.ProjectID == projectId);
+                if (landOf == null)
+                {
+                    landOf = new TR_ProjectLandOffice
+                    {
+                        ProjectID = projectId,
+                        LandOfficeID = Model?.LandOfficeID
+                    };
+                    _context.TR_ProjectLandOffices.Add(landOf);
+                }
+                else
+                {
+                    landOf.LandOfficeID = Model?.LandOfficeID;
+                    _context.TR_ProjectLandOffices.Update(landOf);
+                }
+                _context.SaveChanges();
+
+                // ---------- TR_ProjectZone_Mapping (delete all + insert new) ----------
+                _context.Database.ExecuteSqlRaw(
+                    "DELETE FROM TR_ProjectZone_Mapping WHERE ProjectID = {0}", projectId
+                );
+
+                var newZone = new TR_ProjectZone_Mapping
+                {
+                    ProjectID = projectId,
+                    ProjectZoneID = Model.ProjectZoneID!.Value
+                };
+                _context.Set<TR_ProjectZone_Mapping>().Add(newZone);
+                _context.SaveChanges();
+
+                tx.Commit();
+                ret.IsSuccess = true;
+                ret.Message = "Edit saved successfully.";
+                return ret;
+            }
+            catch (Exception ex)
+            {
+                try { tx.Rollback(); } catch { /* ignore */ }
+                ret.IsSuccess = false;
+                ret.Message = "Save failed: " + ex.Message;
+                return ret;
+            }
         }
 
     }

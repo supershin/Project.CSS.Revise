@@ -6,6 +6,7 @@ namespace Project.CSS.Revise.Web.Service
     public interface IProjectService
     {
         public List<ProjectSettingModel.ListProjectItem> GetlistProjectTable(ProjectSettingModel.ProjectFilter filter);
+        public ProjectSettingModel.ReturnMessage SaveEditProject(ProjectSettingModel.DataProjectIUD Model);
     }
     public class ProjectService : IProjectService
     {
@@ -18,6 +19,11 @@ namespace Project.CSS.Revise.Web.Service
         public List<ProjectSettingModel.ListProjectItem> GetlistProjectTable(ProjectSettingModel.ProjectFilter filter)
         {
             return _projectRepo.GetlistProjectTable(filter);
+        }
+
+        public ProjectSettingModel.ReturnMessage SaveEditProject(ProjectSettingModel.DataProjectIUD Model)
+        {
+            return _projectRepo.SaveEditProject(Model);
         }
     }
 }

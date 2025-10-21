@@ -93,27 +93,62 @@ const Busy = (() => {
 /* ===================== Choices ===================== */
 
 let choicesQuarter, choicesMonth, choicesBu, choicesProjectStatus, choicesProjectPartner, choicesProject;
+// ===== put these with other globals =====
+let choicesYear, choicesPlanType;
 
+//function initYearDropdown() {
+//    const ddl = document.getElementById('ddl_year');
+//    if (!ddl) return;
+
+//    const currentYear = new Date().getFullYear();
+
+//    // เคลียร์รายการเก่า
+//    ddl.innerHTML = '';
+
+//    // สร้างช่วงปี (ย้อนหลัง 3 ปี ถึง ล่วงหน้า 3 ปี)
+//    for (let y = currentYear - 3; y <= currentYear + 3; y++) {
+//        const opt = document.createElement('option');
+//        opt.value = y;
+//        opt.text = y;
+//        if (y === currentYear) opt.selected = true; // ✅ mark default
+//        ddl.appendChild(opt);
+//    }
+
+//    // ✅ สร้าง Choices และบังคับเลือกปีปัจจุบันหลังจาก init
+//    const choicesYear = new Choices('#ddl_year', {
+//        removeItemButton: true,
+//        placeholderValue: 'Select one or more years',
+//        searchEnabled: true,
+//        itemSelectText: '',
+//        shouldSort: false
+//    });
+
+//    // ✅ เซ็ตค่าปีปัจจุบันใน Choices ด้วย
+//    choicesYear.setChoiceByValue(String(currentYear));
+//}
+// ===== REPLACE your initYearDropdown with this =====
 function initYearDropdown() {
     const ddl = document.getElementById('ddl_year');
     if (!ddl) return;
 
+    // destroy old Choices instance if exists
+    if (choicesYear && typeof choicesYear.destroy === 'function') {
+        choicesYear.destroy();
+    }
+
     const currentYear = new Date().getFullYear();
 
-    // เคลียร์รายการเก่า
+    // rebuild options
     ddl.innerHTML = '';
-
-    // สร้างช่วงปี (ย้อนหลัง 3 ปี ถึง ล่วงหน้า 3 ปี)
     for (let y = currentYear - 3; y <= currentYear + 3; y++) {
         const opt = document.createElement('option');
-        opt.value = y;
-        opt.text = y;
-        if (y === currentYear) opt.selected = true; // ✅ mark default
+        opt.value = String(y);
+        opt.text = String(y);
         ddl.appendChild(opt);
     }
 
-    // ✅ สร้าง Choices และบังคับเลือกปีปัจจุบันหลังจาก init
-    const choicesYear = new Choices('#ddl_year', {
+    // re-init Choices
+    choicesYear = new Choices('#ddl_year', {
         removeItemButton: true,
         placeholderValue: 'Select one or more years',
         searchEnabled: true,
@@ -121,8 +156,11 @@ function initYearDropdown() {
         shouldSort: false
     });
 
-    // ✅ เซ็ตค่าปีปัจจุบันใน Choices ด้วย
-    choicesYear.setChoiceByValue(String(currentYear));
+    // ensure ONLY the current year is selected
+    try {
+        choicesYear.removeActiveItems();
+        choicesYear.setChoiceByValue(String(currentYear));
+    } catch { }
 }
 
 
@@ -147,9 +185,24 @@ function updateMonthDropdown(selectedQuarters) {
     choicesMonth.setChoices(allowed.map(m => ({ value: m, label: monthLabels[m] })), 'value', 'label', true);
 }
 
+//function initPlanTypeDropdown() {
+//    new Choices('#ddl_plantype', { removeItemButton: true, placeholderValue: 'Select one or more plan types', searchEnabled: true, itemSelectText: '', shouldSort: false });
+//}
+// ===== REPLACE your initPlanTypeDropdown with this =====
 function initPlanTypeDropdown() {
-    new Choices('#ddl_plantype', { removeItemButton: true, placeholderValue: 'Select one or more plan types', searchEnabled: true, itemSelectText: '', shouldSort: false });
+    // destroy old if exists
+    if (choicesPlanType && typeof choicesPlanType.destroy === 'function') {
+        choicesPlanType.destroy();
+    }
+    choicesPlanType = new Choices('#ddl_plantype', {
+        removeItemButton: true,
+        placeholderValue: 'Select one or more plan types',
+        searchEnabled: true,
+        itemSelectText: '',
+        shouldSort: false
+    });
 }
+
 
 function initBuDropdown() {
     choicesBu = new Choices('#ddl_bug', { removeItemButton: true, placeholderValue: 'Select one or more BUGs', searchEnabled: true, itemSelectText: '', shouldSort: false });
@@ -673,6 +726,82 @@ function searchRollingPlanData() {
             setEditMode(false); // reset to view mode after reload
         }
     }, 'Loading data…', 300);
+}
+
+// ===== UPDATE your ClearFilter like this (only the parts for year & plantype changed) =====
+function ClearFilter() {
+    const currentYear = new Date().getFullYear();
+
+    // --- Year (via Choices instance) ---
+    try {
+        if (choicesYear) {
+            choicesYear.removeActiveItems();
+            choicesYear.setChoiceByValue(String(currentYear));
+        } else {
+            initYearDropdown(); // fallback if not initialized
+        }
+    } catch { }
+
+    // --- Quarter ---
+    try { choicesQuarter?.removeActiveItems(); } catch { }
+
+    // --- Month ---
+    try {
+        choicesMonth?.clearStore();
+        updateMonthDropdown([]); // 1–12, none selected
+    } catch { }
+
+    // --- Plan Type (use Choices instance) ---
+    try { choicesPlanType?.removeActiveItems(); } catch { }
+
+    // --- BUG ---
+    try { choicesBu?.removeActiveItems(); } catch { }
+
+    // --- Project Status ---
+    try { choicesProjectStatus?.removeActiveItems(); } catch { }
+
+    // --- Project Partner ---
+    (function resetPartner() {
+        const el = document.getElementById('ddl_project_partner');
+        if (choicesProjectPartner) {
+            try {
+                choicesProjectPartner.removeActiveItems();
+                choicesProjectPartner.setChoiceByValue('');
+            } catch { }
+        } else if (el) {
+            el.value = '';
+            el.dispatchEvent(new Event('change'));
+        }
+    })();
+
+    // --- Project list UI state ---
+    try {
+        choicesProject?.removeActiveItems();
+        choicesProject?.clearStore();
+        choicesProject?.setChoices(
+            [{ value: '', label: '— No projects —', disabled: true }],
+            'value', 'label', true
+        );
+    } catch { }
+
+    // --- Show Type default ---
+    (function resetShowType() {
+        const defaultVal = 'GetListTargetRollingPlanCuttoltal';
+        const el = document.getElementById('ddl_showtype');
+        if (choicesShowType) {
+            try { choicesShowType.setChoiceByValue(defaultVal); } catch { }
+        }
+        if (el) {
+            el.value = defaultVal;
+            el.dispatchEvent(new Event('change'));
+        }
+    })();
+
+    // reload projects with cleared filters
+    loadProjectFromFilters();
+
+    // Optional: auto search after clear
+    // searchRollingPlanData();
 }
 
 

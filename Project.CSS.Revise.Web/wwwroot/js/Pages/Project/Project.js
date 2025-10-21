@@ -104,29 +104,43 @@ document.addEventListener('DOMContentLoaded', () => {
     initBuDropdown();
     initProjectDropdown();
 
-    document.getElementById('btnFilterSearch')?.addEventListener('click', fetchProjectTable);
+    // --- Search button: show loading overlay ---
+    const btnSearch = document.getElementById('btnFilterSearch');
+    if (btnSearch) {
+        btnSearch.addEventListener('click', async () => {
+            try {
+                showLoading();
+                await fetchProjectTable();   // must return a Promise
+            } catch (err) {
+                console.error('fetchProjectTable failed:', err);
+                errorToast('Failed to load project list');
+            } finally {
+                hideLoading();
+            }
+        });
+    }
+
+    // --- Cancel button: reset filters + clear table ---
     document.getElementById('btnFilterCancel')?.addEventListener('click', () => {
-        // clear filters
         choicesCompany?.removeActiveItems();
         choicesBu?.removeActiveItems();
         choicesProject?.removeActiveItems();
-        // reload projects (all)
-        loadProjectsByFilters();
-        // clear table
-        renderProjectTable([]);
+
+        loadProjectsByFilters(); // reset all dropdowns
+        renderProjectTable([]);  // clear table
     });
 
-    // modal init
+    // --- Modal init ---
     _editModalInst = bootstrap.Modal.getOrCreateInstance(document.getElementById('mdlEditProject'));
     initEditProjectModalUI();
 
-    // sticky shadow toggler (visual only)
+    // --- Sticky header visual shadow ---
     const tblWrap = document.querySelector('#card_project_list .table-responsive');
     tblWrap?.addEventListener('scroll', () => {
         tblWrap.classList.toggle('has-sticky', tblWrap.scrollTop > 0);
     }, { passive: true });
 
-    // mark rows that sit under the sticky header (so we only lower those buttons)
+    // --- Mark rows that sit under sticky header ---
     const thead = tblWrap?.querySelector('thead');
     if (tblWrap && thead) {
         const markRowsUnderHeader = () => {
@@ -142,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         markRowsUnderHeader();
     }
 });
+
 
 async function fetchProjectTable() {
     const companies = getChoicesVals(choicesCompany);
@@ -235,6 +250,7 @@ function renderProjectTable(list) {
         tr.querySelector('.btn-edit')?.addEventListener('click', () => {
             const rowData = {
                 ProjectID: tr.querySelector('td:nth-child(1)')?.textContent.trim() || row.ProjectID || '',
+                CompanyID: tr.dataset.companyId || row.CompanyID || '',   // <-- add this
                 CompanyName: tr.querySelector('td:nth-child(2)')?.innerText.trim() || row.CompanyName || '',
                 BUID: tr.dataset.buId || row.BUID || '',
                 PartnerID: tr.dataset.partnerId || row.PartnerID || '',
@@ -248,6 +264,7 @@ function renderProjectTable(list) {
             };
             openEditProjectModal(rowData);
         });
+
 
         // Optional: Sync
         tr.querySelector('.btn-sync')?.addEventListener('click', () => {
@@ -305,9 +322,38 @@ function setSelectValue(selectId, value) {
 }
 
 function openEditProjectModal(row) {
-    // fixed / disabled fields
+    // fixed fields
     document.getElementById('edt_ProjectID').value = row.ProjectID || '';
-    document.getElementById('edt_CompanyName').value = row.CompanyName || '';
+
+    // ----- Company toggle -----
+    const hasCompanyName = !!(row.CompanyName && row.CompanyName.trim().length);
+    const grpInput = document.getElementById('grp_company_input');
+    const grpSelect = document.getElementById('grp_company_select');
+    const txtCompany = document.getElementById('edt_CompanyName');
+    const ddlCompany = document.getElementById('ddl_edit_company');
+
+    if (hasCompanyName) {
+        // show disabled text, hide dropdown
+        grpInput?.classList.remove('d-none');
+        grpSelect?.classList.add('d-none');
+        txtCompany.value = row.CompanyName || '';
+        // clear select to avoid stale value
+        if (ddlCompany) ddlCompany.value = '';
+    } else {
+        // no company mapped: show dropdown
+        grpInput?.classList.add('d-none');
+        grpSelect?.classList.remove('d-none');
+        txtCompany.value = '';
+        // preselect company from dataset (if any)
+        if (ddlCompany) {
+            const cid = (row.CompanyID ?? '').toString();
+            if ([...ddlCompany.options].some(o => o.value === cid)) {
+                ddlCompany.value = cid;
+            } else {
+                ddlCompany.value = '';
+            }
+        }
+    }
 
     // simple fields
     document.getElementById('txt_edit_projectname').value = row.ProjectName || '';
@@ -318,7 +364,7 @@ function openEditProjectModal(row) {
     setSelectValue('ddl_edit_partner', row.PartnerID);
     setSelectValue('ddl_edit_landoffice', row.LandOfficeID);
 
-    // status by ID (fallback: match by name)
+    // status by ID (fallback by text)
     if (row.StatusID) {
         setSelectValue('ddl_edit_status', row.StatusID);
     } else if (row.ProjectStatus) {
@@ -329,24 +375,19 @@ function openEditProjectModal(row) {
         }
     }
 
-    // Project Zone(s) – supports single or multiple
+    // zones (Choices)
     if (choicesZones) {
         const raw = (row.ProjectZoneID || '').toString();
         const values = raw.split(',').map(s => s.trim()).filter(Boolean);
-
-        choicesZones.removeActiveItems(); // clear previous
-
-        if (values.length === 0) {
-            // nothing to select
-        } else if (document.getElementById('ddl_edit_zones').hasAttribute('multiple')) {
-            // multiple
-            values.forEach(v => choicesZones.setChoiceByValue(v));
-        } else {
-            // single
-            choicesZones.setChoiceByValue(values[0]);
+        choicesZones.removeActiveItems();
+        if (values.length) {
+            if (document.getElementById('ddl_edit_zones').hasAttribute('multiple')) {
+                values.forEach(v => choicesZones.setChoiceByValue(v));
+            } else {
+                choicesZones.setChoiceByValue(values[0]);
+            }
         }
     } else {
-        // fallback if Choices not initialized
         setSelectValue('ddl_edit_zones', row.ProjectZoneID);
     }
 
@@ -356,43 +397,94 @@ function openEditProjectModal(row) {
     _editModalInst?.show();
 }
 
-function onSaveProject() {
+
+async function onSaveProject() {
+    // zone (single or multi → first)
     const zoneSelect = document.getElementById('ddl_edit_zones');
     let zoneValue;
     if (choicesZones) {
         const val = choicesZones.getValue(true);
-        zoneValue = Array.isArray(val) ? val : (val ? [val] : []);
+        const arr = Array.isArray(val) ? val : (val ? [val] : []);
+        zoneValue = arr.length ? arr[0] : null;
     } else {
         zoneValue = zoneSelect?.multiple
-            ? [...zoneSelect.selectedOptions].map(o => o.value)
-            : [zoneSelect?.value ?? ''];
+            ? ([...zoneSelect.selectedOptions].map(o => o.value)[0] || null)
+            : (zoneSelect?.value || null);
     }
 
+    // Company: if dropdown visible, use it; otherwise null (not edited)
+    const grpSelect = document.getElementById('grp_company_select');
+    const ddlCompany = document.getElementById('ddl_edit_company');
+    let companyId = null;
+    if (grpSelect && !grpSelect.classList.contains('d-none') && ddlCompany) {
+        companyId = ddlCompany.value ? Number(ddlCompany.value) : null;
+    }
+
+    const projectId = (document.getElementById('edt_ProjectID').value || '').trim();
+    const buId = document.getElementById('ddl_edit_bu').value || null;
+    const partnerId = document.getElementById('ddl_edit_partner').value || null;
+    const projectName = (document.getElementById('txt_edit_projectname').value || '').trim();
+    const projectNameEn = (document.getElementById('txt_edit_projectname_en').value || '').trim();
+    const projectType = (document.getElementById('hid_edit_projecttype').value || '').trim().toUpperCase(); // "C"/"H"
+    const statusId = document.getElementById('ddl_edit_status').value || null;
+    const landOfficeId = document.getElementById('ddl_edit_landoffice').value || null;
+
     const payload = {
-        ProjectID: document.getElementById('edt_ProjectID').value.trim(),
-        BUID: document.getElementById('ddl_edit_bu').value,
-        PartnerID: document.getElementById('ddl_edit_partner').value,
-        ProjectName: document.getElementById('txt_edit_projectname').value.trim(),
-        ProjectName_Eng: document.getElementById('txt_edit_projectname_en').value.trim(),
-        ProjectType: document.getElementById('hid_edit_projecttype').value,
-        StatusID: document.getElementById('ddl_edit_status').value,
-        LandOfficeID: document.getElementById('ddl_edit_landoffice').value,
-        ProjectZoneIDs: zoneValue  // array (works for single or multiple)
+        ProjectID: projectId,
+        CompanyID: companyId, // only sent if dropdown used; otherwise null
+        BUID: buId ? Number(buId) : null,
+        PartnerID: partnerId ? Number(partnerId) : null,
+        ProjectName: projectName,
+        ProjectName_Eng: projectNameEn,
+        ProjectType: projectType,
+        ProjectStatus: statusId ? Number(statusId) : null,
+        LandOfficeID: landOfficeId ? Number(landOfficeId) : null,
+        ProjectZoneID: zoneValue ? Number(zoneValue) : null
     };
 
-    console.log('Save payload:', payload);
-    // TODO: POST to your save endpoint, then close modal + refresh table
-    // fetch(_base + 'Project/SaveProject', { method:'POST', body: toFormData(payload) })
-    //   .then(r => r.json()).then(json => { if(json.success){ _editModalInst.hide(); fetchProjectTable(); } });
+    // Minimal validation (same as before)
+    const missing = [];
+    if (!payload.ProjectID) missing.push('ProjectID');
+    if (!payload.BUID) missing.push('BUID');
+    if (!payload.PartnerID) missing.push('PartnerID');
+    if (!payload.ProjectName) missing.push('ProjectName');
+    if (!payload.ProjectType || !['C', 'H'].includes(payload.ProjectType)) missing.push('ProjectType (C/H)');
+    if (!payload.ProjectStatus) missing.push('ProjectStatus');
+    if (!payload.ProjectZoneID) missing.push('ProjectZoneID');
+
+    if (missing.length) {
+        errorMessage('Missing/invalid: ' + missing.join(', '));
+        return;
+    }
+
+    showLoading();
+    try {
+        const res = await fetch(_base + 'Project/SaveEditProject', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+            hideLoading();
+            errorMessage(`HTTP ${res.status} ${res.statusText}`);
+            return;
+        }
+
+        const json = await res.json(); // { success, message }
+        hideLoading();
+        showApiResult(json, { mode: 'modal' });
+
+        if (json && json.success) {
+            _editModalInst?.hide();
+            await fetchProjectTable();
+        }
+    } catch (err) {
+        hideLoading();
+        errorMessage('Network error: ' + (err?.message || err));
+    }
 }
 
-/* Optional: convert plain object to FormData
-function toFormData(obj) {
-  const fd = new FormData();
-  Object.entries(obj).forEach(([k, v]) => {
-    if (Array.isArray(v)) v.forEach(x => fd.append(k, x));
-    else fd.append(k, v ?? '');
-  });
-  return fd;
-}
-*/
+
+
+

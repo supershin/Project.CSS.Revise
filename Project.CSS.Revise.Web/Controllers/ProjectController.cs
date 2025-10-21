@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
+using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Models.Pages.Project;
 using Project.CSS.Revise.Web.Service;
@@ -64,5 +65,27 @@ namespace Project.CSS.Revise.Web.Controllers
             var result = _projectService.GetlistProjectTable(filter);
             return Json(new { success = true, data = result });
         }
+
+        [HttpPost]
+        public JsonResult SaveEditProject([FromBody] ProjectSettingModel.DataProjectIUD model)
+        {
+            try
+            {
+                string? loginId64 = User.FindFirst("LoginID")?.Value;
+                model.UserID = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
+
+                var result = _projectService.SaveEditProject(model);
+                return Json(new
+                {
+                    success = result?.IsSuccess ?? false,
+                    message = result?.Message ?? (result?.IsSuccess == true ? "Success" : "Failed")
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Exception: " + ex.Message });
+            }
+        }
+
     }
 }

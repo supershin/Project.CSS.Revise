@@ -136,11 +136,31 @@
                                 <input id="edt_ProjectID" type="text" class="form-control" disabled>
                             </div>
 
-                            <!-- Company Name (disabled) -->
+                            <!-- Company (switchable: text when exists, dropdown when missing) -->
                             <div class="col-12 col-md-8">
                                 <label class="form-label fw-bold">Company</label>
-                                <input id="edt_CompanyName" type="text" class="form-control" disabled>
+
+                                <!-- Text (disabled) -->
+                                <div id="grp_company_input">
+                                    <input id="edt_CompanyName" type="text" class="form-control" disabled>
+                                </div>
+
+                                <!-- Dropdown (hidden by default; shown when no company mapped) -->
+                                <div id="grp_company_select" class="d-none mt-1">
+                                    <select id="ddl_edit_company" class="form-select">
+                                        <option value="">— Select Company —</option>
+                                        @if (ViewBag.listCompany != null)
+                                        {
+                                            foreach (var c in ViewBag.listCompany)
+                                            {
+                                                <option value="@c.ValueInt">@c.Text</option>
+                                            }
+                                        }
+                                    </select>
+                                    <div class="form-text">This project is not mapped to a company yet.</div>
+                                </div>
                             </div>
+
 
                             <!-- BU -->
                             <div class="col-12 col-md-6">

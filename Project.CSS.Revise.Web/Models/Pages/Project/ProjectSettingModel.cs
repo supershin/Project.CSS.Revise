@@ -37,5 +37,24 @@
             public string? ProjectZonename { get; set; }   // เช่น "Zone 2,All Zone"
         }
 
+        public class DataProjectIUD
+        {
+            public string? ProjectID { get; set; }
+            public int? CompanyID { get; set; }
+            public int? BUID { get; set; }
+            public int? PartnerID { get; set; }
+            public string? ProjectName { get; set; }
+            public string? ProjectName_Eng { get; set; }
+            public string? ProjectType { get; set; }
+            public int? ProjectStatus { get; set; }
+            public int? LandOfficeID { get; set; }
+            public int? ProjectZoneID { get; set; }
+            public int? UserID { get; set; }
+        }
+        public class ReturnMessage
+        {
+            public bool? IsSuccess { get; set; }
+            public string? Message { get; set; }
+        }
     }
 }
