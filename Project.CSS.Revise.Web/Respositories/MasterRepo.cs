@@ -747,6 +747,16 @@ namespace Project.CSS.Revise.Web.Respositories
 
                     return ListFuniture.ToList();
 
+                case "listLandOffice":
+                    var listLandOffice = from t1 in _context.tm_LandOffices
+                                         where t1.FlagActive == true 
+                                         select new GetDDLModel
+                                         {
+                                             ValueInt = t1.ID,
+                                             Text = t1.Name
+                                         };
+
+                    return listLandOffice.ToList();
                 default:
 
                 return new List<GetDDLModel>();

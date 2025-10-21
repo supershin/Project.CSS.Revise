@@ -79,8 +79,184 @@
             </div>
 
         </div>
+        <div class="box-col-12">
+            <!-- Result Card -->
+            <div class="card" id="card_project_list">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Project List</h5>
+                    <small class="text-muted">Found: <span id="count_projects">0</span></small>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm mb-0 align-middle" id="tbl_projects">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="min-width: 120px;">ProjectID</th>
+                                    <th style="min-width: 220px;">Company</th>
+                                    <th style="min-width: 120px;">BU</th>
+                                    <th style="min-width: 150px;padding: 10px;">Partner</th>
+                                    <th style="min-width: 280px;">Project Name</th>
+                                    <th style="min-width: 280px;">Project Name (EN)</th>
+                                    <th style="min-width: 80px;padding: 10px;">Type</th>
+                                    <th style="min-width: 80px; padding: 10px; ">Status</th>
+                                    <th style="min-width: 400px;">Land Office</th>
+                                    <th style="min-width: 280px;">Zones</th>
+                                    <th style="min-width: 200px;" class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
 
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
+
+    <!-- Edit Project Modal -->
+    <div class="modal fade" id="mdlEditProject" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow rounded-4">
+                <div class="modal-header bg-light border-0">
+                    <h5 class="modal-title fw-semibold">
+                        <i class="bi bi-pencil-square me-2"></i>Edit Project
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="formEditProject" autocomplete="off">
+                        <div class="row g-3">
+                            <!-- ProjectID (disabled) -->
+                            <div class="col-12 col-md-4">
+                                <label class="form-label fw-bold">Project ID</label>
+                                <input id="edt_ProjectID" type="text" class="form-control" disabled>
+                            </div>
+
+                            <!-- Company Name (disabled) -->
+                            <div class="col-12 col-md-8">
+                                <label class="form-label fw-bold">Company</label>
+                                <input id="edt_CompanyName" type="text" class="form-control" disabled>
+                            </div>
+
+                            <!-- BU -->
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold">BU</label>
+                                <select id="ddl_edit_bu" class="form-select">
+                                    <option value="">— Select BU —</option>
+                                    @if (ViewBag.listBu != null)
+                                    {
+                                        foreach (var b in ViewBag.listBu)
+                                        {
+                                            <option value="@b.ID">@b.Name</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Partner -->
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold">Partner</label>
+                                <select id="ddl_edit_partner" class="form-select">
+                                    <option value="">— Select Partner —</option>
+                                    @if (ViewBag.listProjectPartner != null)
+                                    {
+                                        foreach (var p in ViewBag.listProjectPartner)
+                                        {
+                                            <option value="@p.ValueInt">@p.Text</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Project Name -->
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold">Project Name</label>
+                                <input id="txt_edit_projectname" type="text" class="form-control" placeholder="Enter project name">
+                            </div>
+
+                            <!-- Project Name EN -->
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold">Project Name (EN)</label>
+                                <input id="txt_edit_projectname_en" type="text" class="form-control" placeholder="Enter project name (EN)">
+                            </div>
+
+                            <!-- Project Type (icon toggle C/H) -->
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold">Project Type</label>
+                                <div class="d-flex align-items-center gap-2" id="typeToggle">
+                                    <input type="hidden" id="hid_edit_projecttype" value="">
+                                    <button type="button" class="btn btn-outline-secondary btn-type" data-val="C" title="condominium">
+                                        <i class="bi bi-building"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-type" data-val="H" title="House">
+                                        <i class="bi bi-house-door"></i>
+                                    </button>
+                                    <small class="text-muted ms-2" id="typeHint"></small>
+                                </div>
+                            </div>
+
+                            <!-- Project Status -->
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold">Project Status</label>
+                                <select id="ddl_edit_status" class="form-select">
+                                    <option value="">— Select Status —</option>
+                                    @if (ViewBag.listProjectStatus != null)
+                                    {
+                                        foreach (var s in ViewBag.listProjectStatus)
+                                        {
+                                            <option value="@s.ValueInt">@s.Text</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Land Office (single) -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Land Office</label>
+                                <select id="ddl_edit_landoffice" class="form-select">
+                                    <option value="">— Select Land Office —</option>
+                                    @if (ViewBag.listLandOffice != null)
+                                    {
+                                        foreach (var lo in ViewBag.listLandOffice)
+                                        {
+                                            <option value="@lo.ValueInt">@lo.Text</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Project Zones (multi-select using Choices.js) -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Project Zones</label>
+                                <select id="ddl_edit_zones">
+                                    @if (ViewBag.listProjectZone != null)
+                                    {
+                                        foreach (var z in ViewBag.listProjectZone)
+                                        {
+                                            <option value="@z.ValueInt">@z.Text</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="btnSaveProject" class="btn btn-primary btn-sm">
+                        <i class="bi bi-save me-1"></i> Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @section Scripts {

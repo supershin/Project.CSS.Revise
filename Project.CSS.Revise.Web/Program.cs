@@ -51,6 +51,8 @@ builder.Services.AddScoped<IFurnitureAndUnitFurnitureRepo, FurnitureAndUnitFurni
 builder.Services.AddScoped<IFurnitureAndUnitFurnitureService, FurnitureAndUnitFurnitureService>();
 builder.Services.AddScoped<IProjectandunitfloorplanRepo, ProjectandunitfloorplanRepo>();
 builder.Services.AddScoped<IProjectandunitfloorplanService, ProjectandunitfloorplanService>();
+builder.Services.AddScoped<IProjectRepo, ProjectRepo>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
 
 
 // Add the new services for SQL and data access

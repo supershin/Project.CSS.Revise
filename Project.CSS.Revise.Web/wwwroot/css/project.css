@@ -1,2 +1,193 @@
-﻿body {
+﻿/* =========================
+   Project List Table (CSS)
+   ========================= */
+
+/* Scroll body only (sticky header lives inside this wrapper) */
+#card_project_list .table-responsive {
+    max-height: 600px;
+    overflow-y: auto;
+    position: relative;
 }
+
+/* Sticky header (no z-index used) */
+#card_project_list thead th {
+    position: sticky;
+    top: 0;
+    background: #f8f9fa;
+    transform: translateZ(0); /* create stacking context without z-index */
+    will-change: transform;
+    border-bottom: 2px solid #dee2e6;
+}
+
+/* Optional: subtle shadow when scrolled */
+#card_project_list .table-responsive.has-sticky thead th {
+    box-shadow: 0 2px 4px rgba(0,0,0,.06);
+}
+
+/* Table alignment & sizing */
+#card_project_list table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: auto; /* let browser size columns naturally */
+}
+
+/* Header: show full text (no ellipsis) */
+#card_project_list th {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    word-break: break-word;
+}
+
+/* Cells: compact by default, truncate where needed */
+#card_project_list td {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+/* ---------- Column-wise wrapping for long text ---------- */
+/* Current columns:
+   1 ProjectID, 2 Company, 3 BU, 4 Partner, 5 Project Name,
+   6 Project Name (EN), 7 Type, 8 Status, 9 Land Office, 10 Zones, 11 Actions
+*/
+#tbl_projects td:nth-child(2), /* Company */
+#tbl_projects td:nth-child(5), /* Project Name */
+#tbl_projects td:nth-child(6), /* Project Name (EN) */
+#tbl_projects td:nth-child(9), /* Land Office */
+#tbl_projects td:nth-child(10) /* Zones */ {
+    min-width: 240px;
+    white-space: normal !important;
+    word-break: break-word;
+}
+
+/* Optional: keep small utility columns tight */
+#tbl_projects th:nth-child(7), /* Type */
+#tbl_projects td:nth-child(7) {
+    width: 80px;
+}
+
+#tbl_projects th:nth-child(11), /* Actions */
+#tbl_projects td:nth-child(11) {
+    width: 90px;
+}
+
+/* ---------- Zone tag styling ---------- */
+.tag {
+    display: inline-block;
+    padding: .2rem .55rem;
+    border: 1px solid #dee2e6;
+    border-radius: 999px;
+    font-size: .75rem;
+    line-height: 1;
+    background: #f8fafc;
+    margin: 2px 4px 2px 0;
+}
+
+    .tag i {
+        font-size: .8rem;
+        margin-right: .25rem;
+        color: #0d6efd;
+    }
+
+/* ---------- Action buttons (circle, single line) ---------- */
+td.text-end {
+    white-space: nowrap;
+}
+/* prevent wrapping to 2 lines */
+
+.btn-icon {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    border-radius: 50% !important;
+    width: 2.3rem; /* compact circle */
+    height: 2.3rem;
+    padding: 0 !important;
+    margin: 0 0.15rem;
+    font-size: 0.8rem;
+    line-height: 1;
+}
+
+    .btn-icon i {
+        font-size: 0.9rem;
+        line-height: 1;
+    }
+
+    .btn-icon.btn-secondary i,
+    .btn-icon.btn-primary i {
+        color: #fff;
+    }
+
+/* Default stacking: visible/clickable */
+#card_project_list td.text-end .btn-icon {
+    position: relative;
+    z-index: 0; /* explicit baseline */
+}
+
+/* Lower ONLY buttons for rows actually under the sticky header */
+#card_project_list tbody tr.under-header td.text-end .btn-icon {
+    position: relative;
+    z-index: -1;
+}
+
+/* ---------- Nice-to-have: tidy scrollbar ---------- */
+#card_project_list .table-responsive::-webkit-scrollbar {
+    width: 6px;
+}
+
+#card_project_list .table-responsive::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 3px;
+}
+
+/* =========================
+   Edit Project modal – type toggle
+   ========================= */
+#typeToggle .btn-type {
+    width: 2.2rem;
+    height: 2.2rem;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    #typeToggle .btn-type.active {
+        border-color: transparent;
+        color: #fff;
+    }
+
+    #typeToggle .btn-type[data-val="C"].active {
+        background-color: #0d6efd;
+    }
+    /* building */
+    #typeToggle .btn-type[data-val="H"].active {
+        background-color: #198754;
+    }
+/* house */
+
+/* =========================
+   Choices.js in modal
+   ========================= */
+#mdlEditProject .choices__inner {
+    min-height: 38px;
+    border-radius: 6px;
+    border-color: #ced4da;
+    background-color: #fff;
+}
+
+#mdlEditProject .choices__list--multiple .choices__item {
+    background-color: #0d6efd;
+    border: none;
+    color: #fff;
+    font-size: 0.8rem;
+    border-radius: 999px;
+    padding: 0.25rem 0.6rem;
+}
+
+    #mdlEditProject .choices__list--multiple .choices__item.is-highlighted {
+        background-color: #0b5ed7;
+    }
