@@ -129,7 +129,6 @@ td.text-end {
 /* Lower ONLY buttons for rows actually under the sticky header */
 #card_project_list tbody tr.under-header td.text-end .btn-icon {
     position: relative;
-    z-index: -1;
 }
 
 /* ---------- Nice-to-have: tidy scrollbar ---------- */
@@ -191,3 +190,7 @@ td.text-end {
     #mdlEditProject .choices__list--multiple .choices__item.is-highlighted {
         background-color: #0b5ed7;
     }
+
+#card_project_list thead th {
+    z-index: 2 !important;
+}

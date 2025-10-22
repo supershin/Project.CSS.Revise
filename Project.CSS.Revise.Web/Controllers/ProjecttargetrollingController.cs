@@ -369,7 +369,7 @@ namespace Project.CSS.Revise.Web.Controllers
                     return BadRequest(new { success = false, message = "No permission to import"});
                 }
 
-                model.L_Act = "GetListTargetRollingPlan";
+                //model.L_Act = model.;
                 model.IS_Export = true;
                 List<RollingPlanSummaryModel> dataList = _configProject.sp_GetProjecTargetRollingPlanList_GetListTargetRollingPlan(model);
                 //var dataList = _projectAndTargetRollingService.GetListDataExportTargetRollingPlan(model);

@@ -209,9 +209,35 @@ function initBuDropdown() {
     document.getElementById('ddl_bug').addEventListener('change', onFilterChanged);
 }
 function initProjectstatusDropdown() {
-    choicesProjectStatus = new Choices('#ddl_project_status', { removeItemButton: true, placeholderValue: 'Select one or more project statuses', searchEnabled: true, itemSelectText: '', shouldSort: false });
-    document.getElementById('ddl_project_status').addEventListener('change', onFilterChanged);
+    const el = document.getElementById('ddl_project_status');
+    if (!el) return;
+
+    // ทำลาย Choices เดิมถ้ามี
+    if (choicesProjectStatus && typeof choicesProjectStatus.destroy === 'function') {
+        choicesProjectStatus.destroy();
+    }
+
+    // สร้าง Choices ใหม่
+    choicesProjectStatus = new Choices(el, {
+        removeItemButton: true,
+        placeholderValue: 'Select one or more project statuses',
+        searchEnabled: true,
+        itemSelectText: '',
+        shouldSort: false
+    });
+
+    // ✅ ตั้งค่า default ให้เลือกค่า 283 (RTM) และ 371 (Finish)
+    try {
+        choicesProjectStatus.removeActiveItems(); // เคลียร์ก่อน
+        choicesProjectStatus.setChoiceByValue(['283', '371']); // เลือกหลายค่า
+    } catch (err) {
+        console.warn('Failed to set default project statuses:', err);
+    }
+
+    // ผูก event
+    el.addEventListener('change', onFilterChanged);
 }
+
 function initProjectpartnerDropdown() {
     const el = document.getElementById('ddl_project_partner'); if (!el) return;
     choicesProjectPartner = new Choices(el, { removeItemButton: false, searchEnabled: true, placeholder: true, placeholderValue: 'All', shouldSort: false });
@@ -227,35 +253,45 @@ function initProjectpartnerDropdown() {
 
 let choicesShowType;
 
-function initShowtypeDropdown() {
-    const el = document.getElementById('ddl_showtype');
+//function initShowtypeDropdown() {
+//    const el = document.getElementById('ddl_showtype');
+//    if (!el) return;
+
+//    // ทำลายอินสแตนซ์เดิมถ้ามี
+//    if (choicesShowType && typeof choicesShowType.destroy === 'function') {
+//        choicesShowType.destroy();
+//    }
+
+//    // สร้างเป็น single-select (ค่าเริ่มต้น New)
+//    choicesShowType = new Choices(el, {
+//        removeItemButton: false,
+//        searchEnabled: false,
+//        shouldSort: false,
+//        itemSelectText: '',
+//        placeholder: false,
+//        duplicateItemsAllowed: false,
+//        // single-select เป็นค่า default ของ Choices ถ้า <select> ไม่มี multiple
+//    });
+
+//    // บังคับค่าเริ่มต้น = "New"
+//    const defaultVal = 'GetListTargetRollingPlanCuttoltal';
+//    el.value = defaultVal;
+//    choicesShowType.setChoiceByValue(defaultVal);
+
+//    // แจ้ง change หนึ่งครั้งให้ฟิลเตอร์อื่น ๆ อัพเดต
+//    el.dispatchEvent(new Event('change'));
+
+//    // ผูกอีเวนต์เปลี่ยนค่า
+//    el.addEventListener('change', onFilterChanged);
+//}
+function initAllProjectCheckbox() {
+    const el = document.getElementById('chk_all_project');
     if (!el) return;
 
-    // ทำลายอินสแตนซ์เดิมถ้ามี
-    if (choicesShowType && typeof choicesShowType.destroy === 'function') {
-        choicesShowType.destroy();
-    }
+    // default = ไม่ติ๊ก
+    el.checked = false;
 
-    // สร้างเป็น single-select (ค่าเริ่มต้น New)
-    choicesShowType = new Choices(el, {
-        removeItemButton: false,
-        searchEnabled: false,
-        shouldSort: false,
-        itemSelectText: '',
-        placeholder: false,
-        duplicateItemsAllowed: false,
-        // single-select เป็นค่า default ของ Choices ถ้า <select> ไม่มี multiple
-    });
-
-    // บังคับค่าเริ่มต้น = "New"
-    const defaultVal = 'GetListTargetRollingPlanCuttoltal';
-    el.value = defaultVal;
-    choicesShowType.setChoiceByValue(defaultVal);
-
-    // แจ้ง change หนึ่งครั้งให้ฟิลเตอร์อื่น ๆ อัพเดต
-    el.dispatchEvent(new Event('change'));
-
-    // ผูกอีเวนต์เปลี่ยนค่า
+    // เปลี่ยนแล้วให้รีเฟรชรายการโปรเจ็กต์ (ถ้าต้องการ)
     el.addEventListener('change', onFilterChanged);
 }
 
@@ -309,6 +345,7 @@ function loadProjectFromFilters() {
 /* ===================== Filters ===================== */
 
 function collectRollingPlanFilters() {
+    const allProjectChecked = document.getElementById('chk_all_project')?.checked;
     return {
         L_Year: ($('#ddl_year').val() || []).join(','),
         L_Quarter: (choicesQuarter?.getValue(true) || []).join(','),
@@ -319,7 +356,8 @@ function collectRollingPlanFilters() {
         L_ProjectID: ($('#ddl_project').val() || []).join(','),
         L_ProjectStatus: ($('#ddl_project_status').val() || []).join(','),
         L_ProjectPartner: $('#ddl_project_partner').val() || '',
-        L_Act: $('#ddl_showtype').val() || ''
+        /*L_Act: $('#ddl_showtype').val() || ''*/
+        L_Act: allProjectChecked ? 'GetListTargetRollingPlan' : 'GetListTargetRollingPlanCuttoltal'
     };
 }
 
@@ -666,38 +704,176 @@ function hexToRgba(hex, a = 0.35) {
     } catch { return 'rgba(255,255,255,0.35)'; }
 }
 
+//function renderSummaryCards(datasum) {
+//    const container = document.getElementById('cardSummary'); if (!container) return;
+//    container.innerHTML = '';
+//    const order = [
+//        { key: 'Target', label: 'Target' },
+//        { key: 'WorkingTarget', label: 'Working Target' },
+//        { key: 'MLL', label: 'MLL' },
+//        { key: 'Rolling', label: 'Rolling' },
+//        { key: 'WorkingRolling', label: 'Working Rolling' },
+//        { key: 'Actual', label: 'Actual' }
+//    ];
+//    order.forEach(slot => {
+//        const item = (datasum || []).find(it => (it?.PlanTypeName || '').toLowerCase().replace(/\s/g, '') === slot.key.toLowerCase());
+//        const unit = (item?.Unit ?? 0).toLocaleString();
+//        const value = (item?.Value ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+//        const bg = normalizeBg(item?.ColorClass) || '#0d6efd';
+//        const fg = idealTextColor(bg);
+//        const div = hexToRgba(fg, 0.35);
+//        const card = document.createElement('div');
+//        card.className = 'summary-card';
+//        card.style.setProperty('--bg', bg);
+//        card.style.setProperty('--fg', fg);
+//        card.style.setProperty('--divider', div);
+//        card.innerHTML = `
+//      <div class="sc-title">${slot.label}</div>
+//      <div class="sc-grid">
+//        <div class="sc-cell"><div class="sc-label">Unit</div><div class="sc-value">${unit}</div></div>
+//        <div class="sc-cell"><div class="sc-label">Value (MB)</div><div class="sc-value">${value}</div></div>
+//      </div>`;
+//        container.appendChild(card);
+//    });
+//}
+
 function renderSummaryCards(datasum) {
-    const container = document.getElementById('cardSummary'); if (!container) return;
+    const container = document.getElementById('cardSummary');
+    if (!container) return;
     container.innerHTML = '';
-    const order = [
-        { key: 'Target', label: 'Target' },
-        { key: 'WorkingTarget', label: 'Working Target' },
-        { key: 'MLL', label: 'MLL' },
-        { key: 'Rolling', label: 'Rolling' },
-        { key: 'WorkingRolling', label: 'Working Rolling' },
-        { key: 'Actual', label: 'Actual' }
-    ];
-    order.forEach(slot => {
-        const item = (datasum || []).find(it => (it?.PlanTypeName || '').toLowerCase().replace(/\s/g, '') === slot.key.toLowerCase());
-        const unit = (item?.Unit ?? 0).toLocaleString();
-        const value = (item?.Value ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        const bg = normalizeBg(item?.ColorClass) || '#0d6efd';
+
+    // helpers
+    const normKey = s => (s || '').toLowerCase().replace(/\s/g, '');
+    const toNum = v => {
+        if (typeof v === 'number') return isFinite(v) ? v : 0;
+        if (typeof v === 'string') {
+            const cleaned = v.replace(/mb$/i, '').replace(/[, ]+/g, '').trim();
+            const n = parseFloat(cleaned);
+            return isNaN(n) ? 0 : n;
+        }
+        return 0;
+    };
+    const safeDiv = (a, b) => {
+        const A = toNum(a), B = toNum(b);
+        return B === 0 ? 0 : A / B;
+    };
+    const fmtInt = n => toNum(n).toLocaleString();
+    const fmtMoney = n => toNum(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtPct = (r, frac = 2) => (r * 100).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: frac }) + '%';
+
+    // index by PlanTypeName
+    const idx = {};
+    (datasum || []).forEach(it => { idx[normKey(it?.PlanTypeName)] = it || {}; });
+
+    const target = idx['target'] || {};
+    const workingTarget = idx['workingtarget'] || {};
+    const mll = idx['mll'] || {};
+    const rolling = idx['rolling'] || {};
+    const workingRolling = idx['workingrolling'] || {};
+    const actual = idx['actual'] || {};
+
+    // computed ratios
+    const achieveTargetUnitRatio = safeDiv(actual.Unit, target.Unit);
+    const achieveTargetValueRatio = safeDiv(actual.Value, target.Value);
+    const achieveWorkUnitRatio = safeDiv(actual.Unit, workingTarget.Unit);
+    const achieveWorkValueRatio = safeDiv(actual.Value, workingTarget.Value);
+
+    // renderer
+    const renderCard = ({ label, unitText, valueText, colorClass, isAchieve }) => {
+        const bg = normalizeBg(colorClass) || '#0d6efd';
         const fg = idealTextColor(bg);
         const div = hexToRgba(fg, 0.35);
+
         const card = document.createElement('div');
         card.className = 'summary-card';
         card.style.setProperty('--bg', bg);
         card.style.setProperty('--fg', fg);
         card.style.setProperty('--divider', div);
+
+        const unitLabel = isAchieve ? 'Diff Unit' : 'Unit';
+        const valueLabel = isAchieve ? 'Diff Value' : 'Value (MB)';
+
         card.innerHTML = `
-      <div class="sc-title">${slot.label}</div>
+      <div class="sc-title">${label}</div>
       <div class="sc-grid">
-        <div class="sc-cell"><div class="sc-label">Unit</div><div class="sc-value">${unit}</div></div>
-        <div class="sc-cell"><div class="sc-label">Value</div><div class="sc-value">${value}</div></div>
-      </div>`;
+        <div class="sc-cell">
+          <div class="sc-label">${unitLabel}</div>
+          <div class="sc-value">${unitText}</div>
+        </div>
+        <div class="sc-cell">
+          <div class="sc-label">${valueLabel}</div>
+          <div class="sc-value">${valueText}</div>
+        </div>
+      </div>
+    `;
         container.appendChild(card);
+    };
+
+    // ---- ORDER (exactly as requested) ----
+    // Row 1
+    renderCard({
+        label: 'Target',
+        unitText: fmtInt(target?.Unit ?? 0),
+        valueText: fmtMoney(target?.Value ?? 0),
+        colorClass: target?.ColorClass,
+        isAchieve: false
+    });
+    renderCard({
+        label: 'Working Target',
+        unitText: fmtInt(workingTarget?.Unit ?? 0),
+        valueText: fmtMoney(workingTarget?.Value ?? 0),
+        colorClass: workingTarget?.ColorClass,
+        isAchieve: false
+    });
+    renderCard({
+        label: 'MLL',
+        unitText: fmtInt(mll?.Unit ?? 0),
+        valueText: fmtMoney(mll?.Value ?? 0),
+        colorClass: mll?.ColorClass,
+        isAchieve: false
+    });
+    renderCard({
+        label: 'Achieve Target %',
+        unitText: fmtPct(achieveTargetUnitRatio, 2),
+        valueText: fmtPct(achieveTargetValueRatio, 2),
+        colorClass: '#20c997', // teal
+        isAchieve: true
+    });
+
+    // Row 2
+    renderCard({
+        label: 'Rolling',
+        unitText: fmtInt(rolling?.Unit ?? 0),
+        valueText: fmtMoney(rolling?.Value ?? 0),
+        colorClass: rolling?.ColorClass,
+        isAchieve: false
+    });
+    renderCard({
+        label: 'Working Rolling',
+        unitText: fmtInt(workingRolling?.Unit ?? 0),
+        valueText: fmtMoney(workingRolling?.Value ?? 0),
+        colorClass: workingRolling?.ColorClass,
+        isAchieve: false
+    });
+    renderCard({
+        label: 'Actual',
+        unitText: fmtInt(actual?.Unit ?? 0),
+        valueText: fmtMoney(actual?.Value ?? 0),
+        colorClass: actual?.ColorClass,
+        isAchieve: false
+    });
+    renderCard({
+        label: 'Achieve Working Target %',
+        unitText: fmtPct(achieveWorkUnitRatio, 2),
+        valueText: fmtPct(achieveWorkValueRatio, 2),
+        colorClass: '#20c997', // purple
+        isAchieve: true
     });
 }
+
+
+
+
 
 /* ===================== Search / Load ===================== */
 // ===== SEARCH =====
@@ -785,17 +961,20 @@ function ClearFilter() {
     } catch { }
 
     // --- Show Type default ---
-    (function resetShowType() {
-        const defaultVal = 'GetListTargetRollingPlanCuttoltal';
-        const el = document.getElementById('ddl_showtype');
-        if (choicesShowType) {
-            try { choicesShowType.setChoiceByValue(defaultVal); } catch { }
-        }
-        if (el) {
-            el.value = defaultVal;
-            el.dispatchEvent(new Event('change'));
-        }
-    })();
+    //(function resetShowType() {
+    //    const defaultVal = 'GetListTargetRollingPlanCuttoltal';
+    //    const el = document.getElementById('ddl_showtype');
+    //    if (choicesShowType) {
+    //        try { choicesShowType.setChoiceByValue(defaultVal); } catch { }
+    //    }
+    //    if (el) {
+    //        el.value = defaultVal;
+    //        el.dispatchEvent(new Event('change'));
+    //    }
+    //})();
+    // --- Show Type (All project checkbox) default = not checked ---
+
+
 
     // reload projects with cleared filters
     loadProjectFromFilters();
@@ -931,7 +1110,8 @@ function initAllDropdowns() {
     initBuDropdown();
     initProjectstatusDropdown();
     initProjectpartnerDropdown();
-    initShowtypeDropdown()
+    /*initShowtypeDropdown()*/
+    initAllProjectCheckbox()
     initProjectDropdown();
 }
 

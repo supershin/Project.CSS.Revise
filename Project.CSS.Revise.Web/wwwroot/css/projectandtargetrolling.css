@@ -152,25 +152,36 @@
 .summary-grid,
 #cardSummary { /* fallback id เดิม */
     display: grid !important; /* override ถ้ามี d-flex ติดมา */
-    grid-template-columns: repeat(3, minmax(220px, 1fr));
+    grid-template-columns: repeat(4, minmax(220px, 1fr)); /* ⬅️ 4 per row on desktop */
     gap: 14px;
 }
 
-/* Responsive: Tablet = 2 cols, Mobile = 1 col */
-@media (max-width: 992px) {
+/* ≥1200px = 4 cols (default above) */
+/* 1200px down to 993px = 3 cols (like col-4) */
+@media (max-width: 1199.98px) {
+    .summary-grid,
+    #cardSummary {
+        grid-template-columns: repeat(3, minmax(220px, 1fr));
+    }
+}
+
+/* 992px down to 577px = 2 cols (like col-6) */
+@media (max-width: 991.98px) {
     .summary-grid,
     #cardSummary {
         grid-template-columns: repeat(2, minmax(220px, 1fr));
     }
 }
 
-@media (max-width: 576px) {
+/* ≤576px = 1 col (full width) */
+@media (max-width: 575.98px) {
     .summary-grid,
     #cardSummary {
         grid-template-columns: 1fr;
     }
 }
-/* card shell stays colored */
+
+/* ===== Card look & feel (unchanged) ===== */
 .summary-card {
     border-radius: 6px;
     overflow: hidden;
@@ -179,7 +190,6 @@
     color: var(--fg, #fff);
 }
 
-    /* header strip over the colored shell */
     .summary-card .sc-title {
         background: rgba(0,0,0,0.15);
         padding: 10px 12px;
@@ -188,20 +198,19 @@
         border-bottom: 2px solid rgba(0,0,0,0.25);
     }
 
-    /* ❗ make the grid white with colored borders only */
     .summary-card .sc-grid {
         background: #fff;
         color: #000;
         display: grid;
         grid-template-columns: 1fr 1fr;
-        border: 2px solid var(--bg, #0d6efd); /* outer border in card color */
-        border-top: 0; /* no double line under header */
+        border: 2px solid var(--bg, #0d6efd);
+        border-top: 0;
     }
 
     .summary-card .sc-cell {
         padding: 12px 10px;
         text-align: center;
-        border-right: 2px solid var(--bg, #0d6efd); /* vertical divider in color */
+        border-right: 2px solid var(--bg, #0d6efd);
     }
 
         .summary-card .sc-cell:last-child {
@@ -221,8 +230,7 @@
     line-height: 1.2;
 }
 
-
-/* force buttons to stay on ONE line and align right */
+/* footer buttons (unchanged) */
 .footer-actions {
     white-space: nowrap;
 }
@@ -233,14 +241,15 @@
         white-space: nowrap !important;
     }
 
-/* ===== Summary card body (white area inside colored summary card) ===== */
+/* inner white body (unchanged) */
 #summaryCardBody {
-    background-color: #ffffff; /* solid white background */
-    border-top: 1px solid rgba(0,0,0,0.1); /* soft separation line from header */
+    background-color: #ffffff;
+    border-top: 1px solid rgba(0,0,0,0.1);
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
-    padding: 1rem 1rem 1.25rem 1rem; /* adjust spacing if needed */
+    padding: 1rem 1rem 1.25rem 1rem;
 }
+
 
 
 

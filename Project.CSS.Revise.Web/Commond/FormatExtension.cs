@@ -377,20 +377,50 @@ namespace Project.CSS.Revise.Web.Commond
             return defaultString;
         }
 
+        //public static string ConvertToShortUnitV2(object obj, string type = "Value", string defaultString = "0")
+        //{
+        //    if (obj == null || obj == DBNull.Value) return defaultString;
+
+        //    string str = NullToString(obj).Trim();
+        //    decimal number;
+
+        //    // parse safely (handle commas or dots)
+        //    if (!decimal.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out number))
+        //    {
+        //        decimal.TryParse(str, NumberStyles.Any, CultureInfo.CurrentCulture, out number);
+        //    }
+
+        //    // if still invalid
+        //    if (number == 0 && str != "0") return defaultString;
+
+        //    if (type.Equals("Unit", StringComparison.OrdinalIgnoreCase))
+        //    {
+        //        // full number with thousand separator, no decimals
+        //        return Math.Truncate(number).ToString("N0", CultureInfo.CurrentCulture);
+        //    }
+        //    else if (type.Equals("Value", StringComparison.OrdinalIgnoreCase))
+        //    {
+        //        // short version (no suffix)
+        //        if (number >= 1_000_000M)
+        //            return (number / 1_000_000M).ToString("0.00", CultureInfo.CurrentCulture);
+        //        else if (number >= 1_000M)
+        //            return (number / 1_000M).ToString("0.00", CultureInfo.CurrentCulture);
+        //        else
+        //            return number.ToString("0.00", CultureInfo.CurrentCulture);
+        //    }
+
+        //    return defaultString;
+        //}
         public static string ConvertToShortUnitV2(object obj, string type = "Value", string defaultString = "0")
         {
             if (obj == null || obj == DBNull.Value) return defaultString;
 
             string str = NullToString(obj).Trim();
-            decimal number;
-
-            // parse safely (handle commas or dots)
-            if (!decimal.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out number))
+            if (!decimal.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal number))
             {
                 decimal.TryParse(str, NumberStyles.Any, CultureInfo.CurrentCulture, out number);
             }
 
-            // if still invalid
             if (number == 0 && str != "0") return defaultString;
 
             if (type.Equals("Unit", StringComparison.OrdinalIgnoreCase))
@@ -400,13 +430,13 @@ namespace Project.CSS.Revise.Web.Commond
             }
             else if (type.Equals("Value", StringComparison.OrdinalIgnoreCase))
             {
-                // short version (no suffix)
+                // short version with comma separators
                 if (number >= 1_000_000M)
-                    return (number / 1_000_000M).ToString("0.00", CultureInfo.CurrentCulture);
+                    return (number / 1_000_000M).ToString("N2", CultureInfo.CurrentCulture); // ✅ with comma
                 else if (number >= 1_000M)
-                    return (number / 1_000M).ToString("0.00", CultureInfo.CurrentCulture);
+                    return (number / 1_000M).ToString("N2", CultureInfo.CurrentCulture); // ✅ with comma
                 else
-                    return number.ToString("0.00", CultureInfo.CurrentCulture);
+                    return number.ToString("N2", CultureInfo.CurrentCulture); // ✅ also with comma for small numbers
             }
 
             return defaultString;

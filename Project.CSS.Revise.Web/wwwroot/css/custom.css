@@ -99,6 +99,10 @@
 .modal .choices__list[aria-expanded] {
     z-index: 2000 !important; /* higher than bootstrap modal */
 }
+.choices__list--dropdown,
+.choices__list[aria-expanded] {
+    z-index: 3 !important; /* higher than bootstrap modal */
+}
 
 /* ✅ Prevent clipping inside modal */
 .modal .choices,

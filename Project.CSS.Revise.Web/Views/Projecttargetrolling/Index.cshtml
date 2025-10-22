@@ -134,13 +134,21 @@
                         <select id="ddl_project" class="form-control" multiple></select>
                     </div>
 
-                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+@*                     <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                         <label for="ddl_showtype" class="form-label fw-bold">Show Type</label>
                         <select id="ddl_showtype" class="form-control">
                             <option value="GetListTargetRollingPlanCuttoltal" selected>New</option>
                             <option value="GetListTargetRollingPlan">Old</option>
                         </select>
+                    </div> *@
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        @* <label class="form-label fw-bold d-block">All project</label> *@
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="chk_all_project">
+                            <label class="form-check-label" for="chk_all_project">All project</label>
+                        </div>
                     </div>
+
 
                 </div>
             </div>
