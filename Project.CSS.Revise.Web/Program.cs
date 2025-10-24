@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Library.DAL;
 using Project.CSS.Revise.Web.Library.DAL.SQL;
@@ -77,6 +78,11 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Login/Index";
         options.AccessDeniedPath = "/Login/AccessDenied";
     });
+
+builder.Services.Configure<Project.CSS.Revise.Web.Models.Config.CentralizeApiConfig>(
+    builder.Configuration.GetSection("ThirdPartyApis:CentralizeAPI"));
+
+builder.Services.AddSingleton<SystemConstantCentralize>();
 
 var app = builder.Build();
 

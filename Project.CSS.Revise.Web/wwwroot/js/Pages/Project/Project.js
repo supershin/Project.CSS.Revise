@@ -4,6 +4,12 @@
  *************************************************/
 
 /* =========================
+   One-time global guards (fix “called 3 times”)
+   ========================= */
+window.__projectPageInit = window.__projectPageInit || false;
+window.__syncingProjects = window.__syncingProjects || new Set();
+
+/* =========================
    Utilities & Globals
    ========================= */
 const _base = (typeof baseUrl !== 'undefined' && baseUrl) ? baseUrl : '/';
@@ -30,25 +36,31 @@ let _editModalInst;
    ========================= */
 function initCompanyDropdown() {
     const el = document.getElementById('ddl_company');
-    if (!el) return;
+    if (!el || el.dataset._inited === '1') return;
+    el.dataset._inited = '1';
+
     choicesCompany = new Choices(el, {
         removeItemButton: true, searchEnabled: true,
         placeholderValue: 'Select company', itemSelectText: '', shouldSort: false
     });
-    el.addEventListener('change', onFilterChanged);
+    el.addEventListener('change', onFilterChanged, { once: false });
 }
 function initBuDropdown() {
-    const el = document.getElementById('ddl_bug');
-    if (!el) return;
+    const el = document.getElementById('ddl_bug'); // keep original id
+    if (!el || el.dataset._inited === '1') return;
+    el.dataset._inited = '1';
+
     choicesBu = new Choices(el, {
         removeItemButton: true, searchEnabled: true,
         placeholderValue: 'Select BU', itemSelectText: '', shouldSort: false
     });
-    el.addEventListener('change', onFilterChanged);
+    el.addEventListener('change', onFilterChanged, { once: false });
 }
 function initProjectDropdown() {
     const el = document.getElementById('ddl_project');
-    if (!el) return;
+    if (!el || el.dataset._inited === '1') return;
+    el.dataset._inited = '1';
+
     choicesProject = new Choices(el, {
         removeItemButton: true, searchEnabled: true,
         placeholderValue: 'Select project', itemSelectText: '', shouldSort: false
@@ -78,7 +90,10 @@ function loadProjectsByFilters() {
             choicesProject.clearStore();
 
             if (!json?.success || list.length === 0) {
-                choicesProject.setChoices([{ value: '', label: '— No projects —', disabled: true }], 'value', 'label', true);
+                choicesProject.setChoices(
+                    [{ value: '', label: '— No projects —', disabled: true }],
+                    'value', 'label', true
+                );
                 return;
             }
 
@@ -92,7 +107,10 @@ function loadProjectsByFilters() {
             if (err?.name === 'AbortError') return;
             console.error('Load projects failed:', err);
             choicesProject.clearStore();
-            choicesProject.setChoices([{ value: '', label: 'Failed to load projects', disabled: true }], 'value', 'label', true);
+            choicesProject.setChoices(
+                [{ value: '', label: 'Failed to load projects', disabled: true }],
+                'value', 'label', true
+            );
         });
 }
 
@@ -100,35 +118,44 @@ function loadProjectsByFilters() {
    Table: fetch & render
    ========================= */
 document.addEventListener('DOMContentLoaded', () => {
+    // prevent whole-page init more than once even if this script is included multiple times
+    if (window.__projectPageInit) return;
+    window.__projectPageInit = true;
+
     initCompanyDropdown();
     initBuDropdown();
     initProjectDropdown();
 
     // --- Search button: show loading overlay ---
     const btnSearch = document.getElementById('btnFilterSearch');
-    if (btnSearch) {
+    if (btnSearch && !btnSearch.dataset._inited) {
+        btnSearch.dataset._inited = '1';
         btnSearch.addEventListener('click', async () => {
             try {
-                showLoading();
+                showLoading?.();
                 await fetchProjectTable();   // must return a Promise
             } catch (err) {
                 console.error('fetchProjectTable failed:', err);
-                errorToast('Failed to load project list');
+                errorToast?.('Failed to load project list');
             } finally {
-                hideLoading();
+                hideLoading?.();
             }
         });
     }
 
     // --- Cancel button: reset filters + clear table ---
-    document.getElementById('btnFilterCancel')?.addEventListener('click', () => {
-        choicesCompany?.removeActiveItems();
-        choicesBu?.removeActiveItems();
-        choicesProject?.removeActiveItems();
+    const btnCancel = document.getElementById('btnFilterCancel');
+    if (btnCancel && !btnCancel.dataset._inited) {
+        btnCancel.dataset._inited = '1';
+        btnCancel.addEventListener('click', () => {
+            choicesCompany?.removeActiveItems();
+            choicesBu?.removeActiveItems();
+            choicesProject?.removeActiveItems();
 
-        loadProjectsByFilters(); // reset all dropdowns
-        renderProjectTable([]);  // clear table
-    });
+            loadProjectsByFilters(); // reset all dropdowns
+            renderProjectTable([]);  // clear table
+        });
+    }
 
     // --- Modal init ---
     _editModalInst = bootstrap.Modal.getOrCreateInstance(document.getElementById('mdlEditProject'));
@@ -136,27 +163,108 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Sticky header visual shadow ---
     const tblWrap = document.querySelector('#card_project_list .table-responsive');
-    tblWrap?.addEventListener('scroll', () => {
-        tblWrap.classList.toggle('has-sticky', tblWrap.scrollTop > 0);
-    }, { passive: true });
+    if (tblWrap && !tblWrap.dataset._shadowInited) {
+        tblWrap.dataset._shadowInited = '1';
+        tblWrap.addEventListener('scroll', () => {
+            tblWrap.classList.toggle('has-sticky', tblWrap.scrollTop > 0);
+        }, { passive: true });
 
-    // --- Mark rows that sit under sticky header ---
-    const thead = tblWrap?.querySelector('thead');
-    if (tblWrap && thead) {
-        const markRowsUnderHeader = () => {
-            const headerBottom = thead.getBoundingClientRect().bottom;
-            tblWrap.querySelectorAll('tbody tr').forEach(tr => {
-                const r = tr.getBoundingClientRect();
-                if (r.top < headerBottom) tr.classList.add('under-header');
-                else tr.classList.remove('under-header');
-            });
-        };
-        tblWrap.addEventListener('scroll', markRowsUnderHeader, { passive: true });
-        window.addEventListener('resize', markRowsUnderHeader);
-        markRowsUnderHeader();
+        // --- Mark rows that sit under sticky header ---
+        const thead = tblWrap.querySelector('thead');
+        if (thead) {
+            const markRowsUnderHeader = () => {
+                const headerBottom = thead.getBoundingClientRect().bottom;
+                tblWrap.querySelectorAll('tbody tr').forEach(tr => {
+                    const r = tr.getBoundingClientRect();
+                    if (r.top < headerBottom) tr.classList.add('under-header');
+                    else tr.classList.remove('under-header');
+                });
+            };
+            tblWrap.addEventListener('scroll', markRowsUnderHeader, { passive: true });
+            window.addEventListener('resize', markRowsUnderHeader);
+            markRowsUnderHeader();
+        }
     }
-});
 
+    /* =========================
+       ✅ Sync click: delegate (bind ONCE truly)
+       ========================= */
+    const tbody = document.querySelector('#tbl_projects tbody');
+    if (tbody && !tbody.dataset._syncBound) {
+        tbody.dataset._syncBound = '1';
+        tbody.addEventListener('click', async (e) => {
+            const btn = e.target.closest('.btn-sync');
+            if (!btn) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const tr = btn.closest('tr');
+            const projectID =
+                tr?.querySelector('td:first-child')?.textContent.trim() ||
+                tr?.dataset.projectId ||
+                '';
+
+            if (!projectID) {
+                showWarning?.('Missing ProjectID');
+                return;
+            }
+
+            // ป้องกันกดซ้ำ
+            if (window.__syncingProjects.has(projectID)) {
+                console.warn(`Already syncing project ${projectID}`);
+                return;
+            }
+
+            // ✅ ใช้ SweetAlert2 confirm
+            const result = await Swal.fire({
+                title: 'Sync Project',
+                html: `Do you want to sync project <b>${projectID}</b> from CRM?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Sync it!',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                reverseButtons: true,
+            });
+
+            if (!result.isConfirmed) return;
+
+            // Lock project
+            window.__syncingProjects.add(projectID);
+
+            // Spinner
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span>`;
+
+            try {
+                await doSyncProject(projectID); // มี loading ในฟังก์ชันนี้อยู่แล้ว
+                await fetchProjectTable();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Sync Completed',
+                    text: `Project ${projectID} has been synchronized successfully.`,
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+            } catch (err) {
+                console.error('Sync error:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Sync Failed',
+                    text: err?.message || 'Unknown error occurred while syncing.',
+                });
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+                window.__syncingProjects.delete(projectID);
+            }
+        }, { passive: false });
+    }
+
+});
 
 async function fetchProjectTable() {
     const companies = getChoicesVals(choicesCompany);
@@ -200,27 +308,23 @@ function renderProjectTable(list) {
         tr.dataset.buId = row.BUID ?? '';
         tr.dataset.partnerId = row.PartnerID ?? '';
         tr.dataset.landOfficeId = row.LandOfficeID ?? '';
-        tr.dataset.projectZoneId = row.ProjectZoneID ?? '';   // CSV e.g. "206,450"
-        tr.dataset.statusId = row.ProjectStatusID ?? row.StatusID ?? ''; // if available
+        tr.dataset.projectZoneId = row.ProjectZoneID ?? '';
+        tr.dataset.statusId = row.ProjectStatusID ?? row.StatusID ?? '';
 
-        // zone tags
         const zoneNames = (row.ProjectZonename || '').split(',').map(s => s.trim()).filter(Boolean);
         const zoneHtml = zoneNames.length
             ? zoneNames.map(z => `<span class="tag"><i class="bi bi-geo-alt"></i>${escapeHtml(z)}</span>`).join('')
             : '';
 
-        // type icon
         const type = (row.ProjectType || '').trim().toUpperCase();
         let typeIcon = '';
         if (type === 'C') typeIcon = `<i class="bi bi-building text-primary me-1"></i>`;
         else if (type === 'H') typeIcon = `<i class="bi bi-house-door text-success me-1"></i>`;
 
-        // company + icon (only when has value)
         const companyHtml = row.CompanyName
             ? `<i class="bi bi-building me-1 text-secondary"></i>${escapeHtml(row.CompanyName)}`
             : '';
 
-        // land office + icon (only when has value)
         const landOfficeHtml = row.LandOfficeName
             ? `<i class="bi bi-geo text-warning me-1"></i>${escapeHtml(row.LandOfficeName)}`
             : '';
@@ -246,11 +350,11 @@ function renderProjectTable(list) {
       </td>
     `;
 
-        // Edit click → open modal with this row
+        // Edit handler (per row)
         tr.querySelector('.btn-edit')?.addEventListener('click', () => {
             const rowData = {
                 ProjectID: tr.querySelector('td:nth-child(1)')?.textContent.trim() || row.ProjectID || '',
-                CompanyID: tr.dataset.companyId || row.CompanyID || '',   // <-- add this
+                CompanyID: tr.dataset.companyId || row.CompanyID || '',
                 CompanyName: tr.querySelector('td:nth-child(2)')?.innerText.trim() || row.CompanyName || '',
                 BUID: tr.dataset.buId || row.BUID || '',
                 PartnerID: tr.dataset.partnerId || row.PartnerID || '',
@@ -265,12 +369,7 @@ function renderProjectTable(list) {
             openEditProjectModal(rowData);
         });
 
-
-        // Optional: Sync
-        tr.querySelector('.btn-sync')?.addEventListener('click', () => {
-            console.log('Sync clicked:', row.ProjectID);
-            // TODO: implement your sync call
-        });
+        // ❌ DO NOT attach per-row .btn-sync handler here (we delegate above)
 
         tbody.appendChild(tr);
     });
@@ -397,7 +496,6 @@ function openEditProjectModal(row) {
     _editModalInst?.show();
 }
 
-
 async function onSaveProject() {
     // zone (single or multi → first)
     const zoneSelect = document.getElementById('ddl_edit_zones');
@@ -453,11 +551,11 @@ async function onSaveProject() {
     if (!payload.ProjectZoneID) missing.push('ProjectZoneID');
 
     if (missing.length) {
-        errorMessage('Missing/invalid: ' + missing.join(', '));
+        errorMessage?.('Missing/invalid: ' + missing.join(', '));
         return;
     }
 
-    showLoading();
+    showLoading?.();
     try {
         const res = await fetch(_base + 'Project/SaveEditProject', {
             method: 'POST',
@@ -466,25 +564,45 @@ async function onSaveProject() {
         });
 
         if (!res.ok) {
-            hideLoading();
-            errorMessage(`HTTP ${res.status} ${res.statusText}`);
+            hideLoading?.();
+            errorMessage?.(`HTTP ${res.status} ${res.statusText}`);
             return;
         }
 
         const json = await res.json(); // { success, message }
-        hideLoading();
-        showApiResult(json, { mode: 'modal' });
+        hideLoading?.();
+        showApiResult?.(json, { mode: 'modal' });
 
         if (json && json.success) {
             _editModalInst?.hide();
             await fetchProjectTable();
         }
     } catch (err) {
-        hideLoading();
-        errorMessage('Network error: ' + (err?.message || err));
+        hideLoading?.();
+        errorMessage?.('Network error: ' + (err?.message || err));
     }
 }
 
+/* =========================
+   Sync API call (single place)
+   ========================= */
+async function doSyncProject(projectID) {
+    showLoading?.();
+    try {
+        const fd = new FormData();
+        fd.append('ProjectID', projectID);
 
-
-
+        const res = await _post(_base + 'Project/SyncProjectCrm', fd);
+        const json = await res.json();
+        console.log(res);
+        if (json?.success) {
+            successMessage?.(json.message || 'Sync completed.');
+            return;
+        }
+        // only one warning + throw
+        showWarning?.(json?.message || 'Sync failed.');
+        throw new Error(json?.message || 'Sync failed.');
+    } finally {
+        hideLoading?.();
+    }
+}

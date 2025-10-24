@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualBasic;
 using System.Data.SqlTypes;
 using System.Globalization;
+using System.Reflection;
 
 
 namespace Project.CSS.Revise.Web.Commond
@@ -12,6 +13,71 @@ namespace Project.CSS.Revise.Web.Commond
         public static string StandardCulture = "en-US";
         public static string StandardDateFormat = "yyyy-MM-dd";
         public static string StandardDateTimeFormat = "yyyy-MM-dd HH:mm";
+
+        /// <summary>
+        /// Copy matching property values from source to target.
+        /// - Skips indexers
+        /// - Handles null / Nullable<T> / enums / basic conversions
+        /// - Set ignoreCase=true if you want case-insensitive matching
+        /// </summary>
+        public static void CopyTo(this object source, object target, bool ignoreCase = false)
+        {
+            if (source == null || target == null) return;
+
+            var srcProps = source.GetType()
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.CanRead && p.GetIndexParameters().Length == 0);
+
+            var trgProps = target.GetType()
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.CanWrite && p.GetIndexParameters().Length == 0)
+                .ToDictionary(
+                    p => ignoreCase ? p.Name.ToLowerInvariant() : p.Name,
+                    p => p
+                );
+
+            foreach (var sp in srcProps)
+            {
+                var key = ignoreCase ? sp.Name.ToLowerInvariant() : sp.Name;
+                if (!trgProps.TryGetValue(key, out var tp)) continue;
+
+                object val = sp.GetValue(source, null);
+                if (val == null)
+                {
+                    // If target prop is value type (non-nullable), skip
+                    if (Nullable.GetUnderlyingType(tp.PropertyType) != null)
+                        tp.SetValue(target, null);
+                    continue;
+                }
+
+                var targetType = Nullable.GetUnderlyingType(tp.PropertyType) ?? tp.PropertyType;
+
+                try
+                {
+                    if (targetType.IsAssignableFrom(val.GetType()))
+                    {
+                        tp.SetValue(target, val);
+                    }
+                    else if (targetType.IsEnum)
+                    {
+                        object converted = val is string s
+                            ? Enum.Parse(targetType, s, true)
+                            : Enum.ToObject(targetType, val);
+                        tp.SetValue(target, converted);
+                    }
+                    else
+                    {
+                        var converted = Convert.ChangeType(val, targetType, CultureInfo.InvariantCulture);
+                        tp.SetValue(target, converted);
+                    }
+                }
+                catch
+                {
+                    // swallow invalid conversions silently, as per your original behavior
+                }
+            }
+        }
+
         public static Guid AsGuid(this Guid? value1)
         {
             return value1.HasValue ? value1.Value : Guid.Empty;

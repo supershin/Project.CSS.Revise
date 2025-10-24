@@ -1,22 +1,75 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Data;
+using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Pages.Project;
-
+using Project.CSS.Revise.Web.Service;
+using System.Data;
+using System.Reflection;
 namespace Project.CSS.Revise.Web.Respositories
 {
     public interface IProjectRepo
     {
         public List<ProjectSettingModel.ListProjectItem> GetlistProjectTable(ProjectSettingModel.ProjectFilter filter);
         public ProjectSettingModel.ReturnMessage SaveEditProject(ProjectSettingModel.DataProjectIUD Model);
+        public ProjectSettingModel.ReturnMessage SaveUpdateUnitViewTempBlk(string projectID, int UserID);
     }
+    public static class ObjectCopyExtensions
+    {
+        public static TTarget CopyToSafe<TTarget>(this object source, TTarget target)
+        {
+            if (source == null || target == null) return target;
+
+            var sProps = source.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                               .Where(p => p.CanRead);
+
+            var tProps = target.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                               .Where(p => p.CanWrite)
+                               .ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var sp in sProps)
+            {
+                if (!tProps.TryGetValue(sp.Name, out var tp)) continue;
+
+                var val = sp.GetValue(source, null);
+                if (val == null)
+                {
+                    if (!tp.PropertyType.IsValueType || Nullable.GetUnderlyingType(tp.PropertyType) != null)
+                        tp.SetValue(target, null);
+                    continue;
+                }
+
+                try
+                {
+                    var tType = Nullable.GetUnderlyingType(tp.PropertyType) ?? tp.PropertyType;
+                    if (tType.IsAssignableFrom(val.GetType()))
+                    {
+                        tp.SetValue(target, val);
+                    }
+                    else
+                    {
+                        var conv = Convert.ChangeType(val, tType, System.Globalization.CultureInfo.InvariantCulture);
+                        tp.SetValue(target, conv);
+                    }
+                }
+                catch
+                {
+                    // ข้าม field ที่แปลงไม่ได้
+                }
+            }
+            return target;
+        }
+    }
+
     public class ProjectRepo : IProjectRepo
     {
         private readonly CSSContext _context;
-
-        public ProjectRepo(CSSContext context)
+        private readonly SystemConstantCentralize _central;
+        public ProjectRepo(CSSContext context, SystemConstantCentralize central)
         {
             _context = context;
+            _central = central;
         }
 
         public List<ProjectSettingModel.ListProjectItem> GetlistProjectTable(ProjectSettingModel.ProjectFilter filter)
@@ -297,5 +350,140 @@ namespace Project.CSS.Revise.Web.Respositories
             }
         }
 
+        public ProjectSettingModel.ReturnMessage SaveUpdateUnitViewTempBlk(string projectID , int UserID)
+        {
+            var ret = new ProjectSettingModel.ReturnMessage
+            {
+                IsSuccess = false,
+                Message = ""
+            };
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(projectID))
+                {
+                    ret.Message = "ProjectID is required.";
+                    return ret;
+                }
+
+                // Set EF command timeout to 1 hour
+                _context.Database.SetCommandTimeout(TimeSpan.FromHours(1));
+
+                // 1) Get data from CENTRALIZE API (sync method)
+                var units = GetUnitViewTempBlk_API(projectID);
+                if (units == null || units.Count == 0)
+                {
+                    ret.Message = "No unit data found for synchronization.";
+                    return ret;
+                }
+
+                using (var tx = _context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        // 2) Delete old records via stored procedure
+                        DeleteViewTempBlkUnit(projectID);
+
+                        // 3) Insert new records using EF (AddRange + single SaveChanges)
+                        InsertUnitViewTempBlk_ByEF(units);
+
+                        // 4) Continue with related updates (same as original code)
+                        UpdateUnitContract(projectID);
+                        InserSyncLogs(projectID, "Sync Project From CRM" , UserID);
+
+                        tx.Commit();
+
+                        ret.IsSuccess = true;
+                        ret.Message = $"Successfully synchronized {units.Count} records for ProjectID = {projectID}.";
+                        return ret;
+                    }
+                    catch (Exception ex)
+                    {
+                        try { tx.Rollback(); } catch { /* ignore */ }
+
+                        ret.IsSuccess = false;
+                        ret.Message = "Transaction failed: " + ex.Message;
+                        return ret;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.IsSuccess = false;
+                ret.Message = "Save failed: " + ex.Message;
+                return ret;
+            }
+        }
+
+
+        public List<ViewTempBlkUnit> GetUnitViewTempBlk_API(string ProjectID)
+        {
+            try
+            {
+                WebAPIRest api = new WebAPIRest();
+                string url = string.Format(_central.CentralizeApiUrl + "api/Master/GetViewTempBlkList");
+                var data = api.RequestPostWebAPI<ObjectAPI<List<ViewTempBlkUnit>>>(url, new { ProjectID = ProjectID }, _central.CentralizeAuthorize).Data;
+                return data.ToList();
+            }
+            catch (Exception)
+            {
+                return new List<ViewTempBlkUnit>();
+            }
+        }
+
+        // ========== INSERT แบบ EF (เทียบเท่าของเดิม แต่เร็วกว่า) ==========
+        private void InsertUnitViewTempBlk_ByEF(IEnumerable<ViewTempBlkUnit> items)
+        {
+            if (items == null) return;
+            var list = new List<vw_ITF_TempBlakUnit>(capacity: 1024);
+
+            foreach (var obj in items)
+            {
+                var entity = new vw_ITF_TempBlakUnit();
+                obj.CopyToSafe(entity);     // ดู extension ด้านล่าง
+                entity.ID = Guid.NewGuid(); // ของเดิมก็ gen Guid ใหม่
+                _context.Entry(entity).State = EntityState.Added;
+                list.Add(entity);
+            }
+
+            if (list.Count > 0)
+            {
+                _context.vw_ITF_TempBlakUnits.AddRange(list);
+                _context.SaveChanges(); // ครั้งเดียว
+            }
+        }
+
+        // ========== Stored Proc: DELETE (ของเดิม ใช้ต่อได้เลย) ==========
+        public int DeleteViewTempBlkUnit(string projectID)
+        {
+            if (string.IsNullOrWhiteSpace(projectID))
+                return 0;
+            var p = new SqlParameter("@ProjectID", projectID);
+            const string sql = @"DELETE FROM vw_ITF_TempBlakUnit WHERE FREPRJNO = @ProjectID;";
+            return _context.Database.ExecuteSqlRaw(sql, p);
+        }
+
+
+        // (ถ้าจะใช้) เรียกคู่เดิมหลัง insert เสร็จ
+        private void UpdateUnitContract(string projectID)
+        {
+            var p = new SqlParameter("@ProjectID", projectID);
+            _context.Database.ExecuteSqlRaw("EXEC sp_InitialData @ProjectID", p);
+            _context.Database.ExecuteSqlRaw("EXEC sp_PR_UpdateContractCodeVerify");
+        }
+
+        // (ถ้าจะใช้) log sync
+        private void InserSyncLogs(string projectID, string detail , int USerID)
+        {
+            var item = new TR_Sync_Log
+            {
+                ProjectID = projectID,
+                Detail = detail,
+                CreateDate = DateTime.Now,
+                CreateBy = USerID
+            };
+            _context.TR_Sync_Logs.Add(item);
+            _context.SaveChanges();
+        }
     }
 }
