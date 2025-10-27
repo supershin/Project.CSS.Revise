@@ -703,174 +703,6 @@ function hexToRgba(hex, a = 0.35) {
         return `rgba(${r},${g},${b},${a})`;
     } catch { return 'rgba(255,255,255,0.35)'; }
 }
-
-//function renderSummaryCards(datasum) {
-//    const container = document.getElementById('cardSummary'); if (!container) return;
-//    container.innerHTML = '';
-//    const order = [
-//        { key: 'Target', label: 'Target' },
-//        { key: 'WorkingTarget', label: 'Working Target' },
-//        { key: 'MLL', label: 'MLL' },
-//        { key: 'Rolling', label: 'Rolling' },
-//        { key: 'WorkingRolling', label: 'Working Rolling' },
-//        { key: 'Actual', label: 'Actual' }
-//    ];
-//    order.forEach(slot => {
-//        const item = (datasum || []).find(it => (it?.PlanTypeName || '').toLowerCase().replace(/\s/g, '') === slot.key.toLowerCase());
-//        const unit = (item?.Unit ?? 0).toLocaleString();
-//        const value = (item?.Value ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-//        const bg = normalizeBg(item?.ColorClass) || '#0d6efd';
-//        const fg = idealTextColor(bg);
-//        const div = hexToRgba(fg, 0.35);
-//        const card = document.createElement('div');
-//        card.className = 'summary-card';
-//        card.style.setProperty('--bg', bg);
-//        card.style.setProperty('--fg', fg);
-//        card.style.setProperty('--divider', div);
-//        card.innerHTML = `
-//      <div class="sc-title">${slot.label}</div>
-//      <div class="sc-grid">
-//        <div class="sc-cell"><div class="sc-label">Unit</div><div class="sc-value">${unit}</div></div>
-//        <div class="sc-cell"><div class="sc-label">Value (MB)</div><div class="sc-value">${value}</div></div>
-//      </div>`;
-//        container.appendChild(card);
-//    });
-//}
-
-//function renderSummaryCards(datasum) {
-//    const container = document.getElementById('cardSummary');
-//    if (!container) return;
-//    container.innerHTML = '';
-
-//    // helpers
-//    const normKey = s => (s || '').toLowerCase().replace(/\s/g, '');
-//    const toNum = v => {
-//        if (typeof v === 'number') return isFinite(v) ? v : 0;
-//        if (typeof v === 'string') {
-//            const cleaned = v.replace(/mb$/i, '').replace(/[, ]+/g, '').trim();
-//            const n = parseFloat(cleaned);
-//            return isNaN(n) ? 0 : n;
-//        }
-//        return 0;
-//    };
-//    const safeDiv = (a, b) => {
-//        const A = toNum(a), B = toNum(b);
-//        return B === 0 ? 0 : A / B;
-//    };
-//    const fmtInt = n => toNum(n).toLocaleString();
-//    const fmtMoney = n => toNum(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-//    const fmtPct = (r, frac = 2) => (r * 100).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: frac }) + '%';
-
-//    // index by PlanTypeName
-//    const idx = {};
-//    (datasum || []).forEach(it => { idx[normKey(it?.PlanTypeName)] = it || {}; });
-
-//    const target = idx['target'] || {};
-//    const workingTarget = idx['workingtarget'] || {};
-//    const mll = idx['mll'] || {};
-//    const rolling = idx['rolling'] || {};
-//    const workingRolling = idx['workingrolling'] || {};
-//    const actual = idx['actual'] || {};
-
-//    // computed ratios
-//    const achieveTargetUnitRatio = safeDiv(actual.Unit, target.Unit);
-//    const achieveTargetValueRatio = safeDiv(actual.Value, target.Value);
-//    const achieveWorkUnitRatio = safeDiv(actual.Unit, workingTarget.Unit);
-//    const achieveWorkValueRatio = safeDiv(actual.Value, workingTarget.Value);
-
-//    // renderer
-//    const renderCard = ({ label, unitText, valueText, colorClass, isAchieve }) => {
-//        const bg = normalizeBg(colorClass) || '#0d6efd';
-//        const fg = idealTextColor(bg);
-//        const div = hexToRgba(fg, 0.35);
-
-//        const card = document.createElement('div');
-//        card.className = 'summary-card';
-//        card.style.setProperty('--bg', bg);
-//        card.style.setProperty('--fg', fg);
-//        card.style.setProperty('--divider', div);
-
-//        const unitLabel = isAchieve ? 'Diff Unit' : 'Unit';
-//        const valueLabel = isAchieve ? 'Diff Value' : 'Value (MB)';
-
-//        card.innerHTML = `
-//      <div class="sc-title">${label}</div>
-//      <div class="sc-grid">
-//        <div class="sc-cell">
-//          <div class="sc-label">${unitLabel}</div>
-//          <div class="sc-value">${unitText}</div>
-//        </div>
-//        <div class="sc-cell">
-//          <div class="sc-label">${valueLabel}</div>
-//          <div class="sc-value">${valueText}</div>
-//        </div>
-//      </div>
-//    `;
-//        container.appendChild(card);
-//    };
-
-//    // ---- ORDER (exactly as requested) ----
-//    // Row 1
-//    renderCard({
-//        label: 'Target',
-//        unitText: fmtInt(target?.Unit ?? 0),
-//        valueText: fmtMoney(target?.Value ?? 0),
-//        colorClass: target?.ColorClass,
-//        isAchieve: false
-//    });
-//    renderCard({
-//        label: 'Working Target',
-//        unitText: fmtInt(workingTarget?.Unit ?? 0),
-//        valueText: fmtMoney(workingTarget?.Value ?? 0),
-//        colorClass: workingTarget?.ColorClass,
-//        isAchieve: false
-//    });
-//    renderCard({
-//        label: 'MLL',
-//        unitText: fmtInt(mll?.Unit ?? 0),
-//        valueText: fmtMoney(mll?.Value ?? 0),
-//        colorClass: mll?.ColorClass,
-//        isAchieve: false
-//    });
-//    renderCard({
-//        label: 'Achieve Target %',
-//        unitText: fmtPct(achieveTargetUnitRatio, 2),
-//        valueText: fmtPct(achieveTargetValueRatio, 2),
-//        colorClass: '#20c997', // teal
-//        isAchieve: true
-//    });
-
-//    // Row 2
-//    renderCard({
-//        label: 'Rolling',
-//        unitText: fmtInt(rolling?.Unit ?? 0),
-//        valueText: fmtMoney(rolling?.Value ?? 0),
-//        colorClass: rolling?.ColorClass,
-//        isAchieve: false
-//    });
-//    renderCard({
-//        label: 'Working Rolling',
-//        unitText: fmtInt(workingRolling?.Unit ?? 0),
-//        valueText: fmtMoney(workingRolling?.Value ?? 0),
-//        colorClass: workingRolling?.ColorClass,
-//        isAchieve: false
-//    });
-//    renderCard({
-//        label: 'Actual',
-//        unitText: fmtInt(actual?.Unit ?? 0),
-//        valueText: fmtMoney(actual?.Value ?? 0),
-//        colorClass: actual?.ColorClass,
-//        isAchieve: false
-//    });
-//    renderCard({
-//        label: 'Achieve Working Target %',
-//        unitText: fmtPct(achieveWorkUnitRatio, 2),
-//        valueText: fmtPct(achieveWorkValueRatio, 2),
-//        colorClass: '#20c997', // purple
-//        isAchieve: true
-//    });
-//}
-
 function renderSummaryCards(datasum) {
     const container = document.getElementById('cardSummary');
     if (!container) return;
@@ -889,7 +721,14 @@ function renderSummaryCards(datasum) {
     };
     const safeDiv = (a, b) => {
         const A = toNum(a), B = toNum(b);
-        return B === 0 ? 0 : A / B;
+        return A - B;
+    };
+    // ตัวช่วยคำนวณ % จาก Value (กันหารศูนย์ + ฟอร์แมตทศนิยม)
+    const pctByValue = (num, den, frac = 2) => {
+        const N = toNum(num), D = toNum(den);
+        if (!isFinite(N) || !isFinite(D) || D === 0) return (0).toFixed(frac) + ' %';
+        const r = (N / D) * 100;
+        return r.toLocaleString(undefined, { minimumFractionDigits: frac, maximumFractionDigits: frac }) + ' %';
     };
     const fmtInt = n => toNum(n).toLocaleString();
     const fmtMoney = n => toNum(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -976,11 +815,11 @@ function renderSummaryCards(datasum) {
         isAchieve: false
     });
     renderCard({
-        label: 'Achieve Target %',
-        unitText: fmtPct(achieveTargetUnitRatio, 2),
-        valueText: fmtPct(achieveTargetValueRatio, 2),
-        colorClass: '#20c997', // teal
-        isAchieve: true        // ← จะได้ตัวอักษรขาว
+        label: `Achieve Target ${pctByValue(actual.Value, target.Value)}`,
+        unitText: achieveTargetUnitRatio,     // คงเดิม (ค่าลบที่พ่อใหญ่คำนวณไว้)
+        valueText: achieveTargetValueRatio,   // คงเดิม
+        colorClass: '#20c997',
+        isAchieve: true
     });
 
     // Row 2
@@ -1006,12 +845,13 @@ function renderSummaryCards(datasum) {
         isAchieve: false       // แต่ถูกบังคับให้ตัวอักษรขาวจาก mustWhite ด้านบน
     });
     renderCard({
-        label: 'Achieve Working Target %',
-        unitText: fmtPct(achieveWorkUnitRatio, 2),
-        valueText: fmtPct(achieveWorkValueRatio, 2),
-        colorClass: '#20c997', // teal
-        isAchieve: true        // ← จะได้ตัวอักษรขาว
+        label: `Achieve Working Target ${pctByValue(actual.Value, workingTarget.Value)}`,
+        unitText: achieveWorkUnitRatio,       // คงเดิม
+        valueText: achieveWorkValueRatio,     // คงเดิม
+        colorClass: '#20c997',
+        isAchieve: true
     });
+
 }
 
 
