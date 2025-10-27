@@ -721,7 +721,13 @@ function renderSummaryCards(datasum) {
     };
     const safeDiv = (a, b) => {
         const A = toNum(a), B = toNum(b);
-        return A - B;
+        const result = A - B;
+        return result.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+    const safeDiv2 = (a, b) => {
+        const A = toNum(a), B = toNum(b);
+        const result = A - B;
+        return result.toLocaleString('en-US', { maximumFractionDigits: 0 });
     };
     // ตัวช่วยคำนวณ % จาก Value (กันหารศูนย์ + ฟอร์แมตทศนิยม)
     const pctByValue = (num, den, frac = 2) => {
@@ -752,9 +758,9 @@ function renderSummaryCards(datasum) {
     const actual = idx['actual'] || {};
 
     // computed ratios
-    const achieveTargetUnitRatio = safeDiv(actual.Unit, target.Unit);
+    const achieveTargetUnitRatio = safeDiv2(actual.Unit, target.Unit);
     const achieveTargetValueRatio = safeDiv(actual.Value, target.Value);
-    const achieveWorkUnitRatio = safeDiv(actual.Unit, workingTarget.Unit);
+    const achieveWorkUnitRatio = safeDiv2(actual.Unit, workingTarget.Unit);
     const achieveWorkValueRatio = safeDiv(actual.Value, workingTarget.Value);
 
     // renderer (บังคับตัวอักษรขาวเมื่อเป็นการ์ด Achieve/* หรือ Actual)
