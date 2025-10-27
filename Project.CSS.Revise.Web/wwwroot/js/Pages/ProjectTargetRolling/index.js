@@ -722,12 +722,15 @@ function renderSummaryCards(datasum) {
     const safeDiv = (a, b) => {
         const A = toNum(a), B = toNum(b);
         const result = A - B;
-        return result.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const formatted = result.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return result < 0 ? `<span style="color:red;">${formatted}</span>` : formatted;
     };
+
     const safeDiv2 = (a, b) => {
         const A = toNum(a), B = toNum(b);
         const result = A - B;
-        return result.toLocaleString('en-US', { maximumFractionDigits: 0 });
+        const formatted = result.toLocaleString('en-US', { maximumFractionDigits: 0 });
+        return result < 0 ? `<span style="color:red;">${formatted}</span>` : formatted;
     };
     // ตัวช่วยคำนวณ % จาก Value (กันหารศูนย์ + ฟอร์แมตทศนิยม)
     const pctByValue = (num, den, frac = 2) => {
@@ -822,8 +825,8 @@ function renderSummaryCards(datasum) {
     });
     renderCard({
         label: `Achieve Target ${pctByValue(actual.Value, target.Value)}`,
-        unitText: achieveTargetUnitRatio,     // คงเดิม (ค่าลบที่พ่อใหญ่คำนวณไว้)
-        valueText: achieveTargetValueRatio,   // คงเดิม
+        unitText: achieveTargetUnitRatio,
+        valueText: achieveTargetValueRatio,
         colorClass: '#20c997',
         isAchieve: true
     });
@@ -852,12 +855,11 @@ function renderSummaryCards(datasum) {
     });
     renderCard({
         label: `Achieve Working Target ${pctByValue(actual.Value, workingTarget.Value)}`,
-        unitText: achieveWorkUnitRatio,       // คงเดิม
-        valueText: achieveWorkValueRatio,     // คงเดิม
+        unitText: achieveWorkUnitRatio,
+        valueText: achieveWorkValueRatio,
         colorClass: '#20c997',
         isAchieve: true
     });
-
 }
 
 
