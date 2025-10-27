@@ -12,7 +12,6 @@ window.__syncingProjects = window.__syncingProjects || new Set();
 /* =========================
    Utilities & Globals
    ========================= */
-const _base = (typeof baseUrl !== 'undefined' && baseUrl) ? baseUrl : '/';
 const _post = (url, body, signal) => fetch(url, { method: 'POST', body, signal });
 const getChoicesVals = (inst) => {
     try {
@@ -83,7 +82,7 @@ function loadProjectsByFilters() {
     try { projectAbortCtrl?.abort(); } catch { }
     projectAbortCtrl = new AbortController();
 
-    _post(_base + 'Project/GetProjectListByBU', fd, projectAbortCtrl.signal)
+    _post(baseUrl + 'Project/GetProjectListByBU', fd, projectAbortCtrl.signal)
         .then(r => r.json())
         .then(json => {
             const list = json?.data || [];
@@ -279,7 +278,7 @@ async function fetchProjectTable() {
     fd.append('L_ProjectPartner', '');
 
     try {
-        const res = await _post(_base + 'Project/GetListProjectTable', fd);
+        const res = await _post(baseUrl + 'Project/GetListProjectTable', fd);
         const json = await res.json();
         const list = json?.data || [];
         renderProjectTable(list);
@@ -557,7 +556,7 @@ async function onSaveProject() {
 
     showLoading?.();
     try {
-        const res = await fetch(_base + 'Project/SaveEditProject', {
+        const res = await fetch(baseUrl + 'Project/SaveEditProject', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -592,7 +591,7 @@ async function doSyncProject(projectID) {
         const fd = new FormData();
         fd.append('ProjectID', projectID);
 
-        const res = await _post(_base + 'Project/SyncProjectCrm', fd);
+        const res = await _post(baseUrl + 'Project/SyncProjectCrm', fd);
         const json = await res.json();
         console.log(res);
         if (json?.success) {

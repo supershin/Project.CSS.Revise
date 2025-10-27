@@ -147,47 +147,88 @@
 
 
 
+/* ===========================
+   SUMMARY CARDS — FULL CSS
+   - 4 cols on desktop
+   - FORCE 4 cols on iPad mini (768–1024) by shrinking cards
+   - graceful downscale on phones
+   =========================== */
 
 /* ===== Layout container ===== */
 .summary-grid,
 #cardSummary { /* fallback id เดิม */
     display: grid !important; /* override ถ้ามี d-flex ติดมา */
-    grid-template-columns: repeat(4, minmax(220px, 1fr)); /* ⬅️ 4 per row on desktop */
+    grid-template-columns: repeat(4, minmax(220px, 1fr)); /* 4 per row on desktop */
     gap: 14px;
 }
 
-/* ≥1200px = 4 cols (default above) */
-/* 1200px down to 993px = 3 cols (like col-4) */
-@media (max-width: 1199.98px) {
-    .summary-grid,
-    #cardSummary {
-        grid-template-columns: repeat(3, minmax(220px, 1fr));
+/* --- FORCE 4 COLUMNS ON iPad mini SIZES (landscape & portrait) --- */
+/* iPad landscape ≈1024px and tablets up to <1200px */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .summary-grid, #cardSummary {
+        grid-template-columns: repeat(4, minmax(180px, 1fr)) !important; /* smaller cards */
+        gap: 12px;
+    }
+
+    .summary-card .sc-title {
+        padding: 8px 10px;
+        font-size: 0.95rem;
+    }
+
+    .summary-card .sc-cell {
+        padding: 10px 8px;
+    }
+
+    .sc-value {
+        font-size: 1.15rem;
     }
 }
 
-/* 992px down to 577px = 2 cols (like col-6) */
-@media (max-width: 991.98px) {
-    .summary-grid,
-    #cardSummary {
-        grid-template-columns: repeat(2, minmax(220px, 1fr));
+/* iPad portrait ≈768–991px: keep 4 cols (override previous 2-col tablet rule) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .summary-grid, #cardSummary {
+        grid-template-columns: repeat(4, minmax(150px, 1fr)) !important; /* even tighter */
+        gap: 10px;
+    }
+
+    .summary-card .sc-title {
+        padding: 8px 8px;
+        font-size: 0.92rem;
+    }
+
+    .summary-card .sc-cell {
+        padding: 8px 6px;
+    }
+
+    .sc-value {
+        font-size: 1.05rem;
     }
 }
 
-/* ≤576px = 1 col (full width) */
+/* Phones and small devices: collapse as usual */
 @media (max-width: 575.98px) {
-    .summary-grid,
-    #cardSummary {
-        grid-template-columns: 1fr;
+    .summary-grid, #cardSummary {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
     }
 }
 
-/* ===== Card look & feel (unchanged) ===== */
+/* Optional: if you still want a 2-col phase for mid phones (576–767px) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .summary-grid, #cardSummary {
+        grid-template-columns: repeat(2, minmax(200px, 1fr));
+        gap: 12px;
+    }
+}
+
+/* ===== Card look & feel ===== */
 .summary-card {
     border-radius: 6px;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(0,0,0,.08);
     background: var(--bg, #0d6efd);
     color: var(--fg, #fff);
+    min-width: 0; /* prevent overflow pushing layout to 3 cols */
 }
 
     .summary-card .sc-title {
@@ -230,7 +271,7 @@
     line-height: 1.2;
 }
 
-/* footer buttons (unchanged) */
+/* ===== Footer buttons (if any) ===== */
 .footer-actions {
     white-space: nowrap;
 }
@@ -241,7 +282,7 @@
         white-space: nowrap !important;
     }
 
-/* inner white body (unchanged) */
+/* ===== Inner white body (if used) ===== */
 #summaryCardBody {
     background-color: #ffffff;
     border-top: 1px solid rgba(0,0,0,0.1);

@@ -369,11 +369,21 @@ namespace Project.CSS.Revise.Web.Respositories
                 // Set EF command timeout to 1 hour
                 _context.Database.SetCommandTimeout(TimeSpan.FromHours(1));
 
-                // 1) Get data from CENTRALIZE API (sync method)
-                var units = GetUnitViewTempBlk_API(projectID);
+                List<ViewTempBlkUnit> units;
+                try
+                {
+                    units = GetUnitViewTempBlk_API(projectID);
+                }
+                catch (Exception apiEx)
+                {
+                    // โชว์สาเหตุจริงจากชั้นล่าง (StatusCode/Body/Endpoint)
+                    ret.Message = $"Cannot call Centralize API: {apiEx.Message}";
+                    return ret;
+                }
+
                 if (units == null || units.Count == 0)
                 {
-                    ret.Message = "No unit data found for synchronization.";
+                    ret.Message = "No unit data found for synchronization. (API returned empty list)";
                     return ret;
                 }
 
@@ -418,18 +428,29 @@ namespace Project.CSS.Revise.Web.Respositories
 
         public List<ViewTempBlkUnit> GetUnitViewTempBlk_API(string ProjectID)
         {
-            try
+            WebAPIRest api = new WebAPIRest();
+            string url = $"{_central.CentralizeApiUrl?.TrimEnd('/')}/api/Master/GetViewTempBlkList";
+
+            // เรียกแบบ Try เพื่อได้ข้อความ error กลับ
+            var res = api.TryRequestPostWebAPI<ObjectAPI<List<ViewTempBlkUnit>>>(
+                url,
+                new { ProjectID = ProjectID },
+                _central.CentralizeAuthorize
+            );
+
+            if (!res.Success)
             {
-                WebAPIRest api = new WebAPIRest();
-                string url = string.Format(_central.CentralizeApiUrl + "api/Master/GetViewTempBlkList");
-                var data = api.RequestPostWebAPI<ObjectAPI<List<ViewTempBlkUnit>>>(url, new { ProjectID = ProjectID }, _central.CentralizeAuthorize).Data;
-                return data.ToList();
+                // โยนออกไปพร้อมรายละเอียด เพื่อให้ SaveUpdateUnitViewTempBlk โชว์ได้
+                var code = res.StatusCode.HasValue ? ((int)res.StatusCode.Value + " " + res.StatusCode.Value) : "NO_STATUS";
+                throw new Exception($"CENTRALIZE API call failed: {res.Message} | Status={code} | Endpoint={res.Endpoint} | Body={(string.IsNullOrWhiteSpace(res.ResponseBody) ? "<empty>" : (res.ResponseBody.Length > 800 ? res.ResponseBody[..800] + "..." : res.ResponseBody))}");
             }
-            catch (Exception)
-            {
-                return new List<ViewTempBlkUnit>();
-            }
+
+            var obj = res.Data;
+            // ปรับตาม shape ของ ObjectAPI<> ของพ่อใหญ่ (เช่น Data/Success/Message)
+            var data = obj?.Data ?? new List<ViewTempBlkUnit>();
+            return data;
         }
+
 
         // ========== INSERT แบบ EF (เทียบเท่าของเดิม แต่เร็วกว่า) ==========
         private void InsertUnitViewTempBlk_ByEF(IEnumerable<ViewTempBlkUnit> items)
