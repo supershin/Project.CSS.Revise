@@ -170,7 +170,6 @@ async function onSaveAppointmentLimits() {
         const data = await resp.json();
         if (data?.Issuccess || data?.issuccess) {
             successToast(data?.Message || "Appointment limits saved successfully.");
-            // optionally refresh: onSearch();
         } else {
             errorMessage(data?.Message , "Save failed.");
         }

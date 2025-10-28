@@ -29,13 +29,12 @@
 </div>
 <!-- Container-fluid starts-->
 <div class="container-fluid">
-
     <!-- Filter Card -->
     <div class="card mb-3">
         <div class="card-body">
             <div class="row g-3 align-items-end">
                 <div class="col-lg-6">
-                    <label class="form-label fw-semibold">โครงการ</label>
+                    <label class="form-label fw-semibold">Project</label>
                     <select id="projectSelect" class="form-select" style="min-width:280px">
                         @foreach (var p in _projects)
                         {
@@ -48,8 +47,6 @@
             </div>
         </div>
     </div>
-
-
     <!-- Table Card -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -91,7 +88,10 @@
         </div>
 
         <div class="card-footer d-flex justify-content-end">
-            <button id="btnSave" class="btn btn-success">💾 Save</button>
+            @if (ViewBag.Permission != null && ViewBag.Permission.Update)
+            {
+                <button id="btnSave" class="btn btn-success">💾 Save</button>
+            }         
         </div>
 
     </div>

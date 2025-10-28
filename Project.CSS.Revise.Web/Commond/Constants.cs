@@ -106,8 +106,11 @@
         public static class Menu
         {
             public static readonly int Projecttargetrolling = 21;
+            public static readonly int CsResponse = 22;
+            public static readonly int Appointmentlimit = 24;
             public static readonly int FurnitureAndUnitFurniture = 33;
             public static readonly int Projectandunitfloorplan = 34;
+            public static readonly int Project = 36;
         }
     }
 }

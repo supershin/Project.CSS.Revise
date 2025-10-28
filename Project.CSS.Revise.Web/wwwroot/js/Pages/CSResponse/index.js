@@ -21,12 +21,12 @@ document.querySelectorAll('.hover-icon-swap').forEach(container => {
 
 document.addEventListener("DOMContentLoaded", function () {
     // ====== Choices instances ===================================================
-    const csChoices = new Choices('#csUserSelect', { placeholderValue: '🔍 พิมพ์ค้นหาชื่อพนักงาน...', searchEnabled: true, itemSelectText: '', shouldSort: false });
-    const projectChoices = new Choices('#projectSelect', { placeholderValue: '🔍 พิมพ์ค้นหาโครงการ...', searchEnabled: true, itemSelectText: '', shouldSort: false });
-    const buildChoices = new Choices('#buildingMultiSelect', { removeItemButton: true, placeholderValue: '🔍 เลือกอาคาร', searchEnabled: true, itemSelectText: '', shouldSort: false });
-    const floorChoices = new Choices('#floorMultiSelect', { removeItemButton: true, placeholderValue: '🔍 เลือกชั้น (เช่น B-2)', searchEnabled: true, itemSelectText: '', shouldSort: false });
-    const unitChoices = new Choices('#roomMultiSelect', { removeItemButton: true, placeholderValue: '🔍 เลือกยูนิต', searchEnabled: true, itemSelectText: '', shouldSort: false });
-    const UnitStatusChoices = new Choices('#ddlUnitStatus', { removeItemButton: true, placeholderValue: '🔍 เลือกสถานะยูนิต', searchEnabled: true, itemSelectText: '', shouldSort: false });
+    const csChoices = new Choices('#csUserSelect', { placeholderValue: '🔍 Type to search employee name...', searchEnabled: true, itemSelectText: '', shouldSort: false });
+    const projectChoices = new Choices('#projectSelect', { placeholderValue: '🔍 Type to search project...', searchEnabled: true, itemSelectText: '', shouldSort: false });
+    const buildChoices = new Choices('#buildingMultiSelect', { removeItemButton: true, placeholderValue: '🔍 Select building', searchEnabled: true, itemSelectText: '', shouldSort: false });
+    const floorChoices = new Choices('#floorMultiSelect', { removeItemButton: true, placeholderValue: '🔍 Select floor (e.g. B-2)', searchEnabled: true, itemSelectText: '', shouldSort: false });
+    const unitChoices = new Choices('#roomMultiSelect', { removeItemButton: true, placeholderValue: '🔍 Select unit', searchEnabled: true, itemSelectText: '', shouldSort: false });
+    const UnitStatusChoices = new Choices('#ddlUnitStatus', { removeItemButton: true, placeholderValue: '🔍 Select unit status', searchEnabled: true, itemSelectText: '', shouldSort: false });
 
     // CS tab project multi-select
     const projectChoicesCs = new Choices('#ddlProject_cs', {
@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
         searchEnabled: true,
         itemSelectText: '',
         placeholder: true,
-        placeholderValue: '— เลือกโครงการ —',
+        placeholderValue: '— Select project —',
         shouldSort: false
     });
 
@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
             enableSelect(el);
         } catch (e) {
             console.error(e);
-            clearSelect(el, buildChoices, 'โหลดอาคารไม่สำเร็จ');
+            clearSelect(el, buildChoices, 'Failed to load building');
         }
     }
 
@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
             enableSelect(el);
         } catch (e) {
             console.error(e);
-            clearSelect(el, floorChoices, 'โหลดชั้นไม่สำเร็จ');
+            clearSelect(el, floorChoices, 'Failed to load floor');
         }
     }
 
@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
             enableSelect(el);
         } catch (e) {
             console.error(e);
-            clearSelect(el, unitChoices, 'โหลดยูนิตไม่สำเร็จ');
+            clearSelect(el, unitChoices, 'Failed to load unit');
         }
     }
 
@@ -224,7 +224,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const unitDisplay = `
             <small class="d-block">${unitCode || '-'} / ${unitStatus || ''} </small>
-            <small class="d-block text-muted">${addr ? `${addr} / ` : ''}อาคาร ${build || '-'} / ชั้น ${floor || '-'}</small>
+            <small class="d-block text-muted">${addr ? `${addr} / ` : ''}Build ${build || '-'} / floor ${floor || '-'}</small>
         `;
 
             // 🔹 Build the "Update" column (show dash when missing)
@@ -251,7 +251,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         tbody.innerHTML = rows.join('');
         // ✅ Update row count under project name
-        document.getElementById('row_count').textContent = `${list.length} บรรทัด`;
+        document.getElementById('row_count').textContent = `${list.length} rows`;
     }
 
 
@@ -338,9 +338,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // initial state
-    clearSelect($('#buildingMultiSelect'), buildChoices, '— เลือกอาคาร —');
-    clearSelect($('#floorMultiSelect'), floorChoices, '— เลือกชั้น —');
-    clearSelect($('#roomMultiSelect'), unitChoices, '— เลือกยูนิต —');
+    clearSelect($('#buildingMultiSelect'), buildChoices, '— Select building —');
+    clearSelect($('#floorMultiSelect'), floorChoices, '— Select floor —');
+    clearSelect($('#roomMultiSelect'), unitChoices, '— Select unit —');
 
     const initialProject = getProjectId();
     if (initialProject) {
@@ -525,7 +525,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         return `
     <tr class="table-secondary">
-      <th class="text-nowrap col-index" id="headerOrder">ลำดับ</th>
+      <th class="text-nowrap col-index" id="headerOrder">#</th>
       <th class="text-nowrap col-project" id="headerProject">Project</th>
       <th class="text-end text-nowrap">Unit</th>
       ${statusThs}
@@ -670,7 +670,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const totalsRow = `
                               <tr class="table-secondary fw-semibold">
                                 <td class="col-index"></td>
-                                <td class="col-project" title="รวมทั้งหมด">รวมทั้งหมด</td>
+                                <td class="col-project" title="Total">Total</td>
                                 <td class="text-end">${totals.Total.toLocaleString()}</td>
                                 ${totalsStatusTds}
                               </tr>`;

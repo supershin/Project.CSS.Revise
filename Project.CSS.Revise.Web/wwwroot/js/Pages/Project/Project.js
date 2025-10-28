@@ -289,6 +289,8 @@ async function fetchProjectTable() {
 }
 
 function renderProjectTable(list) {
+    const canEdit = !!(window.APP_PERM && window.APP_PERM.update === true);
+
     const tbody = document.querySelector('#tbl_projects tbody');
     const counter = document.getElementById('count_projects');
     if (!tbody) return;
@@ -328,50 +330,56 @@ function renderProjectTable(list) {
             ? `<i class="bi bi-geo text-warning me-1"></i>${escapeHtml(row.LandOfficeName)}`
             : '';
 
+        // 🔹 Build buttons only if canEdit == true
+        const actionButtons = canEdit
+            ? `
+                <button type="button" class="btn btn-secondary btn-icon rounded-circle me-1 btn-edit" title="Edit">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-primary btn-icon rounded-circle btn-sync" title="Sync">
+                    <i class="bi bi-arrow-repeat"></i>
+                </button>
+              `
+            : '';
+
         tr.innerHTML = `
-      <td>${escapeHtml(row.ProjectID)}</td>
-      <td>${companyHtml}</td>
-      <td>${escapeHtml(row.BUName || '')}</td>
-      <td>${escapeHtml(row.PartnerName || '')}</td>
-      <td>${typeIcon + escapeHtml(row.ProjectName || '')}</td>
-      <td>${escapeHtml(row.ProjectName_Eng || '')}</td>
-      <td>${escapeHtml(row.ProjectStatus || '')}</td>
-      <td>${landOfficeHtml}</td>
-      <td>${zoneHtml}</td>
-      <td class="text-end">
-        <button type="button" class="btn btn-secondary btn-icon rounded-circle me-1 btn-edit" title="Edit">
-          <i class="bi bi-pencil"></i>
-        </button>
-        <button type="button" class="btn btn-primary btn-icon rounded-circle btn-sync" title="Sync">
-          <i class="bi bi-arrow-repeat"></i>
-        </button>
-      </td>
-    `;
+            <td>${escapeHtml(row.ProjectID)}</td>
+            <td>${companyHtml}</td>
+            <td>${escapeHtml(row.BUName || '')}</td>
+            <td>${escapeHtml(row.PartnerName || '')}</td>
+            <td>${typeIcon + escapeHtml(row.ProjectName || '')}</td>
+            <td>${escapeHtml(row.ProjectName_Eng || '')}</td>
+            <td>${escapeHtml(row.ProjectStatus || '')}</td>
+            <td>${landOfficeHtml}</td>
+            <td>${zoneHtml}</td>
+            <td class="text-end">${actionButtons}</td>
+        `;
 
-        // Edit handler (per row)
-        tr.querySelector('.btn-edit')?.addEventListener('click', () => {
-            const rowData = {
-                ProjectID: tr.querySelector('td:nth-child(1)')?.textContent.trim() || row.ProjectID || '',
-                CompanyID: tr.dataset.companyId || row.CompanyID || '',
-                CompanyName: tr.querySelector('td:nth-child(2)')?.innerText.trim() || row.CompanyName || '',
-                BUID: tr.dataset.buId || row.BUID || '',
-                PartnerID: tr.dataset.partnerId || row.PartnerID || '',
-                ProjectName: tr.querySelector('td:nth-child(5)')?.textContent.trim() || row.ProjectName || '',
-                ProjectName_Eng: tr.querySelector('td:nth-child(6)')?.textContent.trim() || row.ProjectName_Eng || '',
-                ProjectType: (row.ProjectType || '').toUpperCase(),
-                StatusID: tr.dataset.statusId || row.ProjectStatusID || row.StatusID || '',
-                ProjectStatus: tr.querySelector('td:nth-child(8)')?.textContent.trim() || row.ProjectStatus || '',
-                LandOfficeID: tr.dataset.landOfficeId || row.LandOfficeID || '',
-                ProjectZoneID: tr.dataset.projectZoneId || row.ProjectZoneID || ''
-            };
-            openEditProjectModal(rowData);
-        });
-
-        // ❌ DO NOT attach per-row .btn-sync handler here (we delegate above)
+        // 🛠 Attach edit handler if buttons exist
+        if (canEdit) {
+            tr.querySelector('.btn-edit')?.addEventListener('click', () => {
+                const rowData = {
+                    ProjectID: tr.querySelector('td:nth-child(1)')?.textContent.trim() || row.ProjectID || '',
+                    CompanyID: tr.dataset.companyId || row.CompanyID || '',
+                    CompanyName: tr.querySelector('td:nth-child(2)')?.innerText.trim() || row.CompanyName || '',
+                    BUID: tr.dataset.buId || row.BUID || '',
+                    PartnerID: tr.dataset.partnerId || row.PartnerID || '',
+                    ProjectName: tr.querySelector('td:nth-child(5)')?.textContent.trim() || row.ProjectName || '',
+                    ProjectName_Eng: tr.querySelector('td:nth-child(6)')?.textContent.trim() || row.ProjectName_Eng || '',
+                    ProjectType: (row.ProjectType || '').toUpperCase(),
+                    StatusID: tr.dataset.statusId || row.ProjectStatusID || row.StatusID || '',
+                    ProjectStatus: tr.querySelector('td:nth-child(8)')?.textContent.trim() || row.ProjectStatus || '',
+                    LandOfficeID: tr.dataset.landOfficeId || row.LandOfficeID || '',
+                    ProjectZoneID: tr.dataset.projectZoneId || row.ProjectZoneID || ''
+                };
+                openEditProjectModal(rowData);
+            });
+        }
 
         tbody.appendChild(tr);
     });
 }
+
 
 /* =========================
    Edit Project Modal

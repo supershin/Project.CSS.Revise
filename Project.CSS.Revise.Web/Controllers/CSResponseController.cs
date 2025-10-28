@@ -13,16 +13,33 @@ namespace Project.CSS.Revise.Web.Controllers
     {
         private readonly IMasterService _masterService;
         private readonly ICSResponseService _csResponseServic;
+        private readonly IUserAndPermissionService _userAndPermissionService;
         private readonly MasterManagementConfigProject _configProject;
-        public CSResponseController(IHttpContextAccessor httpContextAccessor, IMasterService masterService, ICSResponseService csResponseServic, MasterManagementConfigProject configProject) : base(httpContextAccessor)
+        public CSResponseController(IHttpContextAccessor httpContextAccessor
+                                  , IMasterService masterService
+                                  , ICSResponseService csResponseServic
+                                  , MasterManagementConfigProject configProject
+                                  , IUserAndPermissionService userAndPermissionService) : base(httpContextAccessor)
         {
             _masterService = masterService;
             _csResponseServic = csResponseServic;
             _configProject = configProject;
+            _userAndPermissionService = userAndPermissionService;
         }
 
         public IActionResult Index()
         {
+            int menuId = Constants.Menu.CsResponse;
+            string? dep64 = User.FindFirst("DepartmentID")?.Value;
+            string? rol64 = User.FindFirst("RoleID")?.Value;
+
+            int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+            int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+            var perms = _userAndPermissionService.GetPermissions(10, menuId, departmentId, roleId);
+            if (!perms.View) return RedirectToAction("NoPermission", "Home");
+            ViewBag.Permission = perms;
+
             var filter1 = new GetDDLModel
             {
                 Act = "listAllCSUser"
@@ -126,6 +143,22 @@ namespace Project.CSS.Revise.Web.Controllers
         [HttpPost]
         public JsonResult UpdateorInsertCsmapping([FromForm] UpdateInsertCsmapping model)
         {
+
+            int menuId = Constants.Menu.CsResponse;
+            int qcTypeId = 10;
+
+            string? dep64 = User.FindFirst("DepartmentID")?.Value;
+            string? rol64 = User.FindFirst("RoleID")?.Value;
+
+            int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+            int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+            var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+            if (perms is null || !perms.Update)
+            {
+                return Json(new { success = false, message = "No Permission" });
+            }
+
             string LoginID = User.FindFirst("LoginID")?.Value;
             string UserID = SecurityManager.DecodeFrom64(LoginID);
 

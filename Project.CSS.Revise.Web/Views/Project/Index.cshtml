@@ -93,7 +93,7 @@
                                 <tr>
                                     <th style="min-width: 120px;">ProjectID</th>
                                     <th style="min-width: 220px;">Company</th>
-                                    <th style="min-width: 120px;">BU</th>
+                                    <th style="min-width: 120px;">BUG</th>
                                     <th style="min-width: 150px;padding: 10px;">Partner</th>
                                     <th style="min-width: 280px;">Project Name</th>
                                     <th style="min-width: 280px;">Project Name (EN)</th>
@@ -280,6 +280,13 @@
 </div>
 
 @section Scripts {
+    <script>
+        window.APP_PERM = {
+          view:   @((ViewBag.Permission?.View ?? false).ToString().ToLower()),
+          update: @((ViewBag.Permission?.Update ?? false).ToString().ToLower())
+        };
+    </script>
+
     <script src="~/js/Pages/Project/Project.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <link rel="stylesheet" type="text/css" href="~/css/project.css?ver=@DateTime.Now.Ticks.ToString()">
 }

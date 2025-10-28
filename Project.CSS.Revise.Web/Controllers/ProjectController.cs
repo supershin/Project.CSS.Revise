@@ -34,6 +34,16 @@ namespace Project.CSS.Revise.Web.Controllers
 
         public IActionResult Index()
         {
+            int menuId = Constants.Menu.Project;
+            string? dep64 = User.FindFirst("DepartmentID")?.Value;
+            string? rol64 = User.FindFirst("RoleID")?.Value;
+
+            int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+            int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+            var perms = _userAndPermissionService.GetPermissions(10, menuId, departmentId, roleId);
+            if (!perms.View) return RedirectToAction("NoPermission", "Home");
+            ViewBag.Permission = perms;
 
             var listCompany = _masterService.GetlisDDl(new GetDDLModel { Act = "listCompany"});
             ViewBag.listCompany = listCompany;
@@ -77,6 +87,21 @@ namespace Project.CSS.Revise.Web.Controllers
         {
             try
             {
+                int menuId = Constants.Menu.Project;
+                int qcTypeId = 10;
+
+                string? dep64 = User.FindFirst("DepartmentID")?.Value;
+                string? rol64 = User.FindFirst("RoleID")?.Value;
+
+                int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+                int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+                var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+                if (perms is null || !perms.Update)
+                {
+                    return Json(new { success = false, message = "No Permission" });
+                }
+
                 string? loginId64 = User.FindFirst("LoginID")?.Value;
                 model.UserID = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
 
@@ -96,6 +121,21 @@ namespace Project.CSS.Revise.Web.Controllers
         [HttpPost]
         public IActionResult SyncProjectCrm([FromForm] string ProjectID)
         {
+            int menuId = Constants.Menu.Project;
+            int qcTypeId = 10;
+
+            string? dep64 = User.FindFirst("DepartmentID")?.Value;
+            string? rol64 = User.FindFirst("RoleID")?.Value;
+
+            int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+            int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+            var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+            if (perms is null || !perms.Update)
+            {
+                return Json(new { success = false, message = "No Permission" });
+            }
+
             string? loginId64 = User.FindFirst("LoginID")?.Value;
             int UserID = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(loginId64));
 

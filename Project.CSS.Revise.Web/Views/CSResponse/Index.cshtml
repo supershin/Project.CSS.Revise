@@ -104,7 +104,7 @@
                                                                 <div class="card-body filter-cards-view animate-chk">
                                                                     <!-- 🔍 พนักงาน -->
                                                                     <div class="job-filter mb-3">
-                                                                        <label for="csUserSelect" class="form-label fw-bold">ชื่อพนักงาน</label>
+                                                                                <label for="csUserSelect" class="form-label fw-bold">Employee Name</label>
                                                                                 @{
                                                                                     var csUsers = ViewBag.listAllCSUser as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
                                                                                 }
@@ -118,7 +118,7 @@
                                                                                 </select>
                                                                     </div>
                                                                     <div class="job-filter mb-3">
-                                                                        <label for="csUserSelectview" class="form-label fw-bold">ประเภทการแสดง</label>
+                                                                                <label for="csUserSelectview" class="form-label fw-bold">Display Type</label>
                                                                             <select id="csUserSelectview" class="form-control searchable-select">
                                                                                 <option value="">ทั้งหมด</option>
                                                                                 <option value="1">CS</option>
@@ -128,7 +128,7 @@
 
                                                                     <!-- 🏢 โครงการ -->
                                                                     <div class="job-filter mb-3">
-                                                                        <label for="projectSelect" class="form-label fw-bold">โครงการ</label>
+                                                                        <label for="projectSelect" class="form-label fw-bold">Project</label>
                                                                             @{
                                                                                 var _projects = ViewBag.listDDlAllProject as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
                                                                             }
@@ -154,7 +154,7 @@
 
                                                                     <!-- 🏢 อาคาร -->
                                                                     <div class="job-filter mb-3">
-                                                                                <label for="buildingMultiSelect" class="form-label fw-bold">อาคาร/โซน</label>
+                                                                                <label for="buildingMultiSelect" class="form-label fw-bold">Build/Zone</label>
                                                                         <select id="buildingMultiSelect" class="form-control multi-select" multiple>
       
                                                                         </select>
@@ -162,7 +162,7 @@
 
                                                                     <!-- 🧱 ชั้น -->
                                                                     <div class="job-filter mb-3">
-                                                                        <label for="floorMultiSelect" class="form-label fw-bold">ชั้น</label>
+                                                                        <label for="floorMultiSelect" class="form-label fw-bold">Floor</label>
                                                                         <select id="floorMultiSelect" class="form-control multi-select" multiple>
 
                                                                         </select>
@@ -194,9 +194,12 @@
                                                     <small id="row_count" class="text-muted"></small>
                                                 </div>
                                                 <div>
-                                                    <button type="button" class="btn btn-primary btn-sm" id="save_change_cs_responsive">
-                                                        💾 Save
-                                                    </button>
+                                                    @if (ViewBag.Permission != null && ViewBag.Permission.Update)
+                                                    {
+                                                        <button type="button" class="btn btn-primary btn-sm" id="save_change_cs_responsive">
+                                                            💾 Save
+                                                        </button>
+                                                    }
                                                 </div>
                                             </div>
                                             <div class="card-body">
@@ -230,7 +233,7 @@
                                                     <div class="card-body">
                                                         <div class="row g-2 align-items-center">
                                                             <div class="col-md-3">
-                                                                <label for="ddlBU_cs" class="form-label fw-bold">Business Unit</label>
+                                                                <label for="ddlBU_cs" class="form-label fw-bold">BUG</label>
                                                                 <select id="ddlBU_cs" class="form-select">
                                                                     <option value="">-- All BU --</option>
                                                                     @foreach (var bu in ViewBag.listBu2 ?? new List<dynamic>())
@@ -241,19 +244,19 @@
                                                             </div>
 
                                                             <div class="col-md-3">
-                                                                <label for="ddlProject_cs" class="form-label fw-bold">โครงการ</label>
+                                                                <label for="ddlProject_cs" class="form-label fw-bold">Project</label>
                                                                 <select id="ddlProject_cs" class="form-select" multiple></select>
                                                             </div>
 
                                                             <div class="col-md-4">
-                                                                <label for="txtCsName_cs" class="form-label fw-bold">ค้นหา CS</label>
-                                                                <input type="text" id="txtCsName_cs" class="form-control" placeholder="พิมพ์ชื่อ, Email, Mobile">
+                                                                <label for="txtCsName_cs" class="form-label fw-bold">Search CS</label>
+                                                                <input type="text" id="txtCsName_cs" class="form-control" placeholder="Type name, email, or mobile">
                                                             </div>
 
                                                             <div class="col-md-2">
                                                                 <div class="d-grid" style="margin-top:25px;">
                                                                     <button id="btnSearch_cs" class="btn btn-primary w-100">
-                                                                        <i class="bi bi-search me-1"></i> ค้นหา
+                                                                        <i class="bi bi-search me-1"></i> Search
                                                                     </button>
                                                                 </div>
                                                             </div>
@@ -314,7 +317,7 @@
             </div>
             <div class="modal-footer">
                 <small class="text-muted me-auto">เลื่อนขวาเพื่อดูสถานะทั้งหมด</small>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
