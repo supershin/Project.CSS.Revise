@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCompanyDropdown();
     initBuDropdown();
     initProjectDropdown();
-
+    fetchProjectTable();
     // --- Search button: show loading overlay ---
     const btnSearch = document.getElementById('btnFilterSearch');
     if (btnSearch && !btnSearch.dataset._inited) {
@@ -333,9 +333,8 @@ function renderProjectTable(list) {
       <td>${companyHtml}</td>
       <td>${escapeHtml(row.BUName || '')}</td>
       <td>${escapeHtml(row.PartnerName || '')}</td>
-      <td>${escapeHtml(row.ProjectName || '')}</td>
+      <td>${typeIcon + escapeHtml(row.ProjectName || '')}</td>
       <td>${escapeHtml(row.ProjectName_Eng || '')}</td>
-      <td>${typeIcon}</td>
       <td>${escapeHtml(row.ProjectStatus || '')}</td>
       <td>${landOfficeHtml}</td>
       <td>${zoneHtml}</td>

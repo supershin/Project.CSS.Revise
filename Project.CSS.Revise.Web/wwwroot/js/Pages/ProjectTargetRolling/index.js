@@ -96,36 +96,6 @@ let choicesQuarter, choicesMonth, choicesBu, choicesProjectStatus, choicesProjec
 // ===== put these with other globals =====
 let choicesYear, choicesPlanType;
 
-//function initYearDropdown() {
-//    const ddl = document.getElementById('ddl_year');
-//    if (!ddl) return;
-
-//    const currentYear = new Date().getFullYear();
-
-//    // เคลียร์รายการเก่า
-//    ddl.innerHTML = '';
-
-//    // สร้างช่วงปี (ย้อนหลัง 3 ปี ถึง ล่วงหน้า 3 ปี)
-//    for (let y = currentYear - 3; y <= currentYear + 3; y++) {
-//        const opt = document.createElement('option');
-//        opt.value = y;
-//        opt.text = y;
-//        if (y === currentYear) opt.selected = true; // ✅ mark default
-//        ddl.appendChild(opt);
-//    }
-
-//    // ✅ สร้าง Choices และบังคับเลือกปีปัจจุบันหลังจาก init
-//    const choicesYear = new Choices('#ddl_year', {
-//        removeItemButton: true,
-//        placeholderValue: 'Select one or more years',
-//        searchEnabled: true,
-//        itemSelectText: '',
-//        shouldSort: false
-//    });
-
-//    // ✅ เซ็ตค่าปีปัจจุบันใน Choices ด้วย
-//    choicesYear.setChoiceByValue(String(currentYear));
-//}
 // ===== REPLACE your initYearDropdown with this =====
 function initYearDropdown() {
     const ddl = document.getElementById('ddl_year');
@@ -185,9 +155,6 @@ function updateMonthDropdown(selectedQuarters) {
     choicesMonth.setChoices(allowed.map(m => ({ value: m, label: monthLabels[m] })), 'value', 'label', true);
 }
 
-//function initPlanTypeDropdown() {
-//    new Choices('#ddl_plantype', { removeItemButton: true, placeholderValue: 'Select one or more plan types', searchEnabled: true, itemSelectText: '', shouldSort: false });
-//}
 // ===== REPLACE your initPlanTypeDropdown with this =====
 function initPlanTypeDropdown() {
     // destroy old if exists
@@ -202,7 +169,6 @@ function initPlanTypeDropdown() {
         shouldSort: false
     });
 }
-
 
 function initBuDropdown() {
     choicesBu = new Choices('#ddl_bug', { removeItemButton: true, placeholderValue: 'Select one or more BUGs', searchEnabled: true, itemSelectText: '', shouldSort: false });
@@ -253,37 +219,6 @@ function initProjectpartnerDropdown() {
 
 let choicesShowType;
 
-//function initShowtypeDropdown() {
-//    const el = document.getElementById('ddl_showtype');
-//    if (!el) return;
-
-//    // ทำลายอินสแตนซ์เดิมถ้ามี
-//    if (choicesShowType && typeof choicesShowType.destroy === 'function') {
-//        choicesShowType.destroy();
-//    }
-
-//    // สร้างเป็น single-select (ค่าเริ่มต้น New)
-//    choicesShowType = new Choices(el, {
-//        removeItemButton: false,
-//        searchEnabled: false,
-//        shouldSort: false,
-//        itemSelectText: '',
-//        placeholder: false,
-//        duplicateItemsAllowed: false,
-//        // single-select เป็นค่า default ของ Choices ถ้า <select> ไม่มี multiple
-//    });
-
-//    // บังคับค่าเริ่มต้น = "New"
-//    const defaultVal = 'GetListTargetRollingPlanCuttoltal';
-//    el.value = defaultVal;
-//    choicesShowType.setChoiceByValue(defaultVal);
-
-//    // แจ้ง change หนึ่งครั้งให้ฟิลเตอร์อื่น ๆ อัพเดต
-//    el.dispatchEvent(new Event('change'));
-
-//    // ผูกอีเวนต์เปลี่ยนค่า
-//    el.addEventListener('change', onFilterChanged);
-//}
 function initAllProjectCheckbox() {
     const el = document.getElementById('chk_all_project');
     if (!el) return;
@@ -719,6 +654,7 @@ function renderSummaryCards(datasum) {
         }
         return 0;
     };
+
     const safeDiv = (a, b) => {
         const A = toNum(a), B = toNum(b);
         const result = A - B;
@@ -732,22 +668,35 @@ function renderSummaryCards(datasum) {
         const formatted = result.toLocaleString('en-US', { maximumFractionDigits: 0 });
         return result < 0 ? `<span style="color:red;">${formatted}</span>` : formatted;
     };
-    // ตัวช่วยคำนวณ % จาก Value (กันหารศูนย์ + ฟอร์แมตทศนิยม)
+
+    // % formatter from values
     const pctByValue = (num, den, frac = 2) => {
         const N = toNum(num), D = toNum(den);
         if (!isFinite(N) || !isFinite(D) || D === 0) return (0).toFixed(frac) + ' %';
         const r = (N / D) * 100;
         return r.toLocaleString(undefined, { minimumFractionDigits: frac, maximumFractionDigits: frac }) + ' %';
     };
+
     const fmtInt = n => toNum(n).toLocaleString();
     const fmtMoney = n => toNum(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    //const fmtPct = (r, frac = 2) => (r * 100).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: frac }) + '%';
     const fmtPct = (r, frac = 2) =>
-        (r * 100).toLocaleString(undefined, {
-            minimumFractionDigits: frac,
-            maximumFractionDigits: frac
-        }) + '%';
+        (r * 100).toLocaleString(undefined, { minimumFractionDigits: frac, maximumFractionDigits: frac }) + '%';
 
+    // ====== dynamic color for percent (const in-scope) ======
+    // Rule: <50 = red, 50–80 = yellow, 80–100 = blue, >100 = neon green with strong white border
+    const colorPercent = (pctText) => {
+        const num = parseFloat(String(pctText).replace(/[^\d.-]/g, '')) || 0;
+        let color = '#dc3545'; // red (<50)
+        let extraStyle = '';
+
+        if (num > 100) {
+            color = '#00ff88';
+        }
+        else if (num > 80) color = '#0d6efd';   // blue (80–100)
+        else if (num >= 50) color = '#ffc107';  // yellow (50–80)
+
+        return `<span style="color:${color}; font-weight:600; font-size:1.05em; ${extraStyle}">${pctText}</span>`;
+    };
 
     // index by PlanTypeName
     const idx = {};
@@ -766,9 +715,13 @@ function renderSummaryCards(datasum) {
     const achieveWorkUnitRatio = safeDiv2(actual.Unit, workingTarget.Unit);
     const achieveWorkValueRatio = safeDiv(actual.Value, workingTarget.Value);
 
-    // renderer (บังคับตัวอักษรขาวเมื่อเป็นการ์ด Achieve/* หรือ Actual)
-    const renderCard = ({ label, unitText, valueText, colorClass, isAchieve }) => {
-        const bg = normalizeBg(colorClass) || '#0d6efd';
+    // compute % AFTER actual/target/workingTarget exist
+    const pctTarget = pctByValue(actual.Value, target.Value);
+    const pctWork = pctByValue(actual.Value, workingTarget.Value);
+
+    // === renderer (updated to support Achieve layout) ===
+    const renderCard = ({ label, unitText, valueText, colorClass, isAchieve, percentHTML }) => {
+        const bg = normalizeBg(colorClass) || '#ffffff';
 
         // force white text for Achieve cards and Actual card
         const mustWhite = isAchieve || (label === 'Actual');
@@ -784,21 +737,44 @@ function renderSummaryCards(datasum) {
         const unitLabel = isAchieve ? 'Diff Unit' : 'Unit';
         const valueLabel = isAchieve ? 'Diff Value' : 'Value (MB)';
 
-        card.innerHTML = `
-      <div class="sc-title">${label}</div>
-      <div class="sc-grid">
-        <div class="sc-cell">
-          <div class="sc-label">${unitLabel}</div>
-          <div class="sc-value">${unitText}</div>
-        </div>
-        <div class="sc-cell">
-          <div class="sc-label">${valueLabel}</div>
-          <div class="sc-value">${valueText}</div>
-        </div>
-      </div>
-    `;
+        if (isAchieve) {
+            // === Achieve layout ===
+            card.innerHTML = `
+          <div class="sc-title">${label}</div>
+          <div class="sc-percent" style="margin:0.1rem; font-weight:700;">
+            ${percentHTML || ''}
+          </div>
+          <div class="sc-grid">
+            <div class="sc-cell">
+              <div class="sc-label">${unitLabel}</div>
+              <div class="sc-value">${unitText}</div>
+            </div>
+            <div class="sc-cell">
+              <div class="sc-label">${valueLabel}</div>
+              <div class="sc-value">${valueText}</div>
+            </div>
+          </div>
+        `;
+        } else {
+            // === normal layout ===
+            card.innerHTML = `
+            <div class="sc-title">${label}</div> 
+            <div class="sc-grid"> 
+                <div class="sc-cell">
+                    <div class="sc-label">${unitLabel}</div> 
+                    <div class="sc-value">${unitText}</div> 
+                </div>
+                <div class="sc-cell">
+                    <div class="sc-label">${valueLabel}</div> 
+                    <div class="sc-value">${valueText}</div> 
+                </div> 
+            </div>
+        `;
+        }
+
         container.appendChild(card);
     };
+
 
     // ---- ORDER ----
     // Row 1
@@ -823,10 +799,12 @@ function renderSummaryCards(datasum) {
         colorClass: mll?.ColorClass,
         isAchieve: false
     });
+    // Achieve Target (new layout)
     renderCard({
-        label: `Achieve Target ${pctByValue(actual.Value, target.Value)}`,
-        unitText: achieveTargetUnitRatio,
-        valueText: achieveTargetValueRatio,
+        label: 'Achieve Target',
+        percentHTML: colorPercent(pctTarget),   // 👈 percent line (colored)
+        unitText: achieveTargetUnitRatio,       // Diff Unit
+        valueText: achieveTargetValueRatio,     // Diff Value
         colorClass: '#20c997',
         isAchieve: true
     });
@@ -851,16 +829,19 @@ function renderSummaryCards(datasum) {
         unitText: fmtInt(actual?.Unit ?? 0),
         valueText: fmtMoney(actual?.Value ?? 0),
         colorClass: actual?.ColorClass,
-        isAchieve: false       // แต่ถูกบังคับให้ตัวอักษรขาวจาก mustWhite ด้านบน
+        isAchieve: false // but forced white by mustWhite
     });
+    // Achieve Working Target (new layout)
     renderCard({
-        label: `Achieve Working Target ${pctByValue(actual.Value, workingTarget.Value)}`,
-        unitText: achieveWorkUnitRatio,
-        valueText: achieveWorkValueRatio,
+        label: 'Achieve Working Target',
+        percentHTML: colorPercent(pctWork),     // 👈 percent line (colored)
+        unitText: achieveWorkUnitRatio,         // Diff Unit
+        valueText: achieveWorkValueRatio,       // Diff Value
         colorClass: '#20c997',
         isAchieve: true
     });
 }
+
 
 
 
