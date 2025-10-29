@@ -725,7 +725,7 @@ function renderSummaryCards(datasum) {
 
         // force white text for Achieve cards and Actual card
         const mustWhite = isAchieve || (label === 'Actual');
-        const fg = mustWhite ? '#ffffff' : idealTextColor(bg);
+        const fg = mustWhite ? '#000000' : idealTextColor(bg);
         const div = hexToRgba(fg, 0.35);
 
         const card = document.createElement('div');
