@@ -741,10 +741,7 @@ function renderSummaryCards(datasum) {
             // === Achieve layout ===
             card.innerHTML = `
           <div class="sc-title">${label}</div>
-          <div class="sc-percent" style="margin:0.1rem; font-weight:700;">
-            ${percentHTML || ''}
-          </div>
-          <div class="sc-grid">
+          <div class="sc-grid-achieve">
             <div class="sc-cell">
               <div class="sc-label">${unitLabel}</div>
               <div class="sc-value">${unitText}</div>
@@ -753,6 +750,9 @@ function renderSummaryCards(datasum) {
               <div class="sc-label">${valueLabel}</div>
               <div class="sc-value">${valueText}</div>
             </div>
+          </div>
+          <div class="sc-percent" >
+            ${percentHTML || ''}
           </div>
         `;
         } else {
