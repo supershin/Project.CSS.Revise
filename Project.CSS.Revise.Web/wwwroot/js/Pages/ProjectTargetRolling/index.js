@@ -686,14 +686,14 @@ function renderSummaryCards(datasum) {
     // Rule: <50 = red, 50–80 = yellow, 80–100 = blue, >100 = neon green with strong white border
     const colorPercent = (pctText) => {
         const num = parseFloat(String(pctText).replace(/[^\d.-]/g, '')) || 0;
-        let color = '#dc3545'; // red (<50)
+        let color = '#000000'; // red (<50)
         let extraStyle = '';
 
         if (num > 100) {
-            color = '#00ff88';
+            color = '#000000';
         }
-        else if (num > 80) color = '#0d6efd';   // blue (80–100)
-        else if (num >= 50) color = '#ffc107';  // yellow (50–80)
+        else if (num > 80) color = '#000000';   // blue (80–100)
+        else if (num >= 50) color = '#000000';  // yellow (50–80)
 
         return `<span style="color:${color}; font-weight:600; font-size:1.05em; ${extraStyle}">${pctText}</span>`;
     };
@@ -730,6 +730,7 @@ function renderSummaryCards(datasum) {
 
         const card = document.createElement('div');
         card.className = 'summary-card';
+        if (isAchieve) card.classList.add('is-achieve'); // 👈 add marker class
         card.style.setProperty('--bg', bg);
         card.style.setProperty('--fg', fg);
         card.style.setProperty('--divider', div);
@@ -740,11 +741,11 @@ function renderSummaryCards(datasum) {
         if (isAchieve) {
             // === Achieve layout ===
             card.innerHTML = `
-          <div class="sc-title">${label}</div>
+          <div class="sc-title">${label}</div> 
           <div class="sc-grid-achieve">
             <div class="sc-cell">
-              <div class="sc-label">${unitLabel}</div>
-              <div class="sc-value">${unitText}</div>
+                <div class="sc-label">${unitLabel}</div> 
+                <div class="sc-value">${unitText}</div> 
             </div>
             <div class="sc-cell">
               <div class="sc-label">${valueLabel}</div>
@@ -805,7 +806,7 @@ function renderSummaryCards(datasum) {
         percentHTML: colorPercent(pctTarget),   // 👈 percent line (colored)
         unitText: achieveTargetUnitRatio,       // Diff Unit
         valueText: achieveTargetValueRatio,     // Diff Value
-        colorClass: '#20c997',
+        colorClass: '#e6e6e6',
         isAchieve: true
     });
 
@@ -837,11 +838,10 @@ function renderSummaryCards(datasum) {
         percentHTML: colorPercent(pctWork),     // 👈 percent line (colored)
         unitText: achieveWorkUnitRatio,         // Diff Unit
         valueText: achieveWorkValueRatio,       // Diff Value
-        colorClass: '#20c997',
+        colorClass: '#e6e6e6',
         isAchieve: true
     });
 }
-
 
 
 
