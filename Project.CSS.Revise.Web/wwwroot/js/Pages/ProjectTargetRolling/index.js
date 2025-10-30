@@ -305,56 +305,6 @@ const $btnEdit = $('#btnEdit');
 const $btnSave = $('#btnSaveEdit');
 const $btnCancel = $('#btnCancelEdit');
 
-function setEditMode(on) {
-    isEditMode = !!on;
-
-    $btnEdit.toggleClass('d-none', isEditMode);
-    $btnSave.toggleClass('d-none', !isEditMode).prop('disabled', pendingEdits.length === 0);
-    $btnCancel.toggleClass('d-none', !isEditMode);
-
-    const $table = $('#rollingPlanTable'); if (!$table.length) return;
-
-    $table.find('td.editable, td.actualrow').each(function () {
-        const $cell = $(this);
-        const raw = $cell.data('raw');
-        const pid = Number($cell.data('planamountid')); // 183=Unit, 184=Value
-        if (isEditMode) {
-            const txt = (raw == null || raw === '') ? '' : (pid === 184 ? toLocaleMoney(raw) : toLocaleInt(raw));
-            $cell.text(txt);
-            this.setAttribute('contenteditable', $cell.hasClass('editable') ? 'true' : 'false');
-        } else {
-            const txt = (raw == null || raw === '') ? '' : (pid === 184 ? formatShortHaveZero(raw) : formatShort(raw));
-            $cell.text(txt);
-            this.setAttribute('contenteditable', 'false');
-            if ($cell.hasClass('editable')) $cell.removeClass('dirty row-editing');
-        }
-    });
-
-    $table.find('tbody tr').each(function () { recomputeRowTotals($(this)); });
-}
-
-function cancelEdits() {
-    const $table = $('#rollingPlanTable'); if (!$table.length) return;
-
-    $table.find('td.editable').each(function () {
-        const $cell = $(this);
-        const pid = Number($cell.data('planamountid'));
-        const oldRawStr = ($cell.data('old') ?? '').toString();
-        const oldRaw = oldRawStr === '' ? null : Number(oldRawStr);
-
-        if (oldRaw == null) $cell.text('');
-        else $cell.text(pid === 184 ? toLocaleMoney(oldRaw) : toLocaleInt(oldRaw));
-
-        $cell.data('raw', oldRaw == null ? '' : oldRaw);
-        $cell.removeClass('dirty');
-    });
-
-    pendingEdits.length = 0;
-    $('#rollingPlanTable tbody tr').each(function () { recomputeRowTotals($(this)); });
-
-    setEditMode(false);
-}
-
 function renderTableFromJson(data, selectedMonths) {
     const dec = s => (s ?? '').toString().replace(/,/g, '');
 
@@ -377,9 +327,14 @@ function renderTableFromJson(data, selectedMonths) {
             const pid = row.ProjectID ?? '';
             const ptypeId = row.PlanTypeID ?? 0;
             const year = Number(row.PlanYear ?? 0);
-            const isActual = String(row.PlanTypeName ?? '').trim().toLowerCase() === 'actual';
 
-            html += `<tr data-projectid="${pid}" data-plantypeid="${ptypeId}" data-year="${year}">
+            // ===== เงื่อนไขตามที่สั่ง =====
+            const isActual = String(row.PlanTypeName ?? '').trim().toLowerCase() === 'actual';
+            const buNameRaw = String(row.BuName ?? row.BUName ?? '').trim();   // ❗ ไม่แปลง lower
+            const isTitleRow = buNameRaw === 'Title';                           // ❗ เทียบกับ "Title" ตรงๆ
+            const isLockedRow = isActual && !isTitleRow;                        // ✅ ล็อกเฉพาะ Actual ที่ไม่ใช่ Title
+
+            html += `<tr data-projectid="${pid}" data-plantypeid="${ptypeId}" data-year="${year}" data-locked="${isLockedRow ? 1 : 0}">
         <td>${row.ProjectName ?? ''}</td>
         <td>${row.BuName ?? ''}</td>
         <td>${row.PlanTypeName ?? ''}</td>
@@ -391,7 +346,10 @@ function renderTableFromJson(data, selectedMonths) {
                 const valueShort = row[`${key}_Value`] ?? '';
                 const unitRaw = dec(row[`${key}_Unit_comma`] ?? '');
                 const valueRaw = dec(row[`${key}_Value_comma`] ?? '');
-                const cls = isActual ? 'actualrow' : 'editable';
+
+                // ถ้าล็อก → ใช้ actualrow (contenteditable=false เสมอ)
+                // ถ้าไม่ล็อก → ใช้ editable (จะเปิด contenteditable ใน setEditMode)
+                const cls = isLockedRow ? 'actualrow' : 'editable';
 
                 html += `
           <td class="${cls} unit-cell"
@@ -428,8 +386,67 @@ function renderTableFromJson(data, selectedMonths) {
     html += `</tbody></table>`;
     $('#rolling-plan-container').html(html);
 
-    bindEditableHandlers(); // (re)bind
+    bindEditableHandlers();
     $('#rollingPlanTable tbody tr').each(function () { recomputeRowTotals($(this)); });
+}
+
+function setEditMode(on) {
+    isEditMode = !!on;
+
+    $btnEdit.toggleClass('d-none', isEditMode);
+    $btnSave.toggleClass('d-none', !isEditMode).prop('disabled', pendingEdits.length === 0);
+    $btnCancel.toggleClass('d-none', !isEditMode);
+
+    const $table = $('#rollingPlanTable');
+    if (!$table.length) return;
+
+    $table.find('td.editable, td.actualrow').each(function () {
+        const $cell = $(this);
+        const raw = $cell.data('raw');
+        const pid = Number($cell.data('planamountid')); // 183=Unit, 184=Value
+
+        // อ่านสถานะล็อกจากแถวที่ render มาแล้ว
+        const rowLocked = Number($cell.closest('tr').data('locked')) === 1;
+
+        // แก้ไขได้เฉพาะ: โหมดแก้ไข + คลาส editable + ไม่ถูกล็อก
+        const canEdit = isEditMode && $cell.hasClass('editable') && !rowLocked;
+
+        if (isEditMode) {
+            const txt = (raw == null || raw === '') ? '' : (pid === 184 ? toLocaleMoney(raw) : toLocaleInt(raw));
+            $cell.text(txt);
+            this.setAttribute('contenteditable', canEdit ? 'true' : 'false');
+        } else {
+            const txt = (raw == null || raw === '') ? '' : (pid === 184 ? formatShortHaveZero(raw) : formatShort(raw));
+            $cell.text(txt);
+            this.setAttribute('contenteditable', 'false');
+            if ($cell.hasClass('editable')) $cell.removeClass('dirty row-editing');
+        }
+    });
+
+    $table.find('tbody tr').each(function () { recomputeRowTotals($(this)); });
+}
+
+
+function cancelEdits() {
+    const $table = $('#rollingPlanTable'); if (!$table.length) return;
+
+    $table.find('td.editable').each(function () {
+        const $cell = $(this);
+        const pid = Number($cell.data('planamountid'));
+        const oldRawStr = ($cell.data('old') ?? '').toString();
+        const oldRaw = oldRawStr === '' ? null : Number(oldRawStr);
+
+        if (oldRaw == null) $cell.text('');
+        else $cell.text(pid === 184 ? toLocaleMoney(oldRaw) : toLocaleInt(oldRaw));
+
+        $cell.data('raw', oldRaw == null ? '' : oldRaw);
+        $cell.removeClass('dirty');
+    });
+
+    pendingEdits.length = 0;
+    $('#rollingPlanTable tbody tr').each(function () { recomputeRowTotals($(this)); });
+
+    setEditMode(false);
 }
 
 function recomputeRowTotals($row) {
@@ -930,21 +947,6 @@ function ClearFilter() {
             'value', 'label', true
         );
     } catch { }
-
-    // --- Show Type default ---
-    //(function resetShowType() {
-    //    const defaultVal = 'GetListTargetRollingPlanCuttoltal';
-    //    const el = document.getElementById('ddl_showtype');
-    //    if (choicesShowType) {
-    //        try { choicesShowType.setChoiceByValue(defaultVal); } catch { }
-    //    }
-    //    if (el) {
-    //        el.value = defaultVal;
-    //        el.dispatchEvent(new Event('change'));
-    //    }
-    //})();
-    // --- Show Type (All project checkbox) default = not checked ---
-
 
 
     // reload projects with cleared filters
