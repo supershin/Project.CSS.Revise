@@ -210,11 +210,11 @@ namespace Project.CSS.Revise.Web.Respositories
 
             if (string.IsNullOrWhiteSpace(projectId)) missing.Add(nameof(Model.ProjectID));
             if (!Model?.BUID.HasValue ?? true) missing.Add(nameof(Model.BUID));
-            if (!Model?.PartnerID.HasValue ?? true) missing.Add(nameof(Model.PartnerID));
+            //if (!Model?.PartnerID.HasValue ?? true) missing.Add(nameof(Model.PartnerID));
             if (string.IsNullOrWhiteSpace(Model?.ProjectName)) missing.Add(nameof(Model.ProjectName));
             if (string.IsNullOrWhiteSpace(Model?.ProjectType)) missing.Add(nameof(Model.ProjectType));
             if (!Model?.ProjectStatus.HasValue ?? true) missing.Add(nameof(Model.ProjectStatus));
-            if (!Model?.ProjectZoneID.HasValue ?? true) missing.Add(nameof(Model.ProjectZoneID));
+            //if (!Model?.ProjectZoneID.HasValue ?? true) missing.Add(nameof(Model.ProjectZoneID));
             if (!Model?.UserID.HasValue ?? true) missing.Add(nameof(Model.UserID));
 
             var type = (Model?.ProjectType ?? "").Trim().ToUpperInvariant();
@@ -323,18 +323,24 @@ namespace Project.CSS.Revise.Web.Respositories
                 }
                 _context.SaveChanges();
 
-                // ---------- TR_ProjectZone_Mapping (delete all + insert new) ----------
-                _context.Database.ExecuteSqlRaw(
-                    "DELETE FROM TR_ProjectZone_Mapping WHERE ProjectID = {0}", projectId
-                );
-
-                var newZone = new TR_ProjectZone_Mapping
+                // ---------- TR_ProjectZone_Mapping (OPTIONAL NOW) ----------
+                // เดิมลบทั้งหมด + insert ใหม่ — ตอนนี้เปลี่ยนเป็น "ทำเฉพาะเมื่อส่งค่า ProjectZoneID มา"
+                if (Model?.ProjectZoneID.HasValue == true)
                 {
-                    ProjectID = projectId,
-                    ProjectZoneID = Model.ProjectZoneID!.Value
-                };
-                _context.Set<TR_ProjectZone_Mapping>().Add(newZone);
-                _context.SaveChanges();
+                    // ลบของเดิม แล้วเพิ่มค่าใหม่
+                    _context.Database.ExecuteSqlRaw(
+                        "DELETE FROM TR_ProjectZone_Mapping WHERE ProjectID = {0}", projectId
+                    );
+
+                    var newZone = new TR_ProjectZone_Mapping
+                    {
+                        ProjectID = projectId,
+                        ProjectZoneID = Model.ProjectZoneID.Value
+                    };
+                    _context.Set<TR_ProjectZone_Mapping>().Add(newZone);
+                    _context.SaveChanges();
+                }
+                // ถ้าไม่ส่ง ProjectZoneID -> ไม่ลบ/ไม่เพิ่ม (คงข้อมูลเดิมไว้)
 
                 tx.Commit();
                 ret.IsSuccess = true;

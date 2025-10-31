@@ -550,11 +550,11 @@ async function onSaveProject() {
     const missing = [];
     if (!payload.ProjectID) missing.push('ProjectID');
     if (!payload.BUID) missing.push('BUID');
-    if (!payload.PartnerID) missing.push('PartnerID');
+    //if (!payload.PartnerID) missing.push('PartnerID');
     if (!payload.ProjectName) missing.push('ProjectName');
     if (!payload.ProjectType || !['C', 'H'].includes(payload.ProjectType)) missing.push('ProjectType (C/H)');
     if (!payload.ProjectStatus) missing.push('ProjectStatus');
-    if (!payload.ProjectZoneID) missing.push('ProjectZoneID');
+    //if (!payload.ProjectZoneID) missing.push('ProjectZoneID');
 
     if (missing.length) {
         errorMessage?.('Missing/invalid: ' + missing.join(', '));

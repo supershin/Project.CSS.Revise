@@ -246,7 +246,6 @@ namespace Project.CSS.Revise.Web.Respositories
                 }
             }
 
-
             return result;
         }
 
@@ -388,7 +387,7 @@ namespace Project.CSS.Revise.Web.Respositories
             return result;
         }
 
-        public TargetRollingPlanInsertModel UpsertTargetRollingPlans(List<TargetRollingPlanInsertModel> plans)
+        public TargetRollingPlanInsertModel UpsertTargetRollingPlans_Old_Version_Not_use_now(List<TargetRollingPlanInsertModel> plans)
         {
             var result = new TargetRollingPlanInsertModel();
 
@@ -468,6 +467,116 @@ namespace Project.CSS.Revise.Web.Respositories
                                ?? ex.GetBaseException().Message
                                ?? ex.Message;
 
+                    result.Message = $"Upsert failed: {root}";
+                }
+                catch (Exception ex)
+                {
+                    tx.Rollback();
+                    result.Message = $"Upsert failed: {ex.Message}";
+                }
+            }
+
+            return result;
+        }
+
+        public TargetRollingPlanInsertModel UpsertTargetRollingPlans(List<TargetRollingPlanInsertModel> plans)
+        {
+            var result = new TargetRollingPlanInsertModel();
+
+            if (plans == null || plans.Count == 0)
+            {
+                result.Message = "No data to import.";
+                return result;
+            }
+
+            using (var tx = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    foreach (var p in plans)
+                    {
+                        // ======= 1. ตรวจสอบเบื้องต้น =======
+                        if (string.IsNullOrWhiteSpace(p.ProjectID)
+                            || p.PlanTypeID <= 0
+                            || (p.PlanAmountID != 183 && p.PlanAmountID != 184)
+                            || p.MonthlyDate == default)
+                        {
+                            result.Skipped++;
+                            continue;
+                        }
+
+                        var projectId = p.ProjectID.Trim();
+                        if (projectId.Length > 50) projectId = projectId.Substring(0, 50);
+
+                        // ======= 2. ตรวจสอบ BUID =======
+                        int? buid = _context.tm_BUProject_Mappings
+                            .AsNoTracking()
+                            .Where(m => m.ProjectID == projectId)
+                            .Select(m => (int?)m.BUID)
+                            .FirstOrDefault();
+
+                        // ======= 3. ถ้าเป็น Actual (185) ต้อง BU=6 เท่านั้น =======
+                        if (p.PlanTypeID == 185)
+                        {
+                            if (buid == null || buid != 6)
+                            {
+                                result.Skipped++;
+                                continue;
+                            }
+                        }
+
+                        var monthDate = p.MonthlyDate.Date;
+                        var amount = Math.Round(p.Amount, 2);
+                        var flagActive = p.FlagActive;
+
+                        // ======= 4. ตรวจว่ามีข้อมูลเดิมหรือไม่ =======
+                        var row = _context.TR_TargetRollingPlans.FirstOrDefault(x =>
+                            x.ProjectID == projectId &&
+                            x.PlanTypeID == p.PlanTypeID &&
+                            x.PlanAmountID == p.PlanAmountID &&
+                            x.MonthlyDate == monthDate);
+
+                        if (row != null)
+                        {
+                            // UPDATE
+                            row.Amount = amount;
+                            row.FlagActive = flagActive;
+                            row.UpdateBy = p.UpdateBy;
+                            row.UpdateDate = DateTime.Now;
+                            result.Updated++;
+                        }
+                        else
+                        {
+                            // INSERT
+                            var newRow = new TR_TargetRollingPlan
+                            {
+                                ProjectID = projectId,
+                                PlanTypeID = p.PlanTypeID,
+                                PlanAmountID = p.PlanAmountID,
+                                MonthlyDate = monthDate,
+                                Amount = amount,
+                                FlagActive = flagActive,
+                                CreateBy = p.CreateBy,
+                                CreateDate = DateTime.Now,
+                                UpdateBy = p.UpdateBy,
+                                UpdateDate = DateTime.Now
+                            };
+
+                            _context.TR_TargetRollingPlans.Add(newRow);
+                            result.Inserted++;
+                        }
+                    }
+
+                    _context.SaveChanges();
+                    tx.Commit();
+                    result.Message = $"Upsert OK. Inserted: {result.Inserted}, Updated: {result.Updated}, Skipped: {result.Skipped}";
+                }
+                catch (DbUpdateException ex)
+                {
+                    tx.Rollback();
+                    var root = ex.InnerException?.Message
+                               ?? ex.GetBaseException().Message
+                               ?? ex.Message;
                     result.Message = $"Upsert failed: {root}";
                 }
                 catch (Exception ex)
