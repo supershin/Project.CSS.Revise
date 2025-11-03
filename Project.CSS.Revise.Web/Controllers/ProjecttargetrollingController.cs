@@ -125,106 +125,6 @@ namespace Project.CSS.Revise.Web.Controllers
             });
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> ImportExcel(IFormFile file)
-        //{
-
-        //    int menuId = Constants.Menu.Projecttargetrolling;
-        //    int qcTypeId = 10; // ตามที่ใช้ใน Index()
-
-        //    string? dep64 = User.FindFirst("DepartmentID")?.Value;
-        //    string? rol64 = User.FindFirst("RoleID")?.Value;
-
-        //    int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
-        //    int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
-
-        //    var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
-        //    if (perms is null || !perms.Add)
-        //    {
-        //        return StatusCode(StatusCodes.Status403Forbidden, new { success = false, message = "No permission to import." });
-        //    }
-
-        //    if (file == null || file.Length == 0)
-        //    {
-        //        return BadRequest("No file uploaded.");
-        //    }
-
-        //    var list = new List<ImportDataProjectTargetRolling>();
-
-        //    using (var stream = new MemoryStream())
-        //    {
-        //        await file.CopyToAsync(stream);
-        //        using (var package = new ExcelPackage(stream))
-        //        {
-        //            var worksheet = package.Workbook.Worksheets.First();
-        //            int rowCount = worksheet.Dimension.Rows;
-
-        //            for (int row = 3; row <= rowCount; row++) // start from data row
-        //            {
-        //                var item = new ImportDataProjectTargetRolling
-        //                {
-        //                    ProjectID = worksheet.Cells[row, 2].Text?.Trim(),
-        //                    ProjectName = worksheet.Cells[row, 3].Text?.Trim(),
-        //                    ProjectPlanType = worksheet.Cells[row, 4].Text?.Trim(),
-        //                    Year = int.TryParse(worksheet.Cells[row, 5].Text, out var year) ? year : 0,
-
-        //                    Jan_Unit = TryParseDecimal(worksheet.Cells[row, 6].Text),
-        //                    Jan_Value = TryParseDecimal(worksheet.Cells[row, 7].Text),
-        //                    Feb_Unit = TryParseDecimal(worksheet.Cells[row, 8].Text),
-        //                    Feb_Value = TryParseDecimal(worksheet.Cells[row, 9].Text),
-        //                    Mar_Unit = TryParseDecimal(worksheet.Cells[row, 10].Text),
-        //                    Mar_Value = TryParseDecimal(worksheet.Cells[row, 11].Text),
-        //                    Apr_Unit = TryParseDecimal(worksheet.Cells[row, 12].Text),
-        //                    Apr_Value = TryParseDecimal(worksheet.Cells[row, 13].Text),
-        //                    May_Unit = TryParseDecimal(worksheet.Cells[row, 14].Text),
-        //                    May_Value = TryParseDecimal(worksheet.Cells[row, 15].Text),
-        //                    Jun_Unit = TryParseDecimal(worksheet.Cells[row, 16].Text),
-        //                    Jun_Value = TryParseDecimal(worksheet.Cells[row, 17].Text),
-        //                    Jul_Unit = TryParseDecimal(worksheet.Cells[row, 18].Text),
-        //                    Jul_Value = TryParseDecimal(worksheet.Cells[row, 19].Text),
-        //                    Aug_Unit = TryParseDecimal(worksheet.Cells[row, 20].Text),
-        //                    Aug_Value = TryParseDecimal(worksheet.Cells[row, 21].Text),
-        //                    Sep_Unit = TryParseDecimal(worksheet.Cells[row, 22].Text),
-        //                    Sep_Value = TryParseDecimal(worksheet.Cells[row, 23].Text),
-        //                    Oct_Unit = TryParseDecimal(worksheet.Cells[row, 24].Text),
-        //                    Oct_Value = TryParseDecimal(worksheet.Cells[row, 25].Text),
-        //                    Nov_Unit = TryParseDecimal(worksheet.Cells[row, 26].Text),
-        //                    Nov_Value = TryParseDecimal(worksheet.Cells[row, 27].Text),
-        //                    Dec_Unit = TryParseDecimal(worksheet.Cells[row, 28].Text),
-        //                    Dec_Value = TryParseDecimal(worksheet.Cells[row, 29].Text)
-        //                };
-
-        //                // ❌ ข้ามแถวที่เป็น Actual
-        //                if (string.Equals(item.ProjectPlanType?.Trim(), "Actual", StringComparison.OrdinalIgnoreCase))
-        //                    continue;
-
-        //                // (แนะนำ) ข้ามแถวว่าง ๆ ไม่มี ProjectID
-        //                if (string.IsNullOrWhiteSpace(item.ProjectID))
-        //                    continue;
-
-        //                list.Add(item);
-        //            }
-
-        //        }
-        //    }
-
-        //    string LoginID = User.FindFirst("LoginID")?.Value;
-        //    string UserID = SecurityManager.DecodeFrom64(LoginID);
-        //    int currentUserId = Commond.FormatExtension.Nulltoint(UserID);
-
-        //    var Listdatainsert = BuildTargetRollingPlanList(list , currentUserId);
-
-        //    var result = _projectAndTargetRollingService.UpsertTargetRollingPlans(Listdatainsert);
-
-        //    if (result == null)
-        //    {
-        //        return BadRequest("Failed to insert data.");
-        //    }
-        //    // ✅ Return success response with count of inserted records
-
-        //    return Ok(new { success = true, message = result.Message, count = list.Count });
-        //}
-
         [HttpPost]
         public async Task<IActionResult> ImportExcel(IFormFile file)
         {
@@ -545,46 +445,6 @@ namespace Project.CSS.Revise.Web.Controllers
                 _ => null
             };
 
-        //[HttpPost]
-        //public IActionResult ExportProjectAndTargetRolling([FromForm] RollingPlanSummaryModel model)
-        //{
-        //    try
-        //    {
-        //        int menuId = Constants.Menu.Projecttargetrolling;
-        //        int qcTypeId = 10; // ตามที่ใช้ใน Index()
-
-        //        string? dep64 = User.FindFirst("DepartmentID")?.Value;
-        //        string? rol64 = User.FindFirst("RoleID")?.Value;
-
-        //        int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
-        //        int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
-
-        //        var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
-        //        if (perms is null || !perms.Download)
-        //        {
-        //            return BadRequest(new { success = false, message = "No permission to import"});
-        //        }
-
-        //        //model.L_Act = model.;
-        //        model.IS_Export = true;
-        //        List<RollingPlanSummaryModel> dataList = _configProject.sp_GetProjecTargetRollingPlanList_GetListTargetRollingPlan(model);
-        //        //var dataList = _projectAndTargetRollingService.GetListDataExportTargetRollingPlan(model);
-
-        //        var dataTable = ConvertToDataTable(dataList);
-
-        //        var excelBytes = WriteExcelProjectAndTargetRolling(dataTable);
-
-        //        // 👇 ใช้ L_PlanTypeName สร้างชื่อไฟล์
-        //        var fileName = BuildExportFileName(model);
-
-        //        return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(new { success = false, message = "Error fetching data: " + ex.Message });
-        //    }
-        //}
-
         [HttpPost]
         public IActionResult ExportProjectAndTargetRolling([FromForm] RollingPlanSummaryModel model)
         {
@@ -628,7 +488,7 @@ namespace Project.CSS.Revise.Web.Controllers
             }
         }
 
-        // ===== Month filter helper =====
+        // ===== Month filter helper (L_Month overrides L_Quarter) =====
         private static readonly Dictionary<string, int[]> QuarterMap = new(StringComparer.OrdinalIgnoreCase)
         {
             ["Q1"] = new[] { 1, 2, 3 },
@@ -637,27 +497,50 @@ namespace Project.CSS.Revise.Web.Controllers
             ["Q4"] = new[] { 10, 11, 12 },
         };
 
-        private static int[] ResolveMonths(string? quarter, string? monthCsv)
+        private static int[] ResolveMonths(string? quarterCsv, string? monthCsv)
         {
-            // 1) ถ้ามี Month → ใช้ Month เป็นหลัก
-            var set = new HashSet<int>();
-            if (!string.IsNullOrWhiteSpace(monthCsv))
-            {
-                foreach (var t in monthCsv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-                    if (int.TryParse(t, out var m) && m >= 1 && m <= 12) set.Add(m);
-            }
-            if (set.Count > 0) return set.OrderBy(x => x).ToArray();
+            // 1) Month takes precedence (e.g., "1,4,7")
+            var months = ParseMonthCsv(monthCsv);
+            if (months.Count > 0)
+                return months.OrderBy(x => x).ToArray();
 
-            // 2) ถ้าไม่มี Month แต่มี Quarter → map
-            if (!string.IsNullOrWhiteSpace(quarter) && QuarterMap.TryGetValue(quarter.Trim(), out var q))
-                return q;
+            // 2) Else union of all specified quarters (supports multi: "Q1,Q2,Q3")
+            var fromQuarters = new HashSet<int>();
+            foreach (var q in SplitCsv(quarterCsv))
+                if (QuarterMap.TryGetValue(q, out var arr))
+                    foreach (var m in arr) fromQuarters.Add(m);
 
-            // 3) ไม่ส่งอะไรเลย → 1..12
+            if (fromQuarters.Count > 0)
+                return fromQuarters.OrderBy(x => x).ToArray();
+
+            // 3) Default: all 1..12
             return Enumerable.Range(1, 12).ToArray();
+        }
+
+        private static IEnumerable<string> SplitCsv(string? csv)
+        {
+            if (string.IsNullOrWhiteSpace(csv)) yield break;
+            foreach (var t in csv.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var s = t.Trim();
+                if (!string.IsNullOrEmpty(s)) yield return s;
+            }
+        }
+
+        private static HashSet<int> ParseMonthCsv(string? csv)
+        {
+            var set = new HashSet<int>();
+            if (string.IsNullOrWhiteSpace(csv)) return set;
+
+            foreach (var token in csv.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                if (int.TryParse(token, out var m) && m >= 1 && m <= 12) set.Add(m);
+
+            return set;
         }
 
         private static string MonthKey(int m) => new[]
         { "", "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec" }[m];
+
 
         private static string BuildExportFileName(RollingPlanSummaryModel model)
         {
@@ -824,6 +707,404 @@ namespace Project.CSS.Revise.Web.Controllers
 
             return dt;
         }
+
+        // รับเพิ่ม: int[] selectedMonths
+        private byte[] WriteExcelProjectAndTargetRolling(DataTable dt, int[] selectedMonths)
+        {
+            using (var package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("Sheet 1");
+                if (dt == null || dt.Columns.Count == 0)
+                    throw new Exception("No columns found in DataTable.");
+
+                // ✅ ใช้เฉพาะเดือนที่เลือก
+                var monthNums = (selectedMonths is { Length: > 0 }) ? selectedMonths : Enumerable.Range(1, 12).ToArray();
+                var monthNames = monthNums.Select(MonthKey).ToArray(); // ["Jan","Feb",...]
+
+                int r1 = 1; // header row 1
+                int r2 = 2; // header row 2
+                int c = 1;
+
+                // ===== Row 1: Fixed headers (5 columns) =====
+                ws.Cells[r1, c].Value = "Bu"; c++;
+                ws.Cells[r1, c].Value = "ProjectID"; c++;
+                ws.Cells[r1, c].Value = "Project Name"; c++;
+                ws.Cells[r1, c].Value = "Project Plan Type"; c++;
+                ws.Cells[r1, c].Value = "Year"; c++;
+
+                // ===== Row 1: Month groups (เฉพาะเดือนที่เลือก) =====
+                foreach (var m in monthNames)
+                {
+                    ws.Cells[r1, c].Value = m;
+                    ws.Cells[r1, c, r1, c + 1].Merge = true; // Unit + Value
+                    c += 2;
+                }
+
+                // ===== Row 1: TOTAL (merge 2 cols) =====
+                ws.Cells[r1, c].Value = "TOTAL";
+                ws.Cells[r1, c, r1, c + 1].Merge = true;
+                int totalUnitCol = c;       // first of TOTAL (Unit)
+                int totalValueCol = c + 1;   // second of TOTAL (Value)
+                c += 2;
+
+                // ===== Row 2: Subheaders =====
+                int c2 = 1;
+                ws.Cells[r2, c2++].Value = ""; // Bu
+                ws.Cells[r2, c2++].Value = ""; // ProjectID
+                ws.Cells[r2, c2++].Value = ""; // Project Name
+                ws.Cells[r2, c2++].Value = ""; // Project Plan Type
+                ws.Cells[r2, c2++].Value = ""; // Year
+                foreach (var _ in monthNames)
+                {
+                    ws.Cells[r2, c2++].Value = "Unit";
+                    ws.Cells[r2, c2++].Value = "Value";
+                }
+                ws.Cells[r2, c2++].Value = "Unit";   // TOTAL Unit
+                ws.Cells[r2, c2++].Value = "Value";  // TOTAL Value
+
+                // ===== Header styling (เดิม) =====
+                using (var rngTop = ws.Cells[r1, 1, r1, c - 1])
+                {
+                    rngTop.Style.Font.Bold = true;
+                    rngTop.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    rngTop.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                    rngTop.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    rngTop.Style.Fill.BackgroundColor.SetColor(System.Drawing.ColorTranslator.FromHtml("#bfbfbf"));
+                    rngTop.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin, System.Drawing.Color.Gray);
+                }
+                using (var rngSub = ws.Cells[r2, 1, r2, c - 1])
+                {
+                    rngSub.Style.Font.Bold = true;
+                    rngSub.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    rngSub.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                    rngSub.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    rngSub.Style.Fill.BackgroundColor.SetColor(System.Drawing.ColorTranslator.FromHtml("#e6e6e6"));
+                    rngSub.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin, System.Drawing.Color.Gray);
+                }
+
+                ws.Row(r1).Height = 22;
+                ws.Row(r2).Height = 20;
+
+                // Freeze below headers & after Year (Year = col 5, so freeze at 6)
+                ws.View.FreezePanes(3, 6);
+
+                string CellAddr(int row, int col) => ws.Cells[row, col].Address;
+
+                // ===== Data rows =====
+                int dataStartRow = 3;
+                int totalCols = c - 1;   // last used column index
+                int firstUnitCol = 6;       // after 5 fixed cols, Unit starts at col 6
+                int lastValueCol = 5 + monthNames.Length * 2; // last month Value col (dynamic)
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    var dr = dt.Rows[i];
+                    int excelRow = dataStartRow + i;
+                    int dc = 1;
+
+                    // Bu
+                    object bu = dr.Table.Columns.Contains("Bu") ? dr["Bu"] : null;
+                    if (bu == null || bu == DBNull.Value || (bu is string sBu && string.IsNullOrWhiteSpace(sBu)))
+                        bu = " ";
+                    ws.Cells[excelRow, dc++].Value = bu;
+
+                    // Fixed cols
+                    ws.Cells[excelRow, dc++].Value = dr.Table.Columns.Contains("ProjectID") ? dr["ProjectID"] : null;
+                    ws.Cells[excelRow, dc++].Value = dr.Table.Columns.Contains("ProjectName") ? dr["ProjectName"] : null;
+                    ws.Cells[excelRow, dc++].Value = dr.Table.Columns.Contains("ProjectPlanType") ? dr["ProjectPlanType"] : null;
+                    ws.Cells[excelRow, dc++].Value = dr.Table.Columns.Contains("Year") ? dr["Year"] : null;
+
+                    // ✅ Month Unit/Value เฉพาะเดือนที่เลือก
+                    foreach (var mNum in monthNums)
+                    {
+                        var mk = MonthKey(mNum);
+                        var unitColName = mk + "_Unit";
+                        var valueColName = mk + "_Value";
+
+                        ws.Cells[excelRow, dc].Value = (dr.Table.Columns.Contains(unitColName) && dr[unitColName] != DBNull.Value) ? dr[unitColName] : "-";
+                        dc++;
+                        ws.Cells[excelRow, dc].Value = (dr.Table.Columns.Contains(valueColName) && dr[valueColName] != DBNull.Value) ? dr[valueColName] : "-";
+                        dc++;
+                    }
+
+                    // ✅ Per-row TOTAL formulas (เฉพาะเดือนที่เลือก)
+                    var unitCells = new List<string>();
+                    for (int col = firstUnitCol; col <= lastValueCol; col += 2)
+                        unitCells.Add(CellAddr(excelRow, col));
+                    ws.Cells[excelRow, totalUnitCol].Formula = unitCells.Count > 0 ? $"=SUM({string.Join(",", unitCells)})" : "0";
+
+                    var valueCells = new List<string>();
+                    for (int col = firstUnitCol + 1; col <= lastValueCol; col += 2)
+                        valueCells.Add(CellAddr(excelRow, col));
+                    ws.Cells[excelRow, totalValueCol].Formula = valueCells.Count > 0 ? $"=SUM({string.Join(",", valueCells)})" : "0";
+                }
+
+                // ===== Column widths =====
+                ws.Column(1).Width = 18;  // Bu
+                ws.Column(2).Width = 15;  // ProjectID
+                ws.Column(3).Width = 28;  // Project Name
+                ws.Column(4).Width = 20;  // Project Plan Type
+                ws.Column(5).Width = 10;  // Year
+
+                for (int col = firstUnitCol; col <= lastValueCol; col += 2) ws.Column(col).Width = 7;   // Unit
+                ws.Column(totalUnitCol).Width = 7;
+
+                for (int col = firstUnitCol + 1; col <= lastValueCol; col += 2) ws.Column(col).Width = 30; // Value
+                ws.Column(totalValueCol).Width = 30;
+
+                // ===== Number formats =====
+                for (int col = firstUnitCol + 1; col <= lastValueCol; col += 2)
+                    ws.Column(col).Style.Numberformat.Format = "#,##0.00"; // Value
+                ws.Column(totalValueCol).Style.Numberformat.Format = "#,##0.00";
+
+                for (int col = firstUnitCol; col <= lastValueCol; col += 2)
+                    ws.Column(col).Style.Numberformat.Format = "#,##0";    // Unit
+                ws.Column(totalUnitCol).Style.Numberformat.Format = "#,##0";
+
+                ws.Cells[r1, 1, r2, totalCols].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                ws.Cells[r1, 1, r2, totalCols].Style.WrapText = true;
+
+                // ===== GRAND TOTAL =====
+                int lastDataRow = dataStartRow + dt.Rows.Count - 1;
+                int grandTotalRow = Math.Max(dataStartRow, lastDataRow + 1);
+
+                ws.Cells[grandTotalRow, 1].Value = "GRAND TOTAL";
+                ws.Cells[grandTotalRow, 1, grandTotalRow, 5].Merge = true;
+                ws.Cells[grandTotalRow, 1, grandTotalRow, 5].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+
+                if (dt.Rows.Count > 0 && monthNames.Length > 0)
+                {
+                    // Subtotal ลงตามคอลัมน์เดือนที่เลือก
+                    for (int i = 0; i < monthNames.Length; i++)
+                    {
+                        int unitCol = firstUnitCol + (i * 2);
+                        int valueCol = unitCol + 1;
+
+                        ws.Cells[grandTotalRow, unitCol].Formula =
+                            $"=SUBTOTAL(9,{ws.Cells[dataStartRow, unitCol].Address}:{ws.Cells[lastDataRow, unitCol].Address})";
+                        ws.Cells[grandTotalRow, valueCol].Formula =
+                            $"=SUBTOTAL(9,{ws.Cells[dataStartRow, valueCol].Address}:{ws.Cells[lastDataRow, valueCol].Address})";
+                    }
+
+                    // Subtotal TOTAL Unit / Value
+                    ws.Cells[grandTotalRow, totalUnitCol].Formula =
+                        $"=SUBTOTAL(9,{ws.Cells[dataStartRow, totalUnitCol].Address}:{ws.Cells[lastDataRow, totalUnitCol].Address})";
+                    ws.Cells[grandTotalRow, totalValueCol].Formula =
+                        $"=SUBTOTAL(9,{ws.Cells[dataStartRow, totalValueCol].Address}:{ws.Cells[lastDataRow, totalValueCol].Address})";
+                }
+                else
+                {
+                    for (int col = firstUnitCol; col <= totalValueCol; col++)
+                        ws.Cells[grandTotalRow, col].Value = 0;
+                }
+
+                using (var rngGrand = ws.Cells[grandTotalRow, 1, grandTotalRow, totalCols])
+                {
+                    rngGrand.Style.Font.Bold = true;
+                    rngGrand.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    rngGrand.Style.Fill.BackgroundColor.SetColor(System.Drawing.ColorTranslator.FromHtml("#dcdcdc"));
+                    rngGrand.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                    rngGrand.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                    rngGrand.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                    rngGrand.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                    rngGrand.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                }
+                ws.Row(grandTotalRow).Height = 20;
+
+                // AutoFilter
+                ws.Cells[r2, 1, Math.Max(grandTotalRow, r2), totalCols].AutoFilter = true;
+
+                return package.GetAsByteArray();
+            }
+        }
+
+        [HttpPost]
+        public IActionResult UpsertEdits([FromBody] List<UpsertEditDto> edits)
+        {
+            try
+            {
+                // ------- Permission check (Update) -------
+                int menuId = Constants.Menu.Projecttargetrolling;
+                int qcTypeId = 10; // same QC type you used elsewhere
+
+                string? dep64 = User.FindFirst("DepartmentID")?.Value;
+                string? rol64 = User.FindFirst("RoleID")?.Value;
+
+                int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+                int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+                var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+                if (perms is null || !perms.Update)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, new
+                    {
+                        success = false,
+                        message = "No permission to update."
+                    });
+                }
+                // -----------------------------------------
+
+                if (edits == null || edits.Count == 0)
+                    return Ok(new { success = false, message = "No edits received." });
+
+                // Get current user id (adjust to your auth)
+                var loginId = User.FindFirst("LoginID")?.Value;
+                var userIdStr = SecurityManager.DecodeFrom64(loginId ?? "");
+                var currentUserId = Commond.FormatExtension.Nulltoint(userIdStr);
+
+                // Map to your insert model
+                var plans = new List<Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling.TargetRollingPlanInsertModel>();
+                foreach (var e in edits)
+                {
+                    // guard
+                    if (string.IsNullOrWhiteSpace(e.ProjectID) || e.PlanTypeID <= 0 || e.Year <= 0 || e.Month < 1 || e.Month > 12)
+                        continue;
+
+                    var monthDate = new DateTime(e.Year, e.Month, 1);
+
+                    // If NewValue is null, treat as zero and mark inactive (you can change this rule)
+                    var isActive = e.NewValue.HasValue;
+                    var amount = e.NewValue ?? 0m;
+
+                    plans.Add(new Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling.TargetRollingPlanInsertModel
+                    {
+                        ProjectID = e.ProjectID,
+                        PlanTypeID = e.PlanTypeID,
+                        PlanAmountID = e.PlanAmountID,      // 183 unit / 184 value
+                        MonthlyDate = monthDate,
+                        Amount = amount,
+                        FlagActive = isActive,
+                        CreateBy = currentUserId,
+                        UpdateBy = currentUserId
+                    });
+                }
+
+                if (plans.Count == 0)
+                    return Ok(new { success = false, message = "All edits were invalid after validation." });
+
+                // Call your EF upsert service
+                var summary = _projectAndTargetRollingService.UpsertTargetRollingPlans(plans);
+
+                return Ok(new
+                {
+                    success = true,
+                    inserted = summary.Inserted,
+                    updated = summary.Updated,
+                    skipped = summary.Skipped,
+                    message = summary.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                var inner = ex.InnerException?.Message;
+                return BadRequest(new
+                {
+                    success = false,
+                    message = $"UpsertEdits failed: {ex.Message}" + (inner != null ? $" | INNER: {inner}" : "")
+                });
+            }
+        }
+
+
+        //[HttpPost]
+        //public async Task<IActionResult> ImportExcel(IFormFile file)
+        //{
+
+        //    int menuId = Constants.Menu.Projecttargetrolling;
+        //    int qcTypeId = 10; // ตามที่ใช้ใน Index()
+
+        //    string? dep64 = User.FindFirst("DepartmentID")?.Value;
+        //    string? rol64 = User.FindFirst("RoleID")?.Value;
+
+        //    int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+        //    int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
+
+        //    var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+        //    if (perms is null || !perms.Add)
+        //    {
+        //        return StatusCode(StatusCodes.Status403Forbidden, new { success = false, message = "No permission to import." });
+        //    }
+
+        //    if (file == null || file.Length == 0)
+        //    {
+        //        return BadRequest("No file uploaded.");
+        //    }
+
+        //    var list = new List<ImportDataProjectTargetRolling>();
+
+        //    using (var stream = new MemoryStream())
+        //    {
+        //        await file.CopyToAsync(stream);
+        //        using (var package = new ExcelPackage(stream))
+        //        {
+        //            var worksheet = package.Workbook.Worksheets.First();
+        //            int rowCount = worksheet.Dimension.Rows;
+
+        //            for (int row = 3; row <= rowCount; row++) // start from data row
+        //            {
+        //                var item = new ImportDataProjectTargetRolling
+        //                {
+        //                    ProjectID = worksheet.Cells[row, 2].Text?.Trim(),
+        //                    ProjectName = worksheet.Cells[row, 3].Text?.Trim(),
+        //                    ProjectPlanType = worksheet.Cells[row, 4].Text?.Trim(),
+        //                    Year = int.TryParse(worksheet.Cells[row, 5].Text, out var year) ? year : 0,
+
+        //                    Jan_Unit = TryParseDecimal(worksheet.Cells[row, 6].Text),
+        //                    Jan_Value = TryParseDecimal(worksheet.Cells[row, 7].Text),
+        //                    Feb_Unit = TryParseDecimal(worksheet.Cells[row, 8].Text),
+        //                    Feb_Value = TryParseDecimal(worksheet.Cells[row, 9].Text),
+        //                    Mar_Unit = TryParseDecimal(worksheet.Cells[row, 10].Text),
+        //                    Mar_Value = TryParseDecimal(worksheet.Cells[row, 11].Text),
+        //                    Apr_Unit = TryParseDecimal(worksheet.Cells[row, 12].Text),
+        //                    Apr_Value = TryParseDecimal(worksheet.Cells[row, 13].Text),
+        //                    May_Unit = TryParseDecimal(worksheet.Cells[row, 14].Text),
+        //                    May_Value = TryParseDecimal(worksheet.Cells[row, 15].Text),
+        //                    Jun_Unit = TryParseDecimal(worksheet.Cells[row, 16].Text),
+        //                    Jun_Value = TryParseDecimal(worksheet.Cells[row, 17].Text),
+        //                    Jul_Unit = TryParseDecimal(worksheet.Cells[row, 18].Text),
+        //                    Jul_Value = TryParseDecimal(worksheet.Cells[row, 19].Text),
+        //                    Aug_Unit = TryParseDecimal(worksheet.Cells[row, 20].Text),
+        //                    Aug_Value = TryParseDecimal(worksheet.Cells[row, 21].Text),
+        //                    Sep_Unit = TryParseDecimal(worksheet.Cells[row, 22].Text),
+        //                    Sep_Value = TryParseDecimal(worksheet.Cells[row, 23].Text),
+        //                    Oct_Unit = TryParseDecimal(worksheet.Cells[row, 24].Text),
+        //                    Oct_Value = TryParseDecimal(worksheet.Cells[row, 25].Text),
+        //                    Nov_Unit = TryParseDecimal(worksheet.Cells[row, 26].Text),
+        //                    Nov_Value = TryParseDecimal(worksheet.Cells[row, 27].Text),
+        //                    Dec_Unit = TryParseDecimal(worksheet.Cells[row, 28].Text),
+        //                    Dec_Value = TryParseDecimal(worksheet.Cells[row, 29].Text)
+        //                };
+
+        //                // ❌ ข้ามแถวที่เป็น Actual
+        //                if (string.Equals(item.ProjectPlanType?.Trim(), "Actual", StringComparison.OrdinalIgnoreCase))
+        //                    continue;
+
+        //                // (แนะนำ) ข้ามแถวว่าง ๆ ไม่มี ProjectID
+        //                if (string.IsNullOrWhiteSpace(item.ProjectID))
+        //                    continue;
+
+        //                list.Add(item);
+        //            }
+
+        //        }
+        //    }
+
+        //    string LoginID = User.FindFirst("LoginID")?.Value;
+        //    string UserID = SecurityManager.DecodeFrom64(LoginID);
+        //    int currentUserId = Commond.FormatExtension.Nulltoint(UserID);
+
+        //    var Listdatainsert = BuildTargetRollingPlanList(list , currentUserId);
+
+        //    var result = _projectAndTargetRollingService.UpsertTargetRollingPlans(Listdatainsert);
+
+        //    if (result == null)
+        //    {
+        //        return BadRequest("Failed to insert data.");
+        //    }
+        //    // ✅ Return success response with count of inserted records
+
+        //    return Ok(new { success = true, message = result.Message, count = list.Count });
+        //}
 
         //private byte[] WriteExcelProjectAndTargetRolling(DataTable dt)
         //{
@@ -1050,306 +1331,44 @@ namespace Project.CSS.Revise.Web.Controllers
         //    }
         //}
 
+        //[HttpPost]
+        //public IActionResult ExportProjectAndTargetRolling([FromForm] RollingPlanSummaryModel model)
+        //{
+        //    try
+        //    {
+        //        int menuId = Constants.Menu.Projecttargetrolling;
+        //        int qcTypeId = 10; // ตามที่ใช้ใน Index()
 
-        // รับเพิ่ม: int[] selectedMonths
-        private byte[] WriteExcelProjectAndTargetRolling(DataTable dt, int[] selectedMonths)
-        {
-            using (var package = new ExcelPackage())
-            {
-                var ws = package.Workbook.Worksheets.Add("Sheet 1");
-                if (dt == null || dt.Columns.Count == 0)
-                    throw new Exception("No columns found in DataTable.");
+        //        string? dep64 = User.FindFirst("DepartmentID")?.Value;
+        //        string? rol64 = User.FindFirst("RoleID")?.Value;
 
-                // ✅ ใช้เฉพาะเดือนที่เลือก
-                var monthNums = (selectedMonths is { Length: > 0 }) ? selectedMonths : Enumerable.Range(1, 12).ToArray();
-                var monthNames = monthNums.Select(MonthKey).ToArray(); // ["Jan","Feb",...]
+        //        int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
+        //        int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
 
-                int r1 = 1; // header row 1
-                int r2 = 2; // header row 2
-                int c = 1;
+        //        var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
+        //        if (perms is null || !perms.Download)
+        //        {
+        //            return BadRequest(new { success = false, message = "No permission to import"});
+        //        }
 
-                // ===== Row 1: Fixed headers (5 columns) =====
-                ws.Cells[r1, c].Value = "Bu"; c++;
-                ws.Cells[r1, c].Value = "ProjectID"; c++;
-                ws.Cells[r1, c].Value = "Project Name"; c++;
-                ws.Cells[r1, c].Value = "Project Plan Type"; c++;
-                ws.Cells[r1, c].Value = "Year"; c++;
+        //        //model.L_Act = model.;
+        //        model.IS_Export = true;
+        //        List<RollingPlanSummaryModel> dataList = _configProject.sp_GetProjecTargetRollingPlanList_GetListTargetRollingPlan(model);
+        //        //var dataList = _projectAndTargetRollingService.GetListDataExportTargetRollingPlan(model);
 
-                // ===== Row 1: Month groups (เฉพาะเดือนที่เลือก) =====
-                foreach (var m in monthNames)
-                {
-                    ws.Cells[r1, c].Value = m;
-                    ws.Cells[r1, c, r1, c + 1].Merge = true; // Unit + Value
-                    c += 2;
-                }
+        //        var dataTable = ConvertToDataTable(dataList);
 
-                // ===== Row 1: TOTAL (merge 2 cols) =====
-                ws.Cells[r1, c].Value = "TOTAL";
-                ws.Cells[r1, c, r1, c + 1].Merge = true;
-                int totalUnitCol = c;       // first of TOTAL (Unit)
-                int totalValueCol = c + 1;   // second of TOTAL (Value)
-                c += 2;
+        //        var excelBytes = WriteExcelProjectAndTargetRolling(dataTable);
 
-                // ===== Row 2: Subheaders =====
-                int c2 = 1;
-                ws.Cells[r2, c2++].Value = ""; // Bu
-                ws.Cells[r2, c2++].Value = ""; // ProjectID
-                ws.Cells[r2, c2++].Value = ""; // Project Name
-                ws.Cells[r2, c2++].Value = ""; // Project Plan Type
-                ws.Cells[r2, c2++].Value = ""; // Year
-                foreach (var _ in monthNames)
-                {
-                    ws.Cells[r2, c2++].Value = "Unit";
-                    ws.Cells[r2, c2++].Value = "Value";
-                }
-                ws.Cells[r2, c2++].Value = "Unit";   // TOTAL Unit
-                ws.Cells[r2, c2++].Value = "Value";  // TOTAL Value
+        //        // 👇 ใช้ L_PlanTypeName สร้างชื่อไฟล์
+        //        var fileName = BuildExportFileName(model);
 
-                // ===== Header styling (เดิม) =====
-                using (var rngTop = ws.Cells[r1, 1, r1, c - 1])
-                {
-                    rngTop.Style.Font.Bold = true;
-                    rngTop.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    rngTop.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    rngTop.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    rngTop.Style.Fill.BackgroundColor.SetColor(System.Drawing.ColorTranslator.FromHtml("#bfbfbf"));
-                    rngTop.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin, System.Drawing.Color.Gray);
-                }
-                using (var rngSub = ws.Cells[r2, 1, r2, c - 1])
-                {
-                    rngSub.Style.Font.Bold = true;
-                    rngSub.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    rngSub.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                    rngSub.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    rngSub.Style.Fill.BackgroundColor.SetColor(System.Drawing.ColorTranslator.FromHtml("#e6e6e6"));
-                    rngSub.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin, System.Drawing.Color.Gray);
-                }
-
-                ws.Row(r1).Height = 22;
-                ws.Row(r2).Height = 20;
-
-                // Freeze below headers & after Year (Year = col 5, so freeze at 6)
-                ws.View.FreezePanes(3, 6);
-
-                string CellAddr(int row, int col) => ws.Cells[row, col].Address;
-
-                // ===== Data rows =====
-                int dataStartRow = 3;
-                int totalCols = c - 1;   // last used column index
-                int firstUnitCol = 6;       // after 5 fixed cols, Unit starts at col 6
-                int lastValueCol = 5 + monthNames.Length * 2; // last month Value col (dynamic)
-
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    var dr = dt.Rows[i];
-                    int excelRow = dataStartRow + i;
-                    int dc = 1;
-
-                    // Bu
-                    object bu = dr.Table.Columns.Contains("Bu") ? dr["Bu"] : null;
-                    if (bu == null || bu == DBNull.Value || (bu is string sBu && string.IsNullOrWhiteSpace(sBu)))
-                        bu = " ";
-                    ws.Cells[excelRow, dc++].Value = bu;
-
-                    // Fixed cols
-                    ws.Cells[excelRow, dc++].Value = dr.Table.Columns.Contains("ProjectID") ? dr["ProjectID"] : null;
-                    ws.Cells[excelRow, dc++].Value = dr.Table.Columns.Contains("ProjectName") ? dr["ProjectName"] : null;
-                    ws.Cells[excelRow, dc++].Value = dr.Table.Columns.Contains("ProjectPlanType") ? dr["ProjectPlanType"] : null;
-                    ws.Cells[excelRow, dc++].Value = dr.Table.Columns.Contains("Year") ? dr["Year"] : null;
-
-                    // ✅ Month Unit/Value เฉพาะเดือนที่เลือก
-                    foreach (var mNum in monthNums)
-                    {
-                        var mk = MonthKey(mNum);
-                        var unitColName = mk + "_Unit";
-                        var valueColName = mk + "_Value";
-
-                        ws.Cells[excelRow, dc].Value = (dr.Table.Columns.Contains(unitColName) && dr[unitColName] != DBNull.Value) ? dr[unitColName] : "-";
-                        dc++;
-                        ws.Cells[excelRow, dc].Value = (dr.Table.Columns.Contains(valueColName) && dr[valueColName] != DBNull.Value) ? dr[valueColName] : "-";
-                        dc++;
-                    }
-
-                    // ✅ Per-row TOTAL formulas (เฉพาะเดือนที่เลือก)
-                    var unitCells = new List<string>();
-                    for (int col = firstUnitCol; col <= lastValueCol; col += 2)
-                        unitCells.Add(CellAddr(excelRow, col));
-                    ws.Cells[excelRow, totalUnitCol].Formula = unitCells.Count > 0 ? $"=SUM({string.Join(",", unitCells)})" : "0";
-
-                    var valueCells = new List<string>();
-                    for (int col = firstUnitCol + 1; col <= lastValueCol; col += 2)
-                        valueCells.Add(CellAddr(excelRow, col));
-                    ws.Cells[excelRow, totalValueCol].Formula = valueCells.Count > 0 ? $"=SUM({string.Join(",", valueCells)})" : "0";
-                }
-
-                // ===== Column widths =====
-                ws.Column(1).Width = 18;  // Bu
-                ws.Column(2).Width = 15;  // ProjectID
-                ws.Column(3).Width = 28;  // Project Name
-                ws.Column(4).Width = 20;  // Project Plan Type
-                ws.Column(5).Width = 10;  // Year
-
-                for (int col = firstUnitCol; col <= lastValueCol; col += 2) ws.Column(col).Width = 7;   // Unit
-                ws.Column(totalUnitCol).Width = 7;
-
-                for (int col = firstUnitCol + 1; col <= lastValueCol; col += 2) ws.Column(col).Width = 30; // Value
-                ws.Column(totalValueCol).Width = 30;
-
-                // ===== Number formats =====
-                for (int col = firstUnitCol + 1; col <= lastValueCol; col += 2)
-                    ws.Column(col).Style.Numberformat.Format = "#,##0.00"; // Value
-                ws.Column(totalValueCol).Style.Numberformat.Format = "#,##0.00";
-
-                for (int col = firstUnitCol; col <= lastValueCol; col += 2)
-                    ws.Column(col).Style.Numberformat.Format = "#,##0";    // Unit
-                ws.Column(totalUnitCol).Style.Numberformat.Format = "#,##0";
-
-                ws.Cells[r1, 1, r2, totalCols].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                ws.Cells[r1, 1, r2, totalCols].Style.WrapText = true;
-
-                // ===== GRAND TOTAL =====
-                int lastDataRow = dataStartRow + dt.Rows.Count - 1;
-                int grandTotalRow = Math.Max(dataStartRow, lastDataRow + 1);
-
-                ws.Cells[grandTotalRow, 1].Value = "GRAND TOTAL";
-                ws.Cells[grandTotalRow, 1, grandTotalRow, 5].Merge = true;
-                ws.Cells[grandTotalRow, 1, grandTotalRow, 5].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
-
-                if (dt.Rows.Count > 0 && monthNames.Length > 0)
-                {
-                    // Subtotal ลงตามคอลัมน์เดือนที่เลือก
-                    for (int i = 0; i < monthNames.Length; i++)
-                    {
-                        int unitCol = firstUnitCol + (i * 2);
-                        int valueCol = unitCol + 1;
-
-                        ws.Cells[grandTotalRow, unitCol].Formula =
-                            $"=SUBTOTAL(9,{ws.Cells[dataStartRow, unitCol].Address}:{ws.Cells[lastDataRow, unitCol].Address})";
-                        ws.Cells[grandTotalRow, valueCol].Formula =
-                            $"=SUBTOTAL(9,{ws.Cells[dataStartRow, valueCol].Address}:{ws.Cells[lastDataRow, valueCol].Address})";
-                    }
-
-                    // Subtotal TOTAL Unit / Value
-                    ws.Cells[grandTotalRow, totalUnitCol].Formula =
-                        $"=SUBTOTAL(9,{ws.Cells[dataStartRow, totalUnitCol].Address}:{ws.Cells[lastDataRow, totalUnitCol].Address})";
-                    ws.Cells[grandTotalRow, totalValueCol].Formula =
-                        $"=SUBTOTAL(9,{ws.Cells[dataStartRow, totalValueCol].Address}:{ws.Cells[lastDataRow, totalValueCol].Address})";
-                }
-                else
-                {
-                    for (int col = firstUnitCol; col <= totalValueCol; col++)
-                        ws.Cells[grandTotalRow, col].Value = 0;
-                }
-
-                using (var rngGrand = ws.Cells[grandTotalRow, 1, grandTotalRow, totalCols])
-                {
-                    rngGrand.Style.Font.Bold = true;
-                    rngGrand.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                    rngGrand.Style.Fill.BackgroundColor.SetColor(System.Drawing.ColorTranslator.FromHtml("#dcdcdc"));
-                    rngGrand.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
-                    rngGrand.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
-                    rngGrand.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
-                    rngGrand.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
-                    rngGrand.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                }
-                ws.Row(grandTotalRow).Height = 20;
-
-                // AutoFilter
-                ws.Cells[r2, 1, Math.Max(grandTotalRow, r2), totalCols].AutoFilter = true;
-
-                return package.GetAsByteArray();
-            }
-        }
-
-
-
-        [HttpPost]
-        public IActionResult UpsertEdits([FromBody] List<UpsertEditDto> edits)
-        {
-            try
-            {
-                // ------- Permission check (Update) -------
-                int menuId = Constants.Menu.Projecttargetrolling;
-                int qcTypeId = 10; // same QC type you used elsewhere
-
-                string? dep64 = User.FindFirst("DepartmentID")?.Value;
-                string? rol64 = User.FindFirst("RoleID")?.Value;
-
-                int departmentId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(dep64));
-                int roleId = Commond.FormatExtension.Nulltoint(SecurityManager.DecodeFrom64(rol64));
-
-                var perms = _userAndPermissionService.GetPermissions(qcTypeId, menuId, departmentId, roleId);
-                if (perms is null || !perms.Update)
-                {
-                    return StatusCode(StatusCodes.Status403Forbidden, new
-                    {
-                        success = false,
-                        message = "No permission to update."
-                    });
-                }
-                // -----------------------------------------
-
-                if (edits == null || edits.Count == 0)
-                    return Ok(new { success = false, message = "No edits received." });
-
-                // Get current user id (adjust to your auth)
-                var loginId = User.FindFirst("LoginID")?.Value;
-                var userIdStr = SecurityManager.DecodeFrom64(loginId ?? "");
-                var currentUserId = Commond.FormatExtension.Nulltoint(userIdStr);
-
-                // Map to your insert model
-                var plans = new List<Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling.TargetRollingPlanInsertModel>();
-                foreach (var e in edits)
-                {
-                    // guard
-                    if (string.IsNullOrWhiteSpace(e.ProjectID) || e.PlanTypeID <= 0 || e.Year <= 0 || e.Month < 1 || e.Month > 12)
-                        continue;
-
-                    var monthDate = new DateTime(e.Year, e.Month, 1);
-
-                    // If NewValue is null, treat as zero and mark inactive (you can change this rule)
-                    var isActive = e.NewValue.HasValue;
-                    var amount = e.NewValue ?? 0m;
-
-                    plans.Add(new Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling.TargetRollingPlanInsertModel
-                    {
-                        ProjectID = e.ProjectID,
-                        PlanTypeID = e.PlanTypeID,
-                        PlanAmountID = e.PlanAmountID,      // 183 unit / 184 value
-                        MonthlyDate = monthDate,
-                        Amount = amount,
-                        FlagActive = isActive,
-                        CreateBy = currentUserId,
-                        UpdateBy = currentUserId
-                    });
-                }
-
-                if (plans.Count == 0)
-                    return Ok(new { success = false, message = "All edits were invalid after validation." });
-
-                // Call your EF upsert service
-                var summary = _projectAndTargetRollingService.UpsertTargetRollingPlans(plans);
-
-                return Ok(new
-                {
-                    success = true,
-                    inserted = summary.Inserted,
-                    updated = summary.Updated,
-                    skipped = summary.Skipped,
-                    message = summary.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                var inner = ex.InnerException?.Message;
-                return BadRequest(new
-                {
-                    success = false,
-                    message = $"UpsertEdits failed: {ex.Message}" + (inner != null ? $" | INNER: {inner}" : "")
-                });
-            }
-        }
-
-
+        //        return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new { success = false, message = "Error fetching data: " + ex.Message });
+        //    }
+        //}
     }
 }
