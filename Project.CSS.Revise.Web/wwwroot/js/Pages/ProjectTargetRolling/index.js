@@ -610,10 +610,11 @@ function savePendingEdits() {
             $('#rollingPlanTable tbody tr').each(function () { recomputeRowTotals($(this)); });
             if (typeof refreshSummaryCards === 'function') refreshSummaryCards();
 
-            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Saved', showConfirmButton: false, timer: 1600 });
+            successToast('บันทึกข้อมูลเรียบร้อย');
 
             // keep edit mode ON (so user can continue). Disable Save until new edits.
-            $btnSave.prop('disabled', pendingEdits.length === 0);
+            //$btnSave.prop('disabled', pendingEdits.length === 0);
+            cancelEdits();
         })
         .catch(e => {
             pendingEdits.unshift(...batch);

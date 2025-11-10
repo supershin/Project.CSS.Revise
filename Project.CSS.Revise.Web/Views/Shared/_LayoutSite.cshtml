@@ -499,7 +499,24 @@
                                 </ul>
                             </li>
                             <li class="sidebar-list">
-                                <i class="fa fa-thumb-tack"> </i><a class="sidebar-link sidebar-title" href="#">
+                                <i class="fa fa-bars-progress"></i>
+                                <a class="sidebar-link sidebar-title" href="#">
+                                    <svg class="stroke-icon">
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-task")"></use>
+                                    </svg>
+                                    <svg class="fill-icon">
+                                        <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#fill-task")"></use>
+                                    </svg>
+                                    <span>Queue</span>
+                                </a>
+                                <ul class="sidebar-submenu">
+                                    <li><a href="~/ComingSoon/index">Bank</a></li>
+                                    <li><a href="~/ComingSoon/index">Inspect</a></li>
+                                </ul>
+                            </li>
+
+                            <li class="sidebar-list">
+                                <i class="fa fa-bars-progress"> </i><a class="sidebar-link sidebar-title" href="#">
                                     <svg class="stroke-icon">
                                         <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-editors")"></use>
                                     </svg>
@@ -519,8 +536,8 @@
                                     <li><a href="~/UserAndPermission/index">User & Permission</a></li>
                                     <li><a href="~/UserBank/index">User Bank</a></li>
                                 </ul>
-
                             </li>
+
 @*                             <li class="sidebar-main-title">
                                 <div>
                                     <h6 class="lan-888">Settings</h6>

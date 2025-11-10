@@ -45,7 +45,10 @@ function buildBankCard(row) {
            data-end="${row.EndCounter}">
         <div class="d-flex justify-content-between align-items-start">
           <div><h6>${title}</h6></div>
-          <span class="count-badge is-top-right is-green">${units} Counter</span>
+          <span class="count-badge is-top-right is-green">
+              ${units} Counter
+              <i class="fa fa-edit" style="margin-left:6px; cursor:pointer;"></i>
+         </span>
         </div>
 
         <div class="mt-auto pt-3 d-flex justify-content-between align-items-center flex-wrap btn-row">
@@ -149,7 +152,9 @@ function buildInspectCard(row) {
                      data-end="${row.EndCounter}">
 
                   <!-- top-right pill using your .count-badge -->
-                  <span class="count-badge is-top-right is-amber">${units} Counter</span>
+                    <span class="count-badge is-top-right is-amber">
+                      ${units} Counter <i class="fa fa-edit"></i>
+                    </span>
                   <div class="d-flex justify-content-between align-items-start">
                     <div><h6>${title}</h3></div>
                   </div>
