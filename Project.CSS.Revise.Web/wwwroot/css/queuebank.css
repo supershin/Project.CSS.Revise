@@ -1,0 +1,344 @@
+﻿/* ==========================
+   Register Date Filter Styles
+   ========================== */
+#filter-register-date .input-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* "to" chip */
+#filter-register-date .input-group-text {
+    background: #fff; /* keep light background */
+    color: #0c152d; /* dark text */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    height: 51.58px; /* fixed height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+/* Base input */
+#filter-register-date input[type="date"] {
+    background: #fff; /* white background */
+    color: #000; /* black text */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    height: 51.58px; /* fixed height */
+    padding: 0 14px;
+    font-size: 15px;
+    line-height: 1.4;
+    flex: 1;
+    transition: all .2s ease;
+}
+
+    /* Focus ring */
+    #filter-register-date input[type="date"]:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59,130,246,.3);
+    }
+
+    /* Placeholder */
+    #filter-register-date input[type="date"]::placeholder {
+        color: #666;
+        opacity: 0.8;
+    }
+
+    /* ===== WebKit internals (Chrome/Edge/Safari) ===== */
+    #filter-register-date input[type="date"]::-webkit-datetime-edit,
+    #filter-register-date input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+    #filter-register-date input[type="date"]::-webkit-datetime-edit-year-field,
+    #filter-register-date input[type="date"]::-webkit-datetime-edit-month-field,
+    #filter-register-date input[type="date"]::-webkit-datetime-edit-day-field {
+        color: #000 !important; /* ensure black text */
+        -webkit-text-fill-color: #000 !important;
+    }
+
+    /* Calendar icon */
+    #filter-register-date input[type="date"]::-webkit-calendar-picker-indicator {
+        opacity: 1;
+        filter: invert(0%) brightness(0%) contrast(100%);
+    }
+
+    /* Clear button (if shown) */
+    #filter-register-date input[type="date"]::-webkit-clear-button {
+        filter: invert(0%) brightness(0%) contrast(100%);
+    }
+
+
+/* ===== Project Table mockup ===== */
+.project-table-card .card-header {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.table-nowrap td, .table-nowrap th {
+    white-space: nowrap;
+}
+
+.queue-table thead th {
+    background: #eef2f6;
+    color: #202a36;
+    font-weight: 700;
+    border-bottom: 1px solid #e1e6eb;
+}
+
+.queue-table tbody td {
+    vertical-align: middle;
+    border-top: 1px solid #eef2f6;
+}
+
+/* Status pills */
+.status-pill {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.status-reg {
+    background: #1ccf6a;
+    color: #fff;
+}
+/* green */
+.status-proc {
+    background: #ffb54d;
+    color: #fff;
+}
+/* orange */
+
+/* Appointment check / cross */
+.appt {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.appt-ok {
+    background: #2ecc71;
+    color: #fff;
+}
+
+.appt-no {
+    background: #d9dde3;
+    color: #6b7785;
+}
+
+/* Counter badge (filled circle) */
+.counter-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #0ea5b7;
+    color: #fff;
+    font-weight: 700;
+}
+
+/* Small service badges next to name */
+.svc-badges {
+    margin-left: 6px;
+}
+
+.svc {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #fff;
+    margin-left: 4px;
+}
+
+.svc-blue {
+    background: #1c88ff;
+}
+
+.svc-orange {
+    background: #ff9f43;
+}
+
+.svc-green {
+    background: #2ecc71;
+}
+
+/* Delete icon button */
+.btn-icon.btn-del {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #ffc7c7;
+    color: #b10000;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .btn-icon.btn-del i {
+        margin-left: -2px; /* 👈 move the trash icon slightly left */
+        font-size: 15px;
+    }
+
+
+
+    .btn-icon.btn-del:hover {
+        background: #ffb0b0;
+        color: #8c0000;
+    }
+
+/* Pagination look similar to screenshot */
+.pagination .page-link {
+    color: #1f2d3d;
+}
+
+.pagination .page-item.active .page-link {
+    background: #0ea5b7;
+    border-color: #0ea5b7;
+    color: #fff;
+}
+
+
+.summary-register {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.summary-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+}
+
+.summary-box {
+    flex: 1 1 180px;
+    max-width: 220px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    background: #fff;
+}
+
+    /* Header color area */
+    .summary-box h6 {
+        margin: 0;
+        padding: 10px;
+        font-weight: 600;
+        color: #222;
+    }
+
+/* White section (unit/value) */
+.summary-values {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    padding: 12px 16px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    font-size: 14px;
+    color: #333;
+}
+
+    .summary-values > div {
+        flex: 1;
+    }
+
+        .summary-values > div + div {
+            border-left: 1px solid rgba(0,0,0,0.1);
+        }
+
+/* Footer */
+.summary-footer {
+    background: #f5f6f8;
+    padding: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+/* ===== COLORS ===== */
+.bg-green {
+    background-color: #bdf8cc;
+}
+
+.bg-blue {
+    background-color: #c8e2ff;
+}
+
+.bg-orange {
+    background-color: #ffe0b5;
+}
+
+.bg-green-light {
+    background-color: #c3f2c0;
+}
+
+.bg-pink {
+    background-color: #f5c0ef;
+}
+
+.bg-pink-soft {
+    background-color: #f8d2e4;
+}
+
+.bg-yellow {
+    background-color: #fff4b8;
+}
+
+.summary-bank-table {
+    background: #fff;
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+    .summary-bank-table thead th {
+        background-color: #f3f6fa;
+        font-weight: 600;
+        text-align: center;
+        border-bottom: 2px solid #dee2e6;
+        color: #222;
+        vertical-align: middle;
+    }
+
+    .summary-bank-table tbody td {
+        text-align: center;
+        vertical-align: middle;
+        padding: 10px 12px;
+        border-color: #e6e8eb;
+        font-size: 14px;
+        color: #333;
+    }
+
+        .summary-bank-table tbody td:first-child {
+            text-align: left;
+        }
+
+    .summary-bank-table tbody tr:nth-child(even) {
+        background-color: #fafbfc;
+    }
+
+.bank-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #fff;
+    box-shadow: 0 0 2px rgba(0,0,0,0.15);
+}

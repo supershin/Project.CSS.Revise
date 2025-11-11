@@ -1,0 +1,520 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutSite.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-6">
+                <h4>Queue Bank</h4>
+            </div>
+            <div class="col-6">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="index.html">
+                            <svg class="stroke-icon">
+                                <use xlink:href="@Url.Content("~/assets/svg/icon-sprite.svg#stroke-home")"></use>
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">Queue</li>
+                    <li class="breadcrumb-item active">Queue Bank</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <!-- Filters card -->
+    <div class="card filter-card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="mb-0">Filters</h5>
+            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#fltCollapse"
+                    aria-expanded="true"
+                    aria-controls="fltCollapse">
+                <i class="fa fa-chevron-up"></i>
+            </button>
+        </div>
+        <div id="fltCollapse" class="collapse show">
+            <div class="card-body">
+                <div class="row g-3 filter-grid">
+                    <div class="col-12 col-md-4">
+                        <label for="ddl_BUG" class="form-label fw-bold">BUG</label>
+                        <select id="ddl_BUG" class="form-control multi-select" multiple>
+                            <option value="1">BUG1</option>
+                            <option value="2">BUG2</option>
+                            <option value="3">BUG3</option>
+                            <option value="4">BUG4</option>
+                            <option value="5">SE</option>
+                            <option value="6">TITLE</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label for="ddl_Project" class="form-label fw-bold">Project</label>
+                        <select id="ddl_Project" class="form-control">
+                            <option value="1">เคฟ แอลลี่ แจ้งวัฒนะ</option>
+                            <option value="2">เคฟ ป๊อป ศาลายา</option>
+                            <option value="3">แอทโมซ เดอ โซล ทิพวัล สเตชั่น</option>
+                            <option value="4">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</option>
+                            <option value="5">โมดิซ อินเตอร์เชนจ์</option>
+                            <option value="6">โมดิซ คอลเลคชั่น บางโพ</option>
+                            <option value="7">แอทโมซ ซีรีน ศรีราชา</option>
+                            <option value="8">โมดิซ ไรห์ม ฮิล</option>
+                            <option value="9">เดอะ ไทเทิล เลเจนดารี บางเทา</option>
+                            <option value="10">เคฟ แอลลี่ แจ้งวัฒนะ</option>
+                            <option value="11">ฮาโล 1</option>
+                            <option value="12">แม็กซี่ ไพร์ม รัชดา-สุทธิสาร</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label for="ddl_UnitStatusCS" class="form-label fw-bold">Unit Status CS</label>
+                        <select id="ddl_UnitStatusCS" class="form-control" multiple>
+                            <option value="62">โอนแล้ว</option>
+                            <option value="63">นัดโอนแล้ว</option>
+                            <option value="64">รอนัดโอน</option>
+                            <option value="65">ยังไม่โอน</option>
+                            <option value="66">แนวโน้มไม่โอน</option>
+                            <option value="67">ห้องว่าง VIP</option>
+                            <option value="68">ห้องว่าง</option>
+                            <option value="69">จอง</option>
+                            <option value="70">รอยกเลิก CS</option>
+                            <option value="71">รอยกเลิก Sale</option>
+                            <option value="373">Deviate</option>
+                            <option value="408">แคมเปญ ชีวิตดี๊ดี</option>
+                            <option value="409">เกณฑ์ปกติ</option>
+                            <option value="435">แนวโน้มไม่โอน/Sale</option>
+                            <option value="436">แนวโน้มไม่โอน/CS</option>
+                            <option value="438">โอนลอย</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label for="ddl_CustomerStatus" class="form-label fw-bold">Customer Status</label>
+                        <select id="ddl_CustomerStatus" class="form-control multi-select" multiple>
+                            <option value="8">Overview Monitor</option>
+                            <option value="9">Matrix Monitor</option>
+                            <option value="35">Matrix QC6</option>
+                            <option value="52">Summary Defect</option>
+                            <option value="72">Contact Log</option>
+                            <option value="148">FIN Plus Summary Loan By Bank</option>
+                            <option value="154">FIN Plus Bank Status By Unit</option>
+                            <option value="155">CS QC Status Pivot</option>
+                            <option value="180">CS Transfer Status</option>
+                            <option value="207">FIN Plus Bank Submit</option>
+                            <option value="210">Customer Satisfaction</option>
+                            <option value="313">Summary Register Inspect</option>
+                            <option value="368">Cash back</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label for="ddl_CSResponsible" class="form-label fw-bold">CS Responsible</label>
+                        <select id="ddl_CSResponsible" class="form-control multi-select" multiple>
+                            <option value="E001">ศิรภัสสร สุขอร่าม</option>
+                            <option value="E002">ณัฐพงศ์ อินทร์จันทร์</option>
+                            <option value="E003">ธัญญา บุญญาวัชรินทร์</option>
+                            <option value="E004">วรรณกร ศรีสุนทร</option>
+                            <option value="E005">สุวภา ศรีศักดา</option>
+                            <option value="E006">อรนุช บุญถนอม</option>
+                            <option value="E007">ภัทร์ชนก อินทรสถิตย์</option>
+                            <option value="E008">สุภาวดี ม่วงงาม</option>
+                            <option value="E009">จิราภรณ์ ทองมาก</option>
+                            <option value="E010">ธนภัทร วงศ์ชัย</option>
+                            <option value="E011">พีรวิชญ์ โกศลวิจิตร</option>
+                            <option value="E012">อัญชิสา ชาญชู</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label for="ddl_UnitCode" class="form-label fw-bold">Unit Code</label>
+                        <select id="ddl_UnitCode" class="form-control multi-select" multiple>
+                            <option value="A101">A101</option>
+                            <option value="A102">A102</option>
+                            <option value="A103">A103</option>
+                            <option value="A104">A104</option>
+                            <option value="A105">A105</option>
+                            <option value="B201">B201</option>
+                            <option value="B202">B202</option>
+                            <option value="B203">B203</option>
+                            <option value="B204">B204</option>
+                            <option value="C301">C301</option>
+                            <option value="C302">C302</option>
+                            <option value="C303">C303</option>
+                            <option value="C304">C304</option>
+                            <option value="D401">D401</option>
+                            <option value="D402">D402</option>
+                            <option value="E501">E501</option>
+                            <option value="E502">E502</option>
+                            <option value="E503">E503</option>
+                            <option value="F601">F601</option>
+                            <option value="F602">F602</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label for="ddl_ExpectTransferBy" class="form-label fw-bold">Expect Transfer By</label>
+                        <select id="ddl_ExpectTransferBy" class="form-control multi-select" multiple>
+                            <option value="1">CREDIT</option>
+                            <option value="2">CASH</option>
+                            <option value="3">BANK</option>
+                            <option value="4">CHEQUE</option>
+                            <option value="5">PROMPTPAY</option>
+                            <option value="6">TRANSFER</option>
+                            <option value="7">FINANCE</option>
+                            <option value="8">IN-HOUSE</option>
+                            <option value="9">AGENT</option>
+                            <option value="10">OTHER</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4" id="filter-register-date">
+                        <label for="txt_RegisterDate" class="form-label fw-bold">Register Date</label>
+                        <div class="input-group">
+                            <input type="date" id="txt_RegisterDateStart" class="form-control" placeholder="Start date">
+                            -
+                            <input type="date" id="txt_RegisterDateEnd" class="form-control" placeholder="End date">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-end align-items-center gap-2 flex-nowrap footer-actions p-2">
+                <button id="btnFilterCancel" type="button" class="btn btn-outline-secondary btn-sm" onclick="ClearFilter()">
+                    <i class="fa fa-undo me-1"></i> Cancel
+                </button>
+                <button id="btnSearch" class="btn btn-primary btn-sm" type="button">
+                    <i class="fa fa-search me-1"></i> Search
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Table card -->
+    <div class="card filter-card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="mb-0">Project Table</h5>
+            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#fltCollapseTable"
+                    aria-expanded="true"
+                    aria-controls="fltCollapseTable">
+                <i class="fa fa-chevron-up"></i>
+            </button>
+        </div>
+        <div id="fltCollapseTable" class="collapse show">
+            <div class="card-body">
+                <div class="project-table-card">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">เคฟ ทาวน์ ไอส์แลนด์</h5>
+                        <button class="btn btn-success btn-sm">
+                            <i class="fa fa-plus me-1"></i> ลงทะเบียน
+                        </button>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-nowrap queue-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th style="width:64px;">No.</th>
+                                        <th style="width:140px;">Unit Code</th>
+                                        <th>Customer Name</th>
+                                        <th style="width:140px;">Appointment</th>
+                                        <th style="width:160px;">Status</th>
+                                        <th style="width:120px;">Time</th>
+                                        <th style="width:120px;">Counter</th>
+                                        <th style="width:170px;">Unit Status CS</th>
+                                        <th style="width:90px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>A0201</td>
+                                        <td>
+                                            นางสาวสุนิสา สุขสันต์
+                                            <span class="svc-badges">
+                                                <span class="svc svc-blue">R</span>
+                                                <span class="svc svc-orange">B</span>
+                                                <span class="svc svc-green"><i class="fa fa-comment"></i></span>
+                                            </span>
+                                        </td>
+                                        <td><span class="appt appt-ok"><i class="fa fa-check"></i></span></td>
+                                        <td><span class="status-pill status-reg">Register</span></td>
+                                        <td>14:07</td>
+                                        <td><span class="counter-dot">1</span></td>
+                                        <td>โอนแล้ว</td>
+                                        <td class="text-end">
+                                            <button class="btn btn-icon btn-del" title="Delete"><i class="fa fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>2</td>
+                                        <td>A0202</td>
+                                        <td>
+                                            นางสาวการดี มีสุข
+                                            <span class="svc-badges">
+                                                <span class="svc svc-blue">R</span>
+                                                <span class="svc svc-orange">B</span>
+                                                <span class="svc svc-green"><i class="fa fa-comment"></i></span>
+                                            </span>
+                                        </td>
+                                        <td><span class="appt appt-no"><i class="fa fa-times"></i></span></td>
+                                        <td><span class="status-pill status-reg">Register</span></td>
+                                        <td>14:08</td>
+                                        <td><span class="counter-dot">2</span></td>
+                                        <td>โอนแล้ว</td>
+                                        <td class="text-end">
+                                            <button class="btn btn-icon btn-del" title="Delete"><i class="fa fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>3</td>
+                                        <td>A1021</td>
+                                        <td>
+                                            นายณวิช พาณิชย์
+                                            <span class="svc-badges">
+                                                <span class="svc svc-blue">R</span>
+                                                <span class="svc svc-orange">B</span>
+                                            </span>
+                                        </td>
+                                        <td><span class="appt appt-ok"><i class="fa fa-check"></i></span></td>
+                                        <td><span class="status-pill status-proc">In Process</span></td>
+                                        <td>14:09</td>
+                                        <td><span class="counter-dot">3</span></td>
+                                        <td>โอนแล้ว</td>
+                                        <td class="text-end">
+                                            <button class="btn btn-icon btn-del" title="Delete"><i class="fa fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>4</td>
+                                        <td>A2001</td>
+                                        <td>
+                                            นายศิราชัย มั่งมี
+                                            <span class="svc-badges">
+                                                <span class="svc svc-blue">R</span>
+                                                <span class="svc svc-orange">B</span>
+                                            </span>
+                                        </td>
+                                        <td><span class="appt appt-no"><i class="fa fa-times"></i></span></td>
+                                        <td><span class="status-pill status-proc">In Process</span></td>
+                                        <td>14:10</td>
+                                        <td><span class="counter-dot">4</span></td>
+                                        <td>โอนแล้ว</td>
+                                        <td class="text-end">
+                                            <button class="btn btn-icon btn-del" title="Delete"><i class="fa fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <small class="text-muted">Showing 1 to 6 of 6 entries</small>
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Register card -->
+    <div class="card filter-card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="mb-0">Summary Register</h5>
+            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#fltCollapseSummaryRegister"
+                    aria-expanded="true"
+                    aria-controls="fltCollapseSummaryRegister">
+                <i class="fa fa-chevron-up"></i>
+            </button>
+        </div>
+        <div id="fltCollapseSummaryRegister" class="collapse show">
+            <div class="card-body">
+                <div class="summary-register">
+                    <h5 class="mb-4">Summary Register Data As Of 2025-09-15</h5>
+
+                    <!-- Top Row -->
+                    <div class="summary-row">
+                        <div class="summary-box bg-green">
+                            <h6>Register</h6>
+                            <div class="summary-values">
+                                <div><strong>4</strong><br>Unit</div>
+                                <div><strong>59.76 M</strong><br>Value</div>
+                            </div>
+                            <div class="summary-footer">100%</div>
+                        </div>
+
+                        <div class="summary-box bg-blue">
+                            <h6>Queue</h6>
+                            <div class="summary-values">
+                                <div><strong>2</strong><br>Unit</div>
+                                <div><strong>29.40 M</strong><br>Value</div>
+                            </div>
+                            <div class="summary-footer">50%</div>
+                        </div>
+
+                        <div class="summary-box bg-orange">
+                            <h6>In Process</h6>
+                            <div class="summary-values">
+                                <div><strong>1</strong><br>Unit</div>
+                                <div><strong>15.50 M</strong><br>Value</div>
+                            </div>
+                            <div class="summary-footer">25%</div>
+                        </div>
+
+                        <div class="summary-box bg-green-light">
+                            <h6>Done</h6>
+                            <div class="summary-values">
+                                <div><strong>1</strong><br>Unit</div>
+                                <div><strong>14.86 M</strong><br>Value</div>
+                            </div>
+                            <div class="summary-footer">25%</div>
+                        </div>
+                    </div>
+
+                    <!-- Second Row -->
+                    <div class="summary-row mt-3">
+                        <div class="summary-box bg-green-light">
+                            <h6>ตรวจเสร็จ (ยื่น)</h6>
+                            <div class="summary-values">
+                                <div><strong>1</strong><br>Unit</div>
+                                <div><strong>14.86 M</strong><br>Value</div>
+                            </div>
+                            <div class="summary-footer">50%</div>
+                        </div>
+
+                        <div class="summary-box bg-pink-soft">
+                            <h6>ตรวจเสร็จ (ไม่ยื่น)</h6>
+                            <div class="summary-values">
+                                <div><strong>1</strong><br>Unit</div>
+                                <div><strong>14.60 M</strong><br>Value</div>
+                            </div>
+                            <div class="summary-footer">50%</div>
+                        </div>
+
+                        <div class="summary-box bg-pink">
+                            <h6>อาชีพอิสระ</h6>
+                            <div class="summary-values">
+                                <div><strong>2</strong><br>Unit</div>
+                                <div><strong>29.40 M</strong><br>Value</div>
+                            </div>
+                            <div class="summary-footer">50%</div>
+                        </div>
+
+                        <div class="summary-box bg-pink">
+                            <h6>รายได้ประจำ</h6>
+                            <div class="summary-values">
+                                <div><strong>1</strong><br>Unit</div>
+                                <div><strong>15.50 M</strong><br>Value</div>
+                            </div>
+                            <div class="summary-footer">25%</div>
+                        </div>
+
+                        <div class="summary-box bg-pink">
+                            <h6>เจ้าของกิจการ</h6>
+                            <div class="summary-values">
+                                <div><strong>1</strong><br>Unit</div>
+                                <div><strong>14.86 M</strong><br>Value</div>
+                            </div>
+                            <div class="summary-footer">25%</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!--  Summary Bank card -->
+    <div class="card filter-card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="mb-0">Summary Bank</h5>
+            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#fltCollapseSummaryBank"
+                    aria-expanded="true"
+                    aria-controls="fltCollapseSummaryBank">
+                <i class="fa fa-chevron-up"></i>
+            </button>
+        </div>
+        <div id="fltCollapseSummaryBank" class="collapse show">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle summary-bank-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 340px;">ธนาคาร</th>
+                                <th style="width: 160px;">อัตราดอกเบี้ยเฉลี่ย 3 ปี</th>
+                                <th style="width: 120px;">จำนวน</th>
+                                <th style="width: 160px;">มูลค่า</th>
+                                <th style="width: 100px;">%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="~/image/ThaiBankicon/BBL.png" alt="BBL" class="bank-logo">
+                                        <span>ธนาคารกรุงเทพ จำกัด (มหาชน)</span>
+                                    </div>
+                                </td>
+                                <td>2.99</td>
+                                <td>2</td>
+                                <td>29.40 M</td>
+                                <td>50%</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="~/image/ThaiBankicon/KBT.png" alt="KBank" class="bank-logo">
+                                        <span>ธนาคารกสิกรไทย จำกัด (มหาชน)</span>
+                                    </div>
+                                </td>
+                                <td>1.90</td>
+                                <td>1</td>
+                                <td>15.50 M</td>
+                                <td>25%</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="~/image/ThaiBankicon/SCB.png" alt="SCB" class="bank-logo">
+                                        <span>ธนาคารไทยพาณิชย์ จำกัด (มหาชน)</span>
+                                    </div>
+                                </td>
+                                <td>1.45</td>
+                                <td>1</td>
+                                <td>14.86 M</td>
+                                <td>25%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+@section Scripts {
+    <script src="~/js/Pages/QueueBank/QueueBank.js?ver=@DateTime.Now.Ticks.ToString()"></script>
+    <link rel="stylesheet" type="text/css" href="~/css/queuebank.css?ver=@DateTime.Now.Ticks.ToString()">
+}
