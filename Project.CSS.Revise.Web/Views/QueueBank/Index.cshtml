@@ -207,7 +207,7 @@
                 <div class="project-table-card">
                     <div class="card-header d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">เคฟ ทาวน์ ไอส์แลนด์</h5>
-                        <button class="btn btn-success btn-sm">
+                        <button class="btn btn-success btn-sm" onclick="openCreateRegister()">
                             <i class="fa fa-plus me-1"></i> ลงทะเบียน
                         </button>
                     </div>
@@ -512,9 +512,158 @@
 
 </div>
 
+<div class="container-fluid mb-3">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
 
+        <!-- Left: Back Button -->
+        <button id="btnBack" class="btn d-flex align-items-center gap-1">
+            <i class="fa fa-arrow-left"></i> Back
+        </button>
+
+        <!-- Right: Action Buttons -->
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <!-- Export (Excel) -->
+            <button id="btnExport" class="btn d-flex align-items-center gap-1">
+                <i class="fa fa-file-excel-o" aria-hidden="true"></i> Export
+            </button>
+
+            <!-- Customer View (Desktop) -->
+            <button id="btnCustomerView" class="btn btn-success d-flex align-items-center gap-1">
+                <i class="fa fa-desktop"></i> Customer View
+            </button>
+
+            <!-- Counter (Bookmark) -->
+            <button id="btnCounter" class="btn d-flex align-items-center gap-1">
+                <i class="fa fa-bookmark"></i> Counter
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal: Create Register -->
+<div class="modal fade" id="modalCreateRegister" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" id="cr-modal">
+
+            <!-- Header -->
+            <div class="modal-header cr-header">
+                <h5 class="modal-title">Create Register</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+                <!-- Unit Code + Save -->
+                <div class="row justify-content-center align-items-center g-2 mb-3">
+                    <div class="col-auto">
+                        <label for="crUnitCode" class="col-form-label fw-semibold">Unit Code <span class="text-danger">*</span></label>
+                    </div>
+                    <div class="col-12 col-md-5">
+                        <div class="input-group cr-input">
+                            <input id="crUnitCode" type="text" class="form-control" placeholder="A0201" />
+                            <span class="input-group-text"><i class="fa fa-search"></i></span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <button id="crBtnSave" class="btn btn-success">
+                            <i class="fa fa-check me-1"></i> Save
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0 cr-table" id="crTable">
+                        <thead>
+                            <tr>
+                                <th style="width:64px;">No.</th>
+                                <th style="width:120px;">Unit Code</th>
+                                <th>Customer Name</th>
+                                <th style="width:180px;">Responsible Name</th>
+                                <th style="width:150px;">Register</th>
+                                <th style="width:120px;">Wait</th>
+                                <th style="width:150px;">In Process</th>
+                                <th style="width:120px;">FastFix</th>
+                                <th style="width:140px;">FixedDuration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>26/5</td>
+                                <td>นายกานต์ ณรงค์เดชา, นางสาวอภัสรา วชิรพรหม</td>
+                                <td>พรฉิม</td>
+                                <td>2025-09-15 14:22</td>
+                                <td></td>
+                                <td>2025-09-15 13:45</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>26/4</td>
+                                <td>นายภาณุทัศน์ สุทธิยะรักษ์</td>
+                                <td>พรฉิม</td>
+                                <td>2025-09-15 13:18</td>
+                                <td></td>
+                                <td>2025-09-15 13:44</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>26/3</td>
+                                <td>นางอนุพภ กนล</td>
+                                <td>พรฉิม</td>
+                                <td>2025-09-15 13:18</td>
+                                <td></td>
+                                <td>2025-09-15 13:17</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>26/2</td>
+                                <td>นางศิวโรจน์ จิตถนิมมาลย์เชษฐ์</td>
+                                <td>พรฉิม</td>
+                                <td>2025-09-15 13:17</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>26/1</td>
+                                <td>นายชูดุ ศิริวงศ์ดี</td>
+                                <td>Pimmada</td>
+                                <td>2025-09-15 13:12</td>
+                                <td></td>
+                                <td>2025-09-15 13:16</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer justify-content-end">
+                <button type="button" class="btn btn-light cr-cancel" data-bs-dismiss="modal">Cancel</button>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 @section Scripts {
+    <script>
+        const customerViewUrl = '@Url.Action("Index", "QueueBankCustomerView")';
+        const QueueBankCheckerViewUrl = '@Url.Action("Index", "QueueBankCheckerView")';
+    </script>
+
     <script src="~/js/Pages/QueueBank/QueueBank.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <link rel="stylesheet" type="text/css" href="~/css/queuebank.css?ver=@DateTime.Now.Ticks.ToString()">
 }

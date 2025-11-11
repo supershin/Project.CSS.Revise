@@ -213,6 +213,8 @@
 }
 
 
+
+/* summary register zone now */
 .summary-register {
     text-align: center;
     margin-top: 20px;
@@ -342,3 +344,127 @@
     background-color: #fff;
     box-shadow: 0 0 2px rgba(0,0,0,0.15);
 }
+
+
+/* ===========================
+   Action Buttons Scoped Style
+   =========================== */
+/* Back button */
+#btnBack {
+    background-color: #e0e0e0;
+    color: #333;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+    #btnBack:hover {
+        background-color: #cfcfcf;
+    }
+/* Export button (Excel green) */
+#btnExport {
+    background-color: #1a73e8; /* Blue like Excel export action */
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+    #btnExport:hover {
+        background-color: #155fc2;
+    }
+
+/* Customer View (green) */
+#btnCustomerView {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+    #btnCustomerView:hover {
+        background-color: #20863a;
+    }
+
+/* Counter (Bookmark button) */
+#btnCounter {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+    #btnCounter:hover {
+        background-color: #0066d3;
+    }
+
+    #btnExport i,
+    #btnCustomerView i,
+    #btnCounter i {
+        font-size: 14px;
+    }
+
+
+
+
+
+/* Modal shell */
+#cr-modal .modal-header.cr-header {
+    background: #2b9aa0; /* teal */
+    color: #fff;
+}
+
+#cr-modal .modal-title {
+    font-weight: 700;
+}
+
+/* Unit code input group */
+#cr-modal .cr-input .input-group-text {
+    background: #fff;
+    border-left: 0;
+}
+
+#cr-modal .cr-input .form-control {
+    border-right: 0;
+}
+
+/* Table look */
+#cr-modal .cr-table thead th {
+    background: #5b646e;
+    color: #fff;
+    border-color: #4c545e;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+#cr-modal .cr-table tbody td {
+    vertical-align: middle;
+    color: #2b2b2b;
+}
+
+#cr-modal .cr-table tbody tr:nth-child(even) {
+    background: #f7f8fa;
+}
+
+/* Cancel button */
+#cr-modal .cr-cancel {
+    background: #ececec;
+    border-color: #e0e0e0;
+    color: #333;
+    border-radius: 8px;
+}
+
+    #cr-modal .cr-cancel:hover {
+        background: #e2e2e2;
+    }

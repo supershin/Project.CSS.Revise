@@ -32,7 +32,22 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-
+document.addEventListener("DOMContentLoaded", () => {
+    const btnCustomerView = document.getElementById("btnCustomerView");
+    if (btnCustomerView && typeof customerViewUrl !== "undefined") {
+        btnCustomerView.addEventListener("click", function () {
+            window.open(customerViewUrl, "_blank");
+        });
+    }
+});
+document.addEventListener("DOMContentLoaded", () => {
+    const btnCounter = document.getElementById("btnCounter");
+    if (btnCounter && typeof QueueBankCheckerViewUrl !== "undefined") {
+        btnCounter.addEventListener("click", function () {
+            window.open(QueueBankCheckerViewUrl, "_blank");
+        });
+    }
+});
 
 
 // /js/Pages/QueueBank/QueueBank.js
@@ -150,6 +165,37 @@ function wireButtons() {
         });
     }
 }
+
+function openCreateRegister() {
+    const m = new bootstrap.Modal(document.getElementById('modalCreateRegister'));
+    m.show();
+}
+
+// Optional: init DataTables if available (won't error if not loaded)
+document.addEventListener('DOMContentLoaded', function () {
+    if (window.jQuery && $.fn.DataTable) {
+        $('#crTable').DataTable({
+            paging: true,
+            pageLength: 5,
+            lengthMenu: [5, 10, 25],
+            searching: false,
+            info: true,
+            ordering: true,
+            autoWidth: false
+        });
+    }
+});
+
+// Example Save click
+document.addEventListener('click', function (e) {
+    if (e.target.id === 'crBtnSave') {
+        const code = document.getElementById('crUnitCode').value.trim();
+        if (!code) { alert('Please enter Unit Code'); return; }
+        // TODO: your save logic
+        console.log('Save Register for Unit:', code);
+    }
+});
+
 
 // ===== Boot =====
 (function boot() {

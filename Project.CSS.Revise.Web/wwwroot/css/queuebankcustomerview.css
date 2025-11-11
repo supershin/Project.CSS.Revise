@@ -1,0 +1,101 @@
+﻿/* ===== Summary Cards ===== */
+.summary-card {
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 12px 10px;
+    text-align: center;
+    background: #f8f9fa;
+    transition: transform 0.2s ease;
+}
+
+    .summary-card:hover {
+        transform: translateY(-2px);
+    }
+
+/* ===== Table ===== */
+.queue-table th {
+    background: #f5f7fa;
+    color: #333;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.status-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* ===== Project Card ===== */
+.project-card {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+    .project-card .card-header {
+        background: #f9fafc;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+/* ===== Summary (right side) — Compact & SAFE ===== */
+.summary-card {
+    border: 1px solid #e9eef3;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 1px 5px rgba(0,0,0,.05);
+    transition: transform .2s ease
+}
+
+    .summary-card:hover {
+        transform: translateY(-2px)
+    }
+
+    .summary-card .sc-head {
+        padding: 6px 8px;
+        font-weight: 600;
+        font-size: 12px;
+        text-align: center;
+        background: #f0f3f8
+    }
+
+    .summary-card .sc-body {
+        display: grid;
+        justify-items: center;
+        gap: 1px;
+        padding: 8px 6px;
+        background: #fff
+    }
+
+    .summary-card .sc-stat {
+        font-size: 18px;
+        line-height: 1;
+        font-weight: 700;
+        color: #111827
+    }
+
+    .summary-card .sc-meta {
+        font-size: 9px;
+        color: #6b7280;
+        margin-top: -1px
+    }
+
+    /* Color variants */
+    .summary-card.sc-green .sc-head {
+        background: #d8f5df;
+        color: #0f7a3a;
+    }
+
+    .summary-card.sc-blue .sc-head {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .summary-card.sc-orange .sc-head {
+        background: #ffe8c7;
+        color: #a36100;
+    }
+
+
