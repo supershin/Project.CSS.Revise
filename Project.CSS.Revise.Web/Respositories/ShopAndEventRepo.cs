@@ -521,114 +521,123 @@ namespace Project.CSS.Revise.Web.Respositories
 
                 string sql = "";
                 sql = @"
-                            IF @L_Month = ''
-                            BEGIN
-	                            SELECT
-			                        T1.[ID] AS EventID
-		                            ,T1.ProjectID
-                                    ,T2.[ProjectName]
-                                    ,T2.[ProjectName_Eng]
-                                    ,T1.[Name] AS EventName
-                                    ,T4.[Name] AS EventType 
-                                    ,T4.[ColorCode] AS EventColor
-                                    ,T1.[Location]
-                                    ,T5.TagNames
-                                    ,T1.[StartDate]
-                                    ,T1.[EndDate]
-                                FROM [tm_Event](NOLOCK) T1
-                                    LEFT JOIN [tm_Project] (NOLOCK) T2 ON T1.[ProjectID] = T2.ProjectID
-			                        LEFT JOIN [TR_Event_EventType] (NOLOCK) T3 ON T1.ID = T3.EventID
-                                    LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T3.[EventTypeID] = T4.ID
-                                    LEFT JOIN TR_ProjectStatus PST (NOLOCK) ON T1.ProjectID = PST.ProjectID
-                                    LEFT JOIN (
-                                                    SELECT 
-	                                                    T1.EventID,
-	                                                    STRING_AGG(T2.Name, ',') AS TagNames
-                                                    FROM [TR_TagEvent] (NOLOCK) T1
-                                                    LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
-                                                    GROUP BY T1.EventID
-                                            ) T5 ON T5.EventID = T1.ID
-                                    LEFT JOIN [tm_BUProject_Mapping] (NOLOCK) T6 ON T6.[ProjectID] = T2.ProjectID
-                                WHERE 
-                                    T1.FlagActive = 1
-                                    AND T2.FlagActive = 1
-                                    AND (
-                                        @L_Bu = '' 
-                                        OR (',' + @L_Bu + ',' LIKE '%,' + CONVERT(varchar, T6.BUID) + ',%')
-                                    )
-                                    AND (
-                                        @L_ProjectID = '' 
-                                        OR (',' + @L_ProjectID + ',' LIKE '%,' + T1.ProjectID + ',%')
-                                    )
-                                   AND (
-                                        @L_ProjectStatus = ''
-                                        OR (',' + @L_ProjectStatus + ',' LIKE '%,' + CONVERT(VARCHAR, PST.StatusID) + ',%')
-                                       )
-                                    AND (
-                                        YEAR(T1.StartDate) = @L_Year
-                                        OR YEAR(T1.EndDate) = @L_Year
-                                    )
-                                ORDER BY T1.StartDate;
-                            END
-                            ELSE
-                            BEGIN
-                                SELECT       
-                                       T1.[ID] AS EventID
-                                      ,T1.[ProjectID]
-                                      ,T2.[ProjectName]
-                                      ,T2.[ProjectName_Eng]
-                                      ,T1.[Name] AS EventName
-                                      ,T4.[Name] AS EventType 
-                                      ,T4.[ColorCode] AS EventColor
-                                      ,T1.[Location]
-                                      ,T5.TagNames
-                                      ,T1.[StartDate]
-                                      ,T1.[EndDate]
-                                FROM [tm_Event](NOLOCK) T1
-                                     LEFT JOIN [tm_Project] (NOLOCK) T2 ON T1.[ProjectID] = T2.ProjectID
-                                     LEFT JOIN [TR_Event_EventType] (NOLOCK) T3 ON T1.ID = T3.EventID
-                                     LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T3.[EventTypeID] = T3.EventID
-                                     LEFT JOIN TR_ProjectStatus PST (NOLOCK) ON T1.ProjectID = PST.ProjectID
-                                     LEFT JOIN (
-                                                    SELECT 
-                                                        T1.EventID,
-                                                        STRING_AGG(T2.Name, ',') AS TagNames
-                                                    FROM [TR_TagEvent] (NOLOCK) T1
-                                                    LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
-                                                    GROUP BY T1.EventID
-                                               ) T5 ON T5.EventID = T1.ID
-                                    LEFT JOIN [tm_BUProject_Mapping] (NOLOCK) T6 ON T6.[ProjectID] = T2.ProjectID
-                                WHERE 
-                                    T1.FlagActive = 1
-                                    AND (
-                                        @L_ProjectID = '' 
-                                        OR (',' + @L_ProjectID + ',' LIKE '%,' + T1.ProjectID + ',%')
-                                    )
-                                    AND (
-                                        @L_Bu = '' 
-                                        OR (',' + @L_Bu + ',' LIKE '%,' + CONVERT(varchar, T6.BUID) + ',%')
-                                    )
-                                   AND (
-                                        @L_ProjectStatus = ''
-                                        OR (',' + @L_ProjectStatus + ',' LIKE '%,' + CONVERT(VARCHAR, PST.StatusID) + ',%')
-                                       )
-                                    AND 
+                        --DECLARE @L_Month NVARCHAR(100) = ''
+                        --DECLARE @L_Bu NVARCHAR(100) = ''
+                        --DECLARE @L_ProjectID NVARCHAR(100) = ''
+                        --DECLARE @L_ProjectStatus NVARCHAR(100) = ''
+                        --DECLARE @L_Year NVARCHAR(100) = '2025'
+
+                        IF @L_Month = ''
+                        BEGIN
+                            SELECT
+                                T1.[ID] AS EventID
+                                ,T1.ProjectID
+                                ,T2.[ProjectName]
+                                ,T2.[ProjectName_Eng]
+                                ,T1.[Name] AS EventName
+		                        ,T3.[EventTypeID]
+                                ,T4.[Name] AS EventType 
+                                ,T4.[ColorCode] AS EventColor
+                                ,T1.[Location]
+                                ,T5.TagNames
+                                ,T1.[StartDate]
+                                ,T1.[EndDate]
+                            FROM [tm_Event](NOLOCK) T1
+                                LEFT JOIN [tm_Project] (NOLOCK) T2 ON T1.[ProjectID] = T2.ProjectID
+                                LEFT JOIN [TR_Event_EventType] (NOLOCK) T3 ON T1.ID = T3.EventID
+                                LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T3.[EventTypeID] = T4.ID
+                                LEFT JOIN TR_ProjectStatus PST (NOLOCK) ON T1.ProjectID = PST.ProjectID
+                                LEFT JOIN (
+                                                SELECT 
+                                                    T1.EventID,
+                                                    STRING_AGG(T2.Name, ',') AS TagNames
+                                                FROM [TR_TagEvent] (NOLOCK) T1
+                                                LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
+                                                GROUP BY T1.EventID
+                                        ) T5 ON T5.EventID = T1.ID
+                                LEFT JOIN [tm_BUProject_Mapping] (NOLOCK) T6 ON T6.[ProjectID] = T2.ProjectID
+                            WHERE 
+                                T1.FlagActive = 1
+                                AND T2.FlagActive = 1
+		                        AND T3.EventTypeID IN (1,2,3,4)
+                                AND (
+                                    @L_Bu = '' 
+                                    OR (',' + @L_Bu + ',' LIKE '%,' + CONVERT(varchar, T6.BUID) + ',%')
+                                )
+                                AND (
+                                    @L_ProjectID = '' 
+                                    OR (',' + @L_ProjectID + ',' LIKE '%,' + T1.ProjectID + ',%')
+                                )
+                               AND (
+                                    @L_ProjectStatus = ''
+                                    OR (',' + @L_ProjectStatus + ',' LIKE '%,' + CONVERT(VARCHAR, PST.StatusID) + ',%')
+                                   )
+                                AND (
+                                    YEAR(T1.StartDate) = @L_Year
+                                    OR YEAR(T1.EndDate) = @L_Year
+                                )
+                            ORDER BY T1.StartDate;
+                        END
+                        ELSE
+                        BEGIN
+                            SELECT       
+                                   T1.[ID] AS EventID
+                                  ,T1.[ProjectID]
+                                  ,T2.[ProjectName]
+                                  ,T2.[ProjectName_Eng]
+                                  ,T1.[Name] AS EventName
+                                  ,T4.[Name] AS EventType 
+                                  ,T4.[ColorCode] AS EventColor
+                                  ,T1.[Location]
+                                  ,T5.TagNames
+                                  ,T1.[StartDate]
+                                  ,T1.[EndDate]
+                            FROM [tm_Event](NOLOCK) T1
+                                 LEFT JOIN [tm_Project] (NOLOCK) T2 ON T1.[ProjectID] = T2.ProjectID
+                                 LEFT JOIN [TR_Event_EventType] (NOLOCK) T3 ON T1.ID = T3.EventID
+                                 LEFT JOIN [tm_EventType] (NOLOCK) T4 ON T3.[EventTypeID] = T3.EventID
+                                 LEFT JOIN TR_ProjectStatus PST (NOLOCK) ON T1.ProjectID = PST.ProjectID
+                                 LEFT JOIN (
+                                                SELECT 
+                                                    T1.EventID,
+                                                    STRING_AGG(T2.Name, ',') AS TagNames
+                                                FROM [TR_TagEvent] (NOLOCK) T1
+                                                LEFT JOIN [tm_Tag] (NOLOCK) T2 ON T1.TagID = T2.ID
+                                                GROUP BY T1.EventID
+                                           ) T5 ON T5.EventID = T1.ID
+                                LEFT JOIN [tm_BUProject_Mapping] (NOLOCK) T6 ON T6.[ProjectID] = T2.ProjectID
+                            WHERE 
+                                T1.FlagActive = 1
+		                        AND T3.EventTypeID IN (1,2,3,4)
+                                AND (
+                                    @L_ProjectID = '' 
+                                    OR (',' + @L_ProjectID + ',' LIKE '%,' + T1.ProjectID + ',%')
+                                )
+                                AND (
+                                    @L_Bu = '' 
+                                    OR (',' + @L_Bu + ',' LIKE '%,' + CONVERT(varchar, T6.BUID) + ',%')
+                                )
+                               AND (
+                                    @L_ProjectStatus = ''
+                                    OR (',' + @L_ProjectStatus + ',' LIKE '%,' + CONVERT(VARCHAR, PST.StatusID) + ',%')
+                                   )
+                                AND 
+                                (
                                     (
-                                        (
-                                            YEAR(T1.StartDate) = @L_Year
-                                            AND MONTH(T1.StartDate) = CAST(@L_Month AS INT)
-                                        )
-                                        OR (
-                                            YEAR(T1.EndDate) = @L_Year
-                                            AND MONTH(T1.EndDate) = CAST(@L_Month AS INT)
-                                        )
-                                        OR (
-                                            T1.StartDate <= EOMONTH(CONVERT(DATE, CAST(@L_Year AS NVARCHAR(4)) + '-' + @L_Month + '-01'))
-                                            AND T1.EndDate >= CONVERT(DATE, CAST(@L_Year AS NVARCHAR(4)) + '-' + @L_Month + '-01')
-                                        )
+                                        YEAR(T1.StartDate) = @L_Year
+                                        AND MONTH(T1.StartDate) = CAST(@L_Month AS INT)
                                     )
-                                ORDER BY T1.StartDate;
-                            END
+                                    OR (
+                                        YEAR(T1.EndDate) = @L_Year
+                                        AND MONTH(T1.EndDate) = CAST(@L_Month AS INT)
+                                    )
+                                    OR (
+                                        T1.StartDate <= EOMONTH(CONVERT(DATE, CAST(@L_Year AS NVARCHAR(4)) + '-' + @L_Month + '-01'))
+                                        AND T1.EndDate >= CONVERT(DATE, CAST(@L_Year AS NVARCHAR(4)) + '-' + @L_Month + '-01')
+                                    )
+                                )
+                            ORDER BY T1.StartDate;
+                        END
                            "
                                     ;
 
