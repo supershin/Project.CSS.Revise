@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_LayoutSite.cshtml";
+    var buList = ViewBag.listBu as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
 }
 
 <div class="container-fluid">
@@ -46,50 +47,24 @@
                     <div class="col-12 col-md-4">
                         <label for="ddl_BUG" class="form-label fw-bold">BUG</label>
                         <select id="ddl_BUG" class="form-control multi-select" multiple>
-                            <option value="1">BUG1</option>
-                            <option value="2">BUG2</option>
-                            <option value="3">BUG3</option>
-                            <option value="4">BUG4</option>
-                            <option value="5">SE</option>
-                            <option value="6">TITLE</option>
+                            @foreach (var bu in buList)
+                            {
+                                var val = (bu.ID ?? bu.ValueInt ?? bu.Value ?? "").ToString();
+                                var text = (bu.Name ?? bu.Text ?? "").ToString();
+                                <option value="@val">@text</option>
+                            }
                         </select>
                     </div>
                     <div class="col-12 col-md-4">
                         <label for="ddl_Project" class="form-label fw-bold">Project</label>
                         <select id="ddl_Project" class="form-control">
-                            <option value="1">เคฟ แอลลี่ แจ้งวัฒนะ</option>
-                            <option value="2">เคฟ ป๊อป ศาลายา</option>
-                            <option value="3">แอทโมซ เดอ โซล ทิพวัล สเตชั่น</option>
-                            <option value="4">ฌาน เดอะ ริเวอร์ไซด์ บรมราชชนนี</option>
-                            <option value="5">โมดิซ อินเตอร์เชนจ์</option>
-                            <option value="6">โมดิซ คอลเลคชั่น บางโพ</option>
-                            <option value="7">แอทโมซ ซีรีน ศรีราชา</option>
-                            <option value="8">โมดิซ ไรห์ม ฮิล</option>
-                            <option value="9">เดอะ ไทเทิล เลเจนดารี บางเทา</option>
-                            <option value="10">เคฟ แอลลี่ แจ้งวัฒนะ</option>
-                            <option value="11">ฮาโล 1</option>
-                            <option value="12">แม็กซี่ ไพร์ม รัชดา-สุทธิสาร</option>
+
                         </select>
                     </div>
                     <div class="col-12 col-md-4">
-                        <label for="ddl_UnitStatusCS" class="form-label fw-bold">Unit Status CS</label>
-                        <select id="ddl_UnitStatusCS" class="form-control" multiple>
-                            <option value="62">โอนแล้ว</option>
-                            <option value="63">นัดโอนแล้ว</option>
-                            <option value="64">รอนัดโอน</option>
-                            <option value="65">ยังไม่โอน</option>
-                            <option value="66">แนวโน้มไม่โอน</option>
-                            <option value="67">ห้องว่าง VIP</option>
-                            <option value="68">ห้องว่าง</option>
-                            <option value="69">จอง</option>
-                            <option value="70">รอยกเลิก CS</option>
-                            <option value="71">รอยกเลิก Sale</option>
-                            <option value="373">Deviate</option>
-                            <option value="408">แคมเปญ ชีวิตดี๊ดี</option>
-                            <option value="409">เกณฑ์ปกติ</option>
-                            <option value="435">แนวโน้มไม่โอน/Sale</option>
-                            <option value="436">แนวโน้มไม่โอน/CS</option>
-                            <option value="438">โอนลอย</option>
+                        <label for="ddl_UnitCode" class="form-label fw-bold">Unit Code</label>
+                        <select id="ddl_UnitCode" class="form-control multi-select" multiple>
+
                         </select>
                     </div>
                     <div class="col-12 col-md-4">
@@ -128,28 +103,24 @@
                         </select>
                     </div>
                     <div class="col-12 col-md-4">
-                        <label for="ddl_UnitCode" class="form-label fw-bold">Unit Code</label>
-                        <select id="ddl_UnitCode" class="form-control multi-select" multiple>
-                            <option value="A101">A101</option>
-                            <option value="A102">A102</option>
-                            <option value="A103">A103</option>
-                            <option value="A104">A104</option>
-                            <option value="A105">A105</option>
-                            <option value="B201">B201</option>
-                            <option value="B202">B202</option>
-                            <option value="B203">B203</option>
-                            <option value="B204">B204</option>
-                            <option value="C301">C301</option>
-                            <option value="C302">C302</option>
-                            <option value="C303">C303</option>
-                            <option value="C304">C304</option>
-                            <option value="D401">D401</option>
-                            <option value="D402">D402</option>
-                            <option value="E501">E501</option>
-                            <option value="E502">E502</option>
-                            <option value="E503">E503</option>
-                            <option value="F601">F601</option>
-                            <option value="F602">F602</option>
+                        <label for="ddl_UnitStatusCS" class="form-label fw-bold">Unit Status CS</label>
+                        <select id="ddl_UnitStatusCS" class="form-control" multiple>
+                            <option value="62">โอนแล้ว</option>
+                            <option value="63">นัดโอนแล้ว</option>
+                            <option value="64">รอนัดโอน</option>
+                            <option value="65">ยังไม่โอน</option>
+                            <option value="66">แนวโน้มไม่โอน</option>
+                            <option value="67">ห้องว่าง VIP</option>
+                            <option value="68">ห้องว่าง</option>
+                            <option value="69">จอง</option>
+                            <option value="70">รอยกเลิก CS</option>
+                            <option value="71">รอยกเลิก Sale</option>
+                            <option value="373">Deviate</option>
+                            <option value="408">แคมเปญ ชีวิตดี๊ดี</option>
+                            <option value="409">เกณฑ์ปกติ</option>
+                            <option value="435">แนวโน้มไม่โอน/Sale</option>
+                            <option value="436">แนวโน้มไม่โอน/CS</option>
+                            <option value="438">โอนลอย</option>
                         </select>
                     </div>
                     <div class="col-12 col-md-4">
@@ -219,12 +190,13 @@
                                     <tr>
                                         <th style="width:64px;">No.</th>
                                         <th style="width:140px;">Unit Code</th>
-                                        <th>Customer Name</th>
+                                        <th class="customer-col">Customer Name</th>
                                         <th style="width:140px;">Appointment</th>
                                         <th style="width:160px;">Status</th>
                                         <th style="width:120px;">Time</th>
                                         <th style="width:120px;">Counter</th>
                                         <th style="width:170px;">Unit Status CS</th>
+                                        <th style="width:170px;">CS Response</th>
                                         <th style="width:90px;"></th>
                                     </tr>
                                 </thead>
@@ -232,19 +204,24 @@
                                     <tr>
                                         <td>1</td>
                                         <td>A0201</td>
-                                        <td>
-                                            นางสาวสุนิสา สุขสันต์
+                                        <td class="customer-col">
+                                            นางสมถวิล อุณหศิริกุล, นายอนุรักษ์ อุณหศิริกุล, นางสาวฐิตาภร อุณหศิริกุล, นางสาวปิยฉัตร อุณหศิริกุล
                                             <span class="svc-badges">
-                                                <span class="svc svc-blue">R</span>
-                                                <span class="svc svc-orange">B</span>
-                                                <span class="svc svc-green"><i class="fa fa-comment"></i></span>
+                                                <span class="svc svc-blue" data-title="Register FinPlus">R</span>
+                                                <span class="svc svc-orange" data-title="Summit Bank">B</span>
+                                                <span class="svc svc-green" data-title="Add Line WiseConnect">
+                                                    <i class="fa fa-comment"></i>
+                                                </span>
                                             </span>
                                         </td>
                                         <td><span class="appt appt-ok"><i class="fa fa-check"></i></span></td>
-                                        <td><span class="status-pill status-reg">Register</span></td>
+                                        <td>
+                                            <span class="status-pill status-reg">Register</span>
+                                        </td>
                                         <td>14:07</td>
                                         <td><span class="counter-dot">1</span></td>
                                         <td>โอนแล้ว</td>
+                                        <td>นางสาวสุนิสา สุขสันต์</td>
                                         <td class="text-end">
                                             <button class="btn btn-icon btn-del" title="Delete"><i class="fa fa-trash"></i></button>
                                         </td>
@@ -256,9 +233,11 @@
                                         <td>
                                             นางสาวการดี มีสุข
                                             <span class="svc-badges">
-                                                <span class="svc svc-blue">R</span>
-                                                <span class="svc svc-orange">B</span>
-                                                <span class="svc svc-green"><i class="fa fa-comment"></i></span>
+                                                <span class="svc svc-blue" data-title="Register FinPlus">R</span>
+                                                <span class="svc svc-orange" data-title="Summit Bank">B</span>
+                                                <span class="svc svc-green" data-title="Add Line WiseConnect">
+                                                    <i class="fa fa-comment"></i>
+                                                </span>
                                             </span>
                                         </td>
                                         <td><span class="appt appt-no"><i class="fa fa-times"></i></span></td>
@@ -266,6 +245,7 @@
                                         <td>14:08</td>
                                         <td><span class="counter-dot">2</span></td>
                                         <td>โอนแล้ว</td>
+                                        <td>นางสาวสุนิสา สุขสันต์</td>
                                         <td class="text-end">
                                             <button class="btn btn-icon btn-del" title="Delete"><i class="fa fa-trash"></i></button>
                                         </td>
@@ -277,8 +257,8 @@
                                         <td>
                                             นายณวิช พาณิชย์
                                             <span class="svc-badges">
-                                                <span class="svc svc-blue">R</span>
-                                                <span class="svc svc-orange">B</span>
+                                                <span class="svc svc-blue" data-title="Register FinPlus">R</span>
+                                                <span class="svc svc-orange" data-title="Summit Bank">B</span>
                                             </span>
                                         </td>
                                         <td><span class="appt appt-ok"><i class="fa fa-check"></i></span></td>
@@ -286,6 +266,7 @@
                                         <td>14:09</td>
                                         <td><span class="counter-dot">3</span></td>
                                         <td>โอนแล้ว</td>
+                                        <td>นางสาวสุนิสา สุขสันต์</td>
                                         <td class="text-end">
                                             <button class="btn btn-icon btn-del" title="Delete"><i class="fa fa-trash"></i></button>
                                         </td>
@@ -297,8 +278,8 @@
                                         <td>
                                             นายศิราชัย มั่งมี
                                             <span class="svc-badges">
-                                                <span class="svc svc-blue">R</span>
-                                                <span class="svc svc-orange">B</span>
+                                                <span class="svc svc-blue" data-title="Register FinPlus">R</span>
+                                                <span class="svc svc-orange" data-title="Summit Bank">B</span>
                                             </span>
                                         </td>
                                         <td><span class="appt appt-no"><i class="fa fa-times"></i></span></td>
@@ -306,6 +287,7 @@
                                         <td>14:10</td>
                                         <td><span class="counter-dot">4</span></td>
                                         <td>โอนแล้ว</td>
+                                        <td>นางสาวสุนิสา สุขสันต์</td>
                                         <td class="text-end">
                                             <button class="btn btn-icon btn-del" title="Delete"><i class="fa fa-trash"></i></button>
                                         </td>
@@ -390,7 +372,7 @@
                     <!-- Second Row -->
                     <div class="summary-row mt-3">
                         <div class="summary-box bg-green-light">
-                            <h6>ตรวจเสร็จ (ยื่น)</h6>
+                            <h6>ยื่น</h6>
                             <div class="summary-values">
                                 <div><strong>1</strong><br>Unit</div>
                                 <div><strong>14.86 M</strong><br>Value</div>
@@ -399,7 +381,7 @@
                         </div>
 
                         <div class="summary-box bg-pink-soft">
-                            <h6>ตรวจเสร็จ (ไม่ยื่น)</h6>
+                            <h6>ไม่ยื่น</h6>
                             <div class="summary-values">
                                 <div><strong>1</strong><br>Unit</div>
                                 <div><strong>14.60 M</strong><br>Value</div>

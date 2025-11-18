@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Service;
 
 namespace Project.CSS.Revise.Web.Controllers
@@ -26,7 +27,25 @@ namespace Project.CSS.Revise.Web.Controllers
         }
         public IActionResult Index()
         {
+            var listBu = _masterService.GetlistBU(new BUModel());
+            ViewBag.listBu = listBu;
+
             return View();
         }
+
+        [HttpPost]
+        public JsonResult GetProjectListByBU([FromForm] ProjectModel model)
+        {
+            var result = _masterService.GetlistPrject(model);
+            return Json(new { success = true, data = result });
+        }
+
+        [HttpPost]
+        public JsonResult GetlistUnitByProject([FromForm] UnitModel model)
+        {
+            var result = _masterService.GetlistUnitByProject(model);
+            return Json(new { success = true, data = result });
+        }
+
     }
 }

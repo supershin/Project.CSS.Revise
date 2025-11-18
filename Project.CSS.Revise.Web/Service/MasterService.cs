@@ -9,6 +9,7 @@ namespace Project.CSS.Revise.Web.Service
     {
         public List<BUModel> GetlistBU(BUModel model);
         public List<ProjectModel> GetlistPrject(ProjectModel model);
+        public List<UnitModel> GetlistUnitByProject(UnitModel model);
         public List<EventsModel> GetlistEvents(EventsModel model);
         public List<Monthevents> GetlistCountEventByMonth(Monthevents model);
         public List<GetDDLModel> GetlisDDl(GetDDLModel model);
@@ -49,6 +50,12 @@ namespace Project.CSS.Revise.Web.Service
         public List<GetDDLModel> GetlisDDl(GetDDLModel model)
         {
             List<GetDDLModel> resp = _MasterRepo.GetlisDDl(model);
+            return resp;
+        }
+
+        public List<UnitModel> GetlistUnitByProject(UnitModel model)
+        {
+            List<UnitModel> resp = _MasterRepo.GetlistUnitByProject(model);
             return resp;
         }
     }

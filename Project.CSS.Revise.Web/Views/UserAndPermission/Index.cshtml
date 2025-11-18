@@ -190,8 +190,8 @@
                                                                             <select class="form-select btn-square digits" id="ddl_Bu_edit" multiple>
                                                                                 @foreach (var bu in buList)
                                                                                 {
-                                                                                    var val = (bu.ID ?? bu.ValueInt ?? bu.Value ?? "").ToString();
-                                                                                    var text = (bu.Name ?? bu.Text ?? "").ToString();
+                                                                                    var val = (bu.ID ?? "").ToString();
+                                                                                    var text = (bu.Name ?? "").ToString();
                                                                                     <option value="@val">@text</option>
                                                                                 }
                                                                             </select>

@@ -36,42 +36,46 @@
     transition: all .2s ease;
 }
 
-    /* Focus ring */
-    #filter-register-date input[type="date"]:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 2px rgba(59,130,246,.3);
-    }
+/* Focus ring */
+#filter-register-date input[type="date"]:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59,130,246,.3);
+}
 
-    /* Placeholder */
-    #filter-register-date input[type="date"]::placeholder {
-        color: #666;
-        opacity: 0.8;
-    }
+/* Placeholder */
+#filter-register-date input[type="date"]::placeholder {
+    color: #666;
+    opacity: 0.8;
+}
 
-    /* ===== WebKit internals (Chrome/Edge/Safari) ===== */
-    #filter-register-date input[type="date"]::-webkit-datetime-edit,
-    #filter-register-date input[type="date"]::-webkit-datetime-edit-fields-wrapper,
-    #filter-register-date input[type="date"]::-webkit-datetime-edit-year-field,
-    #filter-register-date input[type="date"]::-webkit-datetime-edit-month-field,
-    #filter-register-date input[type="date"]::-webkit-datetime-edit-day-field {
-        color: #000 !important; /* ensure black text */
-        -webkit-text-fill-color: #000 !important;
-    }
+/* ===== WebKit internals (Chrome/Edge/Safari) ===== */
+#filter-register-date input[type="date"]::-webkit-datetime-edit,
+#filter-register-date input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+#filter-register-date input[type="date"]::-webkit-datetime-edit-year-field,
+#filter-register-date input[type="date"]::-webkit-datetime-edit-month-field,
+#filter-register-date input[type="date"]::-webkit-datetime-edit-day-field {
+    color: #000 !important; /* ensure black text */
+    -webkit-text-fill-color: #000 !important;
+}
 
-    /* Calendar icon */
-    #filter-register-date input[type="date"]::-webkit-calendar-picker-indicator {
-        opacity: 1;
-        filter: invert(0%) brightness(0%) contrast(100%);
-    }
+/* Calendar icon */
+#filter-register-date input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 1;
+    filter: invert(0%) brightness(0%) contrast(100%);
+}
 
-    /* Clear button (if shown) */
-    #filter-register-date input[type="date"]::-webkit-clear-button {
-        filter: invert(0%) brightness(0%) contrast(100%);
-    }
+/* Clear button (if shown) */
+#filter-register-date input[type="date"]::-webkit-clear-button {
+    filter: invert(0%) brightness(0%) contrast(100%);
+}
 
 
-/* ===== Project Table mockup ===== */
+
+/* ==========================
+    Project Table 
+   ========================== */
+
 .project-table-card .card-header {
     border-bottom: 1px solid #e9ecef;
 }
@@ -80,17 +84,34 @@
     white-space: nowrap;
 }
 
-.queue-table thead th {
-    background: #eef2f6;
-    color: #202a36;
-    font-weight: 700;
-    border-bottom: 1px solid #e1e6eb;
+.queue-table td,
+.queue-table th {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 0.85rem;
 }
 
-.queue-table tbody td {
-    vertical-align: middle;
-    border-top: 1px solid #eef2f6;
+/* Customer column Slide */
+/*.queue-table tbody td {
+    white-space: nowrap;
 }
+
+.queue-table th.customer-col,
+.queue-table td.customer-col {
+    max-width: 260px; 
+}*/
+
+/* ยกเว้น Customer column: ให้ตัดบรรทัดได้ + จำกัดความกว้าง */
+.queue-table th.customer-col,
+.queue-table td.customer-col {
+    white-space: normal !important;
+    max-width: 260px;           /* ปรับตามที่อยากให้แคบ */
+}
+
+
+
 
 /* Status pills */
 .status-pill {
@@ -162,7 +183,45 @@
     font-size: 12px;
     color: #fff;
     margin-left: 4px;
+    position: relative;
+    cursor: pointer;
 }
+
+    .svc:hover::after {
+        content: attr(data-title);
+        position: absolute;
+        bottom: 130%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1f2937;
+        color: #fff;
+        padding: 5px 10px;
+        font-size: 12px;
+        white-space: nowrap;
+        border-radius: 4px;
+        z-index: 1000;
+        opacity: 1;
+        pointer-events: none;
+    }
+
+    .svc:hover::before {
+        content: "";
+        position: absolute;
+        bottom: 115%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 6px solid transparent;
+        border-top-color: #1f2937;
+        z-index: 1000;
+        opacity: 1;
+    }
+
+    /* smooth fade */
+    .svc::after,
+    .svc::before {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
 
 .svc-blue {
     background: #1c88ff;
@@ -178,27 +237,23 @@
 
 /* Delete icon button */
 .btn-icon.btn-del {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #ffc7c7;
+    width: auto; /* ไม่ fix ขนาด */
+    height: auto;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
     color: #b10000;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 16px;
 }
 
     .btn-icon.btn-del i {
-        margin-left: -2px; /* 👈 move the trash icon slightly left */
-        font-size: 15px;
+        font-size: 16px;
     }
 
-
-
     .btn-icon.btn-del:hover {
-        background: #ffb0b0;
-        color: #8c0000;
+        color: #ff0000;
+        transform: scale(1.1);
     }
 
 /* Pagination look similar to screenshot */
@@ -214,7 +269,10 @@
 
 
 
-/* summary register zone now */
+
+/* ==========================
+    summary register zone now 
+   ========================== */
 .summary-register {
     text-align: center;
     margin-top: 20px;
@@ -236,13 +294,13 @@
     background: #fff;
 }
 
-    /* Header color area */
-    .summary-box h6 {
-        margin: 0;
-        padding: 10px;
-        font-weight: 600;
-        color: #222;
-    }
+/* Header color area */
+.summary-box h6 {
+    margin: 0;
+    padding: 10px;
+    font-weight: 600;
+    color: #222;
+}
 
 /* White section (unit/value) */
 .summary-values {
@@ -257,13 +315,13 @@
     color: #333;
 }
 
-    .summary-values > div {
-        flex: 1;
-    }
+.summary-values > div {
+flex: 1;
+}
 
-        .summary-values > div + div {
-            border-left: 1px solid rgba(0,0,0,0.1);
-        }
+.summary-values > div + div {
+    border-left: 1px solid rgba(0,0,0,0.1);
+}
 
 /* Footer */
 .summary-footer {

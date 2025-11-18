@@ -89,16 +89,132 @@ function createChoice(sel, opts) {
     return inst;
 }
 
+
+// ===== Load Projects by BU (multi) =====
+function loadProjectsByBU() {
+    const bugInst = window.QB_CHOICES["#ddl_BUG"];
+    const projInst = window.QB_CHOICES["#ddl_Project"];
+    if (!projInst) return;
+
+    // 1) ดึงค่า BU ที่เลือกจาก Choices (array of values)
+    //    ถ้าไม่มีค่า → ได้ [] (array ว่าง)
+    const selectedBU = bugInst ? bugInst.getValue(true) : [];
+
+    // 2) ถ้าไม่มี BU ที่เลือกเลย → ส่ง "" = ให้ backend คืนทุก Project
+    const l_buid = (selectedBU && selectedBU.length > 0)
+        ? selectedBU.join(",")   // เช่น "1,3,7"
+        : "";                    // ❗ เคสสำคัญ → แปลว่าเอาทุก Project
+
+    const formData = new FormData();
+    formData.append("L_BUID", l_buid);
+
+    fetch(baseUrl + "QueueBank/GetProjectListByBU", {
+        method: "POST",
+        body: formData
+    })
+        .then(r => r.json())
+        .then(res => {
+            if (!res || !res.success) return;
+
+            const projects = res.data || [];
+
+            // เคลียร์ของเดิมใน Project dropdown
+            projInst.clearChoices();
+
+            // เติม Project ใหม่จาก API
+            projInst.setChoices(
+                projects.map(p => ({
+                    value: p.ProjectID, // JSON จาก C# → camelCase
+                    label: p.ProjectNameTH,
+                    selected: false
+                })),
+                "value",
+                "label",
+                true
+            );
+        })
+        .catch(err => console.error("loadProjectsByBU error:", err));
+}
+
+// ===== Load UnitCodes by Project =====
+function loadUnitsByProject() {
+    const projInst = window.QB_CHOICES["#ddl_Project"];
+    const unitInst = window.QB_CHOICES["#ddl_UnitCode"];
+    if (!unitInst) return;
+
+    // ดึง ProjectID ปัจจุบันจาก Choices
+    let selectedProject = projInst ? projInst.getValue(true) : null;
+
+    // ถ้า Choices ให้ array -> เอาอันแรก (เราใช้ Project เป็น single-select)
+    if (Array.isArray(selectedProject)) {
+        selectedProject = selectedProject[0] || "";
+    }
+
+    // ถ้าไม่มี project เลย -> clear Unit แล้วจบ (ไม่ต้องยิง API)
+    if (!selectedProject) {
+        unitInst.clearChoices();
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("ProjectID", selectedProject);
+
+    fetch(baseUrl + "QueueBank/GetlistUnitByProject", {
+        method: "POST",
+        body: formData
+    })
+        .then(r => r.json())
+        .then(res => {
+            if (!res || !res.success) return;
+
+            const units = res.data || [];
+
+            // ลบ options เดิมทั้งหมดใน UnitCode ก่อน
+            unitInst.clearChoices();
+
+            // เติม UnitCode ใหม่จาก API
+            unitInst.setChoices(
+                units.map(u => ({
+                    value: u.ID,           // ใช้ UnitCode เป็น value
+                    label: u.UnitCode,           // และ label เหมือนกัน
+                    selected: false
+                })),
+                "value",
+                "label",
+                true
+            );
+        })
+        .catch(err => console.error("loadUnitsByProject error:", err));
+}
+
+
 // ===== Init all dropdowns =====
 function initFilterDropdowns() {
-    createChoice("#ddl_BUG", { placeholderValue: "Select BUG…" });
-    createChoice("#ddl_Project", { placeholderValue: "Select Project…" });
+    const bugInst = createChoice("#ddl_BUG", { placeholderValue: "Select BUG…" });
+    const projInst = createChoice("#ddl_Project", { placeholderValue: "Select Project…" });
     createChoice("#ddl_UnitStatusCS", { placeholderValue: "Select Unit Status (CS)..." });
     createChoice("#ddl_CustomerStatus", { placeholderValue: "Select Customer Status…" });
     createChoice("#ddl_CSResponsible", { placeholderValue: "Select CS Responsible…" });
     createChoice("#ddl_UnitCode", { placeholderValue: "Select Unit Code…" });
     createChoice("#ddl_ExpectTransferBy", { placeholderValue: "Select Expect Transfer By…" });
+
+    // ✅ สำคัญ: BUG เปลี่ยน -> โหลด Project ใหม่ (รวมเคส deselect ทั้งหมดด้วย)
+    if (bugInst) {
+        const bugEl = bugInst.passedElement.element; // original <select>
+        bugEl.addEventListener("change", () => {
+            loadProjectsByBU();
+        });
+    }
+    // ✅ Project เปลี่ยน -> โหลด UnitCode ใหม่
+    if (projInst) {
+        const projEl = projInst.passedElement.element;
+        projEl.addEventListener("change", () => {
+            loadUnitsByProject();
+        });
+    }
 }
+
+
 
 // ===== Helpers =====
 function qbGetValues() {
@@ -146,6 +262,11 @@ function ClearFilter() {
     const e = document.getElementById("txt_RegisterDateEnd");
     if (s) s.value = "";
     if (e) e.value = "";
+
+    // สำคัญ: ตอนนี้ BUG = ว่าง -> L_BUID = "" -> loadProjectsByBU() = ทุก Project
+    loadProjectsByBU();
+    // เคลียร์ UnitCode เพราะยังไม่มี Project
+    loadUnitsByProject();
 }
 
 // ===== Events (Search / Cancel) =====
@@ -202,6 +323,8 @@ document.addEventListener('click', function (e) {
     const run = () => {
         initFilterDropdowns();
         wireButtons();
+        loadProjectsByBU();   // NEW: initial load (L_BUID = "" → all projects)
+        loadUnitsByProject();  // initial: ยังไม่มี Project -> เคลียร์ Unit
     };
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run);
     else run();

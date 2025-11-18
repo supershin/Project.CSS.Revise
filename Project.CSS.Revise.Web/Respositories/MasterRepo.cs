@@ -11,6 +11,7 @@ namespace Project.CSS.Revise.Web.Respositories
     {
         public List<BUModel> GetlistBU(BUModel model);
         public List<ProjectModel> GetlistPrject(ProjectModel model);
+        public List<UnitModel> GetlistUnitByProject(UnitModel model);
         public List<EventsModel> GetlistEvents(EventsModel model);
         public List<Monthevents> GetlistCountEventByMonth(Monthevents model);
         public List<GetDDLModel> GetlisDDl(GetDDLModel model);
@@ -104,6 +105,18 @@ namespace Project.CSS.Revise.Web.Respositories
             }
 
             return result;
+        }
+
+        public List<UnitModel> GetlistUnitByProject(UnitModel model)
+        {
+            var query = _context.tm_Units.Where(x => x.FlagActive == true && x.ProjectID == model.ProjectID)
+                        .Select(x => new UnitModel
+                        {
+                            ID = x.ID,
+                            UnitCode = x.UnitCode
+                        }).ToList();
+
+            return query;
         }
 
         public List<EventsModel> GetlistEvents(EventsModel filter)
