@@ -70,25 +70,7 @@
                         </select>
                     </div>
                     <div class="col-12 col-md-4">
-                        <label for="ddl_CustomerStatus" class="form-label fw-bold">Customer Status</label>
-                        <select id="ddl_CustomerStatus" class="form-control multi-select" multiple>
-                            <option value="8">Overview Monitor</option>
-                            <option value="9">Matrix Monitor</option>
-                            <option value="35">Matrix QC6</option>
-                            <option value="52">Summary Defect</option>
-                            <option value="72">Contact Log</option>
-                            <option value="148">FIN Plus Summary Loan By Bank</option>
-                            <option value="154">FIN Plus Bank Status By Unit</option>
-                            <option value="155">CS QC Status Pivot</option>
-                            <option value="180">CS Transfer Status</option>
-                            <option value="207">FIN Plus Bank Submit</option>
-                            <option value="210">Customer Satisfaction</option>
-                            <option value="313">Summary Register Inspect</option>
-                            <option value="368">Cash back</option>
-                        </select>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <label for="ddl_CSResponsible" class="form-label fw-bold">CS Responsible</label>
+                        <label for="ddl_CSResponsible" class="form-label fw-bold">CS Response</label>
                         <select id="ddl_CSResponsible" class="form-control multi-select" multiple>
                             <option value="E001">ศิรภัสสร สุขอร่าม</option>
                             <option value="E002">ณัฐพงศ์ อินทร์จันทร์</option>
@@ -105,7 +87,7 @@
                         </select>
                     </div>
                     <div class="col-12 col-md-4">
-                        <label for="ddl_UnitStatusCS" class="form-label fw-bold">Unit Status CS</label>
+                        <label for="ddl_UnitStatusCS" class="form-label fw-bold">Unit Status</label>
                         <select id="ddl_UnitStatusCS" class="form-control" multiple>
                             @foreach (var et in UnitstatuscsList)
                             {
@@ -183,7 +165,7 @@
                                         <th style="width:160px;">Status</th>
                                         <th style="width:120px;">Time</th>
                                         <th style="width:120px;">Counter</th>
-                                        <th style="width:170px;">Unit Status CS</th>
+                                        <th style="width:170px;">Unit Status</th>
                                         <th style="width:170px;">CS Response</th>
                                         <th style="width:90px;"></th>
                                     </tr>
@@ -197,17 +179,21 @@
                                             <span class="svc-badges">
                                                 <span class="svc svc-blue" data-title="Register FinPlus">R</span>
                                                 <span class="svc svc-orange" data-title="Summit Bank">B</span>
-                                                <span class="svc svc-green" data-title="Add Line WiseConnect">
+                                                <span class="svc svc-green" data-title="WiseConnect">
                                                     <i class="fa fa-comment"></i>
                                                 </span>
                                             </span>
                                         </td>
-                                        <td><span class="appt appt-ok"><i class="fa fa-check"></i></span></td>
                                         <td>
-                                            <span class="status-pill status-reg">Register</span>
+                                         Y
+                                        </td>
+                                        <td>
+                                            Register
                                         </td>
                                         <td>14:07</td>
-                                        <td><span class="counter-dot">1</span></td>
+                                        <td>
+                                         1
+                                        </td>
                                         <td>โอนแล้ว</td>
                                         <td>นางสาวสุนิสา สุขสันต์</td>
                                         <td class="text-end">

@@ -198,5 +198,42 @@
 
 
 
+/* Main text logo (115 x 36) */
+.logo-text-main {
+    width: 115px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    overflow: hidden;
+    white-space: nowrap;
+    color: #ffffff !important; /* ← text white */
+}
+
+/* Small 36x40 mini logo */
+.logo-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-icon-mini {
+    width: 36px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: #0ea5b7;
+    color: #ffffff !important; /* ← mini text white */
+}
+
 
 
