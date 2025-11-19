@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Project.CSS.Revise.Web.Models.Pages.CSResponse;
 using Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling;
+using Project.CSS.Revise.Web.Models.Pages.QueueBank;
 using Serilog;
 using System.Data;
 using System.Data.SqlTypes;
@@ -192,65 +193,59 @@ namespace Project.CSS.Revise.Web.Library.DAL.SQL
             }
         }
 
-        //public override SPGetDataCSResponse.ListData sp_GetDataCSResponse(SPGetDataCSResponse.FilterData en)
-        //{
-        //    using (SqlConnection SqlCon = new SqlConnection(ConnectionString))
-        //    {
-        //        SqlCommand SqlCmd = new SqlCommand("sp_GetDataCSResponse", SqlCon);
-        //        try
-        //        {
-        //            var result = new SPGetDataCSResponse.ListData();
-        //            SqlCon.Open();
-        //            SqlTransaction Trans = SqlCon.BeginTransaction();
-        //            SqlCmd.Transaction = Trans;
-        //            SqlCmd.CommandType = CommandType.StoredProcedure;
+        public override List<ListDataRegisterTable> sp_GetQueueBank_RegisterTable(GetQueueBankModel en)
+        {
+            var result = new List<ListDataRegisterTable>();
 
-        //            SqlCmd.Parameters.Add(new SqlParameter("@Act", SqlDbType.NVarChar)).Value = Commond.FormatExtension.NullToString(en.Act);
-        //            SqlCmd.Parameters.Add(new SqlParameter("@ProjectID", SqlDbType.NVarChar)).Value = Commond.FormatExtension.NullToString(en.ProjectID);
-        //            SqlCmd.Parameters.Add(new SqlParameter("@BUID", SqlDbType.NVarChar)).Value = Commond.FormatExtension.NullToString(en.BUID);
-        //            SqlCmd.Parameters.Add(new SqlParameter("@CsName", SqlDbType.NVarChar)).Value = Commond.FormatExtension.NullToString(en.CsName);
-        //            SqlCmd.Parameters.Add(new SqlParameter("@UserID", SqlDbType.Int)).Value = Commond.FormatExtension.Nulltoint(en.UserID);
+            using var sqlCon = new SqlConnection(ConnectionString);
+            using var sqlCmd = new SqlCommand("sp_GetQueueBank", sqlCon)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
 
-        //            switch (en.Act)
-        //            {
-        //                case "GetListCSSummary":
-        //                    {
-        //                        using var reader = ExecuteReader(SqlCmd); // from DataAccess
-        //                        result.CSSummary = sp_GetDataCSResponse_GetListCSSummary_ListReader(reader);
-        //                        break;
-        //                    }
-        //                case "GetListCountUnitStatus":
-        //                    {
-        //                        using var reader = ExecuteReader(SqlCmd);
-        //                        result.CountUnitStatus = sp_GetDataCSResponse_GetListCountUnitStatus_ListReader(reader);
-        //                        break;
-        //                    }
-        //                default:
-        //                    return new List<SPGetDataCSResponse>();
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Log.Error("Stored name : sp_GetProjecTargetRollingPlanList");
+            sqlCmd.Parameters.Add(new SqlParameter("@Act", SqlDbType.NVarChar, 50)).Value = Commond.FormatExtension.NullToString(en.L_Act);
+            sqlCmd.Parameters.Add(new SqlParameter("@ProjectID", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_ProjectID);
+            sqlCmd.Parameters.Add(new SqlParameter("@RegisterDateStart", SqlDbType.NVarChar, 10)).Value = Commond.FormatExtension.NullToString(en.L_RegisterDateStart);
+            sqlCmd.Parameters.Add(new SqlParameter("@RegisterDateEnd", SqlDbType.NVarChar, 10)).Value = Commond.FormatExtension.NullToString(en.L_RegisterDateEnd);
+            sqlCmd.Parameters.Add(new SqlParameter("@UnitID", SqlDbType.NVarChar, -1)) .Value = Commond.FormatExtension.NullToString(en.L_UnitID);
+            sqlCmd.Parameters.Add(new SqlParameter("@CSResponse", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_CSResponse);
+            sqlCmd.Parameters.Add(new SqlParameter("@UnitCS", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_UnitCS);
+            sqlCmd.Parameters.Add(new SqlParameter("@ExpectTransfer", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_ExpectTransfer);
 
-        //            Log.Error("SEND pram1 Act (nvarchar) : {Act}", en.Act);
-        //            Log.Error("SEND pram2 Year (nvarchar) : " + en.ProjectID);
-        //            Log.Error("SEND pram3 Quarter (nvarchar) : " + en.BUID);
-        //            Log.Error("SEND pram4 Month (nvarchar) : " + en.CsName);
-        //            Log.Error("SEND pram5 ProjectID (nvarchar) : " + en.UserID);
+            try
+            {
+                sqlCon.Open();
+                using var reader = ExecuteReader(sqlCmd);
 
-        //            Log.Error(ex.ToString());
-        //            Log.Error("=========== END ===========");
+                switch (en.L_Act)
+                {
+                    case "RegisterTable":
+                        result = sp_GetQueueBank_ListDataRegisterTable(reader);
+                        break;
 
-        //            return new List<SPGetDataCSResponse>();
-        //        }
-        //        finally
-        //        {
-        //            SqlCmd.Dispose();
-        //            SqlCon.Close();
-        //            SqlCon.Dispose();
-        //        }
-        //    }
-        //}
+                    default:
+                        result = new List<ListDataRegisterTable>();
+                        break;
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Stored name : sp_GetQueueBank");
+                Log.Error("SEND Act: {Act}", en.L_Act);
+                Log.Error("SEND ProjectID: {ProjectID}", en.L_ProjectID);
+                Log.Error("SEND RegisterDate: {RegisterDateStart}", en.L_RegisterDateStart);
+                Log.Error("SEND RegisterDate: {RegisterDateEnd}", en.L_RegisterDateEnd);
+                Log.Error("SEND UnitID: {UnitID}", en.L_UnitID);
+                Log.Error("SEND CSResponse: {CSResponse}", en.L_CSResponse);
+                Log.Error("SEND UnitCS: {UnitCS}", en.L_UnitCS);
+                Log.Error("SEND ExpectTransfer: {ExpectTransfer}", en.L_ExpectTransfer);
+                Log.Error(ex, "Error executing sp_GetQueueBank");
+
+                return new List<ListDataRegisterTable>();
+            }
+        }
+
     }
 }

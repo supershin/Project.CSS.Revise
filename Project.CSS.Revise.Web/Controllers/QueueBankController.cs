@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using Project.CSS.Revise.Web.Models.Master;
+using Project.CSS.Revise.Web.Models.Pages.QueueBank;
 using Project.CSS.Revise.Web.Service;
 
 namespace Project.CSS.Revise.Web.Controllers
@@ -37,6 +38,9 @@ namespace Project.CSS.Revise.Web.Controllers
             var listUnitstatuscs = _masterService.GetlisDDl(new GetDDLModel { Act = "Ext", ID = 16 });
             ViewBag.listUnitstatuscs = listUnitstatuscs;
 
+            var listgCSRespons = _masterService.GetlisDDl(new GetDDLModel { Act = "listAllCSUser"});
+            ViewBag.listgCSRespons = listgCSRespons;
+
             return View();
         }
 
@@ -52,6 +56,13 @@ namespace Project.CSS.Revise.Web.Controllers
         {
             var result = _masterService.GetlistUnitByProject(model);
             return Json(new { success = true, data = result });
+        }
+
+        [HttpPost]
+        public JsonResult GetlistRegisterTable([FromForm] GetQueueBankModel model)
+        {
+            var result = _configProject.sp_GetQueueBank_RegisterTable(model);
+            return Json(new { success = true, Listdata = result });
         }
 
     }

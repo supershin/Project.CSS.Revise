@@ -4,6 +4,7 @@
     var buList = ViewBag.listBu as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
     var ExpecttransferList = ViewBag.listExpecttransfer as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
     var UnitstatuscsList = ViewBag.listUnitstatuscs as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var CSResponsList = ViewBag.listgCSRespons as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
 }
 
 <div class="container-fluid">
@@ -72,18 +73,12 @@
                     <div class="col-12 col-md-4">
                         <label for="ddl_CSResponsible" class="form-label fw-bold">CS Response</label>
                         <select id="ddl_CSResponsible" class="form-control multi-select" multiple>
-                            <option value="E001">ศิรภัสสร สุขอร่าม</option>
-                            <option value="E002">ณัฐพงศ์ อินทร์จันทร์</option>
-                            <option value="E003">ธัญญา บุญญาวัชรินทร์</option>
-                            <option value="E004">วรรณกร ศรีสุนทร</option>
-                            <option value="E005">สุวภา ศรีศักดา</option>
-                            <option value="E006">อรนุช บุญถนอม</option>
-                            <option value="E007">ภัทร์ชนก อินทรสถิตย์</option>
-                            <option value="E008">สุภาวดี ม่วงงาม</option>
-                            <option value="E009">จิราภรณ์ ทองมาก</option>
-                            <option value="E010">ธนภัทร วงศ์ชัย</option>
-                            <option value="E011">พีรวิชญ์ โกศลวิจิตร</option>
-                            <option value="E012">อัญชิสา ชาญชู</option>
+                            @foreach (var cs in CSResponsList)
+                            {
+                                var val = (cs.ValueInt ?? "").ToString();
+                                var text = (cs.Text ?? "").ToString();
+                                <option value="@val">@text</option>
+                            }
                         </select>
                     </div>
                     <div class="col-12 col-md-4">
@@ -155,7 +150,7 @@
 
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover table-nowrap queue-table mb-0">
+                            <table id="QueueBankRegisterTable" class="table table-hover table-nowrap queue-table mb-0">
                                 <thead>
                                     <tr>
                                         <th style="width:64px;">No.</th>
@@ -170,114 +165,21 @@
                                         <th style="width:90px;"></th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>A0201</td>
-                                        <td class="customer-col">
-                                            นางสมถวิล อุณหศิริกุล, นายอนุรักษ์ อุณหศิริกุล, นางสาวฐิตาภร อุณหศิริกุล, นางสาวปิยฉัตร อุณหศิริกุล
-                                            <span class="svc-badges">
-                                                <span class="svc svc-blue" data-title="Register FinPlus">R</span>
-                                                <span class="svc svc-orange" data-title="Summit Bank">B</span>
-                                                <span class="svc svc-green" data-title="WiseConnect">
-                                                    <i class="fa fa-comment"></i>
-                                                </span>
-                                            </span>
-                                        </td>
-                                        <td>
-                                         Y
-                                        </td>
-                                        <td>
-                                            Register
-                                        </td>
-                                        <td>14:07</td>
-                                        <td>
-                                         1
-                                        </td>
-                                        <td>โอนแล้ว</td>
-                                        <td>นางสาวสุนิสา สุขสันต์</td>
-                                        <td class="text-end">
-                                            <button class="btn btn-icon btn-del" title="Delete"><i class="fa fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>2</td>
-                                        <td>A0202</td>
-                                        <td>
-                                            นางสาวการดี มีสุข
-                                            <span class="svc-badges">
-                                                <span class="svc svc-blue" data-title="Register FinPlus">R</span>
-                                                <span class="svc svc-orange" data-title="Summit Bank">B</span>
-                                                <span class="svc svc-green" data-title="Add Line WiseConnect">
-                                                    <i class="fa fa-comment"></i>
-                                                </span>
-                                            </span>
-                                        </td>
-                                        <td><span class="appt appt-no"><i class="fa fa-times"></i></span></td>
-                                        <td><span class="status-pill status-reg">Register</span></td>
-                                        <td>14:08</td>
-                                        <td><span class="counter-dot">2</span></td>
-                                        <td>โอนแล้ว</td>
-                                        <td>นางสาวสุนิสา สุขสันต์</td>
-                                        <td class="text-end">
-                                            <button class="btn btn-icon btn-del" title="Delete"><i class="fa fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>3</td>
-                                        <td>A1021</td>
-                                        <td>
-                                            นายณวิช พาณิชย์
-                                            <span class="svc-badges">
-                                                <span class="svc svc-blue" data-title="Register FinPlus">R</span>
-                                                <span class="svc svc-orange" data-title="Summit Bank">B</span>
-                                            </span>
-                                        </td>
-                                        <td><span class="appt appt-ok"><i class="fa fa-check"></i></span></td>
-                                        <td><span class="status-pill status-proc">In Process</span></td>
-                                        <td>14:09</td>
-                                        <td><span class="counter-dot">3</span></td>
-                                        <td>โอนแล้ว</td>
-                                        <td>นางสาวสุนิสา สุขสันต์</td>
-                                        <td class="text-end">
-                                            <button class="btn btn-icon btn-del" title="Delete"><i class="fa fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>4</td>
-                                        <td>A2001</td>
-                                        <td>
-                                            นายศิราชัย มั่งมี
-                                            <span class="svc-badges">
-                                                <span class="svc svc-blue" data-title="Register FinPlus">R</span>
-                                                <span class="svc svc-orange" data-title="Summit Bank">B</span>
-                                            </span>
-                                        </td>
-                                        <td><span class="appt appt-no"><i class="fa fa-times"></i></span></td>
-                                        <td><span class="status-pill status-proc">In Process</span></td>
-                                        <td>14:10</td>
-                                        <td><span class="counter-dot">4</span></td>
-                                        <td>โอนแล้ว</td>
-                                        <td>นางสาวสุนิสา สุขสันต์</td>
-                                        <td class="text-end">
-                                            <button class="btn btn-icon btn-del" title="Delete"><i class="fa fa-trash"></i></button>
-                                        </td>
-                                    </tr>
+                                <tbody id="QueueBankRegisterTableBody">
+                                    <!-- จะให้ JS เติมเอง -->
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
                     <div class="card-footer d-flex justify-content-between align-items-center">
-                        <small class="text-muted">Showing 1 to 6 of 6 entries</small>
+                        <small id="QueueBankRegisterTableSummary" class="text-muted">
+                            Showing 0 to 0 of 0 entries
+                        </small>
                         <ul class="pagination pagination-sm mb-0">
+                            <!-- ตอนนี้ยังไม่ต้องใช้ pagination จริง ปล่อย static ไปก่อนก็ได้ -->
                             <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
                             <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
                             <li class="page-item"><a class="page-link" href="#">Next</a></li>
                         </ul>
                     </div>

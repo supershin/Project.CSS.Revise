@@ -1,5 +1,6 @@
 ﻿using Project.CSS.Revise.Web.Models.Pages.CSResponse;
 using Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling;
+using Project.CSS.Revise.Web.Models.Pages.QueueBank;
 using System.Data;
 
 namespace Project.CSS.Revise.Web.Library.DAL
@@ -38,6 +39,8 @@ namespace Project.CSS.Revise.Web.Library.DAL
         public abstract List<RollingPlanTotalModel> sp_GetProjecTargetRollingPlanList_GetDataTotalTargetRollingPlan(RollingPlanTotalModel en);
 
         public abstract SPGetDataCSResponse.ListData sp_GetDataCSResponse(SPGetDataCSResponse.FilterData en);
+
+        public abstract List<ListDataRegisterTable> sp_GetQueueBank_RegisterTable(GetQueueBankModel en);
 
         #region __ Reader __
 
@@ -349,6 +352,51 @@ namespace Project.CSS.Revise.Web.Library.DAL
             Entity.ID_438 = Commond.FormatExtension.Nulltoint(reader["ID_438"]);
             return Entity;
         }
+
+
+        public static List<ListDataRegisterTable> sp_GetQueueBank_ListDataRegisterTable(IDataReader reader)
+        {
+            var list = new List<ListDataRegisterTable>();
+            int index = 1;
+
+            while (reader.Read())
+            {
+                list.Add(sp_GetQueueBank_ListDataRegisterTable_Reader(reader, index));
+                index++;
+            }
+
+            reader.Close();
+            return list;
+        }
+
+        private static ListDataRegisterTable sp_GetQueueBank_ListDataRegisterTable_Reader(IDataReader reader, int index)
+        {
+            var entity = new ListDataRegisterTable();
+
+            entity.index = index;
+            entity.ID = Commond.FormatExtension.NullToString(reader["ID"]);
+            entity.ProjectID = Commond.FormatExtension.NullToString(reader["ProjectID"]);
+            entity.UnitID = Commond.FormatExtension.NullToString(reader["UnitID"]);
+            entity.UnitCode = Commond.FormatExtension.NullToString(reader["UnitCode"]);
+            entity.CustomerName = Commond.FormatExtension.NullToString(reader["CustomerName"]);
+
+            entity.LineUserContract_Count = Commond.FormatExtension.NullToString(reader["LineUserContract_Count"]);
+            entity.LoanDraftDate = Commond.FormatExtension.NullToString(reader["LoanDraftDate"]);
+            entity.LoanSubmitDate = Commond.FormatExtension.NullToString(reader["LoanSubmitDate"]);
+
+            entity.Appointment = Commond.FormatExtension.NullToString(reader["Appointment"]);
+            entity.Status = Commond.FormatExtension.NullToString(reader["Status"]);
+            entity.StatusTime = Commond.FormatExtension.NullToString(reader["StatusTime"]);
+
+            entity.Counter = Commond.FormatExtension.NullToString(reader["Counter"]);
+            entity.Unitstatus_CS = Commond.FormatExtension.NullToString(reader["Unitstatus_CS"]);
+            entity.ResponsibleID = Commond.FormatExtension.NullToString(reader["ResponsibleID"]);
+            entity.CSResponse = Commond.FormatExtension.NullToString(reader["CSResponse"]);
+
+            return entity;
+        }
+
+
         #endregion
     }
 }
