@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Service;
 
@@ -29,6 +30,12 @@ namespace Project.CSS.Revise.Web.Controllers
         {
             var listBu = _masterService.GetlistBU(new BUModel());
             ViewBag.listBu = listBu;
+
+            var listExpecttransfer = _masterService.GetlisDDl(new GetDDLModel { Act = "Ext", ID = 13 });
+            ViewBag.listExpecttransfer = listExpecttransfer;
+
+            var listUnitstatuscs = _masterService.GetlisDDl(new GetDDLModel { Act = "Ext", ID = 16 });
+            ViewBag.listUnitstatuscs = listUnitstatuscs;
 
             return View();
         }

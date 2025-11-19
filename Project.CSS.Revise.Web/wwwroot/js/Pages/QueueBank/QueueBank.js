@@ -90,20 +90,15 @@ function createChoice(sel, opts) {
 }
 
 
-// ===== Load Projects by BU (multi) =====
 function loadProjectsByBU() {
     const bugInst = window.QB_CHOICES["#ddl_BUG"];
     const projInst = window.QB_CHOICES["#ddl_Project"];
     if (!projInst) return;
 
-    // 1) ดึงค่า BU ที่เลือกจาก Choices (array of values)
-    //    ถ้าไม่มีค่า → ได้ [] (array ว่าง)
     const selectedBU = bugInst ? bugInst.getValue(true) : [];
-
-    // 2) ถ้าไม่มี BU ที่เลือกเลย → ส่ง "" = ให้ backend คืนทุก Project
     const l_buid = (selectedBU && selectedBU.length > 0)
-        ? selectedBU.join(",")   // เช่น "1,3,7"
-        : "";                    // ❗ เคสสำคัญ → แปลว่าเอาทุก Project
+        ? selectedBU.join(",")
+        : "";
 
     const formData = new FormData();
     formData.append("L_BUID", l_buid);
@@ -118,13 +113,11 @@ function loadProjectsByBU() {
 
             const projects = res.data || [];
 
-            // เคลียร์ของเดิมใน Project dropdown
             projInst.clearChoices();
 
-            // เติม Project ใหม่จาก API
             projInst.setChoices(
                 projects.map(p => ({
-                    value: p.ProjectID, // JSON จาก C# → camelCase
+                    value: p.ProjectID,
                     label: p.ProjectNameTH,
                     selected: false
                 })),
@@ -132,9 +125,19 @@ function loadProjectsByBU() {
                 "label",
                 true
             );
+
+            // 🔥 NEW: BU เปลี่ยน -> ล้าง Unit ทั้งหมด
+            const unitInst = window.QB_CHOICES["#ddl_UnitCode"];
+            if (unitInst) {
+                try {
+                    unitInst.removeActiveItems();
+                    unitInst.clearChoices();
+                } catch { }
+            }
         })
         .catch(err => console.error("loadProjectsByBU error:", err));
 }
+
 
 // ===== Load UnitCodes by Project =====
 function loadUnitsByProject() {
@@ -142,17 +145,19 @@ function loadUnitsByProject() {
     const unitInst = window.QB_CHOICES["#ddl_UnitCode"];
     if (!unitInst) return;
 
-    // ดึง ProjectID ปัจจุบันจาก Choices
     let selectedProject = projInst ? projInst.getValue(true) : null;
 
-    // ถ้า Choices ให้ array -> เอาอันแรก (เราใช้ Project เป็น single-select)
+    // ถ้า Choices คืน array -> ใช้อันแรก (เราใช้ Project เป็น single-select)
     if (Array.isArray(selectedProject)) {
         selectedProject = selectedProject[0] || "";
     }
 
-    // ถ้าไม่มี project เลย -> clear Unit แล้วจบ (ไม่ต้องยิง API)
+    // ❗ ถ้าไม่มี project เลย -> เคลียร์ทั้ง choice + selection ของ Unit แล้วจบ
     if (!selectedProject) {
-        unitInst.clearChoices();
+        try {
+            unitInst.removeActiveItems(); // ล้าง tag ที่เลือกอยู่
+            unitInst.clearChoices();      // ล้างตัวเลือกทั้งหมด
+        } catch { }
         return;
     }
 
@@ -169,14 +174,14 @@ function loadUnitsByProject() {
 
             const units = res.data || [];
 
-            // ลบ options เดิมทั้งหมดใน UnitCode ก่อน
+            // ล้าง options เดิม
             unitInst.clearChoices();
 
-            // เติม UnitCode ใหม่จาก API
+            // เติม Unit ใหม่จาก API
             unitInst.setChoices(
                 units.map(u => ({
-                    value: u.ID,           // ใช้ UnitCode เป็น value
-                    label: u.UnitCode,           // และ label เหมือนกัน
+                    value: u.ID,
+                    label: u.UnitCode,
                     selected: false
                 })),
                 "value",
@@ -186,6 +191,7 @@ function loadUnitsByProject() {
         })
         .catch(err => console.error("loadUnitsByProject error:", err));
 }
+
 
 
 // ===== Init all dropdowns =====

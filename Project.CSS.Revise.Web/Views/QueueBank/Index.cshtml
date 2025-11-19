@@ -2,6 +2,8 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_LayoutSite.cshtml";
     var buList = ViewBag.listBu as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var ExpecttransferList = ViewBag.listExpecttransfer as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var UnitstatuscsList = ViewBag.listUnitstatuscs as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
 }
 
 <div class="container-fluid">
@@ -105,37 +107,23 @@
                     <div class="col-12 col-md-4">
                         <label for="ddl_UnitStatusCS" class="form-label fw-bold">Unit Status CS</label>
                         <select id="ddl_UnitStatusCS" class="form-control" multiple>
-                            <option value="62">โอนแล้ว</option>
-                            <option value="63">นัดโอนแล้ว</option>
-                            <option value="64">รอนัดโอน</option>
-                            <option value="65">ยังไม่โอน</option>
-                            <option value="66">แนวโน้มไม่โอน</option>
-                            <option value="67">ห้องว่าง VIP</option>
-                            <option value="68">ห้องว่าง</option>
-                            <option value="69">จอง</option>
-                            <option value="70">รอยกเลิก CS</option>
-                            <option value="71">รอยกเลิก Sale</option>
-                            <option value="373">Deviate</option>
-                            <option value="408">แคมเปญ ชีวิตดี๊ดี</option>
-                            <option value="409">เกณฑ์ปกติ</option>
-                            <option value="435">แนวโน้มไม่โอน/Sale</option>
-                            <option value="436">แนวโน้มไม่โอน/CS</option>
-                            <option value="438">โอนลอย</option>
+                            @foreach (var et in UnitstatuscsList)
+                            {
+                                var val = (et.ValueInt ?? "").ToString();
+                                var text = (et.Text ?? "").ToString();
+                                <option value="@val">@text</option>
+                            }
                         </select>
                     </div>
                     <div class="col-12 col-md-4">
                         <label for="ddl_ExpectTransferBy" class="form-label fw-bold">Expect Transfer By</label>
                         <select id="ddl_ExpectTransferBy" class="form-control multi-select" multiple>
-                            <option value="1">CREDIT</option>
-                            <option value="2">CASH</option>
-                            <option value="3">BANK</option>
-                            <option value="4">CHEQUE</option>
-                            <option value="5">PROMPTPAY</option>
-                            <option value="6">TRANSFER</option>
-                            <option value="7">FINANCE</option>
-                            <option value="8">IN-HOUSE</option>
-                            <option value="9">AGENT</option>
-                            <option value="10">OTHER</option>
+                            @foreach (var et in ExpecttransferList)
+                            {
+                                var val = (et.ValueInt ?? "").ToString();
+                                var text = (et.Text ?? "").ToString();
+                                <option value="@val">@text</option>
+                            }
                         </select>
                     </div>
                     <div class="col-12 col-md-4" id="filter-register-date">
