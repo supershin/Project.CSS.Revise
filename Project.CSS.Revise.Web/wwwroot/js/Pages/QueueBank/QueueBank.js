@@ -301,7 +301,45 @@ function initQueueBankRegisterTable() {
         columns: [
             { data: "index", name: "index" },
             { data: "UnitCode", name: "UnitCode" },
-            { data: "CustomerName", name: "CustomerName", className: "customer-col" },
+            {
+                data: null,
+                name: "CustomerName",
+                className: "customer-col",
+                render: function (data, type, row) {
+
+                    let badges = "";
+
+                    // 🟩 WiseConnect
+                    if (parseInt(row.LineUserContract_Count || "0") > 0) {
+                        badges += `
+                <span class="svc svc-green" data-title="WiseConnect">
+                    <i class="fa fa-comment"></i>
+                </span>`;
+                    }
+
+                    // 🟦 Register FinPlus
+                    if (row.LoanDraftDate && row.LoanDraftDate.trim() !== "") {
+                        badges += `
+                <span class="svc svc-blue" data-title="Register FinPlus">R</span>`;
+                    }
+
+                    // 🟧 Summit Bank
+                    if (row.LoanSubmitDate && row.LoanSubmitDate.trim() !== "") {
+                        badges += `
+                <span class="svc svc-orange" data-title="Summit Bank">B</span>`;
+                    }
+
+                    return `
+            <div>
+                ${row.CustomerName || ""}
+                <span class="svc-badges">
+                    ${badges}
+                </span>
+            </div>
+        `;
+                }
+            },
+
             { data: "Appointment", name: "Appointment" },
             { data: "Status", name: "Status" },
             { data: "StatusTime", name: "StatusTime" },
