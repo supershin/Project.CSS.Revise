@@ -21,5 +21,9 @@
         public string Unitstatus_CS { get; set; } = string.Empty;
         public string ResponsibleID { get; set; } = string.Empty;
         public string CSResponse { get; set; } = string.Empty;
+
+        // ===== สำหรับ DataTables =====
+        public int TotalRecords { get; set; } = 0;
+        public int FilteredRecords { get; set; } = 0;
     }
 }

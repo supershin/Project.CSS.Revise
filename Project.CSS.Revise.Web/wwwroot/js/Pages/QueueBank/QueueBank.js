@@ -218,106 +218,122 @@ function initFilterDropdowns() {
     }
 }
 
-// ===== Call API & Render QueueBankRegisterTable =====
 function loadQueueBankRegisterTable() {
-    const filters = qbGetValues();
-
-    // Project เป็น single select → เอาค่าแรกพอ
-    let projectId = filters.Project;
-    if (Array.isArray(projectId)) {
-        projectId = projectId[0] || "";
+    if (QueueBankRegisterTableDt) {
+        // reload data โดยใช้ filter ปัจจุบัน
+        QueueBankRegisterTableDt.ajax.reload();
     }
-
-    const formData = new FormData();
-    formData.append("L_Act", "RegisterTable");
-    formData.append("L_ProjectID", projectId || "");
-    formData.append("L_RegisterDateStart", filters.RegisterDateStart || "");
-    formData.append("L_RegisterDateEnd", filters.RegisterDateEnd || "");
-    formData.append("L_UnitID", (filters.UnitCode || []).join(","));
-    formData.append("L_CSResponse", (filters.CSResponsible || []).join(","));
-    formData.append("L_UnitCS", (filters.UnitStatusCS || []).join(","));
-    formData.append("L_ExpectTransfer", (filters.ExpectTransferBy || []).join(","));
-
-    // ถ้ามี loading overlay ให้ใช้ด้วย
-    if (typeof showLoading === "function") {
-        showLoading();
-    }
-
-    fetch(baseUrl + "QueueBank/GetlistRegisterTable", {
-        method: "POST",
-        body: formData
-    })
-        .then(r => r.json())
-        .then(res => {
-            if (!res || res.success !== true) {
-                console.error("GetlistRegisterTable error:", res);
-                renderQueueBankRegisterTable([]); // เคลียร์ table
-                return;
-            }
-            const rows = res.Listdata || [];
-            renderQueueBankRegisterTable(rows);
-        })
-        .catch(err => {
-            console.error("GetlistRegisterTable fetch error:", err);
-            renderQueueBankRegisterTable([]);
-        })
-        .finally(() => {
-            if (typeof hideLoading === "function") {
-                hideLoading();
-            }
-        });
 }
 
-// ===== Render rows to table =====
-function renderQueueBankRegisterTable(rows) {
-    const tbody = document.getElementById("QueueBankRegisterTableBody");
-    const summaryEl = document.getElementById("QueueBankRegisterTableSummary");
 
-    if (!tbody) return;
+let QueueBankRegisterTableDt = null;
 
-    tbody.innerHTML = "";
+function initQueueBankRegisterTable() {
+    QueueBankRegisterTableDt = $('#QueueBankRegisterTable').DataTable({
+        processing: true,
+        serverSide: true,
+        searching: true,   // เปิดช่อง search ของ DataTables
+        lengthChange: true,
+        pageLength: 10,
+        ordering: false,
+        autoWidth: false,
+        scrollX: true,   // ⭐ เพิ่มบรรทัดนี้ถ้าอยากให้มี scrollbar แนวนอน
+        ajax: function (data, callback, settings) {
+            const filters = qbGetValues();
 
-    if (!rows || rows.length === 0) {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td colspan="10" class="text-center text-muted">No data found</td>`;
-        tbody.appendChild(tr);
+            let projectId = filters.Project;
+            if (Array.isArray(projectId)) {
+                projectId = projectId[0] || "";
+            }
 
-        if (summaryEl) {
-            summaryEl.textContent = "Showing 0 to 0 of 0 entries";
-        }
-        return;
-    }
+            // ⭐ รับค่าจากช่อง search ของ DataTables
+            const searchValue = (data.search && data.search.value) ? data.search.value.trim() : "";
 
-    rows.forEach((r, idx) => {
-        const no = r.index || (idx + 1); // เผื่อมี index จาก SP / reader
+            const formData = new FormData();
+            // ===== DataTables params =====
+            formData.append("draw", data.draw);
+            formData.append("start", data.start);
+            formData.append("length", data.length);
+            formData.append("SearchTerm", searchValue);   // ⭐ NEW: ส่งไป backend
 
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${no}</td>
-            <td>${r.UnitCode || ""}</td>
-            <td class="customer-col">
-                ${r.CustomerName || ""}
-            </td>
-            <td>${r.Appointment || ""}</td>
-            <td>${r.Status || ""}</td>
-            <td>${r.StatusTime || ""}</td>
-            <td>${r.Counter || ""}</td>
-            <td>${r.Unitstatus_CS || ""}</td>
-            <td>${r.CSResponse || ""}</td>
-            <td class="text-end">
-                <button class="btn btn-icon btn-del" data-id="${r.ID || ""}" title="Delete">
-                    <i class="fa fa-trash"></i>
-                </button>
-            </td>
-        `;
-        tbody.appendChild(tr);
+            // ===== QueueBank filters =====
+            formData.append("L_Act", "RegisterTable");
+            formData.append("L_ProjectID", projectId || "");
+            formData.append("L_RegisterDateStart", filters.RegisterDateStart || "");
+            formData.append("L_RegisterDateEnd", filters.RegisterDateEnd || "");
+            formData.append("L_UnitID", (filters.UnitCode || []).join(","));
+            formData.append("L_CSResponse", (filters.CSResponsible || []).join(","));
+            formData.append("L_UnitCS", (filters.UnitStatusCS || []).join(","));
+            formData.append("L_ExpectTransfer", (filters.ExpectTransferBy || []).join(","));
+
+            if (typeof showLoading === "function") {
+                showLoading();
+            }
+
+            fetch(baseUrl + "QueueBank/GetlistRegisterTable", {
+                method: "POST",
+                body: formData
+            })
+                .then(r => r.json())
+                .then(res => {
+                    callback({
+                        draw: res.draw,
+                        recordsTotal: res.recordsTotal,
+                        recordsFiltered: res.recordsFiltered,
+                        data: res.data || []
+                    });
+                })
+                .catch(err => {
+                    console.error("GetlistRegisterTable fetch error:", err);
+                    callback({
+                        draw: data.draw,
+                        recordsTotal: 0,
+                        recordsFiltered: 0,
+                        data: []
+                    });
+                })
+                .finally(() => {
+                    if (typeof hideLoading === "function") {
+                        hideLoading();
+                    }
+                });
+        },
+        columns: [
+            { data: "index", name: "index" },
+            { data: "UnitCode", name: "UnitCode" },
+            { data: "CustomerName", name: "CustomerName", className: "customer-col" },
+            { data: "Appointment", name: "Appointment" },
+            { data: "Status", name: "Status" },
+            { data: "StatusTime", name: "StatusTime" },
+            { data: "Counter", name: "Counter" },
+            { data: "Unitstatus_CS", name: "Unitstatus_CS" },
+            { data: "CSResponse", name: "CSResponse" },
+            {
+                data: null,
+                orderable: false,
+                searchable: false,
+                className: "text-end",
+                render: function (data, type, row) {
+                    return `
+                        <button class="btn btn-icon btn-del"
+                                data-id="${row.ID || ""}"
+                                title="Delete">
+                            <i class="fa fa-trash"></i>
+                        </button>`;
+                }
+            }
+        ],
+        order: [[1, "asc"]]
     });
-
-    if (summaryEl) {
-        const total = rows.length;
-        summaryEl.textContent = `Showing 1 to ${total} of ${total} entries`;
-    }
 }
+
+
+
+// เรียกตอน page load
+//document.addEventListener("DOMContentLoaded", function () {
+//    initQueueBankRegisterTable();
+//});
+
 
 
 // ===== Helpers =====
@@ -431,6 +447,13 @@ document.addEventListener('click', function (e) {
         wireButtons();
         loadProjectsByBU();   // NEW: initial load (L_BUID = "" → all projects)
         loadUnitsByProject();  // initial: ยังไม่มี Project -> เคลียร์ Unit
+
+        // ⭐️ IMPORTANT: init the main QueueBank DataTable
+        if (window.jQuery && $.fn.DataTable) {
+            initQueueBankRegisterTable();
+        } else {
+            console.warn("DataTables not loaded. Please include jquery.dataTables.js and css.");
+        }
     };
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run);
     else run();

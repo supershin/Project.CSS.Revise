@@ -76,39 +76,32 @@
     Project Table 
    ========================== */
 
-.project-table-card .card-header {
-    border-bottom: 1px solid #e9ecef;
-}
-
-.table-nowrap td, .table-nowrap th {
+/* default ของ Bootstrap เดิม */
+.table-nowrap td,
+.table-nowrap th {
     white-space: nowrap;
 }
 
-.queue-table td,
-.queue-table th {
-    padding-top: 6px !important;
-    padding-bottom: 6px !important;
-    padding-left: 10px;
-    padding-right: 10px;
-    font-size: 0.85rem;
+/* 👉 สำหรับ QueueBank: ไม่บังคับ nowrap ที่ header แล้ว */
+.queue-table thead th {
+    white-space: normal; /* ให้ตัดบรรทัดได้ */
+    overflow: hidden; /* กัน text ล้นออกนอกเซลล์ */
+    text-overflow: ellipsis; /* ถ้าแคบมากให้ … แทน */
 }
 
-/* Customer column Slide */
-/*.queue-table tbody td {
-    white-space: nowrap;
-}
-
+/* Customer + CS header ยังให้ขึ้นบรรทัดเดียวอยู่ */
 .queue-table th.customer-col,
-.queue-table td.customer-col {
-    max-width: 260px; 
-}*/
-
-/* ยกเว้น Customer column: ให้ตัดบรรทัดได้ + จำกัดความกว้าง */
-.queue-table th.customer-col,
-.queue-table td.customer-col {
-    white-space: normal !important;
-    max-width: 260px;           /* ปรับตามที่อยากให้แคบ */
+.queue-table th.cs-col {
+    white-space: nowrap; /* บรรทัดเดียว */
 }
+
+/* cell ด้านใน – ให้ Customer และ CS ตัดบรรทัดได้ */
+.queue-table td.customer-col,
+.queue-table td.cs-col {
+    white-space: normal;
+}
+
+
 
 
 
@@ -256,16 +249,7 @@
         transform: scale(1.1);
     }
 
-/* Pagination look similar to screenshot */
-.pagination .page-link {
-    color: #1f2d3d;
-}
 
-.pagination .page-item.active .page-link {
-    background: #0ea5b7;
-    border-color: #0ea5b7;
-    color: #fff;
-}
 
 
 

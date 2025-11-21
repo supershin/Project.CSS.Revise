@@ -212,6 +212,10 @@ namespace Project.CSS.Revise.Web.Library.DAL.SQL
             sqlCmd.Parameters.Add(new SqlParameter("@UnitCS", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_UnitCS);
             sqlCmd.Parameters.Add(new SqlParameter("@ExpectTransfer", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_ExpectTransfer);
 
+            // ===== paging params =====
+            sqlCmd.Parameters.Add(new SqlParameter("@Start", SqlDbType.Int)).Value = en.start;
+            sqlCmd.Parameters.Add(new SqlParameter("@Length", SqlDbType.Int)).Value = en.length;
+            sqlCmd.Parameters.Add(new SqlParameter("@SearchText", SqlDbType.NVarChar, 200)).Value = Commond.FormatExtension.NullToString(en.SearchTerm);
             try
             {
                 sqlCon.Open();

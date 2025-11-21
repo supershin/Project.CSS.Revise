@@ -62,8 +62,26 @@ namespace Project.CSS.Revise.Web.Controllers
         public JsonResult GetlistRegisterTable([FromForm] GetQueueBankModel model)
         {
             var result = _configProject.sp_GetQueueBank_RegisterTable(model);
-            return Json(new { success = true, Listdata = result });
+
+            int total = 0;
+            int filtered = 0;
+
+            if (result != null && result.Count > 0)
+            {
+                total = result[0].TotalRecords;
+                filtered = result[0].FilteredRecords;
+            }
+
+            return Json(new
+            {
+                draw = model.draw,
+                recordsTotal = total,
+                recordsFiltered = filtered,
+                data = result
+            });
         }
+
+
 
     }
 }

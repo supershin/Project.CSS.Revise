@@ -393,6 +393,10 @@ namespace Project.CSS.Revise.Web.Library.DAL
             entity.ResponsibleID = Commond.FormatExtension.NullToString(reader["ResponsibleID"]);
             entity.CSResponse = Commond.FormatExtension.NullToString(reader["CSResponse"]);
 
+            // New
+            entity.TotalRecords = Commond.FormatExtension.Nulltoint(reader["TotalRecords"]);
+            entity.FilteredRecords = Commond.FormatExtension.Nulltoint(reader["FilteredRecords"]);
+
             return entity;
         }
 
