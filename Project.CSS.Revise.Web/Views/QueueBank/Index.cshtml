@@ -200,87 +200,93 @@
                         <div class="summary-box bg-green">
                             <h6>Register</h6>
                             <div class="summary-values">
-                                <div><strong>4</strong><br>Unit</div>
-                                <div><strong>59.76 M</strong><br>Value</div>
+                                <div><strong id="sum-register-unit">0</strong><br>Unit</div>
+                                <div><strong id="sum-register-value">0.00 M</strong><br>Value</div>
                             </div>
-                            <div class="summary-footer">100%</div>
+                            <div class="summary-footer" id="sum-register-percent">0%</div>
                         </div>
 
                         <div class="summary-box bg-blue">
                             <h6>Queue</h6>
                             <div class="summary-values">
-                                <div><strong>2</strong><br>Unit</div>
-                                <div><strong>29.40 M</strong><br>Value</div>
+                                <div><strong id="sum-queue-unit">0</strong><br>Unit</div>
+                                <div><strong id="sum-queue-value">0.00 M</strong><br>Value</div>
                             </div>
-                            <div class="summary-footer">50%</div>
+                            <div class="summary-footer" id="sum-queue-percent">0%</div>
                         </div>
 
                         <div class="summary-box bg-orange">
                             <h6>In Process</h6>
                             <div class="summary-values">
-                                <div><strong>1</strong><br>Unit</div>
-                                <div><strong>15.50 M</strong><br>Value</div>
+                                <div><strong id="sum-inprocess-unit">0</strong><br>Unit</div>
+                                <div><strong id="sum-inprocess-value">0.00 M</strong><br>Value</div>
                             </div>
-                            <div class="summary-footer">25%</div>
+                            <div class="summary-footer" id="sum-inprocess-percent">0%</div>
                         </div>
 
                         <div class="summary-box bg-green-light">
                             <h6>Done</h6>
                             <div class="summary-values">
-                                <div><strong>1</strong><br>Unit</div>
-                                <div><strong>14.86 M</strong><br>Value</div>
+                                <div><strong id="sum-done-unit">0</strong><br>Unit</div>
+                                <div><strong id="sum-done-value">0.00 M</strong><br>Value</div>
                             </div>
-                            <div class="summary-footer">25%</div>
+                            <div class="summary-footer" id="sum-done-percent">0%</div>
                         </div>
                     </div>
 
                     <!-- Second Row -->
                     <div class="summary-row mt-3">
+                        <!-- ยื่น -->
                         <div class="summary-box bg-green-light">
                             <h6>ยื่น</h6>
                             <div class="summary-values">
-                                <div><strong>1</strong><br>Unit</div>
-                                <div><strong>14.86 M</strong><br>Value</div>
+                                <div><strong id="sum-loan-yes-unit">0</strong><br>Unit</div>
+                                <div><strong id="sum-loan-yes-value">0.00 M</strong><br>Value</div>
                             </div>
-                            <div class="summary-footer">50%</div>
+                            <div class="summary-footer" id="sum-loan-yes-percent">0%</div>
                         </div>
 
+                        <!-- ไม่ยื่น -->
                         <div class="summary-box bg-pink-soft">
                             <h6>ไม่ยื่น</h6>
                             <div class="summary-values">
-                                <div><strong>1</strong><br>Unit</div>
-                                <div><strong>14.60 M</strong><br>Value</div>
+                                <div><strong id="sum-loan-no-unit">0</strong><br>Unit</div>
+                                <div><strong id="sum-loan-no-value">0.00 M</strong><br>Value</div>
                             </div>
-                            <div class="summary-footer">50%</div>
+                            <div class="summary-footer" id="sum-loan-no-percent">0%</div>
                         </div>
 
+                        <!-- อาชีพอิสระ -->
                         <div class="summary-box bg-pink">
                             <h6>อาชีพอิสระ</h6>
                             <div class="summary-values">
-                                <div><strong>2</strong><br>Unit</div>
-                                <div><strong>29.40 M</strong><br>Value</div>
+                                <div><strong id="sum-career-freelance-unit">0</strong><br>Unit</div>
+                                <div><strong id="sum-career-freelance-value">0.00 M</strong><br>Value</div>
                             </div>
-                            <div class="summary-footer">50%</div>
+                            <div class="summary-footer" id="sum-career-freelance-percent">0%</div>
                         </div>
 
+                        <!-- รายได้ประจำ -->
                         <div class="summary-box bg-pink">
                             <h6>รายได้ประจำ</h6>
                             <div class="summary-values">
-                                <div><strong>1</strong><br>Unit</div>
-                                <div><strong>15.50 M</strong><br>Value</div>
+                                <div><strong id="sum-career-salary-unit">0</strong><br>Unit</div>
+                                <div><strong id="sum-career-salary-value">0.00 M</strong><br>Value</div>
                             </div>
-                            <div class="summary-footer">25%</div>
+                            <div class="summary-footer" id="sum-career-salary-percent">0%</div>
                         </div>
 
+                        <!-- เจ้าของกิจการ -->
                         <div class="summary-box bg-pink">
                             <h6>เจ้าของกิจการ</h6>
                             <div class="summary-values">
-                                <div><strong>1</strong><br>Unit</div>
-                                <div><strong>14.86 M</strong><br>Value</div>
+                                <div><strong id="sum-career-owner-unit">0</strong><br>Unit</div>
+                                <div><strong id="sum-career-owner-value">0.00 M</strong><br>Value</div>
                             </div>
-                            <div class="summary-footer">25%</div>
+                            <div class="summary-footer" id="sum-career-owner-percent">0%</div>
                         </div>
                     </div>
+
                 </div>
 
             </div>
@@ -313,42 +319,11 @@
                                 <th style="width: 100px;">%</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="summary-bank-body">
                             <tr>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <img src="~/image/ThaiBankicon/BBL.png" alt="BBL" class="bank-logo">
-                                        <span>ธนาคารกรุงเทพ จำกัด (มหาชน)</span>
-                                    </div>
+                                <td colspan="5" class="text-center text-muted">
+                                    Loading...
                                 </td>
-                                <td>2.99</td>
-                                <td>2</td>
-                                <td>29.40 M</td>
-                                <td>50%</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <img src="~/image/ThaiBankicon/KBT.png" alt="KBank" class="bank-logo">
-                                        <span>ธนาคารกสิกรไทย จำกัด (มหาชน)</span>
-                                    </div>
-                                </td>
-                                <td>1.90</td>
-                                <td>1</td>
-                                <td>15.50 M</td>
-                                <td>25%</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <img src="~/image/ThaiBankicon/SCB.png" alt="SCB" class="bank-logo">
-                                        <span>ธนาคารไทยพาณิชย์ จำกัด (มหาชน)</span>
-                                    </div>
-                                </td>
-                                <td>1.45</td>
-                                <td>1</td>
-                                <td>14.86 M</td>
-                                <td>25%</td>
                             </tr>
                         </tbody>
                     </table>

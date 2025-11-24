@@ -31,4 +31,24 @@ public class MasterManagementConfigProject
     {
         return _provider.sp_GetQueueBank_RegisterTable(en);
     }
+
+    public List<ListSummeryRegister.ListSummeryRegisterType> sp_GetQueueBank_SummeryRegisterType(GetQueueBankModel en)
+    {
+        return _provider.sp_GetQueueBank_SummeryRegisterType(en);
+    }
+
+    public List<ListSummeryRegister.ListSummeryRegisterLoanType> sp_GetQueueBank_SummeryRegisterLoanType(GetQueueBankModel en)
+    {
+        return _provider.sp_GetQueueBank_SummeryRegisterLoanType(en);
+    }
+
+    public List<ListSummeryRegister.ListSummeryRegisterCareerType> sp_GetQueueBank_SummeryRegisterCareerType(GetQueueBankModel en)
+    {
+        return _provider.sp_GetQueueBank_SummeryRegisterCareerType(en);
+    }
+
+    public List<ListSummeryRegister.ListSummeryRegisterBank> sp_GetQueueBank_SummeryRegisterBank(GetQueueBankModel en)
+    {
+        return _provider.sp_GetQueueBank_SummeryRegisterBank(en);
+    }
 }

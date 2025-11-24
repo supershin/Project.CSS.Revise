@@ -17,5 +17,6 @@
         public string L_CSResponse { get; set; } = string.Empty;
         public string L_UnitCS { get; set; } = string.Empty;
         public string L_ExpectTransfer { get; set; } = string.Empty;
+        public int L_QueueTypeID { get; set; } = 0;
     }
 }

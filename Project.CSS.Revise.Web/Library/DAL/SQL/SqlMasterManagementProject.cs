@@ -38,16 +38,16 @@ namespace Project.CSS.Revise.Web.Library.DAL.SQL
                     switch (en.L_Act)
                     {
                         case "GetListTargetRollingPlan":
-                        {
-                            if (en.IS_Export == true )
                             {
+                                if (en.IS_Export == true)
+                                {
                                     return sp_GetProjecTargetRollingPlanList_Getlisttable_ForExport_ListReader(ExecuteReader(SqlCmd));
+                                }
+                                else
+                                {
+                                    return sp_GetProjecTargetRollingPlanList_Getlisttable_ListReader(ExecuteReader(SqlCmd));
+                                }
                             }
-                            else
-                            {
-                                return sp_GetProjecTargetRollingPlanList_Getlisttable_ListReader(ExecuteReader(SqlCmd));
-                            }
-                        }
 
                         case "GetListTargetRollingPlanCuttoltal":
                             {
@@ -207,11 +207,11 @@ namespace Project.CSS.Revise.Web.Library.DAL.SQL
             sqlCmd.Parameters.Add(new SqlParameter("@ProjectID", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_ProjectID);
             sqlCmd.Parameters.Add(new SqlParameter("@RegisterDateStart", SqlDbType.NVarChar, 10)).Value = Commond.FormatExtension.NullToString(en.L_RegisterDateStart);
             sqlCmd.Parameters.Add(new SqlParameter("@RegisterDateEnd", SqlDbType.NVarChar, 10)).Value = Commond.FormatExtension.NullToString(en.L_RegisterDateEnd);
-            sqlCmd.Parameters.Add(new SqlParameter("@UnitID", SqlDbType.NVarChar, -1)) .Value = Commond.FormatExtension.NullToString(en.L_UnitID);
+            sqlCmd.Parameters.Add(new SqlParameter("@UnitID", SqlDbType.NVarChar, -1)).Value = Commond.FormatExtension.NullToString(en.L_UnitID);
             sqlCmd.Parameters.Add(new SqlParameter("@CSResponse", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_CSResponse);
             sqlCmd.Parameters.Add(new SqlParameter("@UnitCS", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_UnitCS);
             sqlCmd.Parameters.Add(new SqlParameter("@ExpectTransfer", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_ExpectTransfer);
-
+            sqlCmd.Parameters.Add(new SqlParameter("@QueueTypeID", SqlDbType.Int)).Value = en.L_QueueTypeID;
             // ===== paging params =====
             sqlCmd.Parameters.Add(new SqlParameter("@Start", SqlDbType.Int)).Value = en.start;
             sqlCmd.Parameters.Add(new SqlParameter("@Length", SqlDbType.Int)).Value = en.length;
@@ -251,5 +251,238 @@ namespace Project.CSS.Revise.Web.Library.DAL.SQL
             }
         }
 
+        public override List<ListSummeryRegister.ListSummeryRegisterType> sp_GetQueueBank_SummeryRegisterType(GetQueueBankModel en)
+        {
+            var result = new List<ListSummeryRegister.ListSummeryRegisterType>();
+
+            using var sqlCon = new SqlConnection(ConnectionString);
+            using var sqlCmd = new SqlCommand("sp_GetQueueBank", sqlCon)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            sqlCmd.Parameters.Add(new SqlParameter("@Act", SqlDbType.NVarChar, 50)).Value = Commond.FormatExtension.NullToString(en.L_Act);
+            sqlCmd.Parameters.Add(new SqlParameter("@ProjectID", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_ProjectID);
+            sqlCmd.Parameters.Add(new SqlParameter("@RegisterDateStart", SqlDbType.NVarChar, 10)).Value = Commond.FormatExtension.NullToString(en.L_RegisterDateStart);
+            sqlCmd.Parameters.Add(new SqlParameter("@RegisterDateEnd", SqlDbType.NVarChar, 10)).Value = Commond.FormatExtension.NullToString(en.L_RegisterDateEnd);
+            sqlCmd.Parameters.Add(new SqlParameter("@UnitID", SqlDbType.NVarChar, -1)).Value = Commond.FormatExtension.NullToString(en.L_UnitID);
+            sqlCmd.Parameters.Add(new SqlParameter("@CSResponse", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_CSResponse);
+            sqlCmd.Parameters.Add(new SqlParameter("@UnitCS", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_UnitCS);
+            sqlCmd.Parameters.Add(new SqlParameter("@ExpectTransfer", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_ExpectTransfer);
+            sqlCmd.Parameters.Add(new SqlParameter("@QueueTypeID", SqlDbType.Int)).Value = en.L_QueueTypeID;
+            // ===== paging params =====
+            sqlCmd.Parameters.Add(new SqlParameter("@Start", SqlDbType.Int)).Value = en.start;
+            sqlCmd.Parameters.Add(new SqlParameter("@Length", SqlDbType.Int)).Value = en.length;
+            sqlCmd.Parameters.Add(new SqlParameter("@SearchText", SqlDbType.NVarChar, 200)).Value = Commond.FormatExtension.NullToString(en.SearchTerm);
+            try
+            {
+                sqlCon.Open();
+                using var reader = ExecuteReader(sqlCmd);
+
+                switch (en.L_Act)
+                {
+                    case "SummeryRegisterType":
+                        result = sp_GetQueueBank_LisSummeryRegisterType(reader);
+                        break;
+
+                    default:
+                        result = new List<ListSummeryRegister.ListSummeryRegisterType>();
+                        break;
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Stored name : sp_GetQueueBank");
+                Log.Error("SEND Act: {Act}", en.L_Act);
+                Log.Error("SEND ProjectID: {ProjectID}", en.L_ProjectID);
+                Log.Error("SEND RegisterDate: {RegisterDateStart}", en.L_RegisterDateStart);
+                Log.Error("SEND RegisterDate: {RegisterDateEnd}", en.L_RegisterDateEnd);
+                Log.Error("SEND UnitID: {UnitID}", en.L_UnitID);
+                Log.Error("SEND CSResponse: {CSResponse}", en.L_CSResponse);
+                Log.Error("SEND UnitCS: {UnitCS}", en.L_UnitCS);
+                Log.Error("SEND ExpectTransfer: {ExpectTransfer}", en.L_ExpectTransfer);
+                Log.Error(ex, "Error executing sp_GetQueueBank");
+
+                return new List<ListSummeryRegister.ListSummeryRegisterType>();
+            }
+        }
+
+        public override List<ListSummeryRegister.ListSummeryRegisterLoanType> sp_GetQueueBank_SummeryRegisterLoanType(GetQueueBankModel en)
+        {
+            var result = new List<ListSummeryRegister.ListSummeryRegisterLoanType>();
+
+            using var sqlCon = new SqlConnection(ConnectionString);
+            using var sqlCmd = new SqlCommand("sp_GetQueueBank", sqlCon)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            sqlCmd.Parameters.Add(new SqlParameter("@Act", SqlDbType.NVarChar, 50)).Value = Commond.FormatExtension.NullToString(en.L_Act);
+            sqlCmd.Parameters.Add(new SqlParameter("@ProjectID", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_ProjectID);
+            sqlCmd.Parameters.Add(new SqlParameter("@RegisterDateStart", SqlDbType.NVarChar, 10)).Value = Commond.FormatExtension.NullToString(en.L_RegisterDateStart);
+            sqlCmd.Parameters.Add(new SqlParameter("@RegisterDateEnd", SqlDbType.NVarChar, 10)).Value = Commond.FormatExtension.NullToString(en.L_RegisterDateEnd);
+            sqlCmd.Parameters.Add(new SqlParameter("@UnitID", SqlDbType.NVarChar, -1)).Value = Commond.FormatExtension.NullToString(en.L_UnitID);
+            sqlCmd.Parameters.Add(new SqlParameter("@CSResponse", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_CSResponse);
+            sqlCmd.Parameters.Add(new SqlParameter("@UnitCS", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_UnitCS);
+            sqlCmd.Parameters.Add(new SqlParameter("@ExpectTransfer", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_ExpectTransfer);
+            sqlCmd.Parameters.Add(new SqlParameter("@QueueTypeID", SqlDbType.Int)).Value = en.L_QueueTypeID;
+            // ===== paging params =====
+            sqlCmd.Parameters.Add(new SqlParameter("@Start", SqlDbType.Int)).Value = en.start;
+            sqlCmd.Parameters.Add(new SqlParameter("@Length", SqlDbType.Int)).Value = en.length;
+            sqlCmd.Parameters.Add(new SqlParameter("@SearchText", SqlDbType.NVarChar, 200)).Value = Commond.FormatExtension.NullToString(en.SearchTerm);
+            try
+            {
+                sqlCon.Open();
+                using var reader = ExecuteReader(sqlCmd);
+
+                switch (en.L_Act)
+                {
+                    case "SummeryRegisterLoanType":
+                        result = sp_GetQueueBank_ListSummeryRegisterLoanType(reader);
+                        break;
+
+                    default:
+                        result = new List<ListSummeryRegister.ListSummeryRegisterLoanType>();
+                        break;
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Stored name : sp_GetQueueBank");
+                Log.Error("SEND Act: {Act}", en.L_Act);
+                Log.Error("SEND ProjectID: {ProjectID}", en.L_ProjectID);
+                Log.Error("SEND RegisterDate: {RegisterDateStart}", en.L_RegisterDateStart);
+                Log.Error("SEND RegisterDate: {RegisterDateEnd}", en.L_RegisterDateEnd);
+                Log.Error("SEND UnitID: {UnitID}", en.L_UnitID);
+                Log.Error("SEND CSResponse: {CSResponse}", en.L_CSResponse);
+                Log.Error("SEND UnitCS: {UnitCS}", en.L_UnitCS);
+                Log.Error("SEND ExpectTransfer: {ExpectTransfer}", en.L_ExpectTransfer);
+                Log.Error(ex, "Error executing sp_GetQueueBank");
+
+                return new List<ListSummeryRegister.ListSummeryRegisterLoanType>();
+            }
+        }
+
+        public override List<ListSummeryRegister.ListSummeryRegisterCareerType> sp_GetQueueBank_SummeryRegisterCareerType(GetQueueBankModel en)
+        {
+            var result = new List<ListSummeryRegister.ListSummeryRegisterCareerType>();
+
+            using var sqlCon = new SqlConnection(ConnectionString);
+            using var sqlCmd = new SqlCommand("sp_GetQueueBank", sqlCon)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            sqlCmd.Parameters.Add(new SqlParameter("@Act", SqlDbType.NVarChar, 50)).Value = Commond.FormatExtension.NullToString(en.L_Act);
+            sqlCmd.Parameters.Add(new SqlParameter("@ProjectID", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_ProjectID);
+            sqlCmd.Parameters.Add(new SqlParameter("@RegisterDateStart", SqlDbType.NVarChar, 10)).Value = Commond.FormatExtension.NullToString(en.L_RegisterDateStart);
+            sqlCmd.Parameters.Add(new SqlParameter("@RegisterDateEnd", SqlDbType.NVarChar, 10)).Value = Commond.FormatExtension.NullToString(en.L_RegisterDateEnd);
+            sqlCmd.Parameters.Add(new SqlParameter("@UnitID", SqlDbType.NVarChar, -1)).Value = Commond.FormatExtension.NullToString(en.L_UnitID);
+            sqlCmd.Parameters.Add(new SqlParameter("@CSResponse", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_CSResponse);
+            sqlCmd.Parameters.Add(new SqlParameter("@UnitCS", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_UnitCS);
+            sqlCmd.Parameters.Add(new SqlParameter("@ExpectTransfer", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_ExpectTransfer);
+            sqlCmd.Parameters.Add(new SqlParameter("@QueueTypeID", SqlDbType.Int)).Value = en.L_QueueTypeID;
+            // ===== paging params =====
+            sqlCmd.Parameters.Add(new SqlParameter("@Start", SqlDbType.Int)).Value = en.start;
+            sqlCmd.Parameters.Add(new SqlParameter("@Length", SqlDbType.Int)).Value = en.length;
+            sqlCmd.Parameters.Add(new SqlParameter("@SearchText", SqlDbType.NVarChar, 200)).Value = Commond.FormatExtension.NullToString(en.SearchTerm);
+            try
+            {
+                sqlCon.Open();
+                using var reader = ExecuteReader(sqlCmd);
+
+                switch (en.L_Act)
+                {
+                    case "SummeryRegisterCareerType":
+                        result = sp_GetQueueBank_ListSummeryRegisterCareerType(reader);
+                        break;
+
+                    default:
+                        result = new List<ListSummeryRegister.ListSummeryRegisterCareerType>();
+                        break;
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Stored name : sp_GetQueueBank");
+                Log.Error("SEND Act: {Act}", en.L_Act);
+                Log.Error("SEND ProjectID: {ProjectID}", en.L_ProjectID);
+                Log.Error("SEND RegisterDate: {RegisterDateStart}", en.L_RegisterDateStart);
+                Log.Error("SEND RegisterDate: {RegisterDateEnd}", en.L_RegisterDateEnd);
+                Log.Error("SEND UnitID: {UnitID}", en.L_UnitID);
+                Log.Error("SEND CSResponse: {CSResponse}", en.L_CSResponse);
+                Log.Error("SEND UnitCS: {UnitCS}", en.L_UnitCS);
+                Log.Error("SEND ExpectTransfer: {ExpectTransfer}", en.L_ExpectTransfer);
+                Log.Error(ex, "Error executing sp_GetQueueBank");
+
+                return new List<ListSummeryRegister.ListSummeryRegisterCareerType>();
+            }
+        }
+
+        public override List<ListSummeryRegister.ListSummeryRegisterBank> sp_GetQueueBank_SummeryRegisterBank(GetQueueBankModel en)
+        {
+            var result = new List<ListSummeryRegister.ListSummeryRegisterBank>();
+
+            using var sqlCon = new SqlConnection(ConnectionString);
+            using var sqlCmd = new SqlCommand("sp_GetQueueBank", sqlCon)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            sqlCmd.Parameters.Add(new SqlParameter("@Act", SqlDbType.NVarChar, 50)).Value = Commond.FormatExtension.NullToString(en.L_Act);
+            sqlCmd.Parameters.Add(new SqlParameter("@ProjectID", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_ProjectID);
+            sqlCmd.Parameters.Add(new SqlParameter("@RegisterDateStart", SqlDbType.NVarChar, 10)).Value = Commond.FormatExtension.NullToString(en.L_RegisterDateStart);
+            sqlCmd.Parameters.Add(new SqlParameter("@RegisterDateEnd", SqlDbType.NVarChar, 10)).Value = Commond.FormatExtension.NullToString(en.L_RegisterDateEnd);
+            sqlCmd.Parameters.Add(new SqlParameter("@UnitID", SqlDbType.NVarChar, -1)).Value = Commond.FormatExtension.NullToString(en.L_UnitID);
+            sqlCmd.Parameters.Add(new SqlParameter("@CSResponse", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_CSResponse);
+            sqlCmd.Parameters.Add(new SqlParameter("@UnitCS", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_UnitCS);
+            sqlCmd.Parameters.Add(new SqlParameter("@ExpectTransfer", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_ExpectTransfer);
+            sqlCmd.Parameters.Add(new SqlParameter("@QueueTypeID", SqlDbType.Int)).Value = en.L_QueueTypeID;
+            // ===== paging params =====
+            sqlCmd.Parameters.Add(new SqlParameter("@Start", SqlDbType.Int)).Value = en.start;
+            sqlCmd.Parameters.Add(new SqlParameter("@Length", SqlDbType.Int)).Value = en.length;
+            sqlCmd.Parameters.Add(new SqlParameter("@SearchText", SqlDbType.NVarChar, 200)).Value = Commond.FormatExtension.NullToString(en.SearchTerm);
+            try
+            {
+                sqlCon.Open();
+                using var reader = ExecuteReader(sqlCmd);
+
+                switch (en.L_Act)
+                {
+                    case "SummeryRegisterBank":
+                        result = sp_GetQueueBank_ListSummeryRegisterBank(reader);
+                        break;
+
+                    default:
+                        result = new List<ListSummeryRegister.ListSummeryRegisterBank>();
+                        break;
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Stored name : sp_GetQueueBank");
+                Log.Error("SEND Act: {Act}", en.L_Act);
+                Log.Error("SEND ProjectID: {ProjectID}", en.L_ProjectID);
+                Log.Error("SEND RegisterDate: {RegisterDateStart}", en.L_RegisterDateStart);
+                Log.Error("SEND RegisterDate: {RegisterDateEnd}", en.L_RegisterDateEnd);
+                Log.Error("SEND UnitID: {UnitID}", en.L_UnitID);
+                Log.Error("SEND CSResponse: {CSResponse}", en.L_CSResponse);
+                Log.Error("SEND UnitCS: {UnitCS}", en.L_UnitCS);
+                Log.Error("SEND ExpectTransfer: {ExpectTransfer}", en.L_ExpectTransfer);
+                Log.Error(ex, "Error executing sp_GetQueueBank");
+
+                return new List<ListSummeryRegister.ListSummeryRegisterBank>();
+            }
+        }
     }
+
+
 }

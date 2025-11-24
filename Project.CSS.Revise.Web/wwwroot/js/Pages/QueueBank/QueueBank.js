@@ -372,8 +372,6 @@ function initQueueBankRegisterTable() {
 //    initQueueBankRegisterTable();
 //});
 
-
-
 // ===== Helpers =====
 function qbGetValues() {
     const get = (sel) => (window.QB_CHOICES[sel]?.getValue(true)) || [];
@@ -433,6 +431,8 @@ function wireButtons() {
     if (btnSearch) {
         btnSearch.addEventListener("click", () => {
             loadQueueBankRegisterTable();
+            loadSummaryRegisterAll();   // ⭐ ดึงสรุปใหม่ตาม filter ทุกครั้งที่กด Search
+            loadSummaryRegisterBank();
         });
     }
 
@@ -445,7 +445,6 @@ function wireButtons() {
         });
     }
 }
-
 
 function openCreateRegister() {
     const m = new bootstrap.Modal(document.getElementById('modalCreateRegister'));
@@ -478,6 +477,247 @@ document.addEventListener('click', function (e) {
 });
 
 
+
+// ===== Summary Register (Top 4 boxes) =====
+// ===== Summary Register (ทั้ง 2 แถว) =====
+
+// format ตัวเลขมูลค่าให้เป็น "xx.xx M"
+function qbFormatValueM(raw) {
+    if (raw == null || raw === "") return "0.00 M";
+    const num = Number(raw);
+    if (Number.isNaN(num)) return raw;
+
+    const m = num / 1_000_000;
+
+    return m.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }) + " M";
+}
+
+function qbUpdateSummaryBox(prefix, data) {
+    const unitEl = document.getElementById(`sum-${prefix}-unit`);
+    const valueEl = document.getElementById(`sum-${prefix}-value`);
+    const percentEl = document.getElementById(`sum-${prefix}-percent`);
+
+    const unit = data?.Unit ?? "0";
+    const value = data?.Value ?? "0";
+    const percent = data?.Percent ?? "0";
+
+    if (unitEl) unitEl.textContent = unit;
+    if (valueEl) valueEl.textContent = qbFormatValueM(value);
+    if (percentEl) percentEl.textContent = `${percent}%`;
+}
+
+// helper: map list ตาม Topic (lowercase + trim)
+function qbMapByTopic(list) {
+    const map = {};
+    (list || []).forEach(x => {
+        const key = (x.Topic || "").trim().toLowerCase();
+        if (key) map[key] = x;
+    });
+    return map;
+}
+
+function loadSummaryRegisterAll() {
+    const filters = qbGetValues();
+
+    let projectId = filters.Project;
+    if (Array.isArray(projectId)) {
+        projectId = projectId[0] || "";
+    }
+
+    const formData = new FormData();
+    // ==== QueueBank filters ====
+    formData.append("L_Act", "SummeryRegisterType"); // controller จะ clone model เองอยู่แล้ว
+    formData.append("L_ProjectID", projectId || "");
+    formData.append("L_RegisterDateStart", filters.RegisterDateStart || "");
+    formData.append("L_RegisterDateEnd", filters.RegisterDateEnd || "");
+    formData.append("L_UnitID", (filters.UnitCode || []).join(","));
+    formData.append("L_CSResponse", (filters.CSResponsible || []).join(","));
+    formData.append("L_UnitCS", (filters.UnitStatusCS || []).join(","));
+    formData.append("L_ExpectTransfer", (filters.ExpectTransferBy || []).join(","));
+
+    // QueueTypeID หน้า Bank = 48
+    formData.append("L_QueueTypeID", "48");
+
+    // dataTables params (SP ไม่ได้ใช้ แต่ model ต้องมี)
+    formData.append("draw", "1");
+    formData.append("start", "0");
+    formData.append("length", "10");
+    formData.append("SearchTerm", "");
+
+    if (typeof showLoading === "function") {
+        showLoading();
+    }
+
+    fetch(baseUrl + "QueueBank/GetlistSummeryRegister", {
+        method: "POST",
+        body: formData
+    })
+        .then(r => r.json())
+        .then(res => {
+            // 1) Type: Register / Queue / In Process / Done
+            const typeList = res.listDataSummeryRegisterType || [];
+            const typeMap = qbMapByTopic(typeList);
+
+            qbUpdateSummaryBox("register", typeMap["register"]);
+            qbUpdateSummaryBox("queue", typeMap["queue"]);
+            qbUpdateSummaryBox("inprocess", typeMap["in process"]);
+            qbUpdateSummaryBox("done", typeMap["done"]);
+
+            // 2) LoanType: ยื่น / ไม่ยื่น
+            const loanList = res.listDataSummeryRegisterLoanTyp || [];
+            const loanMap = qbMapByTopic(loanList);
+
+            // key เป็นภาษาไทยใน Topic จาก SP
+            qbUpdateSummaryBox("loan-yes", loanMap["ยื่น"]);
+            qbUpdateSummaryBox("loan-no", loanMap["ไม่ยื่น"]);
+
+            // 3) CareerType: รายได้ประจำ / เจ้าของกิจการ / อาชีพอิสระ
+            const careerList = res.listDataSummeryRegisterCareerTyp || [];
+            const careerMap = qbMapByTopic(careerList);
+
+            qbUpdateSummaryBox("career-freelance", careerMap["อาชีพอิสระ"]);
+            qbUpdateSummaryBox("career-salary", careerMap["รายได้ประจำ"]);
+            qbUpdateSummaryBox("career-owner", careerMap["เจ้าของกิจการ"]);
+        })
+        .catch(err => {
+            console.error("GetlistSummeryRegister error:", err);
+            // ถ้า error ให้เคลียร์ทุกกล่องเป็น 0 กันค่าค้าง
+
+            // แถวบน
+            qbUpdateSummaryBox("register", null);
+            qbUpdateSummaryBox("queue", null);
+            qbUpdateSummaryBox("inprocess", null);
+            qbUpdateSummaryBox("done", null);
+
+            // แถวล่าง loan
+            qbUpdateSummaryBox("loan-yes", null);
+            qbUpdateSummaryBox("loan-no", null);
+
+            // แถวล่าง career
+            qbUpdateSummaryBox("career-freelance", null);
+            qbUpdateSummaryBox("career-salary", null);
+            qbUpdateSummaryBox("career-owner", null);
+        })
+        .finally(() => {
+            if (typeof hideLoading === "function") {
+                hideLoading();
+            }
+        });
+}
+
+// ===== Summary Bank (table) =====
+
+function loadSummaryRegisterBank() {
+    const filters = qbGetValues();
+
+    let projectId = filters.Project;
+    if (Array.isArray(projectId)) {
+        projectId = projectId[0] || "";
+    }
+
+    const formData = new FormData();
+
+    // ==== QueueBank filters (เหมือนตัวอื่น) ====
+    formData.append("L_Act", "SummeryRegisterBank");
+    formData.append("L_ProjectID", projectId || "");
+    formData.append("L_RegisterDateStart", filters.RegisterDateStart || "");
+    formData.append("L_RegisterDateEnd", filters.RegisterDateEnd || "");
+    formData.append("L_UnitID", (filters.UnitCode || []).join(","));
+    formData.append("L_CSResponse", (filters.CSResponsible || []).join(","));
+    formData.append("L_UnitCS", (filters.UnitStatusCS || []).join(","));
+    formData.append("L_ExpectTransfer", (filters.ExpectTransferBy || []).join(","));
+
+    // Queue type ของหน้า Bank = 48
+    formData.append("L_QueueTypeID", "48");
+
+    // ==== DataTables params (ให้ model ครบเฉย ๆ) ====
+    formData.append("draw", "1");
+    formData.append("start", "0");
+    formData.append("length", "1000"); // เอามาหมดพอใช้ summary
+    formData.append("SearchTerm", "");
+
+    if (typeof showLoading === "function") {
+        showLoading();
+    }
+
+    fetch(baseUrl + "QueueBank/GetlistSummeryRegisterBank", {
+        method: "POST",
+        body: formData
+    })
+        .then(r => r.json())
+        .then(res => {
+            const tbody = document.getElementById("summary-bank-body");
+            if (!tbody) return;
+
+            // ⚠️ controller คืนชื่อ property ว่า listDataSummeryRegisterType
+            const list = res.listDataSummeryRegisterType || [];
+
+            if (!list.length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">No data</td>
+                    </tr>`;
+                return;
+            }
+
+            const rowsHtml = list.map(item => {
+                const bankCode = (item.BankCode || "").trim();
+                const bankName = item.BankName || "";
+                const unit = item.Unit || "0";          // จำนวนยูนิต
+                const valueText = qbFormatValueM(item.Value); // มูลค่า → xx,xxx.xx M
+                const percentText = (item.Percent || "0") + "%";
+
+                // ช่องธนาคาร: ถ้า BankCode = 'No data' ไม่ต้องโชว์โลโก้
+                let bankCellHtml = "";
+                if (bankCode && bankCode.toLowerCase() !== "no data") {
+                    bankCellHtml = `
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="${baseUrl}image/ThaiBankicon/${bankCode}.png"
+                                 alt="${bankCode}"
+                                 class="bank-logo">
+                            <span>${bankName || bankCode}</span>
+                        </div>`;
+                } else {
+                    bankCellHtml = `<span>${bankName || "No data"}</span>`;
+                }
+
+                // ตอนนี้คอลัมน์ "อัตราดอกเบี้ยเฉลี่ย 3 ปี" ยังไม่มีข้อมูลจาก SP
+                // เลยใส่ "Waiting ask user" ไว้เหมือน mock เดิม
+                return `
+                    <tr>
+                        <td>${bankCellHtml}</td>
+                        <td>Waiting ask user</td>
+                        <td>${unit}</td>
+                        <td>${valueText}</td>
+                        <td>${percentText}</td>
+                    </tr>`;
+            }).join("");
+
+            tbody.innerHTML = rowsHtml;
+        })
+        .catch(err => {
+            console.error("GetlistSummeryRegisterBank error:", err);
+            const tbody = document.getElementById("summary-bank-body");
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center text-danger">
+                            Error loading Summary Bank
+                        </td>
+                    </tr>`;
+            }
+        })
+        .finally(() => {
+            if (typeof hideLoading === "function") {
+                hideLoading();
+            }
+        });
+}
+
+
 // ===== Boot =====
 (function boot() {
     const run = () => {
@@ -492,6 +732,10 @@ document.addEventListener('click', function (e) {
         } else {
             console.warn("DataTables not loaded. Please include jquery.dataTables.js and css.");
         }
+
+        // ⭐ โหลด summary ครั้งแรกตอนเปิดหน้า (ใช้ค่า default filter)
+        loadSummaryRegisterAll();
+        loadSummaryRegisterBank();
     };
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run);
     else run();

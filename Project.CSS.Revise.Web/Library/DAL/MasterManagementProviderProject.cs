@@ -28,7 +28,6 @@ namespace Project.CSS.Revise.Web.Library.DAL
         }
 
 
-
         public MasterManagementProviderProject(IConfiguration configuration) : base(configuration)
         {
             _configuration = configuration;
@@ -41,6 +40,14 @@ namespace Project.CSS.Revise.Web.Library.DAL
         public abstract SPGetDataCSResponse.ListData sp_GetDataCSResponse(SPGetDataCSResponse.FilterData en);
 
         public abstract List<ListDataRegisterTable> sp_GetQueueBank_RegisterTable(GetQueueBankModel en);
+
+        public abstract List<ListSummeryRegister.ListSummeryRegisterType> sp_GetQueueBank_SummeryRegisterType(GetQueueBankModel en);
+
+        public abstract List<ListSummeryRegister.ListSummeryRegisterLoanType> sp_GetQueueBank_SummeryRegisterLoanType(GetQueueBankModel en);
+
+        public abstract List<ListSummeryRegister.ListSummeryRegisterCareerType> sp_GetQueueBank_SummeryRegisterCareerType(GetQueueBankModel en);
+
+        public abstract List<ListSummeryRegister.ListSummeryRegisterBank> sp_GetQueueBank_SummeryRegisterBank(GetQueueBankModel en);
 
         #region __ Reader __
 
@@ -278,7 +285,7 @@ namespace Project.CSS.Revise.Web.Library.DAL
             Entity.index = index;
             Entity.PlanTypeName = Commond.FormatExtension.NullToString(reader["PlanTypeName"]);
             Entity.PlanAmountName = Commond.FormatExtension.NullToString(reader["PlanAmountName"]);
-            Entity.TOTAL = Commond.FormatExtension.ConvertToShortUnitV2(reader["TOTAL"],Entity.PlanAmountName);
+            Entity.TOTAL = Commond.FormatExtension.ConvertToShortUnitV2(reader["TOTAL"], Entity.PlanAmountName);
             Entity.COLORS = Commond.FormatExtension.NullToString(reader["COLORS"]);
 
             return Entity;
@@ -401,6 +408,114 @@ namespace Project.CSS.Revise.Web.Library.DAL
         }
 
 
+        public static List<ListSummeryRegister.ListSummeryRegisterType> sp_GetQueueBank_LisSummeryRegisterType(IDataReader reader)
+        {
+            var list = new List<ListSummeryRegister.ListSummeryRegisterType>();
+            int index = 1;
+
+            while (reader.Read())
+            {
+                list.Add(sp_GetQueueBank_ListSummeryRegisterType_Reader(reader, index));
+                index++;
+            }
+
+            reader.Close();
+            return list;
+        }
+
+        private static ListSummeryRegister.ListSummeryRegisterType sp_GetQueueBank_ListSummeryRegisterType_Reader(IDataReader reader, int index)
+        {
+            var entity = new ListSummeryRegister.ListSummeryRegisterType();
+
+            entity.Topic = Commond.FormatExtension.NullToString(reader["Topic"]);
+            entity.Unit = Commond.FormatExtension.NullToString(reader["Value"]);
+            entity.Value = Commond.FormatExtension.NullToString(reader["SellingPriceSum"]);
+            entity.Percent = Commond.FormatExtension.NullToString(reader["PercentValue"]);
+
+            return entity;
+        }
+
+        public static List<ListSummeryRegister.ListSummeryRegisterLoanType> sp_GetQueueBank_ListSummeryRegisterLoanType(IDataReader reader)
+        {
+            var list = new List<ListSummeryRegister.ListSummeryRegisterLoanType>();
+            int index = 1;
+
+            while (reader.Read())
+            {
+                list.Add(sp_GetQueueBank_ListSummeryRegisterLoanType_Reader(reader, index));
+                index++;
+            }
+
+            reader.Close();
+            return list;
+        }
+
+        private static ListSummeryRegister.ListSummeryRegisterLoanType sp_GetQueueBank_ListSummeryRegisterLoanType_Reader(IDataReader reader, int index)
+        {
+            var entity = new ListSummeryRegister.ListSummeryRegisterLoanType();
+
+            entity.Topic = Commond.FormatExtension.NullToString(reader["Topic"]);
+            entity.Unit = Commond.FormatExtension.NullToString(reader["Value"]);
+            entity.Value = Commond.FormatExtension.NullToString(reader["SellingPriceSum"]);
+            entity.Percent = Commond.FormatExtension.NullToString(reader["PercentValue"]);
+
+            return entity;
+        }
+
+        public static List<ListSummeryRegister.ListSummeryRegisterCareerType> sp_GetQueueBank_ListSummeryRegisterCareerType(IDataReader reader)
+        {
+            var list = new List<ListSummeryRegister.ListSummeryRegisterCareerType>();
+            int index = 1;
+
+            while (reader.Read())
+            {
+                list.Add(sp_GetQueueBank_ListSummeryRegisterCareerType_Reader(reader, index));
+                index++;
+            }
+
+            reader.Close();
+            return list;
+        }
+
+        private static ListSummeryRegister.ListSummeryRegisterCareerType sp_GetQueueBank_ListSummeryRegisterCareerType_Reader(IDataReader reader, int index)
+        {
+            var entity = new ListSummeryRegister.ListSummeryRegisterCareerType();
+
+            entity.Topic = Commond.FormatExtension.NullToString(reader["Topic"]);
+            entity.Unit = Commond.FormatExtension.NullToString(reader["Value"]);
+            entity.Value = Commond.FormatExtension.NullToString(reader["SellingPriceSum"]);
+            entity.Percent = Commond.FormatExtension.NullToString(reader["PercentValue"]);
+
+            return entity;
+        }
+
+        public static List<ListSummeryRegister.ListSummeryRegisterBank> sp_GetQueueBank_ListSummeryRegisterBank(IDataReader reader)
+        {
+            var list = new List<ListSummeryRegister.ListSummeryRegisterBank>();
+            int index = 1;
+
+            while (reader.Read())
+            {
+                list.Add(sp_GetQueueBank_ListSummeryRegisterBank_Reader(reader, index));
+                index++;
+            }
+
+            reader.Close();
+            return list;
+        }
+
+        private static ListSummeryRegister.ListSummeryRegisterBank sp_GetQueueBank_ListSummeryRegisterBank_Reader(IDataReader reader, int index)
+        {
+            var entity = new ListSummeryRegister.ListSummeryRegisterBank();
+
+            entity.BankCode = Commond.FormatExtension.NullToString(reader["BankCode"]);
+            entity.BankName = Commond.FormatExtension.NullToString(reader["BankName"]);
+            entity.Value = Commond.FormatExtension.NullToString(reader["SellingPriceSum"]);
+            entity.Unit = Commond.FormatExtension.NullToString(reader["Value"]);
+            entity.Percent = Commond.FormatExtension.NullToString(reader["PercentValue"]);
+
+            return entity;
+        }
         #endregion
     }
 }

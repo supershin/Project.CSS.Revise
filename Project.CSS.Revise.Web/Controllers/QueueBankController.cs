@@ -81,7 +81,100 @@ namespace Project.CSS.Revise.Web.Controllers
             });
         }
 
+        [HttpPost]
+        public async Task<JsonResult> GetlistSummeryRegister([FromForm] GetQueueBankModel model)
+        {
+            // ถ้าต้องใช้ L_Act ต่างกัน ให้ clone model แต่ละตัว
+            var typeModel = new GetQueueBankModel
+            {
+                L_Act = "SummeryRegisterType",
+                L_ProjectID = model.L_ProjectID,
+                L_RegisterDateStart = model.L_RegisterDateStart,
+                L_RegisterDateEnd = model.L_RegisterDateEnd,
+                L_UnitID = model.L_UnitID,
+                L_CSResponse = model.L_CSResponse,
+                L_UnitCS = model.L_UnitCS,
+                L_ExpectTransfer = model.L_ExpectTransfer,
+                L_QueueTypeID = model.L_QueueTypeID,
+                start = model.start,
+                length = model.length,
+                SearchTerm = model.SearchTerm
+            };
 
+            var loanModel = new GetQueueBankModel
+            {
+                L_Act = "SummeryRegisterLoanType",
+                L_ProjectID = model.L_ProjectID,
+                L_RegisterDateStart = model.L_RegisterDateStart,
+                L_RegisterDateEnd = model.L_RegisterDateEnd,
+                L_UnitID = model.L_UnitID,
+                L_CSResponse = model.L_CSResponse,
+                L_UnitCS = model.L_UnitCS,
+                L_ExpectTransfer = model.L_ExpectTransfer,
+                L_QueueTypeID = model.L_QueueTypeID,
+                start = model.start,
+                length = model.length,
+                SearchTerm = model.SearchTerm
+            };
 
+            var careerModel = new GetQueueBankModel
+            {
+                L_Act = "SummeryRegisterCareerType",
+                L_ProjectID = model.L_ProjectID,
+                L_RegisterDateStart = model.L_RegisterDateStart,
+                L_RegisterDateEnd = model.L_RegisterDateEnd,
+                L_UnitID = model.L_UnitID,
+                L_CSResponse = model.L_CSResponse,
+                L_UnitCS = model.L_UnitCS,
+                L_ExpectTransfer = model.L_ExpectTransfer,
+                L_QueueTypeID = model.L_QueueTypeID,
+                start = model.start,
+                length = model.length,
+                SearchTerm = model.SearchTerm
+            };
+
+            // รัน 3 ตัวคู่ขนาน (ยังใช้ DAL sync เดิม แต่ขนานกัน)
+            var typeTask = Task.Run(() => _configProject.sp_GetQueueBank_SummeryRegisterType(typeModel));
+            var loanTask = Task.Run(() => _configProject.sp_GetQueueBank_SummeryRegisterLoanType(loanModel));
+            var careerTask = Task.Run(() => _configProject.sp_GetQueueBank_SummeryRegisterCareerType(careerModel));
+
+            await Task.WhenAll(typeTask, loanTask, careerTask);
+
+            var listDataSummeryRegisterType = typeTask.Result;
+            var listDataSummeryRegisterLoanTyp = loanTask.Result;
+            var listDataSummeryRegisterCareerTyp = careerTask.Result;
+
+            return Json(new
+            {
+                listDataSummeryRegisterType = listDataSummeryRegisterType,
+                listDataSummeryRegisterLoanTyp = listDataSummeryRegisterLoanTyp,
+                listDataSummeryRegisterCareerTyp = listDataSummeryRegisterCareerTyp
+            });
+        }
+
+        [HttpPost]
+        public JsonResult GetlistSummeryRegisterBank([FromForm] GetQueueBankModel model)
+        {
+
+            var BankModel = new GetQueueBankModel
+            {
+                L_Act = "SummeryRegisterBank",
+                L_ProjectID = model.L_ProjectID,
+                L_RegisterDateStart = model.L_RegisterDateStart,
+                L_RegisterDateEnd = model.L_RegisterDateEnd,
+                L_UnitID = model.L_UnitID,
+                L_CSResponse = model.L_CSResponse,
+                L_UnitCS = model.L_UnitCS,
+                L_ExpectTransfer = model.L_ExpectTransfer,
+                L_QueueTypeID = model.L_QueueTypeID,
+                start = model.start,
+                length = model.length,
+                SearchTerm = model.SearchTerm
+            };
+
+            var listDataSummeryRegisterType = _configProject.sp_GetQueueBank_SummeryRegisterBank(BankModel);
+
+            return Json(new{listDataSummeryRegisterType = listDataSummeryRegisterType});
+        }
     }
 }
