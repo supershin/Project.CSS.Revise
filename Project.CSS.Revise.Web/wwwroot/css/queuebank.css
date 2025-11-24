@@ -507,6 +507,11 @@ flex: 1;
     border-radius: 8px;
 }
 
-    #cr-modal .cr-cancel:hover {
-        background: #e2e2e2;
-    }
+#cr-modal .cr-cancel:hover {
+    background: #e2e2e2;
+}
+
+
+#modalCreateRegister {
+    z-index: 9999 !important;
+}

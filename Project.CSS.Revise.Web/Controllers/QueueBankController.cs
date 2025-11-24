@@ -15,17 +15,20 @@ namespace Project.CSS.Revise.Web.Controllers
         private readonly ICSResponseService _csResponseServic;
         private readonly IUserAndPermissionService _userAndPermissionService;
         private readonly MasterManagementConfigProject _configProject;
+        private readonly IQueueBankService _queueBankService;
 
         public QueueBankController(IHttpContextAccessor httpContextAccessor
                           , IMasterService masterService
                           , ICSResponseService csResponseServic
                           , MasterManagementConfigProject configProject
-                          , IUserAndPermissionService userAndPermissionService) : base(httpContextAccessor)
+                          , IUserAndPermissionService userAndPermissionService
+                          , IQueueBankService queueBankService) : base(httpContextAccessor)
         {
             _masterService = masterService;
             _csResponseServic = csResponseServic;
             _configProject = configProject;
             _userAndPermissionService = userAndPermissionService;
+            _queueBankService = queueBankService;
         }
         public IActionResult Index()
         {
@@ -38,7 +41,7 @@ namespace Project.CSS.Revise.Web.Controllers
             var listUnitstatuscs = _masterService.GetlisDDl(new GetDDLModel { Act = "Ext", ID = 16 });
             ViewBag.listUnitstatuscs = listUnitstatuscs;
 
-            var listgCSRespons = _masterService.GetlisDDl(new GetDDLModel { Act = "listAllCSUser"});
+            var listgCSRespons = _masterService.GetlisDDl(new GetDDLModel { Act = "listAllCSUser" });
             ViewBag.listgCSRespons = listgCSRespons;
 
             return View();
@@ -174,7 +177,63 @@ namespace Project.CSS.Revise.Web.Controllers
 
             var listDataSummeryRegisterType = _configProject.sp_GetQueueBank_SummeryRegisterBank(BankModel);
 
-            return Json(new{listDataSummeryRegisterType = listDataSummeryRegisterType});
+            return Json(new { listDataSummeryRegisterType = listDataSummeryRegisterType });
+        }
+
+        [HttpPost]
+        public JsonResult GetlistCreateRegisterTable([FromForm] GetQueueBankModel model)
+        {
+            var bankModel = new GetQueueBankModel
+            {
+                L_Act = "CreateRegisterTable",
+                L_ProjectID = model.L_ProjectID,
+                L_RegisterDateStart = "",
+                L_RegisterDateEnd = "",
+                L_UnitID = "",
+                L_CSResponse = "",
+                L_UnitCS = "",
+                L_ExpectTransfer = "",
+                start = model.start,
+                length = model.length,
+                SearchTerm = model.SearchTerm
+            };
+
+            var result = _configProject.sp_GetQueueBank_CreateRegisterTable(bankModel)
+                         ?? new List<ListCreateRegisterTableModel>();
+
+            int total = 0;
+            int filtered = 0;
+
+            if (result.Count > 0)
+            {
+                // ใช้ค่าจาก SP ถ้ามี
+                if (result[0].TotalRecords > 0)
+                {
+                    total = result[0].TotalRecords;
+                    filtered = result[0].FilteredRecords;
+                }
+                else
+                {
+                    total = filtered = result.Count;
+                }
+            }
+
+            return Json(new
+            {
+                draw = model.draw,
+                recordsTotal = total,
+                recordsFiltered = filtered,
+                data = result
+            });
+        }
+
+
+
+        [HttpPost]
+        public JsonResult GetListUnitForRegisterBankTable(string ProjectID)
+        {
+            var ListUnitForRegisterBankTable = _queueBankService.GetListUnitForRegisterBank(ProjectID);
+            return Json(new { ListUnitForRegisterBankTable = ListUnitForRegisterBankTable});
         }
     }
 }

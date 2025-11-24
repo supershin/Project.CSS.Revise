@@ -202,6 +202,9 @@ function initFilterDropdowns() {
     createChoice("#ddl_UnitCode", { placeholderValue: "Select Unit Code…" });
     createChoice("#ddl_ExpectTransferBy", { placeholderValue: "Select Expect Transfer By…" });
 
+    // 🔥 NEW: multi-select ใน modal Create Register
+    createChoice("#DDLUnitCode", { placeholderValue: "Select Unit Code for Register…" });
+
     // ✅ สำคัญ: BUG เปลี่ยน -> โหลด Project ใหม่ (รวมเคส deselect ทั้งหมดด้วย)
     if (bugInst) {
         const bugEl = bugInst.passedElement.element; // original <select>
@@ -227,6 +230,7 @@ function loadQueueBankRegisterTable() {
 
 
 let QueueBankRegisterTableDt = null;
+let CreateRegisterTableDt = null;   
 
 function initQueueBankRegisterTable() {
     QueueBankRegisterTableDt = $('#QueueBankRegisterTable').DataTable({
@@ -365,6 +369,104 @@ function initQueueBankRegisterTable() {
     });
 }
 
+function initCreateRegisterTable() {
+    if (CreateRegisterTableDt) {
+        // ถ้าเคย init แล้ว แค่ reload ด้วย filter ปัจจุบัน
+        CreateRegisterTableDt.ajax.reload();
+        return;
+    }
+
+    CreateRegisterTableDt = $('#crTable').DataTable({
+        processing: true,
+        serverSide: true,     // ✅ ใช้ server-side เหมือน RegisterTable
+        searching: true,
+        lengthChange: true,
+        pageLength: 10,
+        ordering: false,
+        autoWidth: false,
+        scrollX: true,
+        ajax: function (data, callback, settings) {
+
+            const filters = qbGetValues();
+            let projectId = filters.Project;
+            if (Array.isArray(projectId)) {
+                projectId = projectId[0] || "";
+            }
+
+            const formData = new FormData();
+            // ===== DataTables params =====
+            formData.append("draw", data.draw);
+            formData.append("start", data.start);
+            formData.append("length", data.length);
+            formData.append("SearchTerm",
+                (data.search && data.search.value)
+                    ? data.search.value.trim()
+                    : ""
+            );
+
+            // ===== Filters =====
+            formData.append("L_ProjectID", projectId || "");
+
+            if (typeof showLoading === "function") {
+                showLoading();
+            }
+
+            fetch(baseUrl + "QueueBank/GetlistCreateRegisterTable", {
+                method: "POST",
+                body: formData
+            })
+                .then(r => r.json())
+                .then(res => {
+                    callback({
+                        draw: res.draw,
+                        recordsTotal: res.recordsTotal || 0,
+                        recordsFiltered: res.recordsFiltered || 0,
+                        data: res.data || []
+                    });
+                })
+                .catch(err => {
+                    console.error("GetlistCreateRegisterTable error:", err);
+                    callback({
+                        draw: data.draw,
+                        recordsTotal: 0,
+                        recordsFiltered: 0,
+                        data: []
+                    });
+                })
+                .finally(() => {
+                    if (typeof hideLoading === "function") {
+                        hideLoading();
+                    }
+                });
+        },
+        columns: [
+            {
+                data: null,
+                name: "index",
+                render: function (data, type, row, meta) {
+                    // row index ในหน้านั้น ๆ
+                    return meta.row + 1 + meta.settings._iDisplayStart;
+                }
+            },
+            { data: "UnitCode", name: "UnitCode" },
+            { data: "CustomerName", name: "CustomerName" },
+            { data: "CSResponse", name: "CSResponse" },
+            { data: "RegisterDate", name: "RegisterDate" },
+            { data: "WaitDate", name: "WaitDate" },
+            { data: "InprocessDate", name: "InprocessDate" },
+            { data: "FastFixDate", name: "FastFixDate" },
+            { data: "FixedDuration", name: "FixedDuration" },
+            { data: "FastFixFinishDate", name: "FastFixFinishDate" },
+            { data: "Done", name: "Done" },
+            { data: "ReasonName", name: "ReasonName" },
+            { data: "Counter", name: "Counter" },
+            { data: "CreateBy", name: "CreateBy" },
+            { data: "UpdateDate", name: "UpdateDate" },
+            { data: "UpdateBy", name: "UpdateBy" }
+        ],
+        order: [[1, "asc"]]
+    });
+}
 
 
 // เรียกตอน page load
@@ -447,34 +549,43 @@ function wireButtons() {
 }
 
 function openCreateRegister() {
-    const m = new bootstrap.Modal(document.getElementById('modalCreateRegister'));
+    const modalEl = document.getElementById('modalCreateRegister');
+    const m = new bootstrap.Modal(modalEl);
     m.show();
+
+    // โหลด Unit สำหรับ DDLUnitCode ตาม Project ที่เลือก
+    loadUnitForRegisterBank();
+
+    // init หรือ reload DataTable
+    if (window.jQuery && $.fn.DataTable) {
+        if (!CreateRegisterTableDt) {
+            initCreateRegisterTable();
+        } else {
+            CreateRegisterTableDt.ajax.reload();
+        }
+    } else {
+        console.warn("DataTables not loaded. Please include jquery.dataTables.js and css.");
+    }
 }
 
-// Optional: init DataTables if available (won't error if not loaded)
-document.addEventListener('DOMContentLoaded', function () {
-    if (window.jQuery && $.fn.DataTable) {
-        $('#crTable').DataTable({
-            paging: true,
-            pageLength: 5,
-            lengthMenu: [5, 10, 25],
-            searching: false,
-            info: true,
-            ordering: true,
-            autoWidth: false
-        });
-    }
-});
+
 
 // Example Save click
 document.addEventListener('click', function (e) {
     if (e.target.id === 'crBtnSave') {
-        const code = document.getElementById('crUnitCode').value.trim();
-        if (!code) { alert('Please enter Unit Code'); return; }
-        // TODO: your save logic
-        console.log('Save Register for Unit:', code);
+        const inst = window.QB_CHOICES["#DDLUnitCode"];
+        const selected = inst ? inst.getValue(true) : [];
+
+        if (!selected || selected.length === 0) {
+            alert('Please select at least 1 Unit Code');
+            return;
+        }
+
+        console.log('Save Register for Units:', selected);
+        // TODO: call API สำหรับ Save Register ตาม selected IDs
     }
 });
+
 
 
 
@@ -716,6 +827,61 @@ function loadSummaryRegisterBank() {
             }
         });
 }
+
+
+// โหลด Unit สำหรับใช้ใน modal Create Register (DDLUnitCode)
+function loadUnitForRegisterBank() {
+    const filters = qbGetValues();
+    let projectId = filters.Project;
+    if (Array.isArray(projectId)) {
+        projectId = projectId[0] || "";
+    }
+
+    const ddlInst = window.QB_CHOICES["#DDLUnitCode"];
+    if (!ddlInst) return;
+
+    // ถ้าไม่มี project → clear choices แล้วไม่เรียก API
+    if (!projectId) {
+        try {
+            ddlInst.removeActiveItems();
+            ddlInst.clearChoices();
+        } catch { }
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("ProjectID", projectId);
+
+    if (typeof showLoading === "function") showLoading();
+
+    fetch(baseUrl + "QueueBank/GetListUnitForRegisterBankTable", {
+        method: "POST",
+        body: formData
+    })
+        .then(r => r.json())
+        .then(res => {
+            const list = res.ListUnitForRegisterBankTable || [];
+
+            ddlInst.clearChoices();
+            ddlInst.setChoices(
+                list.map(u => ({
+                    value: u.ID,        // GUID
+                    label: u.UnitCode,  // text แสดง
+                    selected: false
+                })),
+                "value",
+                "label",
+                true
+            );
+        })
+        .catch(err => {
+            console.error("GetListUnitForRegisterBankTable error:", err);
+        })
+        .finally(() => {
+            if (typeof hideLoading === "function") hideLoading();
+        });
+}
+
 
 
 // ===== Boot =====

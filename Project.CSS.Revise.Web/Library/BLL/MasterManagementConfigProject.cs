@@ -51,4 +51,9 @@ public class MasterManagementConfigProject
     {
         return _provider.sp_GetQueueBank_SummeryRegisterBank(en);
     }
+
+    public List<ListCreateRegisterTableModel> sp_GetQueueBank_CreateRegisterTable(GetQueueBankModel en)
+    {
+        return _provider.sp_GetQueueBank_CreateRegisterTable(en);
+    }
 }

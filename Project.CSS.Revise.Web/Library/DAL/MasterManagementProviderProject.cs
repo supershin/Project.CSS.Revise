@@ -48,6 +48,7 @@ namespace Project.CSS.Revise.Web.Library.DAL
         public abstract List<ListSummeryRegister.ListSummeryRegisterCareerType> sp_GetQueueBank_SummeryRegisterCareerType(GetQueueBankModel en);
 
         public abstract List<ListSummeryRegister.ListSummeryRegisterBank> sp_GetQueueBank_SummeryRegisterBank(GetQueueBankModel en);
+        public abstract List<ListCreateRegisterTableModel> sp_GetQueueBank_CreateRegisterTable(GetQueueBankModel en);
 
         #region __ Reader __
 
@@ -516,6 +517,56 @@ namespace Project.CSS.Revise.Web.Library.DAL
 
             return entity;
         }
+
+        public static List<ListCreateRegisterTableModel> sp_GetQueueBank_ListCreateRegisterTable(IDataReader reader)
+        {
+            var list = new List<ListCreateRegisterTableModel>();
+            int index = 1;
+
+            while (reader.Read())
+            {
+                list.Add(sp_GetQueueBank_ListCreateRegisterTable_Reader(reader, index));
+                index++;
+            }
+
+            reader.Close();
+            return list;
+        }
+
+        private static ListCreateRegisterTableModel sp_GetQueueBank_ListCreateRegisterTable_Reader(IDataReader reader, int index)
+        {
+            var entity = new ListCreateRegisterTableModel();
+
+            entity.RegisterLogID = Commond.FormatExtension.NullToString(reader["RegisterLogID"]);
+            entity.ProjectID = Commond.FormatExtension.NullToString(reader["ProjectID"]);
+            entity.UnitID = Commond.FormatExtension.NullToString(reader["UnitID"]);
+
+            entity.UnitCode = Commond.FormatExtension.NullToString(reader["UnitCode"]);
+            entity.CustomerName = Commond.FormatExtension.NullToString(reader["CustomerName"]);
+            entity.CSResponse = Commond.FormatExtension.NullToString(reader["CSResponse"]);
+
+            entity.RegisterDate = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["RegisterDate"]);
+            entity.WaitDate = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["WaitDate"]);
+            entity.InprocessDate = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["InprocessDate"]);
+            entity.FastFixDate = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["FastFixDate"]);
+            entity.FixedDuration = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["FixedDuration"]);
+            entity.FastFixFinishDate = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["FastFixFinishDate"]);
+            entity.Done = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["Done"]);
+
+            entity.ReasonName = Commond.FormatExtension.NullToString(reader["ReasonName"]);
+            entity.Counter = Commond.FormatExtension.NullToString(reader["Counter"]);
+
+            entity.CreateBy = Commond.FormatExtension.NullToString(reader["CreateBy"]);
+            entity.UpdateDate = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["UpdateDate"]);
+            entity.UpdateBy = Commond.FormatExtension.NullToString(reader["UpdateBy"]);
+
+            // 👇 ใหม่
+            entity.TotalRecords = Commond.FormatExtension.Nulltoint(reader["TotalRecords"]);
+            entity.FilteredRecords = Commond.FormatExtension.Nulltoint(reader["FilteredRecords"]);
+
+            return entity;
+        }
+
         #endregion
     }
 }
