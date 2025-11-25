@@ -164,9 +164,50 @@ function successToast(message, durationMs = 3000) {
         position: 'top-end',
         showConfirmButton: false,
         timer: durationMs,
-        timerProgressBar: true
+        timerProgressBar: true,
+        customClass: {
+            container: 'swal-toast-container', // 👈 เลื่อนลงใช้ตัวนี้
+            title: 'swal-toast-center'
+        }
     });
 }
+
+
+function successToastV2(message, durationMs = 3000, offsetY = 40) {
+
+    if (typeof Swal === 'undefined') {
+        console.log('SUCCESS:', message);
+        return;
+    }
+
+    const Toast = Swal.mixin({
+        toast: true,
+        showConfirmButton: false,
+        timer: durationMs,
+        timerProgressBar: true,
+        icon: 'success',
+        title: message,
+        position: 'top-end',
+
+        // 🎯 คุมตำแหน่งแบบ 100%
+        didOpen: (toast) => {
+            toast.style.marginTop = offsetY + 'px';   // 👈 เลื่อนลงตรงนี้
+            toast.style.borderRadius = "10px";
+            toast.style.padding = "10px 15px";
+            toast.style.fontSize = "14px";
+            toast.style.display = "flex";
+            toast.style.justifyContent = "center";
+            toast.style.alignItems = "center";
+            toast.style.textAlign = "center";
+            toast.style.width = "260px";  // ปรับได้ตามใจ
+        }
+    });
+
+    Toast.fire();
+}
+
+
+
 
 /**
  * Toast: Error มุมขวาบน (auto-hide)
@@ -203,6 +244,38 @@ function showApiResult(resp, opts = {}) {
         return ok ? successToast(msg) : errorToast(msg);
     }
     return ok ? successMessage(msg) : errorMessage(msg);
+}
+
+function confirmMessage(message, opts = {}) {
+    const {
+        title = 'Are you sure?',
+        confirmText = 'Yes',
+        cancelText = 'No',
+        icon = 'warning'
+    } = opts;
+
+    console.log(">> confirmMessage() called");
+    console.log(">> Swal typeof =", typeof Swal);
+
+    // fallback ถ้า Swal ไม่มี
+    if (typeof Swal === 'undefined') {
+        console.warn(">> Swal is undefined, using window.confirm fallback");
+        const ok = window.confirm(`${title}\n\n${message}`);
+        return Promise.resolve(ok);
+    }
+
+    return Swal.fire({
+        icon: icon,
+        title: title,
+        text: message,
+        showCancelButton: true,
+        confirmButtonText: confirmText,
+        cancelButtonText: cancelText,
+        allowOutsideClick: false
+    }).then(result => {
+        console.log(">> Swal.fire result =", result);
+        return result.isConfirmed === true;
+    });
 }
 
 

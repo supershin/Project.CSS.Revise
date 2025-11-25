@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
+using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Models.Pages.QueueBank;
 using Project.CSS.Revise.Web.Service;
@@ -228,12 +228,109 @@ namespace Project.CSS.Revise.Web.Controllers
         }
 
 
-
         [HttpPost]
         public JsonResult GetListUnitForRegisterBankTable(string ProjectID)
         {
             var ListUnitForRegisterBankTable = _queueBankService.GetListUnitForRegisterBank(ProjectID);
-            return Json(new { ListUnitForRegisterBankTable = ListUnitForRegisterBankTable});
+            return Json(new { ListUnitForRegisterBankTable = ListUnitForRegisterBankTable });
         }
+
+        [HttpPost]
+        public ActionResult GetMessageAppointmentInspect(RegisterLog model)
+        {
+            try
+            {
+                var Msg = _queueBankService.GetMessageAppointmentInspect(model);
+                return Json(new
+                {
+                    Message = Msg,
+                    Success = true
+                });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new
+                {
+                    Success = false,
+                    Message = InnerException(ex)
+                });
+            }
+
+        }
+
+        private void ValidateSaveRegisterLog(RegisterLog model)
+        {
+            if (model.QueueTypeID.AsInt() == Constants.Ext.QUEUE_TYPE_BANK)
+            {
+                if ((model.CareerTypeID.AsInt() == Constants.Ext.NO_INPUT
+                    || model.ResponsibleID.AsInt() == Constants.Ext.NO_INPUT
+                    || (model.FlagInprocess == null && model.FlagFinish == null))
+                    && model.ID > 0)
+                {
+                    throw new Exception(Constants.Message.ERROR.PLEASE_INPUT_DATA);
+                }
+            }
+        }
+
+        [HttpPost]
+        public JsonResult SaveRegisterLog([FromForm] RegisterLog model)
+        {
+            try
+            {
+                // เช็คเฉพาะเงื่อนไข UI ฝั่ง BANK (ต่อจากของเดิม)
+                ValidateSaveRegisterLog(model);
+
+                // เรียก Service → Repo → SaveRegisterLog ที่เราเพิ่งย้ายมาใช้ _context
+                _queueBankService.SaveRegisterLog(model);
+
+                // ถ้าทีหลังอยากส่ง SignalR เหมือนระบบเก่า
+                // NotifyCounterSignalR();
+
+                return Json(new
+                {
+                    Message = Constants.Message.SUCCESS.SAVE_SUCCESS,
+                    Success = true
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    Success = false,
+                    Message = InnerException(ex)
+                });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult RegisterLogInfo(RegisterLog criteria)
+        {
+            try
+            {
+                string LoginID = User.FindFirst("LoginID")?.Value;
+                string UserID = SecurityManager.DecodeFrom64(LoginID);
+                string Pass = User.FindFirst("Password")?.Value;
+                string Password = SecurityManager.DecodeFrom64(Pass);
+
+                var model = _queueBankService.GetRegisterLogInfo(criteria , UserID , Password);
+                return Json(new
+                {
+                    Success = true,
+                    Data = model
+                });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new
+                {
+                    Success = false,
+                    Message = InnerException(ex)
+                });
+            }
+
+        }
+
     }
 }

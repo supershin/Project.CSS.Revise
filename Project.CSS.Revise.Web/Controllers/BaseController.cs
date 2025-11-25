@@ -32,6 +32,11 @@ namespace Project.CSS.Revise.Web.Controllers
             base.OnActionExecuting(context);
         }
 
+        protected string InnerException(Exception ex)
+        {
+            return (ex.InnerException != null) ? InnerException(ex.InnerException) : ex.Message;
+        }
+
         #region Protected function
         protected string RenderRazorViewtoString(Controller controller, string viewName, object model = null)
         {

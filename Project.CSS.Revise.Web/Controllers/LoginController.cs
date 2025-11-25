@@ -58,6 +58,7 @@ namespace Project.CSS.Revise.Web.Controllers
                 var claims = new List<Claim>
                 {
                     new Claim("LoginID", SecurityManager.EnCryptPassword(userProfile.ID.ToString())),
+                    new Claim("Password", Password),
                     new Claim("LoginNameTH", SecurityManager.EnCryptPassword(userProfile.TitleTH + " " + userProfile.FirstNameTH + " " + userProfile.LastNameTH ?? "")),
                     new Claim("LoginNameEN", SecurityManager.EnCryptPassword(userProfile.TitleEN + " " + userProfile.FirstNameEN + " " + userProfile.LastNameEN ?? "")),
                     new Claim(ClaimTypes.Email, SecurityManager.EnCryptPassword(userProfile.Email ?? "")),

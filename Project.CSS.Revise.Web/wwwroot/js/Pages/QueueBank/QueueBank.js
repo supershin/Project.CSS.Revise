@@ -304,7 +304,24 @@ function initQueueBankRegisterTable() {
         },
         columns: [
             { data: "index", name: "index" },
-            { data: "UnitCode", name: "UnitCode" },
+            {
+                data: "UnitCode",
+                name: "UnitCode",
+                render: function (data, type, row) {
+                    if (type !== "display") return data;
+
+                    const unitCode = data || "";
+                    const id = row.ID || "";
+
+                    return `
+            <a href="javascript:void(0)"
+               class="qb-unit-link"
+               data-unit="${unitCode}"
+               data-id="${id}">
+                ${unitCode}
+            </a>`;
+                }
+            },
             {
                 data: null,
                 name: "CustomerName",
@@ -469,6 +486,31 @@ function initCreateRegisterTable() {
 }
 
 
+// delegate click on UnitCode link
+$('#QueueBankRegisterTable').on('click', '.qb-unit-link', function (e) {
+    e.preventDefault();
+
+    const unitCode = this.getAttribute('data-unit') || "";
+    const registerId = this.getAttribute('data-id') || "";
+
+    // set text in modal header
+    const headerEl = document.getElementById('hUnitCode');
+    if (headerEl) {
+        headerEl.textContent = unitCode;
+    }
+
+    // 👉 ถ้าต้องใช้ ID ตอนกด Save เก็บไว้ใน data ของ modal
+    const modalEl = document.getElementById('EditRegisterLog');
+    if (modalEl) {
+        modalEl.dataset.registerId = registerId;
+
+        // Bootstrap 5 style
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    }
+});
+
+
 // เรียกตอน page load
 //document.addEventListener("DOMContentLoaded", function () {
 //    initQueueBankRegisterTable();
@@ -570,26 +612,166 @@ function openCreateRegister() {
 
 
 
-// Example Save click
-document.addEventListener('click', function (e) {
-    if (e.target.id === 'crBtnSave') {
-        const inst = window.QB_CHOICES["#DDLUnitCode"];
-        const selected = inst ? inst.getValue(true) : [];
-
-        if (!selected || selected.length === 0) {
-            alert('Please select at least 1 Unit Code');
-            return;
-        }
-
-        console.log('Save Register for Units:', selected);
-        // TODO: call API สำหรับ Save Register ตาม selected IDs
+document.addEventListener("DOMContentLoaded", function () {
+    const btnSave = document.getElementById("crBtnSave");
+    if (btnSave) {
+        btnSave.addEventListener("click", crSaveCreateRegister);
     }
 });
 
+function crSaveCreateRegister() {
+    const filters = qbGetValues();
+    let projectId = filters.Project;
+    if (Array.isArray(projectId)) {
+        projectId = projectId[0] || "";
+    }
+
+    if (!projectId) {
+        Swal.fire("แจ้งเตือน", "กรุณาเลือก Project ก่อนสร้าง Register", "warning");
+        return;
+    }
+
+    const ddl = document.getElementById("DDLUnitCode");
+    if (!ddl || ddl.selectedIndex < 0) {
+        Swal.fire("แจ้งเตือน", "กรุณาเลือก Unit Code", "warning");
+        return;
+    }
+
+    const opt = ddl.options[ddl.selectedIndex];
+    const unitCode = (opt && opt.text) ? opt.text.trim() : "";
+
+    if (!unitCode) {
+        Swal.fire("แจ้งเตือน", "ไม่พบ Unit Code จากตัวเลือก", "error");
+        return;
+    }
+
+    const queueTypeId = 48;
+
+    const formData = new FormData();
+    formData.append("ProjectID", projectId);
+    formData.append("UnitCode", unitCode);
+    formData.append("QueueTypeID", queueTypeId);
+
+    if (typeof showLoading === "function") showLoading();
+
+    fetch(baseUrl + "QueueBank/GetMessageAppointmentInspect", {
+        method: "POST",
+        body: formData
+    })
+        .then(r => r.json())
+        .then(res => {
+            if (res.Success) {
+
+                // ============================
+                // 🔥 SweetAlert Confirm
+                // ============================
+                Swal.fire({
+                    title: "ยืนยัน?",
+                    html: res.Message,        // ใช้ข้อความจาก backend
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "ตกลง",
+                    cancelButtonText: "ยกเลิก"
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        crSaveRegisterLog(projectId, unitCode, queueTypeId);
+                    }
+                });
+
+            } else {
+                if (window.Application && typeof Application.PNotify === "function") {
+                    Application.PNotify(res.Message, "error");
+                } else {
+                    Swal.fire("ข้อผิดพลาด", res.Message, "error");
+                }
+            }
+        })
+        .catch(err => {
+            console.error("GetMessageAppointmentInspect error:", err);
+            Swal.fire("ข้อผิดพลาด", "เกิดข้อผิดพลาดขณะตรวจสอบข้อมูลนัดหมาย", "error");
+        })
+        .finally(() => {
+            if (typeof hideLoading === "function") hideLoading();
+        });
+}
+
+function crSaveRegisterLog(projectId, unitCode, queueTypeId) {
+    const formData = new FormData();
+    formData.append("ProjectID", projectId || "");
+    formData.append("UnitCode", unitCode || "");
+    formData.append("QueueTypeID", queueTypeId || 0);
+
+    if (typeof showLoading === "function") showLoading();
+
+    return fetch(baseUrl + "QueueBank/SaveRegisterLog", {
+        method: "POST",
+        body: formData
+    })
+        .then(r => r.json())
+        .then(res => {
+            if (res.Success) {
+
+                // 🔥 ใช้ toast ของพ่อใหญ่
+                successToastV2(res.Message || "บันทึกสำเร็จ");
+
+                // ===============================
+                // 🔄 Reload ตารางทั้งหมดที่เกี่ยวข้อง
+                // ===============================
+                if (typeof CreateRegisterTableDt !== "undefined" && CreateRegisterTableDt) {
+                    CreateRegisterTableDt.ajax.reload(null, false);
+                }
+
+                if (typeof QueueBankRegisterTableDt !== "undefined" && QueueBankRegisterTableDt) {
+                    QueueBankRegisterTableDt.ajax.reload(null, false);
+                }
+
+                if (typeof RegisterTableDt !== "undefined" && RegisterTableDt) {
+                    RegisterTableDt.ajax.reload(null, false);
+                }
+
+                // 🔄 Reload Summary
+                if (typeof loadSummaryRegisterAll === "function") {
+                    loadSummaryRegisterAll();
+                }
+                if (typeof loadSummaryRegisterBank === "function") {
+                    loadSummaryRegisterBank();
+                }
+
+            } else {
+                // ❌ Error toast
+                Swal.fire({
+                    toast: true,
+                    icon: "error",
+                    title: res.Message || "บันทึกไม่สำเร็จ",
+                    position: "top-end",
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            }
+        })
+        .catch(err => {
+            console.error("SaveRegisterLog error:", err);
+
+            Swal.fire({
+                toast: true,
+                icon: "error",
+                title: "เกิดข้อผิดพลาดขณะบันทึกคิว",
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        })
+        .finally(() => {
+            if (typeof hideLoading === "function") hideLoading();
+        });
+}
 
 
 
-// ===== Summary Register (Top 4 boxes) =====
 // ===== Summary Register (ทั้ง 2 แถว) =====
 
 // format ตัวเลขมูลค่าให้เป็น "xx.xx M"

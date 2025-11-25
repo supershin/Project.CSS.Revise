@@ -144,7 +144,7 @@
                     <div class="card-header d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">เคฟ ทาวน์ ไอส์แลนด์</h5>
                         <button class="btn btn-success btn-sm" onclick="openCreateRegister()">
-                            <i class="fa fa-plus me-1"></i> ลงทะเบียน
+                            <i class="fa fa-plus me-1"></i> Register
                         </button>
                     </div>
 
@@ -388,7 +388,7 @@
                     <div class="col-12 col-md-5">
                         <div class="cr-input">
                             <!-- ใช้ Choices.js -->
-                            <select id="DDLUnitCode" class="form-control" multiple></select>
+                            <select id="DDLUnitCode" class="form-control"></select>
                         </div>
                     </div>
 
@@ -437,7 +437,83 @@
     </div>
 </div>
 
+<div id="EditRegisterLog" class="modal fade" tabindex="" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width:70%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="hUnitCode"></h4>
+            </div>
+            <div class="modal-body input-sm" style="display:inline-block;width:100%;height:auto;">
+                <div class="row">
+                    <label class="control-label col-sm-3 input-sm text-right">Responsible* : </label>
+                    <div class="col-sm-4">
 
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="control-label col-sm-3 input-sm text-right">Career* : </label>
+                    <div class="col-sm-4">
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <label class="control-label col-sm-3 input-sm text-right">Status* : </label>
+                    <div class="col-sm-4">
+                        <div class="checkbox">
+                            <input id="FlagRegister" disabled="disabled" type="checkbox" name="FlagStatus">
+                            <label>
+                                Register
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="control-label col-sm-3 input-sm text-right"></label>
+                    <div class="col-sm-4">
+                        <div class="checkbox">
+                            <input id="FlagInprocess" type="checkbox" name="FlagStatus">
+                            <label>
+                                In Process
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="control-label col-sm-3 input-sm text-right"></label>
+                    <div class="col-sm-4">
+                        <div class="checkbox">
+                            <input id="FlagFinish" type="checkbox" name="FlagStatus">
+                            <label>
+                                Done
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <label class="control-label col-sm-3 input-sm text-right">Reason* : </label>
+                    <div class="col-sm-4">
+
+                    </div>
+                </div>
+                <div class="row" style="display:none;">
+                    <label class="control-label col-sm-3 input-sm text-right">Fin Plus *</label>
+                    <div class="col-sm-4 text-left">
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <button type="button" onclick="RegisterLog.SaveEditRegister()" class="permission btn btn-success"><i class="fa fa-save" aria-hidden="true"></i> Save</button>
+                    <button type="button" class="btn btn-default antoclose" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>

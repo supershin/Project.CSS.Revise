@@ -6,6 +6,9 @@ namespace Project.CSS.Revise.Web.Service
     public interface IQueueBankService
     {
         public List<ListUnitForRegisterBankModel> GetListUnitForRegisterBank(string ProjectID);
+        public string GetMessageAppointmentInspect(RegisterLog criteria);
+        public RegisterLog SaveRegisterLog(RegisterLog model);
+        public RegisterLog GetRegisterLogInfo(RegisterLog criteria, string UserID, string Password);
     }
 
     public class QueueBankService : IQueueBankService
@@ -20,6 +23,21 @@ namespace Project.CSS.Revise.Web.Service
         public List<ListUnitForRegisterBankModel> GetListUnitForRegisterBank(string ProjectID)
         {
             return _QueueBankRepo.GetListUnitForRegisterBank(ProjectID);
+        }
+
+        public string GetMessageAppointmentInspect(RegisterLog criteria)
+        {
+            return _QueueBankRepo.GetMessageAppointmentInspect(criteria);
+        }
+
+        public RegisterLog SaveRegisterLog(RegisterLog model)
+        {
+            return _QueueBankRepo.SaveRegisterLog(model);
+        }
+
+        public RegisterLog GetRegisterLogInfo(RegisterLog criteria, string UserID, string Password)
+        {
+            return _QueueBankRepo.GetRegisterLogInfo(criteria , UserID , Password);
         }
     }
 }

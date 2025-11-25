@@ -237,3 +237,14 @@
 
 
 
+/* เลื่อน container ลงมาจากขอบบน */
+.swal2-container.swal2-top-end.swal-toast-container {
+    top: 10px !important; /* ลอง 20–40px ตามชอบ */
+}
+
+/* จัดข้อความให้อยู่กลาง */
+.swal-toast-center {
+    text-align: center !important;
+    width: 100%;
+    display: block;
+}
