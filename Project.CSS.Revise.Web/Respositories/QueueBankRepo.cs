@@ -458,48 +458,61 @@ namespace Project.CSS.Revise.Web.Respositories
 
         public RegisterLog GetRegisterLogInfo(RegisterLog criteria, string UserID, string Password)
         {
-            var query = from r in _context.TR_RegisterLogs.Where(e => e.FlagActive == true && e.ID == criteria.ID)
-                        join u in _context.tm_Units
-                            on r.UnitID equals u.ID
-                        join ct in _context.PR_ContractVerifies.Where(e => e.FlagActive == true)
-                            on new { ProjectID = u.ProjectID, UnitCode = u.UnitCode }
-                                equals new { ProjectID = ct.ProjectID, UnitCode = ct.UnitCode }
-                        select new { r, u, ct };
+            // 1) ดึงข้อมูลก้อนเดียวจาก EF ก่อน (ยังไม่ทำ external call)
+            var raw = (from r in _context.TR_RegisterLogs
+                       where r.FlagActive == true && r.ID == criteria.ID
+                       join u in _context.tm_Units
+                           on r.UnitID equals u.ID
+                       join ct in _context.PR_ContractVerifies
+                           .Where(e => e.FlagActive == true)
+                           on new { ProjectID = u.ProjectID, UnitCode = u.UnitCode }
+                           equals new { ProjectID = ct.ProjectID, UnitCode = ct.UnitCode }
+                       select new
+                       {
+                           r,
+                           u,
+                           ct
+                       })
+                      .FirstOrDefault();
 
-            if (query.Any())
+            if (raw == null)
+                return new RegisterLog();
+
+            // 2) Map ข้อมูลหลักจาก EF -> RegisterLog (ยังไม่เรียก function ภายนอก)
+            var data = new RegisterLog
             {
+                ID = raw.r.ID,
+                UnitCode = raw.u.UnitCode,
+                ResponsibleID = raw.r.ResponsibleID.AsInt(),
+                FlagRegister = raw.r.RegisterDate != null,
+                FlagWait = raw.r.WaitDate != null,
+                FlagInprocess = raw.r.InprocessDate != null,
+                FlagFastFix = raw.r.FastFixDate != null,
+                FlagFastFixFinish = raw.r.FastFixFinishDate != null,
+                FlagFinish = raw.r.FinishDate != null,
+                CareerTypeID = (raw.r.CareerTypeID.AsInt() == 0)
+                               ? Constants.Ext.REGISTER_CAREER_FREEDOM
+                               : raw.r.CareerTypeID.AsInt(),
+                TransferTypeID = raw.r.TransferTypeID.AsInt(),
+                ReasonID = raw.r.ReasonID.AsInt(),
+                FixedDuration = raw.r.FixedDuration.AsInt(),
+                ContractNumber = raw.ct.ContractNumber,
+                LoanID = raw.r.LoanID.AsGuid(),
+            };
 
-                var data = query.AsEnumerable().Select(e => new RegisterLog
-                {
-                    ID = e.r.ID,
-                    UnitCode = e.u.UnitCode,
-                    ResponsibleID = e.r.ResponsibleID.AsInt(),
-                    FlagRegister = (e.r.RegisterDate != null) ? true : false,
-                    FlagWait = (e.r.WaitDate != null) ? true : false,
-                    FlagInprocess = (e.r.InprocessDate != null) ? true : false,
-                    FlagFastFix = (e.r.FastFixDate != null) ? true : false,
-                    FlagFastFixFinish = (e.r.FastFixFinishDate != null) ? true : false,
-                    FlagFinish = (e.r.FinishDate != null) ? true : false,
-                    TransferTypeID = e.r.TransferTypeID.AsInt(),
-                    CareerTypeID = (e.r.CareerTypeID.AsInt() == 0) ? Constants.Ext.REGISTER_CAREER_FREEDOM
-                                    : e.r.CareerTypeID.AsInt(),
-                    ReasonID = e.r.ReasonID.AsInt(),
-                    FixedDuration = e.r.FixedDuration.AsInt(),
-                    BankIDs = GetRegisterBankList(e.r.ID),
-                    ContractNumber = e.ct.ContractNumber,
-                    LoanID = e.r.LoanID.AsGuid(),
-                    RedirectHousingLoan = _unitRepo.GetRedirectHousingLoan(e.ct.ContractNumber, UserID, Password)
-                }).FirstOrDefault();
+            // 3) ตอนนี้ EF ปิด DataReader ไปแล้ว → ค่อยเรียก function อื่นที่ใช้ connection เดียวกัน
+            data.BankIDs = GetRegisterBankList(raw.r.ID);
+            data.RedirectHousingLoan = _unitRepo.GetRedirectHousingLoan(raw.ct.ContractNumber, UserID, Password);
 
-                if (data.LoanID.AsGuid() != Guid.Empty)
-                {
-                    data.Loan = getLoanByID_FINPlus(data.LoanID.AsGuid());
-                    data.LoanBankList = getLoanBank_FINPlus(data.LoanID.AsGuid());
-                }
-                return data;
+            if (data.LoanID != Guid.Empty)
+            {
+                data.Loan = getLoanByID_FINPlus(data.LoanID.AsGuid());
+                data.LoanBankList = getLoanBank_FINPlus(data.LoanID.AsGuid());
             }
-            return new RegisterLog();
+
+            return data;
         }
+
         private string GetRegisterBankList(int? ID)
         {
             var banks = _context.TR_RegisterBanks.Where(e => e.RegisterLogID == ID).Select(e => e.BankID).ToList();

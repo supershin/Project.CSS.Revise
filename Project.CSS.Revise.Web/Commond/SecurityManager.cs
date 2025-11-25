@@ -28,5 +28,23 @@ namespace Project.CSS.Revise.Web.Commond
             string returnValue = System.Text.ASCIIEncoding.ASCII.GetString(encodedDataAsBytes);
             return returnValue;
         }
+
+        public static string TryDecodeFrom64(string encryptData)
+        {
+            if (string.IsNullOrWhiteSpace(encryptData))
+                return string.Empty;
+
+            try
+            {
+                byte[] encodedDataAsBytes = Convert.FromBase64String(encryptData);
+                return Encoding.UTF8.GetString(encodedDataAsBytes);
+            }
+            catch (FormatException)
+            {
+                // ถ้าไม่ใช่ Base64 ก็คืนค่าเดิม (คิดว่ามันเป็น plain text)
+                return encryptData;
+            }
+        }
+
     }
 }

@@ -5,6 +5,9 @@
     var ExpecttransferList = ViewBag.listExpecttransfer as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
     var UnitstatuscsList = ViewBag.listUnitstatuscs as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
     var CSResponsList = ViewBag.listgCSRespons as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var CareerList = ViewBag.listCareer as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var ReasonList = ViewBag.listReason as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var BankList = ViewBag.listBank as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
 }
 
 <div class="container-fluid">
@@ -437,83 +440,142 @@
     </div>
 </div>
 
-<div id="EditRegisterLog" class="modal fade" tabindex="" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="width:70%;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="hUnitCode"></h4>
-            </div>
-            <div class="modal-body input-sm" style="display:inline-block;width:100%;height:auto;">
-                <div class="row">
-                    <label class="control-label col-sm-3 input-sm text-right">Responsible* : </label>
-                    <div class="col-sm-4">
+<div id="EditRegisterLog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="hUnitCode" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        @* ใช้ modal-lg + centered *@
+        <div class="modal-content modern-modal">
 
-                    </div>
-                </div>
-                <div class="row">
-                    <label class="control-label col-sm-3 input-sm text-right">Career* : </label>
-                    <div class="col-sm-4">
-
-                    </div>
-                </div>
-
-                <div class="row">
-                    <label class="control-label col-sm-3 input-sm text-right">Status* : </label>
-                    <div class="col-sm-4">
-                        <div class="checkbox">
-                            <input id="FlagRegister" disabled="disabled" type="checkbox" name="FlagStatus">
-                            <label>
-                                Register
-                            </label>
+            <div class="modal-header border-0 pb-0">
+                <div class="w-100 d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5 class="modal-title fw-bold mb-1">
+                            Edit Register Log
+                        </h5>
+                        <div class="text-muted small">
+                            Unit: <span id="hUnitCode" class="fw-semibold"></span>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <label class="control-label col-sm-3 input-sm text-right"></label>
-                    <div class="col-sm-4">
-                        <div class="checkbox">
-                            <input id="FlagInprocess" type="checkbox" name="FlagStatus">
-                            <label>
-                                In Process
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <label class="control-label col-sm-3 input-sm text-right"></label>
-                    <div class="col-sm-4">
-                        <div class="checkbox">
-                            <input id="FlagFinish" type="checkbox" name="FlagStatus">
-                            <label>
-                                Done
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <label class="control-label col-sm-3 input-sm text-right">Reason* : </label>
-                    <div class="col-sm-4">
-
-                    </div>
-                </div>
-                <div class="row" style="display:none;">
-                    <label class="control-label col-sm-3 input-sm text-right">Fin Plus *</label>
-                    <div class="col-sm-4 text-left">
-
-                    </div>
-                </div>
-
-            </div>
-            <div class="modal-footer">
-                <div class="col-md-12 col-sm-12 col-xs-12">
-                    <button type="button" onclick="RegisterLog.SaveEditRegister()" class="permission btn btn-success"><i class="fa fa-save" aria-hidden="true"></i> Save</button>
-                    <button type="button" class="btn btn-default antoclose" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
             </div>
+
+            <div class="modal-body pt-3 pb-1">
+                <div class="edit-register-wrapper">
+
+                    <!-- Block: Responsible & Career -->
+                    <div class="er-section">
+                        <h6 class="er-section-title">Customer Info</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small mb-1">Responsible<span class="text-danger">*</span></label>
+                                <select id="ddl_Responsible" class="form-control">
+                                    <option value="">-- Select Responsible --</option>
+                                    @foreach (var cs in CSResponsList)
+                                    {
+                                        var val = (cs.ValueInt ?? "").ToString();
+                                        var text = (cs.Text ?? "").ToString();
+                                        <option value="@val">@text</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small mb-1">Career<span class="text-danger">*</span></label>
+                                <select id="ddl_Career" class="form-control">
+                                    <option value="">-- Select Career --</option>
+                                    @foreach (var cl in CareerList)
+                                    {
+                                        var val = (cl.ValueInt ?? "").ToString();
+                                        var text = (cl.Text ?? "").ToString();
+                                        <option value="@val">@text</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Block: Status -->
+                    <div class="er-section">
+                        <h6 class="er-section-title d-flex align-items-center">
+                            Status
+                            <span class="text-danger ms-1">*</span>
+                        </h6>
+                        <div class="er-status-group">
+                            <div class="form-check form-check-inline er-status-item">
+                                <input class="form-check-input" id="FlagRegister" type="checkbox" name="FlagStatus" checked disabled>
+                                <label class="form-check-label" for="FlagRegister">
+                                    Register
+                                </label>
+                            </div>
+
+                            <div class="form-check form-check-inline er-status-item">
+                                <input class="form-check-input" id="FlagInprocess" type="checkbox" name="FlagStatus">
+                                <label class="form-check-label" for="FlagInprocess">
+                                    In Process
+                                </label>
+                            </div>
+
+                            <div class="form-check form-check-inline er-status-item">
+                                <input class="form-check-input" id="FlagFinish" type="checkbox" name="FlagStatus">
+                                <label class="form-check-label" for="FlagFinish">
+                                    Done
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Block: Reason & FinPlus -->
+                    <div class="er-section">
+                        <h6 class="er-section-title">Finance</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small mb-1">Reason<span class="text-danger">*</span></label>
+                                <select id="ddl_Reason" class="form-control">
+                                    <option value="">-- Select Reason --</option>
+                                    @foreach (var rl in ReasonList)
+                                    {
+                                        var val = (rl.ValueInt ?? "").ToString();
+                                        var text = (rl.Text ?? "").ToString();
+                                        <option value="@val">@text</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small mb-1">Fin Plus<span class="text-danger">*</span></label>
+                                <select id="ddl_FinPlus" class="form-control">
+                                    <option value="">-- Select Bank --</option>
+                                    @foreach (var bl in BankList)
+                                    {
+                                        var val = (bl.ValueInt ?? "").ToString();
+                                        var text = (bl.Text ?? "").ToString();
+                                        <option value="@val">@text</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer border-0 pt-0">
+                <button type="button"
+                        onclick="RegisterLog.SaveEditRegister()"
+                        class="btn btn-success px-4">
+                    <i class="fa fa-save me-1" aria-hidden="true"></i> Save
+                </button>
+                <button type="button"
+                        class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+
         </div>
     </div>
 </div>
+
 
 @section Scripts {
     <script>

@@ -520,3 +520,128 @@ flex: 1;
 .swal2-container {
     z-index: 99999 !important;
 }
+
+
+/* ============================
+   MODERN MODAL FOR EditRegisterLog ONLY
+   ============================ */
+
+/* Modal container */
+#EditRegisterLog .modal-content {
+    border-radius: 14px;
+    border: none;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.25);
+}
+
+/* Header */
+#EditRegisterLog .modal-header {
+    padding: 1.1rem 1.5rem 0.3rem;
+    border-bottom: none !important;
+}
+
+#EditRegisterLog .modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+#EditRegisterLog .modal-header .text-muted {
+    font-size: 0.85rem;
+}
+
+/* Body wrapper */
+#EditRegisterLog .edit-register-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+#EditRegisterLog .modal-body {
+    padding: 0.5rem 1.5rem 0.5rem;
+}
+
+/* Section blocks */
+#EditRegisterLog .er-section {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 0.85rem 1rem 1rem;
+    border: 1px solid #e2e8f0;
+}
+
+#EditRegisterLog .er-section-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #64748a;
+    margin-bottom: .5rem;
+}
+
+/* Inputs / Selects */
+#EditRegisterLog .form-control {
+    border-radius: 8px;
+    font-size: 0.875rem;
+}
+
+/* ============================
+   STATUS PILL GROUP
+   ============================ */
+
+#EditRegisterLog .er-status-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+#EditRegisterLog .er-status-item {
+    background: #ffffff;
+    border-radius: 999px;
+    padding: 0.35rem 1rem;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+#EditRegisterLog .form-check-label {
+    margin-top: 8px;
+}
+
+    #EditRegisterLog .er-status-item .form-check-input {
+        margin-right: 0.35rem;
+        margin-top: 0;
+    }
+
+    #EditRegisterLog .er-status-item .form-check-label {
+        font-size: .85rem;
+        font-weight: 500;
+    }
+
+    /* Checked status color */
+    #EditRegisterLog .er-status-item .form-check-input:checked {
+        background-color: #22c55e;
+        border-color: #22c55e;
+    }
+
+/* ============================
+   Footer
+   ============================ */
+
+#EditRegisterLog .modal-footer {
+    padding-top: 0;
+    padding-bottom: 1.2rem;
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+    border-top: none !important;
+}
+
+#EditRegisterLog .btn-success {
+    padding: 0.55rem 1.5rem;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+#EditRegisterLog .btn-outline-secondary {
+    padding: 0.55rem 1.3rem;
+    border-radius: 8px;
+}

@@ -56,6 +56,8 @@ builder.Services.AddScoped<IProjectRepo, ProjectRepo>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IQueueBankRepo, QueueBankRepo>();
 builder.Services.AddScoped<IQueueBankService, QueueBankService>();
+builder.Services.AddScoped<IUnitRepo, UnitRepo>();
+builder.Services.AddScoped<IUnitService, UnitService>();
 
 
 // Add the new services for SQL and data access

@@ -204,6 +204,10 @@ function initFilterDropdowns() {
 
     // 🔥 NEW: multi-select ใน modal Create Register
     createChoice("#DDLUnitCode", { placeholderValue: "Select Unit Code for Register…" });
+    createChoice("#ddl_Responsible", { placeholderValue: "Select Responsible..." });
+    createChoice("#ddl_Career", { placeholderValue: "Select Career..." });
+    createChoice("#ddl_Reason", { placeholderValue: "Select Reason..." });
+    createChoice("#ddl_FinPlus", { placeholderValue: "Select Bank..." });
 
     // ✅ สำคัญ: BUG เปลี่ยน -> โหลด Project ใหม่ (รวมเคส deselect ทั้งหมดด้วย)
     if (bugInst) {
@@ -485,7 +489,6 @@ function initCreateRegisterTable() {
     });
 }
 
-
 // delegate click on UnitCode link
 $('#QueueBankRegisterTable').on('click', '.qb-unit-link', function (e) {
     e.preventDefault();
@@ -493,22 +496,123 @@ $('#QueueBankRegisterTable').on('click', '.qb-unit-link', function (e) {
     const unitCode = this.getAttribute('data-unit') || "";
     const registerId = this.getAttribute('data-id') || "";
 
-    // set text in modal header
-    const headerEl = document.getElementById('hUnitCode');
-    if (headerEl) {
-        headerEl.textContent = unitCode;
-    }
-
-    // 👉 ถ้าต้องใช้ ID ตอนกด Save เก็บไว้ใน data ของ modal
-    const modalEl = document.getElementById('EditRegisterLog');
-    if (modalEl) {
-        modalEl.dataset.registerId = registerId;
-
-        // Bootstrap 5 style
-        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-        modal.show();
-    }
+    // แค่เรียกโหลดข้อมูล → จะ bind + show modal ข้างในเอง
+    loadRegisterLogForEdit(registerId, unitCode);
 });
+
+function loadRegisterLogForEdit(registerId, unitCode) {
+    if (!registerId) {
+        console.warn("No registerId to load.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("ID", registerId);    // ตรงกับ RegisterLog criteria.ID
+
+    if (typeof showLoading === "function") showLoading();
+
+    fetch(baseUrl + "QueueBank/RegisterLogInfo", {
+        method: "POST",
+        body: formData
+    })
+        .then(r => r.json())
+        .then(json => {
+            if (!json || !json.Success) {
+                const msg = (json && json.Message) ? json.Message : "ไม่สามารถดึงข้อมูล RegisterLog ได้";
+                if (typeof Swal !== "undefined") {
+                    Swal.fire("ข้อผิดพลาด", msg, "error");
+                } else if (window.Application && typeof Application.PNotify === "function") {
+                    Application.PNotify(msg, "error");
+                } else {
+                    alert(msg);
+                }
+                return;
+            }
+
+            const data = json.Data || {};
+
+            // ถ้า backend ไม่คืน UnitCode มา ใช้ตัวที่เรามีจาก table
+            if (!data.UnitCode && unitCode) {
+                data.UnitCode = unitCode;
+            }
+
+            bindRegisterLogModal(data);
+        })
+        .catch(err => {
+            console.error("RegisterLogInfo error:", err);
+            if (typeof Swal !== "undefined") {
+                Swal.fire("ข้อผิดพลาด", "เกิดข้อผิดพลาดขณะดึงข้อมูล RegisterLog", "error");
+            } else {
+                alert("เกิดข้อผิดพลาดขณะดึงข้อมูล RegisterLog");
+            }
+        })
+        .finally(() => {
+            if (typeof hideLoading === "function") hideLoading();
+        });
+}
+
+function bindRegisterLogModal(data) {
+    const modalEl = document.getElementById("EditRegisterLog");
+    if (!modalEl) return;
+
+    // เก็บ ID ไว้ใน data attribute เผื่อใช้ตอน Save
+    modalEl.dataset.registerId = data.ID || "";
+
+    // Header Unit Code
+    const headerEl = document.getElementById("hUnitCode");
+    if (headerEl) {
+        headerEl.textContent = data.UnitCode
+            ? `Unit Code : ${data.UnitCode}`
+            : "";
+    }
+
+    // helper: set single-select (รองรับทั้ง Choices.js และ select ปกติ)
+    const setChoiceSingle = (selector, value) => {
+        const val = (value === null || value === undefined) ? "" : String(value);
+
+        const inst = window.QB_CHOICES ? window.QB_CHOICES[selector] : null;
+        if (inst) {
+            try {
+                inst.removeActiveItems();
+                if (val !== "") {
+                    inst.setChoiceByValue(val);
+                }
+            } catch (e) {
+                console.warn("setChoiceSingle (Choices) error:", selector, e);
+            }
+        } else {
+            const el = document.querySelector(selector);
+            if (el) el.value = val;
+        }
+    };
+
+    // ===== Dropdowns =====
+    // ResponsibleID
+    setChoiceSingle("#ddl_Responsible", data.ResponsibleID);
+
+    // CareerTypeID
+    setChoiceSingle("#ddl_Career", data.CareerTypeID);
+
+    // ReasonID
+    setChoiceSingle("#ddl_Reason", data.ReasonID);
+
+    // FinPlus → ตอนนี้ผม map กับ TransferTypeID ให้ก่อน (ถ้าอยากใช้ BankIDs ค่อยคุยต่อ)
+    setChoiceSingle("#ddl_FinPlus", data.TransferTypeID);
+
+    // ===== Status flags =====
+    const setChecked = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.checked = !!val;
+    };
+
+    setChecked("FlagRegister", data.FlagRegister);
+    setChecked("FlagInprocess", data.FlagInprocess);
+    setChecked("FlagFinish", data.FlagFinish);
+
+    // ===== Show modal (Bootstrap 5) =====
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modal.show();
+}
 
 
 // เรียกตอน page load

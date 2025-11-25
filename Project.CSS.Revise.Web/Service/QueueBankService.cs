@@ -9,6 +9,7 @@ namespace Project.CSS.Revise.Web.Service
         public string GetMessageAppointmentInspect(RegisterLog criteria);
         public RegisterLog SaveRegisterLog(RegisterLog model);
         public RegisterLog GetRegisterLogInfo(RegisterLog criteria, string UserID, string Password);
+        public void SaveCustomerSubmit_FINPlus(LoanModel model);
     }
 
     public class QueueBankService : IQueueBankService
@@ -38,6 +39,11 @@ namespace Project.CSS.Revise.Web.Service
         public RegisterLog GetRegisterLogInfo(RegisterLog criteria, string UserID, string Password)
         {
             return _QueueBankRepo.GetRegisterLogInfo(criteria , UserID , Password);
+        }
+
+        public void SaveCustomerSubmit_FINPlus(LoanModel model)
+        {
+             _QueueBankRepo.SaveCustomerSubmit_FINPlus(model);
         }
     }
 }

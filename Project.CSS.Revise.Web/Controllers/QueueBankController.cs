@@ -44,6 +44,15 @@ namespace Project.CSS.Revise.Web.Controllers
             var listgCSRespons = _masterService.GetlisDDl(new GetDDLModel { Act = "listAllCSUser" });
             ViewBag.listgCSRespons = listgCSRespons;
 
+            var listCareer = _masterService.GetlisDDl(new GetDDLModel { Act = "Ext", ID = 12 });
+            ViewBag.listCareer = listCareer;
+
+            var listReason = _masterService.GetlisDDl(new GetDDLModel { Act = "Ext", ID = 15 });
+            ViewBag.listReason = listReason;
+
+            var listBank = _masterService.GetlisDDl(new GetDDLModel { Act = "listAllBank"});
+            ViewBag.listBank = listBank;
+
             return View();
         }
 
@@ -308,12 +317,15 @@ namespace Project.CSS.Revise.Web.Controllers
         {
             try
             {
-                string LoginID = User.FindFirst("LoginID")?.Value;
-                string UserID = SecurityManager.DecodeFrom64(LoginID);
-                string Pass = User.FindFirst("Password")?.Value;
-                string Password = SecurityManager.DecodeFrom64(Pass);
+                string loginIdClaim = User.FindFirst("LoginID")?.Value;
+                string passClaim = User.FindFirst("Password")?.Value;
 
-                var model = _queueBankService.GetRegisterLogInfo(criteria , UserID , Password);
+                // ถอดแบบ "ปลอดภัย" – ถ้าไม่ใช่ base64 จะได้ไม่ระเบิด
+                string userID = SecurityManager.TryDecodeFrom64(loginIdClaim ?? string.Empty);
+                string password = SecurityManager.TryDecodeFrom64(passClaim ?? string.Empty);
+
+                var model = _queueBankService.GetRegisterLogInfo(criteria, userID, password);
+
                 return Json(new
                 {
                     Success = true,
@@ -322,15 +334,14 @@ namespace Project.CSS.Revise.Web.Controllers
             }
             catch (Exception ex)
             {
-
                 return Json(new
                 {
                     Success = false,
                     Message = InnerException(ex)
                 });
             }
-
         }
+
 
     }
 }
