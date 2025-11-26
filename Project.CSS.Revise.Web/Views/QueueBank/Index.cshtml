@@ -183,37 +183,40 @@
     <!-- Summary Register card -->
     <div class="card filter-card">
         <div class="card-header d-flex align-items-center justify-content-between">
-            <h5 class="mb-0">Summary Register</h5>
-            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#fltCollapseSummaryRegister"
-                    aria-expanded="true"
-                    aria-controls="fltCollapseSummaryRegister">
-                <i class="fa fa-chevron-up"></i>
-            </button>
+
+            <!-- Left side: title + dynamic date -->
+            <div>
+                <h5 class="mb-0">Summary Register</h5>
+                <small id="sum-register-date" class="text-muted"></small> <!-- dynamically updated -->
+            </div>
+
+            <!-- Right side buttons -->
+            <div class="d-flex align-items-center gap-2">
+                <!-- toggle view button -->
+                <button id="btnSummaryRegisterToggle"
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        title="Change view"
+                        aria-label="Change view">
+                    <i class="fa fa-table" aria-hidden="true"></i>
+                    <span class="visually-hidden">Change view</span>
+                </button>
+
+                <!-- collapse arrow -->
+                <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#fltCollapseSummaryRegister"
+                        aria-expanded="true"
+                        aria-controls="fltCollapseSummaryRegister">
+                    <i class="fa fa-chevron-up"></i>
+                </button>
+            </div>
         </div>
+
         <div id="fltCollapseSummaryRegister" class="collapse show">
             <div class="card-body">
                 <div class="summary-register">
-
-                    <!-- 🔹 หัวข้อ + ปุ่มสลับ view -->
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="mb-0">
-                            Summary Register Data
-                            <span id="sum-register-date" class="text-muted ms-2"></span>
-                        </h5>
-
-                        <!-- 🔹 ปุ่มเปลี่ยน view (icon) -->
-                        <button id="btnSummaryRegisterToggle"
-                                type="button"
-                                class="btn btn-sm btn-outline-secondary"
-                                title="Change view"
-                                aria-label="Change view">
-                            <i class="fa fa-table" aria-hidden="true"></i>
-                            <span class="visually-hidden">Change view</span>
-                        </button>
-                    </div>
 
                     <!-- 🔹 VIEW แบบกล่อง (เดิม) -->
                     <div id="summary-register-box-view">
@@ -315,7 +318,7 @@
 
                         <!-- Group 1: Register / Queue / In Process / Done -->
                         <div class="mb-3">
-                            <h6 class="fw-bold mb-2">Group 1: Register Status</h6>
+                            <h6 class="fw-bold mb-2">Register Status</h6>
                             <div class="table-responsive">
                                 <table class="table table-sm table-bordered mb-0">
                                     <thead>
@@ -358,7 +361,7 @@
 
                         <!-- Group 2: ยื่น / ไม่ยื่น -->
                         <div class="mb-3">
-                            <h6 class="fw-bold mb-2">Group 2: สถานะยื่นกู้</h6>
+                            <h6 class="fw-bold mb-2">Loan Status</h6>
                             <div class="table-responsive">
                                 <table class="table table-sm table-bordered mb-0">
                                     <thead>
@@ -389,7 +392,7 @@
 
                         <!-- Group 3: อาชีพ -->
                         <div>
-                            <h6 class="fw-bold mb-2">Group 3: ประเภทอาชีพ</h6>
+                            <h6 class="fw-bold mb-2">Career Type</h6>
                             <div class="table-responsive">
                                 <table class="table table-sm table-bordered mb-0">
                                     <thead>
@@ -424,7 +427,8 @@
                             </div>
                         </div>
 
-                    </div> <!-- /table view -->
+                    </div> 
+                    <!-- /table view -->
 
                 </div>
             </div>

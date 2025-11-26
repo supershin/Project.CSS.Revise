@@ -645,3 +645,14 @@ flex: 1;
     padding: 0.55rem 1.3rem;
     border-radius: 8px;
 }
+
+/* Summary Register table view fixes */
+#summary-register-table-view table thead th {
+    background: #f2f2f2; /* light grey header */
+    font-weight: 600;
+}
+
+/* Fix missing bottom border */
+#summary-register-table-view table tr:last-child td {
+    border-bottom: 1px solid #dee2e6 !important;
+}

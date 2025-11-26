@@ -976,19 +976,21 @@ function qbUpdateSummaryRegisterHeaderDate() {
     const start = (startEl?.value || "").trim();
     const end = (endEl?.value || "").trim();
 
-    let displayDate = "";
-    if (end) {
-        displayDate = end;
-    } else if (start) {
-        displayDate = start;
+    // --- CASES ---
+    if (!start && !end) {
+        spanEl.textContent = "All Days";   // ← default text (you can change anytime)
+        return;
     }
 
-    if (displayDate) {
-        spanEl.textContent = `As Of ${displayDate}`;
-    } else {
-        spanEl.textContent = "";
+    if (start && end) {
+        spanEl.textContent = `${start} - ${end}`; // ← Your requested format
+        return;
     }
+
+    // Only one side filled
+    spanEl.textContent = start || end;
 }
+
 
 function loadSummaryRegisterAll() {
     const filters = qbGetValues();
