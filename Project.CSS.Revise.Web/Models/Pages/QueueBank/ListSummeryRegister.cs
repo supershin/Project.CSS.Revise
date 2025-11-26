@@ -27,6 +27,7 @@
         {
             public string BankCode { get; set; } = "";
             public string BankName { get; set; } = "";
+            public string InterestRateAVG { get; set; } = "";
             public string Unit { get; set; } = "";
             public string Value { get; set; } = "";
             public string Percent { get; set; } = "";

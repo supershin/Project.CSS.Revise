@@ -1142,6 +1142,7 @@ function loadSummaryRegisterBank() {
                 const unit = item.Unit || "0";          // จำนวนยูนิต
                 const valueText = qbFormatValueM(item.Value); // มูลค่า → xx,xxx.xx M
                 const percentText = (item.Percent || "0") + "%";
+                const interestRate = (item.InterestRateAVG || "0") + "%";
 
                 // ช่องธนาคาร: ถ้า BankCode = 'No data' ไม่ต้องโชว์โลโก้
                 let bankCellHtml = "";
@@ -1162,7 +1163,7 @@ function loadSummaryRegisterBank() {
                 return `
                     <tr>
                         <td>${bankCellHtml}</td>
-                        <td>Waiting ask user</td>
+                        <td>${interestRate}</td>
                         <td>${unit}</td>
                         <td>${valueText}</td>
                         <td>${percentText}</td>

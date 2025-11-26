@@ -511,6 +511,7 @@ namespace Project.CSS.Revise.Web.Library.DAL
 
             entity.BankCode = Commond.FormatExtension.NullToString(reader["BankCode"]);
             entity.BankName = Commond.FormatExtension.NullToString(reader["BankName"]);
+            entity.InterestRateAVG = Commond.FormatExtension.NullToString(reader["InterestRateAVG"]);
             entity.Value = Commond.FormatExtension.NullToString(reader["SellingPriceSum"]);
             entity.Unit = Commond.FormatExtension.NullToString(reader["Value"]);
             entity.Percent = Commond.FormatExtension.NullToString(reader["PercentValue"]);
