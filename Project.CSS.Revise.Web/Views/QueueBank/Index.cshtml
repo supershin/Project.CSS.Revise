@@ -196,105 +196,241 @@
         <div id="fltCollapseSummaryRegister" class="collapse show">
             <div class="card-body">
                 <div class="summary-register">
-                    <h5 class="mb-4">Summary Register Data As Of 2025-09-15</h5>
 
-                    <!-- Top Row -->
-                    <div class="summary-row">
-                        <div class="summary-box bg-green">
-                            <h6>Register</h6>
-                            <div class="summary-values">
-                                <div><strong id="sum-register-unit">0</strong><br>Unit</div>
-                                <div><strong id="sum-register-value">0.00 M</strong><br>Value</div>
+                    <!-- 🔹 หัวข้อ + ปุ่มสลับ view -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="mb-0">
+                            Summary Register Data
+                            <span id="sum-register-date" class="text-muted ms-2"></span>
+                        </h5>
+
+                        <!-- 🔹 ปุ่มเปลี่ยน view (icon) -->
+                        <button id="btnSummaryRegisterToggle"
+                                type="button"
+                                class="btn btn-sm btn-outline-secondary"
+                                title="Change view"
+                                aria-label="Change view">
+                            <i class="fa fa-table" aria-hidden="true"></i>
+                            <span class="visually-hidden">Change view</span>
+                        </button>
+                    </div>
+
+                    <!-- 🔹 VIEW แบบกล่อง (เดิม) -->
+                    <div id="summary-register-box-view">
+                        <!-- Top Row -->
+                        <div class="summary-row">
+                            <div class="summary-box bg-green">
+                                <h6>Register</h6>
+                                <div class="summary-values">
+                                    <div><strong id="sum-register-unit">0</strong><br>Unit</div>
+                                    <div><strong id="sum-register-value">0.00 M</strong><br>Value</div>
+                                </div>
+                                <div class="summary-footer" id="sum-register-percent">0%</div>
                             </div>
-                            <div class="summary-footer" id="sum-register-percent">0%</div>
+
+                            <div class="summary-box bg-blue">
+                                <h6>Queue</h6>
+                                <div class="summary-values">
+                                    <div><strong id="sum-queue-unit">0</strong><br>Unit</div>
+                                    <div><strong id="sum-queue-value">0.00 M</strong><br>Value</div>
+                                </div>
+                                <div class="summary-footer" id="sum-queue-percent">0%</div>
+                            </div>
+
+                            <div class="summary-box bg-orange">
+                                <h6>In Process</h6>
+                                <div class="summary-values">
+                                    <div><strong id="sum-inprocess-unit">0</strong><br>Unit</div>
+                                    <div><strong id="sum-inprocess-value">0.00 M</strong><br>Value</div>
+                                </div>
+                                <div class="summary-footer" id="sum-inprocess-percent">0%</div>
+                            </div>
+
+                            <div class="summary-box bg-green-light">
+                                <h6>Done</h6>
+                                <div class="summary-values">
+                                    <div><strong id="sum-done-unit">0</strong><br>Unit</div>
+                                    <div><strong id="sum-done-value">0.00 M</strong><br>Value</div>
+                                </div>
+                                <div class="summary-footer" id="sum-done-percent">0%</div>
+                            </div>
                         </div>
 
-                        <div class="summary-box bg-blue">
-                            <h6>Queue</h6>
-                            <div class="summary-values">
-                                <div><strong id="sum-queue-unit">0</strong><br>Unit</div>
-                                <div><strong id="sum-queue-value">0.00 M</strong><br>Value</div>
+                        <!-- Second Row -->
+                        <div class="summary-row mt-3">
+                            <!-- ยื่น -->
+                            <div class="summary-box bg-green-light">
+                                <h6>ยื่น</h6>
+                                <div class="summary-values">
+                                    <div><strong id="sum-loan-yes-unit">0</strong><br>Unit</div>
+                                    <div><strong id="sum-loan-yes-value">0.00 M</strong><br>Value</div>
+                                </div>
+                                <div class="summary-footer" id="sum-loan-yes-percent">0%</div>
                             </div>
-                            <div class="summary-footer" id="sum-queue-percent">0%</div>
-                        </div>
 
-                        <div class="summary-box bg-orange">
-                            <h6>In Process</h6>
-                            <div class="summary-values">
-                                <div><strong id="sum-inprocess-unit">0</strong><br>Unit</div>
-                                <div><strong id="sum-inprocess-value">0.00 M</strong><br>Value</div>
+                            <!-- ไม่ยื่น -->
+                            <div class="summary-box bg-pink-soft">
+                                <h6>ไม่ยื่น</h6>
+                                <div class="summary-values">
+                                    <div><strong id="sum-loan-no-unit">0</strong><br>Unit</div>
+                                    <div><strong id="sum-loan-no-value">0.00 M</strong><br>Value</div>
+                                </div>
+                                <div class="summary-footer" id="sum-loan-no-percent">0%</div>
                             </div>
-                            <div class="summary-footer" id="sum-inprocess-percent">0%</div>
-                        </div>
 
-                        <div class="summary-box bg-green-light">
-                            <h6>Done</h6>
-                            <div class="summary-values">
-                                <div><strong id="sum-done-unit">0</strong><br>Unit</div>
-                                <div><strong id="sum-done-value">0.00 M</strong><br>Value</div>
+                            <!-- อาชีพอิสระ -->
+                            <div class="summary-box bg-pink">
+                                <h6>อาชีพอิสระ</h6>
+                                <div class="summary-values">
+                                    <div><strong id="sum-career-freelance-unit">0</strong><br>Unit</div>
+                                    <div><strong id="sum-career-freelance-value">0.00 M</strong><br>Value</div>
+                                </div>
+                                <div class="summary-footer" id="sum-career-freelance-percent">0%</div>
                             </div>
-                            <div class="summary-footer" id="sum-done-percent">0%</div>
+
+                            <!-- รายได้ประจำ -->
+                            <div class="summary-box bg-pink">
+                                <h6>รายได้ประจำ</h6>
+                                <div class="summary-values">
+                                    <div><strong id="sum-career-salary-unit">0</strong><br>Unit</div>
+                                    <div><strong id="sum-career-salary-value">0.00 M</strong><br>Value</div>
+                                </div>
+                                <div class="summary-footer" id="sum-career-salary-percent">0%</div>
+                            </div>
+
+                            <!-- เจ้าของกิจการ -->
+                            <div class="summary-box bg-pink">
+                                <h6>เจ้าของกิจการ</h6>
+                                <div class="summary-values">
+                                    <div><strong id="sum-career-owner-unit">0</strong><br>Unit</div>
+                                    <div><strong id="sum-career-owner-value">0.00 M</strong><br>Value</div>
+                                </div>
+                                <div class="summary-footer" id="sum-career-owner-percent">0%</div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Second Row -->
-                    <div class="summary-row mt-3">
-                        <!-- ยื่น -->
-                        <div class="summary-box bg-green-light">
-                            <h6>ยื่น</h6>
-                            <div class="summary-values">
-                                <div><strong id="sum-loan-yes-unit">0</strong><br>Unit</div>
-                                <div><strong id="sum-loan-yes-value">0.00 M</strong><br>Value</div>
+                    <!-- 🔹 VIEW แบบ TABLE (ซ่อนตอนเริ่ม) -->
+                    <div id="summary-register-table-view" class="d-none">
+
+                        <!-- Group 1: Register / Queue / In Process / Done -->
+                        <div class="mb-3">
+                            <h6 class="fw-bold mb-2">Group 1: Register Status</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 160px;">Status</th>
+                                            <th style="width: 100px;">Unit</th>
+                                            <th style="width: 140px;">Value (M)</th>
+                                            <th style="width: 80px;">%</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Register</td>
+                                            <td id="tbl-register-unit">0</td>
+                                            <td id="tbl-register-value">0.00 M</td>
+                                            <td id="tbl-register-percent">0%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Queue</td>
+                                            <td id="tbl-queue-unit">0</td>
+                                            <td id="tbl-queue-value">0.00 M</td>
+                                            <td id="tbl-queue-percent">0%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>In Process</td>
+                                            <td id="tbl-inprocess-unit">0</td>
+                                            <td id="tbl-inprocess-value">0.00 M</td>
+                                            <td id="tbl-inprocess-percent">0%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Done</td>
+                                            <td id="tbl-done-unit">0</td>
+                                            <td id="tbl-done-value">0.00 M</td>
+                                            <td id="tbl-done-percent">0%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="summary-footer" id="sum-loan-yes-percent">0%</div>
                         </div>
 
-                        <!-- ไม่ยื่น -->
-                        <div class="summary-box bg-pink-soft">
-                            <h6>ไม่ยื่น</h6>
-                            <div class="summary-values">
-                                <div><strong id="sum-loan-no-unit">0</strong><br>Unit</div>
-                                <div><strong id="sum-loan-no-value">0.00 M</strong><br>Value</div>
+                        <!-- Group 2: ยื่น / ไม่ยื่น -->
+                        <div class="mb-3">
+                            <h6 class="fw-bold mb-2">Group 2: สถานะยื่นกู้</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 160px;">ประเภท</th>
+                                            <th style="width: 100px;">Unit</th>
+                                            <th style="width: 140px;">Value (M)</th>
+                                            <th style="width: 80px;">%</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>ยื่น</td>
+                                            <td id="tbl-loan-yes-unit">0</td>
+                                            <td id="tbl-loan-yes-value">0.00 M</td>
+                                            <td id="tbl-loan-yes-percent">0%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>ไม่ยื่น</td>
+                                            <td id="tbl-loan-no-unit">0</td>
+                                            <td id="tbl-loan-no-value">0.00 M</td>
+                                            <td id="tbl-loan-no-percent">0%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="summary-footer" id="sum-loan-no-percent">0%</div>
                         </div>
 
-                        <!-- อาชีพอิสระ -->
-                        <div class="summary-box bg-pink">
-                            <h6>อาชีพอิสระ</h6>
-                            <div class="summary-values">
-                                <div><strong id="sum-career-freelance-unit">0</strong><br>Unit</div>
-                                <div><strong id="sum-career-freelance-value">0.00 M</strong><br>Value</div>
+                        <!-- Group 3: อาชีพ -->
+                        <div>
+                            <h6 class="fw-bold mb-2">Group 3: ประเภทอาชีพ</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 160px;">อาชีพ</th>
+                                            <th style="width: 100px;">Unit</th>
+                                            <th style="width: 140px;">Value (M)</th>
+                                            <th style="width: 80px;">%</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>อาชีพอิสระ</td>
+                                            <td id="tbl-career-freelance-unit">0</td>
+                                            <td id="tbl-career-freelance-value">0.00 M</td>
+                                            <td id="tbl-career-freelance-percent">0%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>รายได้ประจำ</td>
+                                            <td id="tbl-career-salary-unit">0</td>
+                                            <td id="tbl-career-salary-value">0.00 M</td>
+                                            <td id="tbl-career-salary-percent">0%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>เจ้าของกิจการ</td>
+                                            <td id="tbl-career-owner-unit">0</td>
+                                            <td id="tbl-career-owner-value">0.00 M</td>
+                                            <td id="tbl-career-owner-percent">0%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="summary-footer" id="sum-career-freelance-percent">0%</div>
                         </div>
 
-                        <!-- รายได้ประจำ -->
-                        <div class="summary-box bg-pink">
-                            <h6>รายได้ประจำ</h6>
-                            <div class="summary-values">
-                                <div><strong id="sum-career-salary-unit">0</strong><br>Unit</div>
-                                <div><strong id="sum-career-salary-value">0.00 M</strong><br>Value</div>
-                            </div>
-                            <div class="summary-footer" id="sum-career-salary-percent">0%</div>
-                        </div>
-
-                        <!-- เจ้าของกิจการ -->
-                        <div class="summary-box bg-pink">
-                            <h6>เจ้าของกิจการ</h6>
-                            <div class="summary-values">
-                                <div><strong id="sum-career-owner-unit">0</strong><br>Unit</div>
-                                <div><strong id="sum-career-owner-value">0.00 M</strong><br>Value</div>
-                            </div>
-                            <div class="summary-footer" id="sum-career-owner-percent">0%</div>
-                        </div>
-                    </div>
+                    </div> <!-- /table view -->
 
                 </div>
-
             </div>
         </div>
     </div>
+
 
     <!--  Summary Bank card -->
     <div class="card filter-card">

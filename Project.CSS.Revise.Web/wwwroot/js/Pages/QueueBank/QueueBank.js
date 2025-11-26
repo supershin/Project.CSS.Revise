@@ -904,7 +904,17 @@ function qbUpdateSummaryBox(prefix, data) {
     if (unitEl) unitEl.textContent = unit;
     if (valueEl) valueEl.textContent = qbFormatValueM(value);
     if (percentEl) percentEl.textContent = `${percent}%`;
+
+    // 🔹 อัปเดต TABLE ถ้ามี element นั้นอยู่
+    const tUnitEl = document.getElementById(`tbl-${prefix}-unit`);
+    const tValueEl = document.getElementById(`tbl-${prefix}-value`);
+    const tPercentEl = document.getElementById(`tbl-${prefix}-percent`);
+
+    if (tUnitEl) tUnitEl.textContent = unit;
+    if (tValueEl) tValueEl.textContent = qbFormatValueM(value);
+    if (tPercentEl) tPercentEl.textContent = `${percent}%`;
 }
+
 
 // helper: map list ตาม Topic (lowercase + trim)
 function qbMapByTopic(list) {
@@ -916,6 +926,70 @@ function qbMapByTopic(list) {
     return map;
 }
 
+
+document.addEventListener("DOMContentLoaded", function () {
+    const btnToggle = document.getElementById("btnSummaryRegisterToggle");
+    const boxView = document.getElementById("summary-register-box-view");
+    const tableView = document.getElementById("summary-register-table-view");
+
+    if (!btnToggle || !boxView || !tableView) return;
+
+    btnToggle.addEventListener("click", function () {
+        const icon = btnToggle.querySelector("i");
+
+        const isBoxVisible = !boxView.classList.contains("d-none");
+
+        if (isBoxVisible) {
+            // สลับไป TABLE
+            boxView.classList.add("d-none");
+            tableView.classList.remove("d-none");
+
+            if (icon) {
+                icon.classList.remove("fa-table");
+                icon.classList.add("fa-th-large"); // icon สำหรับ card view
+            }
+            btnToggle.setAttribute("title", "Change to card view");
+            btnToggle.setAttribute("aria-label", "Change to card view");
+        } else {
+            // สลับกลับไป CARD
+            tableView.classList.add("d-none");
+            boxView.classList.remove("d-none");
+
+            if (icon) {
+                icon.classList.remove("fa-th-large");
+                icon.classList.add("fa-table"); // icon สำหรับ table view
+            }
+            btnToggle.setAttribute("title", "Change to table view");
+            btnToggle.setAttribute("aria-label", "Change to table view");
+        }
+    });
+});
+
+
+function qbUpdateSummaryRegisterHeaderDate() {
+    const startEl = document.getElementById("txt_RegisterDateStart");
+    const endEl = document.getElementById("txt_RegisterDateEnd");
+    const spanEl = document.getElementById("sum-register-date");
+
+    if (!spanEl) return;
+
+    const start = (startEl?.value || "").trim();
+    const end = (endEl?.value || "").trim();
+
+    let displayDate = "";
+    if (end) {
+        displayDate = end;
+    } else if (start) {
+        displayDate = start;
+    }
+
+    if (displayDate) {
+        spanEl.textContent = `As Of ${displayDate}`;
+    } else {
+        spanEl.textContent = "";
+    }
+}
+
 function loadSummaryRegisterAll() {
     const filters = qbGetValues();
 
@@ -924,9 +998,12 @@ function loadSummaryRegisterAll() {
         projectId = projectId[0] || "";
     }
 
+    // 🔹 อัปเดตหัวข้อวันที่จาก filter
+    qbUpdateSummaryRegisterHeaderDate();
+
     const formData = new FormData();
     // ==== QueueBank filters ====
-    formData.append("L_Act", "SummeryRegisterType"); // controller จะ clone model เองอยู่แล้ว
+    formData.append("L_Act", "SummeryRegisterType");
     formData.append("L_ProjectID", projectId || "");
     formData.append("L_RegisterDateStart", filters.RegisterDateStart || "");
     formData.append("L_RegisterDateEnd", filters.RegisterDateEnd || "");
@@ -967,7 +1044,6 @@ function loadSummaryRegisterAll() {
             const loanList = res.listDataSummeryRegisterLoanTyp || [];
             const loanMap = qbMapByTopic(loanList);
 
-            // key เป็นภาษาไทยใน Topic จาก SP
             qbUpdateSummaryBox("loan-yes", loanMap["ยื่น"]);
             qbUpdateSummaryBox("loan-no", loanMap["ไม่ยื่น"]);
 
@@ -981,7 +1057,6 @@ function loadSummaryRegisterAll() {
         })
         .catch(err => {
             console.error("GetlistSummeryRegister error:", err);
-            // ถ้า error ให้เคลียร์ทุกกล่องเป็น 0 กันค่าค้าง
 
             // แถวบน
             qbUpdateSummaryBox("register", null);
@@ -1004,6 +1079,7 @@ function loadSummaryRegisterAll() {
             }
         });
 }
+
 
 // ===== Summary Bank (table) =====
 
