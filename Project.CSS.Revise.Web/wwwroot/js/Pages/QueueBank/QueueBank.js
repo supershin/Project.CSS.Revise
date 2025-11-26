@@ -318,12 +318,10 @@ function initQueueBankRegisterTable() {
                     const id = row.ID || "";
 
                     return `
-            <a href="javascript:void(0)"
-               class="qb-unit-link"
-               data-unit="${unitCode}"
-               data-id="${id}">
-                ${unitCode}
-            </a>`;
+                            <a href="javascript:void(0)" class="qb-unit-link unit-pill"
+                               data-unit="${unitCode}" data-id="${id}">
+                               <i class="fa fa-home unit-icon"></i> ${unitCode}
+                            </a>`;
                 }
             },
             {
@@ -678,8 +676,47 @@ function wireButtons() {
     const btnSearch = document.getElementById("btnSearch");
     if (btnSearch) {
         btnSearch.addEventListener("click", () => {
+
+            // ✅ ใช้ qbGetValues() อ่านค่า Project จาก Choices.js
+            const filters = qbGetValues();
+            let projectVal = filters.Project;
+            let hasProject = false;
+
+            if (Array.isArray(projectVal)) {
+                // กรณีเป็น array (multi-select)
+                hasProject = projectVal.length > 0 && projectVal[0] !== "";
+            } else {
+                // กรณีเป็น string (single-select)
+                hasProject = !!(projectVal && projectVal.toString().trim() !== "");
+            }
+
+            // ❌ ไม่ได้เลือก Project → popup error + หยุด
+            if (!hasProject) {
+                if (typeof Swal !== "undefined") {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Validation Error",
+                        text: "Please select a project before searching.",
+                        buttonsStyling: false,
+                        confirmButtonText: "OK",
+                        customClass: {
+                            confirmButton: "btn btn-danger"
+                        },
+                        allowOutsideClick: false,
+                        didOpen: (popup) => {
+                            popup.parentNode.style.zIndex = 200000;
+                        }
+                    });
+                } else {
+                    alert("Please select a project before searching.");
+                }
+                return; // ⚠️ หยุดไม่ให้ search ต่อ
+            }
+
+            // ✅ ผ่าน validation → ทำงานตามปกติ
+            qbUpdateProjectTableHeader();
             loadQueueBankRegisterTable();
-            loadSummaryRegisterAll();   // ⭐ ดึงสรุปใหม่ตาม filter ทุกครั้งที่กด Search
+            loadSummaryRegisterAll();
             loadSummaryRegisterBank();
         });
     }
@@ -688,32 +725,120 @@ function wireButtons() {
     if (btnCancel) {
         btnCancel.addEventListener("click", () => {
             ClearFilter();
-            // ถ้าหลังเคลียร์ filter อยากโหลด table new ด้วยก็ปลดคอมเมนต์
-            // loadQueueBankRegisterTable();
+            qbUpdateProjectTableHeader(); // reset header after clear
         });
     }
 }
 
+
+function qbUpdateProjectTableHeader() {
+    const headerEl = document.getElementById("project-name-selected");
+    const selectEl = document.getElementById("ddl_Project");
+    const defaultTitle = "Project Table";
+
+    if (!headerEl) {
+        console.warn("❗ #project-name-selected not found");
+        return;
+    }
+    if (!selectEl) {
+        console.warn("❗ #ddl_Project not found");
+        headerEl.textContent = defaultTitle;
+        return;
+    }
+
+    // Get selected <option> elements from the real select
+    const selectedOptions = Array.from(selectEl.selectedOptions || []);
+    console.log("📌 Selected project options:", selectedOptions);
+
+    // Case 1: No selection
+    if (selectedOptions.length === 0) {
+        console.log("➡ No project selected → use default title");
+        headerEl.textContent = defaultTitle;
+        return;
+    }
+
+    // Helper to get clean text
+    const getText = (opt) => (opt?.textContent || "").trim();
+
+    // Case 2: One project selected
+    if (selectedOptions.length === 1) {
+        const name = getText(selectedOptions[0]) || defaultTitle;
+        console.log("➡ One project selected:", name);
+        headerEl.textContent = name;
+        return;
+    }
+
+    // Case 3: Multiple projects selected
+    const firstName = getText(selectedOptions[0]) || "Project";
+    const moreCount = selectedOptions.length - 1;
+    const labelText = `${firstName} (+${moreCount})`;
+
+    console.log(`➡ Multiple selected: ${labelText}`);
+    headerEl.textContent = labelText;
+}
+
+
+
+
 function openCreateRegister() {
+    // 1) เช็คก่อนว่ามี Project ไหม
+    const filters = qbGetValues();
+    let projectVal = filters.Project;
+    let hasProject = false;
+
+    if (Array.isArray(projectVal)) {
+        hasProject = projectVal.length > 0 && projectVal[0] !== "";
+    } else {
+        hasProject = !!(projectVal && projectVal.toString().trim() !== "");
+    }
+
+    if (!hasProject) {
+        // ❌ ยังไม่เลือก Project → เด้งเตือนแล้วหยุด
+        if (typeof Swal !== "undefined") {
+            Swal.fire({
+                icon: "error",
+                title: "Validation Error",
+                text: "Please select a project before creating a register.",
+                buttonsStyling: false,
+                confirmButtonText: "OK",
+                customClass: {
+                    confirmButton: "btn btn-danger"
+                },
+                allowOutsideClick: false,
+                didOpen: (popup) => {
+                    popup.parentNode.style.zIndex = 200000;
+                }
+            });
+        } else {
+            alert("Please select a project before creating a register.");
+        }
+        return; // ❗ ไม่ต้องเปิด modal ถ้าไม่มี Project
+    }
+
+    // 2) ✅ ผ่านแล้ว → เปิด modal ตามปกติ
     const modalEl = document.getElementById('modalCreateRegister');
+    if (!modalEl) {
+        console.warn("❗ modalCreateRegister not found in DOM");
+        return;
+    }
+
     const m = new bootstrap.Modal(modalEl);
     m.show();
 
-    // โหลด Unit สำหรับ DDLUnitCode ตาม Project ที่เลือก
+    // 3) โหลด Unit สำหรับ DDLUnitCode ตาม Project ที่เลือก
     loadUnitForRegisterBank();
 
-    // init หรือ reload DataTable
+    // 4) init หรือ reload DataTable
     if (window.jQuery && $.fn.DataTable) {
-        if (!CreateRegisterTableDt) {
+        if (!window.CreateRegisterTableDt) {
             initCreateRegisterTable();
         } else {
-            CreateRegisterTableDt.ajax.reload();
+            window.CreateRegisterTableDt.ajax.reload();
         }
     } else {
         console.warn("DataTables not loaded. Please include jquery.dataTables.js and css.");
     }
 }
-
 
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -873,10 +998,6 @@ function crSaveRegisterLog(projectId, unitCode, queueTypeId) {
             if (typeof hideLoading === "function") hideLoading();
         });
 }
-
-
-
-// ===== Summary Register (ทั้ง 2 แถว) =====
 
 // format ตัวเลขมูลค่าให้เป็น "xx.xx M"
 function qbFormatValueM(raw) {
