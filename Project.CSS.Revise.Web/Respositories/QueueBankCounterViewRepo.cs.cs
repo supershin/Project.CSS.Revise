@@ -88,6 +88,7 @@ namespace Project.CSS.Revise.Web.Respositories
                             LEFT JOIN TR_Register_BankCounter RBC WITH (NOLOCK)
                                 ON RL.ID = RBC.[RegisterLogID] 
                                 AND RBC.[BankCounterStatus] != 'Check Out'
+                                AND RBC.[CheckOutDate] IS NULL
                             LEFT JOIN tm_Bank TB WITH (NOLOCK)  
                                 ON RBC.[BankID] = TB.ID
                             ORDER BY C.Counter;

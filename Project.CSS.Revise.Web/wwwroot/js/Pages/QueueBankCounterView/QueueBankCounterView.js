@@ -82,6 +82,146 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+// ======================
+// Load counter list from backend (JSON)
+// ======================
+async function loadCounterList() {
+    const grid = document.getElementById("counterGrid");
+    if (!grid) return;
+
+    const projInput = document.getElementById("hidProjectId");
+    const projectId = projInput ? projInput.value : "";
+
+    if (!projectId) {
+        grid.innerHTML = `
+            <div class="col-12 text-center text-danger">
+                Project ID not found.
+            </div>`;
+        return;
+    }
+
+    grid.innerHTML = `
+        <div class="col-12 text-center text-muted" id="counterGridLoading">
+            Loading counters...
+        </div>`;
+
+    try {
+        const rootPath = (typeof baseUrl !== "undefined" ? baseUrl : "/");
+        const url = `${rootPath}QueueBankCounterView/GetCounterList?projectId=${encodeURIComponent(projectId)}`;
+
+        const resp = await fetch(url, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        });
+
+        if (!resp.ok) {
+            throw new Error("HTTP " + resp.status);
+        }
+
+        const json = await resp.json();
+        if (!json.success) {
+            console.error("GetCounterList error:", json.message);
+            renderCounterGrid([]);
+            return;
+        }
+
+        renderCounterGrid(json.data || []);
+    } catch (err) {
+        console.error("Fetch counter list failed:", err);
+        grid.innerHTML = `
+            <div class="col-12 text-center text-danger">
+                Cannot load counter list.
+            </div>`;
+    }
+}
+
+
+// ======================
+// Render counter boxes จาก JSON
+// ======================
+function renderCounterGrid(items) {
+    const grid = document.getElementById("counterGrid");
+    const loadingEl = document.getElementById("counterGridLoading");
+
+    if (!grid) return;
+
+    if (loadingEl) {
+        loadingEl.remove();
+    }
+
+    if (!items || !items.length) {
+        grid.innerHTML = `
+            <div class="col-12 text-center text-muted">
+                No counters configured for this project.
+            </div>`;
+        return;
+    }
+
+    const rootPath = (typeof baseUrl !== "undefined" ? baseUrl : "/");
+    let html = "";
+
+    items.forEach(item => {
+        // รองรับ property แบบ C# PascalCase และ JS camelCase
+        const counterNo = item.Counter || item.counter || "";
+        const bankCode = item.BankCode || item.bankCode || "";
+        const bankName = item.BankName || item.bankName || "";
+        const unitCode = item.UnitCode || item.unitCode || "";
+        const registerLogID = item.RegisterLogID || item.registerLogID || "";
+
+        const isActive = registerLogID && registerLogID !== "";
+
+        const boxClass = "counter-box qb-counter " + (isActive ? "active" : "empty");
+
+        const bankLogoHtml = bankCode
+            ? `<img src="${rootPath}image/ThaiBankicon/${bankCode}.png" alt="${bankCode}" width="26" class="me-2">`
+            : "";
+
+        const bodyContent = isActive
+            ? `${bankLogoHtml}${unitCode || "-"}`
+            : "";
+
+        html += `
+            <div class="col-6 col-md-3">
+                <div class="${boxClass}"
+                     data-counter="${counterNo}"
+                     data-bank="${bankCode}"
+                     data-bankname="${bankName}"
+                     data-unit="${unitCode}"
+                     data-registerid="${registerLogID}">
+                    <div class="counter-header ${isActive ? "bg-danger text-white" : "bg-primary text-white"}">
+                        Counter : ${counterNo}
+                    </div>
+                    <div class="counter-body">
+                        ${bodyContent}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    grid.innerHTML = html;
+
+    // เก็บ state เดิม ไว้ให้ปุ่ม Bank/QR ใช้ restore
+    const boxes = grid.querySelectorAll(".counter-box");
+    boxes.forEach(box => {
+        const header = box.querySelector(".counter-header");
+        const body = box.querySelector(".counter-body");
+        if (!header || !body) return;
+
+        box.dataset.originalBoxClass = box.className;
+        box.dataset.originalHeaderHtml = header.innerHTML;
+        box.dataset.originalBodyHtml = body.innerHTML;
+        header.dataset.originalClass = header.className;
+        body.dataset.originalClass = body.className;
+    });
+
+    // init behaviour หลังจาก render เสร็จ
+    initCounterModeButtons();
+    initCounterCardClick();
+}
+
 
 // ======================
 // Counter View: toggle Bank / QR mode
@@ -92,21 +232,6 @@ function initCounterModeButtons() {
     const btnQR = document.getElementById("btnQRCounter");
 
     if (!grid || !btnBank || !btnQR) return;
-
-    const boxes = Array.from(grid.querySelectorAll(".counter-box"));
-
-    // เก็บ state เดิม
-    boxes.forEach(box => {
-        const header = box.querySelector(".counter-header");
-        const body = box.querySelector(".counter-body");
-        if (!header || !body) return;
-
-        box.dataset.originalBoxClass = box.className;
-        box.dataset.originalHeaderClass = header.className;
-        box.dataset.originalBodyClass = body.className;
-        box.dataset.originalHeaderHtml = header.innerHTML;
-        box.dataset.originalBodyHtml = body.innerHTML;
-    });
 
     function setButtonsMode(mode) {
         btnBank.classList.remove("btn-primary", "btn-outline-primary");
@@ -121,26 +246,49 @@ function initCounterModeButtons() {
         }
     }
 
-    // 🔵 โหมด Bank → คืน layout เดิม
+    // 🔵 โหมด Bank → คืน layout เดิมที่ save ไว้ใน dataset
     function setBankMode() {
+        const boxes = Array.from(grid.querySelectorAll(".counter-box"));
+
         boxes.forEach(box => {
             const header = box.querySelector(".counter-header");
             const body = box.querySelector(".counter-body");
             if (!header || !body) return;
 
-            if (box.dataset.originalBoxClass) box.className = box.dataset.originalBoxClass;
-            if (box.dataset.originalHeaderClass) header.className = box.dataset.originalHeaderClass;
-            if (box.dataset.originalBodyClass) body.className = box.dataset.originalBodyClass;
-            if (box.dataset.originalHeaderHtml != null) header.innerHTML = box.dataset.originalHeaderHtml;
-            if (box.dataset.originalBodyHtml != null) body.innerHTML = box.dataset.originalBodyHtml;
+            if (box.dataset.originalBoxClass) {
+                box.className = box.dataset.originalBoxClass;
+            }
+            if (header.dataset.originalClass) {
+                header.className = header.dataset.originalClass;
+            }
+            if (body.dataset.originalClass) {
+                body.className = body.dataset.originalClass;
+            }
+            if (box.dataset.originalHeaderHtml != null) {
+                header.innerHTML = box.dataset.originalHeaderHtml;
+            }
+            if (box.dataset.originalBodyHtml != null) {
+                body.innerHTML = box.dataset.originalBodyHtml;
+            }
         });
 
         setButtonsMode("bank");
     }
 
-    // 🟡 โหมด QR → ใช้ธีม counter ว่าง + รูป QR
+    // 🟡 โหมด QR → เรียก /QueueBankCounterView/CounterQr ต่อ counter
     function setQRMode() {
         const rootPath = (typeof baseUrl !== "undefined" ? baseUrl : "/");
+
+        const projectIdInput = document.getElementById("hidProjectId");
+        const projectNameEl = document.getElementById("project_name");
+
+        const projectId = projectIdInput ? projectIdInput.value : "";
+        const projectName = projectNameEl ? projectNameEl.textContent.trim() : "";
+
+        const encodedProjectId = encodeURIComponent(projectId);
+        const encodedProjectName = encodeURIComponent(projectName);
+
+        const boxes = Array.from(grid.querySelectorAll(".counter-box"));
 
         boxes.forEach(box => {
             const header = box.querySelector(".counter-header");
@@ -148,6 +296,16 @@ function initCounterModeButtons() {
             if (!header || !body) return;
 
             const headerText = (header.textContent || box.dataset.originalHeaderHtml || "").trim();
+
+            const counterNo = box.dataset.counter || "";
+            if (!counterNo) return;
+
+            const qrUrl =
+                `${rootPath}QueueBankCounterView/CounterQr` +
+                `?projectId=${encodedProjectId}` +
+                `&projectName=${encodedProjectName}` +
+                `&queueType=bank` +
+                `&counterNo=${encodeURIComponent(counterNo)}`;
 
             box.classList.remove("active");
             if (!box.classList.contains("empty")) {
@@ -160,8 +318,8 @@ function initCounterModeButtons() {
             body.className = "counter-body";
             body.innerHTML = `
                 <div class="d-flex justify-content-center align-items-center" style="min-height:60px;">
-                    <img src="${rootPath}image/ThaiBankicon/QRCODE.png"
-                         alt="QR Code"
+                    <img src="${qrUrl}"
+                         alt="QR Code for Counter ${counterNo}"
                          style="width:64px; height:auto;">
                 </div>
             `;
@@ -170,17 +328,23 @@ function initCounterModeButtons() {
         setButtonsMode("qr");
     }
 
-    btnBank.addEventListener("click", function (e) {
-        e.preventDefault();
-        setBankMode();
-    });
+    if (!btnBank.dataset.bound) {
+        btnBank.addEventListener("click", function (e) {
+            e.preventDefault();
+            setBankMode();
+        });
+        btnBank.dataset.bound = "1";
+    }
 
-    btnQR.addEventListener("click", function (e) {
-        e.preventDefault();
-        setQRMode();
-    });
+    if (!btnQR.dataset.bound) {
+        btnQR.addEventListener("click", function (e) {
+            e.preventDefault();
+            setQRMode();
+        });
+        btnQR.dataset.bound = "1";
+    }
 
-    // เริ่มด้วยโหมด Bank
+    // เริ่มที่โหมด Bank
     setBankMode();
 }
 
@@ -198,13 +362,13 @@ function initCounterCardClick() {
 
     if (!grid || !detailCol) return;
 
-    // ✅ ตั้งค่าเริ่มต้น: ถ้า detail ปิดอยู่ → ซ้ายเต็มหน้าจอ col-lg-12
+    // เริ่มต้น: ถ้า detail ปิด → ซ้ายเต็ม col-12
     if (leftCol && detailCol.classList.contains("d-none")) {
         leftCol.classList.remove("col-lg-8");
         leftCol.classList.add("col-lg-12");
     }
 
-    // คลิกการ์ดฝั่งซ้าย → เปิด/อัปเดต panel ขวา + ย่อซ้ายเป็น 8
+    // คลิกการ์ดฝั่งซ้าย → เปิด panel ขวา + ย่อซ้าย
     grid.addEventListener("click", function (e) {
         const box = e.target.closest(".qb-counter");
         if (!box || !grid.contains(box)) return;
@@ -212,36 +376,31 @@ function initCounterCardClick() {
         const counterNo = box.dataset.counter || "";
         const unitCode = box.dataset.unit || "";
 
-        // 1) แสดง column ขวา
         detailCol.classList.remove("d-none");
 
-        // 2) ซีกซ้ายกลับมา col-lg-8
         if (leftCol) {
             leftCol.classList.remove("col-lg-12");
             leftCol.classList.add("col-lg-8");
         }
 
-        // 3) อัปเดต title
         if (titleEl) {
             titleEl.textContent = counterNo
                 ? `Counter : ${counterNo}`
                 : "Counter";
         }
 
-        // 4) เติม Unit Code
         if (unitInput) {
             unitInput.value = unitCode || "";
         }
 
-        // 5) Highlight การ์ดที่เลือก
         grid.querySelectorAll(".qb-counter.selected").forEach(el => {
             el.classList.remove("selected");
         });
         box.classList.add("selected");
     });
 
-    // ปุ่มปิด → ซ่อน panel ขวา + ขยายซ้ายเป็น col-lg-12
-    if (closeBtn) {
+    // ปิด panel ขวา → ซ้ายกลับมาเต็ม
+    if (closeBtn && !closeBtn.dataset.bound) {
         closeBtn.addEventListener("click", function () {
             detailCol.classList.add("d-none");
 
@@ -254,6 +413,7 @@ function initCounterCardClick() {
                 el.classList.remove("selected");
             });
         });
+        closeBtn.dataset.bound = "1";
     }
 }
 
@@ -262,6 +422,16 @@ function initCounterCardClick() {
 // Boot all
 // ======================
 document.addEventListener("DOMContentLoaded", function () {
-    initCounterModeButtons();   // ปุ่ม Bank / QR
-    initCounterCardClick();     // คลิกการ์ด + resize col ซ้าย/ขวา
+    // โหลด counter list ครั้งแรก
+    loadCounterList();
+
+    // ปุ่ม Refresh → reload counters
+    const btnRefresh = document.getElementById("btnRefreshCounter");
+    if (btnRefresh && !btnRefresh.dataset.bound) {
+        btnRefresh.addEventListener("click", function (e) {
+            e.preventDefault();
+            loadCounterList();
+        });
+        btnRefresh.dataset.bound = "1";
+    }
 });
