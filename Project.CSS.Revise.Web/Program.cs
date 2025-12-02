@@ -58,6 +58,8 @@ builder.Services.AddScoped<IQueueBankRepo, QueueBankRepo>();
 builder.Services.AddScoped<IQueueBankService, QueueBankService>();
 builder.Services.AddScoped<IUnitRepo, UnitRepo>();
 builder.Services.AddScoped<IUnitService, UnitService>();
+builder.Services.AddScoped<IQueueBankCounterViewRepo, QueueBankCounterViewRepo>();
+builder.Services.AddScoped<IQueueBankCounterViewService, QueueBankCounterViewService>();
 
 
 // Add the new services for SQL and data access

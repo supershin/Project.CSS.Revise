@@ -42,13 +42,64 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 document.addEventListener("DOMContentLoaded", () => {
     const btnCounter = document.getElementById("btnCounter");
-    if (btnCounter && typeof QueueBankCheckerViewUrl !== "undefined") {
+
+    if (btnCounter && typeof QueueBankCounterViewUrl !== "undefined") {
         btnCounter.addEventListener("click", function () {
-            window.open(QueueBankCheckerViewUrl, "_blank");
+
+            // 1) เอา projectId จาก Choices.js (ฟังก์ชัน qbGetValues ที่พ่อใหญ่มีอยู่แล้ว)
+            const filters = qbGetValues();
+            let projectId = filters.Project;
+
+            if (Array.isArray(projectId)) {
+                projectId = projectId[0] || "";
+            }
+
+            // ถ้ายังไม่ได้เลือก Project → ไม่ให้ไปหน้า Counter
+            if (!projectId) {
+                if (typeof Swal !== "undefined") {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Validation Error",
+                        text: "Please select a project before open Counter view.",
+                        buttonsStyling: false,
+                        confirmButtonText: "OK",
+                        customClass: {
+                            confirmButton: "btn btn-danger"
+                        },
+                        allowOutsideClick: false,
+                        didOpen: (popup) => {
+                            popup.parentNode.style.zIndex = 200000;
+                        }
+                    });
+                } else {
+                    alert("Please select a project before open Counter view.");
+                }
+                return;
+            }
+
+            // 2) เอา Project Name จาก select จริง (#ddl_Project)
+            let projectName = "";
+            const projSelect = document.getElementById("ddl_Project");
+            if (projSelect && projSelect.selectedOptions.length > 0) {
+                projectName = (projSelect.selectedOptions[0].textContent || "").trim();
+            }
+
+            // fallback ถ้าไม่มีชื่อ
+            if (!projectName) {
+                projectName = "Project";
+            }
+
+            // 3) ประกอบ URL ส่งไปหน้า Counter
+            const url =
+                QueueBankCounterViewUrl +
+                "?projectId=" + encodeURIComponent(projectId) +
+                "&projectName=" + encodeURIComponent(projectName);
+
+            // 4) เปิดหน้า Counter ในแท็บใหม่
+            window.open(url, "_blank");
         });
     }
 });
-
 
 // /js/Pages/QueueBank/QueueBank.js
 
