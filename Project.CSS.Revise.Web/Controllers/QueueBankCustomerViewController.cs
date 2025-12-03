@@ -23,8 +23,10 @@ namespace Project.CSS.Revise.Web.Controllers
             _configProject = configProject;
             _userAndPermissionService = userAndPermissionService;
         }
-        public IActionResult Index()
+        public IActionResult Index(string projectId, string projectName)
         {
+            ViewBag.ProjectId = projectId;
+            ViewBag.ProjectName = projectName;
             return View();
         }
     }

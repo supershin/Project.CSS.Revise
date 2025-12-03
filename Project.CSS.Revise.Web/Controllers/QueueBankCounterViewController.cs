@@ -14,20 +14,25 @@ namespace Project.CSS.Revise.Web.Controllers
         private readonly IMasterService _masterService;
         private readonly IUserAndPermissionService _userAndPermissionService;
         private readonly IQueueBankCounterViewService _queueBankCounterViewService;
+        private readonly IQueueBankService _queueBankService;
         public QueueBankCounterViewController(IHttpContextAccessor httpContextAccessor
             , IMasterService masterService
             , IUserAndPermissionService userAndPermissionService
-            , IQueueBankCounterViewService queueBankCounterViewService) : base(httpContextAccessor)
+            , IQueueBankCounterViewService queueBankCounterViewService
+            , IQueueBankService queueBankService) : base(httpContextAccessor)
         {
             _masterService = masterService;
             _userAndPermissionService = userAndPermissionService;
             _queueBankCounterViewService = queueBankCounterViewService;
+            _queueBankService = queueBankService;
         }
 
         public IActionResult Index(string projectId, string projectName)
         {
             ViewBag.ProjectId = projectId;
             ViewBag.ProjectName = projectName;
+            var list = _queueBankCounterViewService.GetUnitDropdown(projectId);
+            ViewBag.listunitforregister = list;
 
             return View();
         }
@@ -50,7 +55,6 @@ namespace Project.CSS.Revise.Web.Controllers
                 ProjectID = projectId
             };
 
-            // เรียก Service ที่หุ้ม Repo ของมึง
             var list = _queueBankCounterViewService.GetListsCounterQueueBank(filter);
 
             return Json(new
@@ -60,6 +64,54 @@ namespace Project.CSS.Revise.Web.Controllers
             });
         }
 
+        [HttpGet]
+        public IActionResult GetCounterDetailsList(string projectId , int counter)
+        {
+            if (string.IsNullOrWhiteSpace(projectId))
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "ProjectId is required.",
+                    data = Array.Empty<object>()
+                });
+            }
+
+            var filter = new ListCounterDetailsModel.Filter
+            {
+                 ProjectID = projectId
+                ,Counter = counter
+            };
+
+            var list = _queueBankCounterViewService.GetListsCounterDetailsQueueBank(filter);
+
+            return Json(new
+            {
+                success = true,
+                data = list
+            });
+        }
+
+        [HttpPost]
+        public IActionResult UpdateUnitRegister([FromBody] UpdateUnitRegisterModel.Entity model)
+        {
+            var message = _queueBankCounterViewService.UpdateUnitRegister(model);
+            return Json(message);
+        }
+
+        [HttpPost]
+        public IActionResult RemoveUnitRegister([FromBody] UpdateUnitRegisterModel.Entity model)
+        {
+            var message = _queueBankCounterViewService.RemoveUnitFromCounter(model);
+            return Json(message);
+        }
+
+        [HttpPost]
+        public IActionResult CheckoutBankCounter([FromBody] BankCheckoutRequest model)
+        {
+            var message = _queueBankCounterViewService.CheckoutBankCounter(model);
+            return Json(message);
+        }
 
 
         // ============================

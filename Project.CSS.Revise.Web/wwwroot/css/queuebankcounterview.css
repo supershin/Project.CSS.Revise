@@ -234,3 +234,137 @@
     padding: 10px;
 }
 
+    /* ===== Fullscreen: zoom detail & cards ===== */
+
+    /* เมื่อเข้า fullscreen → ขยายทุกอย่างให้ดูใหญ่ขึ้น */
+    #Container_counter.fullscreen-mode .counter-detail-box {
+        padding: 28px 24px;
+        border-radius: 14px;
+        border-width: 2px;
+        font-size: 1.05rem;
+    }
+
+    /* Label & title ใหญ่ขึ้น */
+    #Container_counter.fullscreen-mode #counterDetailTitle {
+        font-size: 1.4rem;
+    }
+
+    #Container_counter.fullscreen-mode .counter-detail-box .form-label {
+        font-size: 0.95rem;
+    }
+
+    /* ช่องกรอก Unit Code ใหญ่ขึ้น ชัดขึ้น */
+    #Container_counter.fullscreen-mode #txtUnitCode {
+        font-size: 1.2rem;
+        height: 3rem;
+        padding-inline: 14px;
+    }
+
+    /* ปุ่ม OK ขยายให้บาลานซ์กับ input */
+    #Container_counter.fullscreen-mode .counter-detail-box .btn-success {
+        padding-inline: 18px;
+        font-size: 1rem;
+    }
+
+    /* TAG โซนธนาคาร/วันที่ ให้ badge ดูใหญ่ขึ้น */
+    #Container_counter.fullscreen-mode #counterTagArea .badge {
+        font-size: 0.95rem;
+        padding: 0.55rem 0.8rem;
+        border-radius: 999px;
+    }
+
+    /* QR Code ขยายในโหมด fullscreen */
+    #Container_counter.fullscreen-mode .qr-box img {
+        width: 260px !important; /* override จาก width เดิม 180px */
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* ปุ่ม Checker View ด้านล่าง ขยายเล็กน้อย */
+    #Container_counter.fullscreen-mode #btnCheckerView {
+        padding: 0.6rem 1.3rem;
+        font-size: 0.98rem;
+    }
+
+
+    /* ===== Fullscreen: ปรับขนาดการ์ดฝั่งซ้ายให้ดูชัดขึ้นด้วย ===== */
+
+    /* Header การ์ดใหญ่ขึ้นนิดหน่อย */
+    #Container_counter.fullscreen-mode .counter-box .counter-header {
+        font-size: 0.95rem;
+        padding-block: 10px;
+    }
+
+    /* Body ของ counter → padding กับฟอนต์ใหญ่ขึ้น */
+    #Container_counter.fullscreen-mode .counter-box .counter-body {
+        padding: 20px 12px;
+        font-size: 1rem;
+    }
+
+        /* โลโก้ธนาคารในการ์ดซ้ายให้ใหญ่ขึ้นนิดนึง */
+        #Container_counter.fullscreen-mode .counter-box .counter-body img {
+            width: 32px;
+        }
+
+    /* เพิ่ม shadow นิดนึงให้รู้ว่าอยู่ในหน้าโชว์ใหญ่ */
+    #Container_counter.fullscreen-mode .counter-box {
+        box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+    }
+
+    /* QR ที่อยู่ใน box (grid ซ้าย) ในโหมด fullscreen → ขยาย */
+    #Container_counter.fullscreen-mode .counter-box .counter-body img {
+        width: 96px !important; /* จาก 64px → 96px หรือจะปรับเป็น 120px ก็ได้ */
+        height: auto;
+    }
+
+
+/* การ์ดที่อยู่ในสถานะ In Process (มี InProcessDate) → ธีมเขียว */
+.counter-box.inprocess .counter-header {
+    background-color: #28a745 !important; /* เขียวแบบ success */
+    color: #fff;
+}
+
+.counter-box.inprocess .counter-body {
+    background: #e6ffed; /* เขียวอ่อน */
+    color: #155724; /* เขียวเข้มอ่านง่าย */
+}
+
+/* ทำให้แถว dropdown + ปุ่ม OK เป็น flex เต็มแถว */
+.counter-detail-box .input-group {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
+    /* ===== กรณีใช้ select ธรรมดา ===== */
+    .counter-detail-box .input-group > #ddlUnitRegister {
+        flex: 1 1 auto; /* ขยายกินพื้นที่ที่เหลือ */
+        width: auto; /* ไม่ fix width 50px แล้ว */
+        min-width: 0;
+        border-radius: 999px 0 0 999px; /* pill ซ้าย */
+    }
+
+    /* ปุ่ม OK ติดขวา ไม่โดนยืด */
+    .counter-detail-box .input-group > #btnSaveUnitRegister {
+        flex: 0 0 auto; /* กว้างตามเนื้อปุ่ม */
+        border-radius: 0 999px 999px 0; /* pill ขวา */
+        margin-left: -1px; /* ซ่อนเส้นขอบซ้อนกัน ให้ดูติดกันสนิท */
+    }
+
+    /* ===== กรณีใช้ Choices.js ===== */
+    /* ตัว wrapper .choices ให้ทำตัวเหมือน input ใน input-group */
+    .counter-detail-box .input-group > .choices {
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 0;
+    }
+
+/* กล่องด้านในของ choices (แทน select) */
+.counter-detail-box .choices__inner {
+    border-radius: 999px 0 0 999px;
+    min-height: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    padding: 4px 26px 4px 12px;
+}

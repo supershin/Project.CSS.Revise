@@ -32,14 +32,75 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+// ==============================
+// Open Customer View
+// ==============================
 document.addEventListener("DOMContentLoaded", () => {
+
     const btnCustomerView = document.getElementById("btnCustomerView");
-    if (btnCustomerView && typeof customerViewUrl !== "undefined") {
+
+    // ✅ ใช้ QueueBankCustomerViewUrl ให้เหมือน QueueBankCounterViewUrl
+    if (btnCustomerView && typeof QueueBankCustomerViewUrl !== "undefined") {
+
         btnCustomerView.addEventListener("click", function () {
-            window.open(customerViewUrl, "_blank");
+
+            // 1) ดึง projectId จาก Choices.js ผ่าน qbGetValues()
+            const filters = qbGetValues();
+            let projectId = filters.Project;
+
+            if (Array.isArray(projectId)) {
+                projectId = projectId[0] || "";
+            }
+
+            // ถ้ายังไม่ได้เลือกโปรเจกต์ → ห้ามกด
+            if (!projectId) {
+                if (typeof Swal !== "undefined") {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Validation Error",
+                        text: "Please select a project before open Customer view.",
+                        buttonsStyling: false,
+                        confirmButtonText: "OK",
+                        customClass: {
+                            confirmButton: "btn btn-danger"
+                        },
+                        allowOutsideClick: false,
+                        didOpen: (popup) => {
+                            popup.parentNode.style.zIndex = 200000;
+                        }
+                    });
+                } else {
+                    alert("Please select a project before open Customer view.");
+                }
+                return;
+            }
+
+            // 2) ดึงชื่อโปรเจกต์จาก select จริง (#ddl_Project)
+            let projectName = "";
+            const projSelect = document.getElementById("ddl_Project");
+            if (projSelect && projSelect.selectedOptions.length > 0) {
+                projectName = (projSelect.selectedOptions[0].textContent || "").trim();
+            }
+
+            if (!projectName) {
+                projectName = "Project";
+            }
+
+            // 3) สร้าง URL สำหรับ Customer View (เหมือน Counter)
+            const url =
+                QueueBankCustomerViewUrl +
+                "?projectId=" + encodeURIComponent(projectId) +
+                "&projectName=" + encodeURIComponent(projectName);
+
+            // 4) เปิดแท็บใหม่
+            window.open(url, "_blank");
         });
     }
 });
+
+// ==============================
+// Open Counter View
+// ==============================
 document.addEventListener("DOMContentLoaded", () => {
     const btnCounter = document.getElementById("btnCounter");
 
