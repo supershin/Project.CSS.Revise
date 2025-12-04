@@ -184,12 +184,7 @@
 }
 
 /* ===== Buttons ===== */
-#btnRefreshCounter {
-    background: #2ed573;
-    border: none;
-    color: #fff;
-    font-weight: 600;
-}
+
 
 #btnCheckerView {
     background: #f9b65d;
@@ -198,9 +193,7 @@
     font-weight: 600;
 }
 
-#btnRefreshCounter:hover {
-    background: #26c46a;
-}
+
 
 #btnCheckerView:hover {
     background: #eea545;

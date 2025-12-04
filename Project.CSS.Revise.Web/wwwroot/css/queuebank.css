@@ -72,33 +72,21 @@
 
 
 
-/* ==========================
-    Project Table 
-   ========================== */
-
-/* default ของ Bootstrap เดิม */
-.table-nowrap td,
-.table-nowrap th {
-    white-space: nowrap;
+/* ทำให้ตารางทุกอันชิดเส้น */
+table.dataTable {
+    border-collapse: collapse !important;
 }
 
-/* 👉 สำหรับ QueueBank: ไม่บังคับ nowrap ที่ header แล้ว */
-.queue-table thead th {
-    white-space: normal; /* ให้ตัดบรรทัดได้ */
-    overflow: hidden; /* กัน text ล้นออกนอกเซลล์ */
-    text-overflow: ellipsis; /* ถ้าแคบมากให้ … แทน */
+/* ใส่เส้นแนวตั้งให้ทุก column */
+table.dataTable th,
+table.dataTable td {
+    border-right: 1px solid #dee2e6 !important;
 }
 
-/* Customer + CS header ยังให้ขึ้นบรรทัดเดียวอยู่ */
-.queue-table th.customer-col,
-.queue-table th.cs-col {
-    white-space: nowrap; /* บรรทัดเดียว */
-}
-
-/* cell ด้านใน – ให้ Customer และ CS ตัดบรรทัดได้ */
-.queue-table td.customer-col,
-.queue-table td.cs-col {
-    white-space: normal;
+/* ใส่เส้นซ้ายให้คอลัมน์แรก */
+table.dataTable th:first-child,
+table.dataTable td:first-child {
+    border-left: 1px solid #dee2e6 !important;
 }
 
 

@@ -38,6 +38,22 @@
             <input type="hidden" id="hidProjectId" value="@projectId" />
 
             <div class="d-flex align-items-center gap-2">
+
+                <!-- REFRESH BTN -->
+                <button id="btnRefreshCounter" class="btn btn-sm btn-outline-success d-flex align-items-center gap-2">
+                    <i class="fa fa-rotate-right"></i>
+                </button>
+
+                <!-- BANK BTN -->
+                <button id="btnBankCounter" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-2">
+                    <i class="fa fa-university"></i>
+                </button>
+
+                <!-- QR CODE BTN -->
+                <button id="btnQRCounter" class="btn btn-sm btn-outline-warning d-flex align-items-center gap-2">
+                    <i class="fa fa-qrcode"></i>
+                </button>
+
                 <!-- FULL SCREEN BTN -->
                 <button id="btnFullScreen"
                         class="btn btn-sm btn-outline-dark d-flex align-items-center gap-1">
@@ -55,7 +71,6 @@
             </div>
         </div>
 
-
         <div id="fltCollapseProjectCounter" class="collapse show">
             <div class="card-body">
                 <!-- Project Counter UI -->
@@ -63,25 +78,7 @@
 
                     <!-- LEFT: Counter Grid -->
                     <div class="col-lg-8" id="counterGridColumn">
-                        <div class="d-flex align-items-center justify-content-start mb-3 gap-2">
-                            <!-- Refresh -->
-                            <button id="btnRefreshCounter" class="btn btn-success d-flex align-items-center gap-2">
-                                <i class="fa fa-rotate-right"></i>
-                                <span>Refresh</span>
-                            </button>
 
-                            <!-- Bank -->
-                            <button id="btnBankCounter" class="btn btn-primary d-flex align-items-center gap-2">
-                                <i class="fa fa-university"></i>
-                                <span>Bank</span>
-                            </button>
-
-                            <!-- QR Code -->
-                            <button id="btnQRCounter" class="btn btn-warning d-flex align-items-center gap-2">
-                                <i class="fa fa-qrcode"></i>
-                                <span>QR Code</span>
-                            </button>
-                        </div>
 
                         <!-- 🔹 ตรงนี้ให้ JS เติมการ์ด -->
                         <div class="row g-3" id="counterGrid">
