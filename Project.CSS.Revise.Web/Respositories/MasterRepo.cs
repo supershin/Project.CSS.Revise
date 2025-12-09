@@ -536,26 +536,47 @@ namespace Project.CSS.Revise.Web.Respositories
                 return listUserBankInTeamForAdd.ToList();
 
                 case "listAllCSUser":
-                {
-                    var listAllCSUser =
-                        from t1 in _context.tm_Users
-                        where t1.FlagActive == true
-                            && t1.DepartmentID == Constants.Ext.Customer_Service   // = 31
-                            && t1.QCTypeID == 10
-                        join t2 in _context.tm_TitleNames
-                                on t1.TitleID equals t2.ID into gj
-                        from t2 in gj.DefaultIfEmpty() // LEFT JOIN
-                        select new GetDDLModel
-                        {
-                            ValueInt = t1.ID,
-                            Text = (
-                                (t1.FirstName ?? "") + " " +
-                                (t1.LastName ?? "")
-                            ).Trim()
-                        };
+                    {
+                        var listAllCSUser =
+                            from t1 in _context.tm_Users
+                            where t1.FlagActive == true
+                                && t1.DepartmentID == Constants.Ext.Customer_Service   // = 31
+                                && t1.QCTypeID == 10
+                            join t2 in _context.tm_TitleNames
+                                    on t1.TitleID equals t2.ID into gj
+                            from t2 in gj.DefaultIfEmpty() // LEFT JOIN
+                            select new GetDDLModel
+                            {
+                                ValueInt = t1.ID,
+                                Text = (
+                                    (t1.FirstName ?? "") + " " +
+                                    (t1.LastName ?? "")
+                                ).Trim()
+                            };
 
-                    return listAllCSUser.OrderBy(e => e.Text).ToList();
-                }
+                        return listAllCSUser.OrderBy(e => e.Text).ToList();
+                    }
+
+                case "listAllUser":
+                    {
+                        var listAllUser =
+                            from t1 in _context.tm_Users
+                            where t1.FlagActive == true
+                                && t1.QCTypeID == 10
+                            join t2 in _context.tm_TitleNames
+                                    on t1.TitleID equals t2.ID into gj
+                            from t2 in gj.DefaultIfEmpty() // LEFT JOIN
+                            select new GetDDLModel
+                            {
+                                ValueInt = t1.ID,
+                                Text = (
+                                    (t1.FirstName ?? "") + " " +
+                                    (t1.LastName ?? "")
+                                ).Trim()
+                            };
+
+                        return listAllUser.OrderBy(e => e.Text).ToList();
+                    }
 
                 case "listBuildInProject":
                     {

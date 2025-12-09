@@ -394,7 +394,7 @@ namespace Project.CSS.Revise.Web.Library.DAL
 
             entity.Appointment = Commond.FormatExtension.NullToString(reader["Appointment"]);
             entity.Status = Commond.FormatExtension.NullToString(reader["Status"]);
-            entity.StatusTime = Commond.FormatExtension.NullToString(reader["StatusTime"]);
+            entity.StatusTime = Commond.FormatExtension.FormatDateToDayMonthYearTime(reader["StatusTime"]);
 
             entity.Counter = Commond.FormatExtension.NullToString(reader["Counter"]);
             entity.Unitstatus_CS = Commond.FormatExtension.NullToString(reader["Unitstatus_CS"]);

@@ -44,6 +44,9 @@ namespace Project.CSS.Revise.Web.Controllers
             var listgCSRespons = _masterService.GetlisDDl(new GetDDLModel { Act = "listAllCSUser" });
             ViewBag.listgCSRespons = listgCSRespons;
 
+            var listgCSResponsEdit = _masterService.GetlisDDl(new GetDDLModel { Act = "listAllUser" });
+            ViewBag.listgCSResponsEdit = listgCSResponsEdit;
+
             var listCareer = _masterService.GetlisDDl(new GetDDLModel { Act = "Ext", ID = 12 });
             ViewBag.listCareer = listCareer;
 

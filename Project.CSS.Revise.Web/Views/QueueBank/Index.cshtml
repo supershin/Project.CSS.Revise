@@ -5,6 +5,7 @@
     var ExpecttransferList = ViewBag.listExpecttransfer as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
     var UnitstatuscsList = ViewBag.listUnitstatuscs as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
     var CSResponsList = ViewBag.listgCSRespons as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var EditCSResponsList = ViewBag.listgCSResponsEdit as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
     var CareerList = ViewBag.listCareer as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
     var ReasonList = ViewBag.listReason as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
     var BankList = ViewBag.listBank as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
@@ -611,7 +612,7 @@
                                 <label class="form-label fw-semibold small mb-1">Responsible<span class="text-danger">*</span></label>
                                 <select id="ddl_Responsible" class="form-control">
                                     <option value="">-- Select Responsible --</option>
-                                    @foreach (var cs in CSResponsList)
+                                    @foreach (var cs in EditCSResponsList)
                                     {
                                         var val = (cs.ValueInt ?? "").ToString();
                                         var text = (cs.Text ?? "").ToString();
@@ -641,7 +642,8 @@
                             Status
                             <span class="text-danger ms-1">*</span>
                         </h6>
-                        <div class="er-status-group">
+
+                        <!-- <div class="er-status-group">
                             <div class="form-check form-check-inline er-status-item">
                                 <input class="form-check-input" id="FlagRegister" type="checkbox" name="FlagStatus" checked disabled>
                                 <label class="form-check-label" for="FlagRegister">
@@ -662,7 +664,33 @@
                                     Done
                                 </label>
                             </div>
+                        </div> -->
+
+                        <div class="er-status-group" role="group" aria-label="Status Group">
+                            <button type="button"
+                                    class="btn er-status-btn btn-success active"
+                                    id="FlagRegister"
+                                    disabled>
+                                Register
+                            </button>
+
+                            <button type="button"
+                                    class="btn er-status-btn btn-secondary"
+                                    id="FlagInprocess">
+                                In Process
+                            </button>
+
+                            <button type="button"
+                                    class="btn er-status-btn btn-secondary"
+                                    id="FlagFinish">
+                                Done
+                            </button>
                         </div>
+
+
+
+
+
                     </div>
 
                     <!-- Block: Reason & FinPlus -->

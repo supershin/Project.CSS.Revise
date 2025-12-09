@@ -572,44 +572,50 @@ flex: 1;
 }
 
 /* ============================
-   STATUS PILL GROUP
+   STATUS PILL GROUP (BIGGER VERSION)
    ============================ */
 
 #EditRegisterLog .er-status-group {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 8px; /* ขยับระยะห่างนิดนึง */
 }
 
-#EditRegisterLog .er-status-item {
-    background: #ffffff;
-    border-radius: 999px;
-    padding: 0.35rem 1rem;
-    border: 1px solid #e2e8f0;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
+/* 🔒 บังคับ pill + คุมขนาดใหม่ */
+#EditRegisterLog .er-status-btn {
+    padding: 6px 16px !important; /* ⬅️ จาก 3px 12px → ใหญ่ขึ้น */
+    font-size: 13.5px !important; /* ⬅️ จาก 12px → ใหญ่ขึ้นนิดเดียว */
+    line-height: 1.2 !important;
+    border-radius: 999px !important;
+    border: 1px solid #d1d5db !important;
+    min-width: 96px; /* ⬅️ จาก 78px → ให้ดูสมส่วนขึ้น */
+    text-align: center;
+    white-space: nowrap;
+    background-color: #e5e7eb !important; /* เทา */
+    color: #374151 !important;
+    box-shadow: none !important;
 }
 
-#EditRegisterLog .form-check-label {
-    margin-top: 8px;
+/* ✅ ACTIVE = เขียว */
+#EditRegisterLog .er-status-btn.active {
+    background-color: #22c55e !important;
+    border-color: #22c55e !important;
+    color: #ffffff !important;
+    font-weight: 600;
 }
 
-    #EditRegisterLog .er-status-item .form-check-input {
-        margin-right: 0.35rem;
-        margin-top: 0;
-    }
+/* ✅ hover เฉพาะปุ่มเทา */
+#EditRegisterLog .er-status-btn:not(.active):hover {
+    background-color: #d1d5db !important;
+}
 
-    #EditRegisterLog .er-status-item .form-check-label {
-        font-size: .85rem;
-        font-weight: 500;
-    }
+/* ✅ ปุ่ม disabled */
+#EditRegisterLog .er-status-btn:disabled {
+    opacity: 0.85;
+    cursor: default;
+}
 
-    /* Checked status color */
-    #EditRegisterLog .er-status-item .form-check-input:checked {
-        background-color: #22c55e;
-        border-color: #22c55e;
-    }
+
 
 /* ============================
    Footer

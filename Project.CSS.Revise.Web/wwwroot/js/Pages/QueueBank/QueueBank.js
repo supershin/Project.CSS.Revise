@@ -162,6 +162,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+
+document.querySelectorAll('#EditRegisterLog .er-status-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        if (this.disabled) return;
+
+        // ✅ toggle เปิด/ปิดเอง ไม่ไปยุ่งกับปุ่มอื่น
+        this.classList.toggle('active');
+
+        console.log("Selected Status:", this.id, "Active:", this.classList.contains("active"));
+    });
+});
+
+
+
 // /js/Pages/QueueBank/QueueBank.js
 
 // ==== Guard: Choices assets loaded? ====
@@ -706,23 +720,34 @@ function bindRegisterLogModal(data) {
     // ReasonID
     setChoiceSingle("#ddl_Reason", data.ReasonID);
 
-    // FinPlus → ตอนนี้ผม map กับ TransferTypeID ให้ก่อน (ถ้าอยากใช้ BankIDs ค่อยคุยต่อ)
+    // FinPlus → ตอนนี้ map กับ TransferTypeID
     setChoiceSingle("#ddl_FinPlus", data.TransferTypeID);
 
-    // ===== Status flags =====
-    const setChecked = (id, val) => {
-        const el = document.getElementById(id);
-        if (el) el.checked = !!val;
+    // ===== Status buttons (multi-select) =====
+    const setStatusBtn = (id, val) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+
+        const isOn = !!val;
+
+        if (isOn) {
+            btn.classList.add("active", "btn-success");
+            btn.classList.remove("btn-secondary");
+        } else {
+            btn.classList.remove("active", "btn-success");
+            btn.classList.add("btn-secondary");
+        }
     };
 
-    setChecked("FlagRegister", data.FlagRegister);
-    setChecked("FlagInprocess", data.FlagInprocess);
-    setChecked("FlagFinish", data.FlagFinish);
+    setStatusBtn("FlagRegister", data.FlagRegister);
+    setStatusBtn("FlagInprocess", data.FlagInprocess);
+    setStatusBtn("FlagFinish", data.FlagFinish);
 
     // ===== Show modal (Bootstrap 5) =====
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     modal.show();
 }
+
 
 
 // เรียกตอน page load
