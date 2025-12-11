@@ -642,30 +642,6 @@
                             Status
                             <span class="text-danger ms-1">*</span>
                         </h6>
-
-                        <!-- <div class="er-status-group">
-                            <div class="form-check form-check-inline er-status-item">
-                                <input class="form-check-input" id="FlagRegister" type="checkbox" name="FlagStatus" checked disabled>
-                                <label class="form-check-label" for="FlagRegister">
-                                    Register
-                                </label>
-                            </div>
-
-                            <div class="form-check form-check-inline er-status-item">
-                                <input class="form-check-input" id="FlagInprocess" type="checkbox" name="FlagStatus">
-                                <label class="form-check-label" for="FlagInprocess">
-                                    In Process
-                                </label>
-                            </div>
-
-                            <div class="form-check form-check-inline er-status-item">
-                                <input class="form-check-input" id="FlagFinish" type="checkbox" name="FlagStatus">
-                                <label class="form-check-label" for="FlagFinish">
-                                    Done
-                                </label>
-                            </div>
-                        </div> -->
-
                         <div class="er-status-group" role="group" aria-label="Status Group">
                             <button type="button"
                                     class="btn er-status-btn btn-success active"
@@ -686,11 +662,6 @@
                                 Done
                             </button>
                         </div>
-
-
-
-
-
                     </div>
 
                     <!-- Block: Reason & FinPlus -->
@@ -711,17 +682,31 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold small mb-1">Fin Plus<span class="text-danger">*</span></label>
-                                <select id="ddl_FinPlus" class="form-control">
-                                    <option value="">-- Select Bank --</option>
-                                    @foreach (var bl in BankList)
-                                    {
-                                        var val = (bl.ValueInt ?? "").ToString();
-                                        var text = (bl.Text ?? "").ToString();
-                                        <option value="@val">@text</option>
-                                    }
-                                </select>
+                                <label class="form-label fw-semibold small mb-1">Fin Plus (Bank)</label>
+                                    <div class="finplus-multi-bank">
+                                        <div class="bank-item">
+                                            <img src="/image/ThaiBankicon/KBT.png" class="bank-logo" />
+                                            <span class="bank-code">KBank</span>
+                                        </div>
+                                        <div class="bank-item">
+                                            <img src="/ThaiBankicon/SCB.png" class="bank-logo" />
+                                            <span class="bank-code">SCB</span>
+                                        </div>
+                                        <div class="bank-item">
+                                            <img src="/ThaiBankicon/BBL.png" class="bank-logo" />
+                                            <span class="bank-code">BBL</span>
+                                        </div>
+                                        <div class="bank-item">
+                                            <img src="/ThaiBankicon/GSB.png" class="bank-logo" />
+                                            <span class="bank-code">GSB</span>
+                                        </div>
+                                        <div class="bank-item">
+                                            <img src="/ThaiBankicon/KTB.png" class="bank-logo" />
+                                            <span class="bank-code">KTB</span>
+                                        </div>
+                                    </div>
                             </div>
+
                         </div>
                     </div>
 
@@ -744,7 +729,6 @@
         </div>
     </div>
 </div>
-
 
 @section Scripts {
     <script>

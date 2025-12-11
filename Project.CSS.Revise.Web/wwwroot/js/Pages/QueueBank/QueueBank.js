@@ -174,8 +174,6 @@ document.querySelectorAll('#EditRegisterLog .er-status-btn').forEach(btn => {
     });
 });
 
-
-
 // /js/Pages/QueueBank/QueueBank.js
 
 // ==== Guard: Choices assets loaded? ====
@@ -331,9 +329,8 @@ function initFilterDropdowns() {
     // 🔥 NEW: multi-select ใน modal Create Register
     createChoice("#DDLUnitCode", { placeholderValue: "Select Unit Code for Register…" });
     createChoice("#ddl_Responsible", { placeholderValue: "Select Responsible..." });
-    createChoice("#ddl_Career", { placeholderValue: "Select Career..." });
+    createChoice("#ddl_Career", { placeholderValue: "Not specified" });
     createChoice("#ddl_Reason", { placeholderValue: "Select Reason..." });
-    createChoice("#ddl_FinPlus", { placeholderValue: "Select Bank..." });
 
     // ✅ สำคัญ: BUG เปลี่ยน -> โหลด Project ใหม่ (รวมเคส deselect ทั้งหมดด้วย)
     if (bugInst) {
@@ -677,12 +674,12 @@ function loadRegisterLogForEdit(registerId, unitCode) {
 
 function bindRegisterLogModal(data) {
     const modalEl = document.getElementById("EditRegisterLog");
-    if (!modalEl) return;
+    if (!modalEl) {
+        return;
+    }
 
-    // เก็บ ID ไว้ใน data attribute เผื่อใช้ตอน Save
     modalEl.dataset.registerId = data.ID || "";
 
-    // Header Unit Code
     const headerEl = document.getElementById("hUnitCode");
     if (headerEl) {
         headerEl.textContent = data.UnitCode
@@ -690,7 +687,6 @@ function bindRegisterLogModal(data) {
             : "";
     }
 
-    // helper: set single-select (รองรับทั้ง Choices.js และ select ปกติ)
     const setChoiceSingle = (selector, value) => {
         const val = (value === null || value === undefined) ? "" : String(value);
 
@@ -706,7 +702,9 @@ function bindRegisterLogModal(data) {
             }
         } else {
             const el = document.querySelector(selector);
-            if (el) el.value = val;
+            if (el) {
+                el.value = val;
+            }
         }
     };
 
@@ -714,19 +712,43 @@ function bindRegisterLogModal(data) {
     // ResponsibleID
     setChoiceSingle("#ddl_Responsible", data.ResponsibleID);
 
-    // CareerTypeID
-    setChoiceSingle("#ddl_Career", data.CareerTypeID);
+    // CareerTypeID / QuestionAnswersName
+    (function () {
+        let careerValue = "";
+
+        // 1) ถ้ามี CareerTypeID ให้ใช้ก่อน
+        if (data.CareerTypeID !== null && data.CareerTypeID !== undefined && data.CareerTypeID !== 0) {
+            careerValue = String(data.CareerTypeID);
+        } else if (data.QuestionAnswersName) {
+            // 2) ถ้า CareerTypeID ไม่มี → ลองหาจากชื่อ QuestionAnswersName
+            const targetName = String(data.QuestionAnswersName).trim();
+            const selectEl = document.querySelector("#ddl_Career");
+
+            if (selectEl) {
+                const options = selectEl.options;
+                for (let i = 0; i < options.length; i++) {
+                    const optText = options[i].text ? options[i].text.trim() : "";
+                    if (optText === targetName) {
+                        careerValue = options[i].value;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // 3) map ใส่ Choices / select
+        setChoiceSingle("#ddl_Career", careerValue);
+    })();
 
     // ReasonID
     setChoiceSingle("#ddl_Reason", data.ReasonID);
 
-    // FinPlus → ตอนนี้ map กับ TransferTypeID
-    setChoiceSingle("#ddl_FinPlus", data.TransferTypeID);
-
     // ===== Status buttons (multi-select) =====
     const setStatusBtn = (id, val) => {
         const btn = document.getElementById(id);
-        if (!btn) return;
+        if (!btn) {
+            return;
+        }
 
         const isOn = !!val;
 
@@ -743,10 +765,83 @@ function bindRegisterLogModal(data) {
     setStatusBtn("FlagInprocess", data.FlagInprocess);
     setStatusBtn("FlagFinish", data.FlagFinish);
 
-    // ===== Show modal (Bootstrap 5) =====
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     modal.show();
 }
+
+
+//function bindRegisterLogModal(data) {
+//    const modalEl = document.getElementById("EditRegisterLog");
+//    if (!modalEl) return;
+
+//    // เก็บ ID ไว้ใน data attribute เผื่อใช้ตอน Save
+//    modalEl.dataset.registerId = data.ID || "";
+
+//    // Header Unit Code
+//    const headerEl = document.getElementById("hUnitCode");
+//    if (headerEl) {
+//        headerEl.textContent = data.UnitCode
+//            ? `Unit Code : ${data.UnitCode}`
+//            : "";
+//    }
+
+//    // helper: set single-select (รองรับทั้ง Choices.js และ select ปกติ)
+//    const setChoiceSingle = (selector, value) => {
+//        const val = (value === null || value === undefined) ? "" : String(value);
+
+//        const inst = window.QB_CHOICES ? window.QB_CHOICES[selector] : null;
+//        if (inst) {
+//            try {
+//                inst.removeActiveItems();
+//                if (val !== "") {
+//                    inst.setChoiceByValue(val);
+//                }
+//            } catch (e) {
+//                console.warn("setChoiceSingle (Choices) error:", selector, e);
+//            }
+//        } else {
+//            const el = document.querySelector(selector);
+//            if (el) el.value = val;
+//        }
+//    };
+
+//    // ===== Dropdowns =====
+//    // ResponsibleID
+//    setChoiceSingle("#ddl_Responsible", data.ResponsibleID);
+
+//    // CareerTypeID
+//    setChoiceSingle("#ddl_Career", data.CareerTypeID);
+
+//    // ReasonID
+//    setChoiceSingle("#ddl_Reason", data.ReasonID);
+
+//    // FinPlus → ตอนนี้ map กับ TransferTypeID
+//    setChoiceSingle("#ddl_FinPlus", data.TransferTypeID);
+
+//    // ===== Status buttons (multi-select) =====
+//    const setStatusBtn = (id, val) => {
+//        const btn = document.getElementById(id);
+//        if (!btn) return;
+
+//        const isOn = !!val;
+
+//        if (isOn) {
+//            btn.classList.add("active", "btn-success");
+//            btn.classList.remove("btn-secondary");
+//        } else {
+//            btn.classList.remove("active", "btn-success");
+//            btn.classList.add("btn-secondary");
+//        }
+//    };
+
+//    setStatusBtn("FlagRegister", data.FlagRegister);
+//    setStatusBtn("FlagInprocess", data.FlagInprocess);
+//    setStatusBtn("FlagFinish", data.FlagFinish);
+
+//    // ===== Show modal (Bootstrap 5) =====
+//    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+//    modal.show();
+//}
 
 
 
@@ -828,27 +923,27 @@ function wireButtons() {
             }
 
             // ❌ ไม่ได้เลือก Project → popup error + หยุด
-            if (!hasProject) {
-                if (typeof Swal !== "undefined") {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Validation Error",
-                        text: "Please select a project before searching.",
-                        buttonsStyling: false,
-                        confirmButtonText: "OK",
-                        customClass: {
-                            confirmButton: "btn btn-danger"
-                        },
-                        allowOutsideClick: false,
-                        didOpen: (popup) => {
-                            popup.parentNode.style.zIndex = 200000;
-                        }
-                    });
-                } else {
-                    alert("Please select a project before searching.");
-                }
-                return; // ⚠️ หยุดไม่ให้ search ต่อ
-            }
+            //if (!hasProject) {
+            //    if (typeof Swal !== "undefined") {
+            //        Swal.fire({
+            //            icon: "error",
+            //            title: "Validation Error",
+            //            text: "Please select a project before searching.",
+            //            buttonsStyling: false,
+            //            confirmButtonText: "OK",
+            //            customClass: {
+            //                confirmButton: "btn btn-danger"
+            //            },
+            //            allowOutsideClick: false,
+            //            didOpen: (popup) => {
+            //                popup.parentNode.style.zIndex = 200000;
+            //            }
+            //        });
+            //    } else {
+            //        alert("Please select a project before searching.");
+            //    }
+            //    return; // ⚠️ หยุดไม่ให้ search ต่อ
+            //}
 
             // ✅ ผ่าน validation → ทำงานตามปกติ
             qbUpdateProjectTableHeader();
@@ -1032,14 +1127,14 @@ function crSaveCreateRegister() {
                 // 🔥 SweetAlert Confirm
                 // ============================
                 Swal.fire({
-                    title: "ยืนยัน?",
+                    title: "Confirm?",
                     html: res.Message,        // ใช้ข้อความจาก backend
                     icon: "question",
                     showCancelButton: true,
                     confirmButtonColor: "#3085d6",
                     cancelButtonColor: "#d33",
-                    confirmButtonText: "ตกลง",
-                    cancelButtonText: "ยกเลิก"
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "Cancel"
                 }).then(result => {
                     if (result.isConfirmed) {
                         crSaveRegisterLog(projectId, unitCode, queueTypeId);

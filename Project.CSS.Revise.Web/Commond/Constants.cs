@@ -378,8 +378,9 @@ namespace Project.CSS.Revise.Web.Commond
         }
         public static class WARNING
         {
-            public static readonly string APPOINTMENT_HAS_EXISTS = "พบรายการนัดตรวจวันที่ {0} เวลา {1}";
-            public static readonly string APPOINTMENT_DOES_NOT_EXISTS = "ไม่พบรายการนัดหมาย";
+            public static readonly string APPOINTMENT_HAS_EXISTS = "An appointment already exists on {0} at {1}.";
+            public static readonly string APPOINTMENT_DOES_NOT_EXISTS = "No appointment found.";
+
         }
 
         public static class Register

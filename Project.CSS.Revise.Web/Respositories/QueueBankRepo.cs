@@ -476,8 +476,10 @@ namespace Project.CSS.Revise.Web.Respositories
                       .FirstOrDefault();
 
             if (raw == null)
+            {
                 return new RegisterLog();
-
+            }
+                
             // 2) Map ข้อมูลหลักจาก EF -> RegisterLog (ยังไม่เรียก function ภายนอก)
             var data = new RegisterLog
             {
@@ -490,14 +492,13 @@ namespace Project.CSS.Revise.Web.Respositories
                 FlagFastFix = raw.r.FastFixDate != null,
                 FlagFastFixFinish = raw.r.FastFixFinishDate != null,
                 FlagFinish = raw.r.FinishDate != null,
-                CareerTypeID = (raw.r.CareerTypeID.AsInt() == 0)
-                               ? Constants.Ext.REGISTER_CAREER_FREEDOM
-                               : raw.r.CareerTypeID.AsInt(),
+                CareerTypeID = raw.r.CareerTypeID.AsInt(),
                 TransferTypeID = raw.r.TransferTypeID.AsInt(),
                 ReasonID = raw.r.ReasonID.AsInt(),
                 FixedDuration = raw.r.FixedDuration.AsInt(),
                 ContractNumber = raw.ct.ContractNumber,
                 LoanID = raw.r.LoanID.AsGuid(),
+                QuestionAnswersName = GetQuestionAnswer(raw.r.UnitID)
             };
 
             // 3) ตอนนี้ EF ปิด DataReader ไปแล้ว → ค่อยเรียก function อื่นที่ใช้ connection เดียวกัน
@@ -547,6 +548,32 @@ namespace Project.CSS.Revise.Web.Respositories
             }).OrderBy(e => e.CreateDate).ToList();
             return data;
         }
+        private string GetQuestionAnswer(Guid? UnitID)
+        {
+            if (UnitID == null)
+            {
+                return string.Empty;
+            }
+
+            var answerName =
+                (from qa in _context.TR_QuestionAnswers
+                 join ans in _context.tm_Answers
+                     on qa.AnswerID equals ans.ID into ansJoin
+                 from ans in ansJoin.DefaultIfEmpty()
+                 where qa.UnitID == UnitID
+                       && qa.QuestionID == 1
+                       && qa.FlagActive == true
+                 select ans.AnswerName
+                ).FirstOrDefault();
+
+            if (string.IsNullOrWhiteSpace(answerName))
+            {
+                return string.Empty;
+            }
+
+            return answerName.Trim();
+        }
+
 
 
         public void SaveCustomerSubmit_FINPlus(LoanModel model)

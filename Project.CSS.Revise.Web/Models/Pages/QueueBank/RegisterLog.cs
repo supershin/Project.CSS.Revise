@@ -17,6 +17,7 @@ namespace Project.CSS.Revise.Web.Models.Pages.QueueBank
         public string CustomerName { get; set; }
         public string ReasonName { get; set; }
         public string ResponsibleName { get; set; }
+        public string QuestionAnswersName { get; set; }
 
         public string UpdateByName { get; set; }
         public string CreateByName { get; set; }

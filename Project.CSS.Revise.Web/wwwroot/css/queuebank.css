@@ -681,3 +681,34 @@ flex: 1;
     opacity: 0.95;
 }
 
+.finplus-multi-bank {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* กระจายแบบเท่ากัน */
+    background: #f8f9fa;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px dashed #ced4da;
+    gap: 10px;
+}
+
+.bank-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 55px; /* ทำให้ทุกช่องกว้างเท่ากัน */
+    text-align: center;
+}
+
+.bank-logo {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.bank-code {
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 600;
+    color: #333;
+}
