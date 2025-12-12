@@ -459,21 +459,32 @@ namespace Project.CSS.Revise.Web.Respositories
         public RegisterLog GetRegisterLogInfo(RegisterLog criteria, string UserID, string Password)
         {
             // 1) ดึงข้อมูลก้อนเดียวจาก EF ก่อน (ยังไม่ทำ external call)
-            var raw = (from r in _context.TR_RegisterLogs
-                       where r.FlagActive == true && r.ID == criteria.ID
-                       join u in _context.tm_Units
-                           on r.UnitID equals u.ID
-                       join ct in _context.PR_ContractVerifies
-                           .Where(e => e.FlagActive == true)
-                           on new { ProjectID = u.ProjectID, UnitCode = u.UnitCode }
-                           equals new { ProjectID = ct.ProjectID, UnitCode = ct.UnitCode }
-                       select new
-                       {
-                           r,
-                           u,
-                           ct
-                       })
-                      .FirstOrDefault();
+            var raw =
+            (
+                from r in _context.TR_RegisterLogs
+                where r.FlagActive == true
+                      && r.ID == criteria.ID
+
+                join u in _context.tm_Units
+                    on r.UnitID equals u.ID
+
+                join ct in _context.PR_ContractVerifies
+                                .Where(e => e.FlagActive == true)
+                    on new { u.ProjectID, u.UnitCode }
+                    equals new { ct.ProjectID, ct.UnitCode }
+                    into ctGroup   // 👈 สำคัญ (group join)
+
+                from ct in ctGroup.DefaultIfEmpty() // 👈 LEFT JOIN ตรงนี้
+
+                select new
+                {
+                    r,
+                    u,
+                    ct   // ct อาจเป็น null
+                }
+            )
+            .FirstOrDefault();
+
 
             if (raw == null)
             {

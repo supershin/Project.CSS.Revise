@@ -708,19 +708,14 @@ function bindRegisterLogModal(data) {
         }
     };
 
-    // ===== Dropdowns =====
-    // ResponsibleID
     setChoiceSingle("#ddl_Responsible", data.ResponsibleID);
 
-    // CareerTypeID / QuestionAnswersName
     (function () {
         let careerValue = "";
 
-        // 1) ถ้ามี CareerTypeID ให้ใช้ก่อน
         if (data.CareerTypeID !== null && data.CareerTypeID !== undefined && data.CareerTypeID !== 0) {
             careerValue = String(data.CareerTypeID);
         } else if (data.QuestionAnswersName) {
-            // 2) ถ้า CareerTypeID ไม่มี → ลองหาจากชื่อ QuestionAnswersName
             const targetName = String(data.QuestionAnswersName).trim();
             const selectEl = document.querySelector("#ddl_Career");
 
@@ -736,14 +731,11 @@ function bindRegisterLogModal(data) {
             }
         }
 
-        // 3) map ใส่ Choices / select
         setChoiceSingle("#ddl_Career", careerValue);
     })();
 
-    // ReasonID
     setChoiceSingle("#ddl_Reason", data.ReasonID);
 
-    // ===== Status buttons (multi-select) =====
     const setStatusBtn = (id, val) => {
         const btn = document.getElementById(id);
         if (!btn) {
@@ -765,8 +757,50 @@ function bindRegisterLogModal(data) {
     setStatusBtn("FlagInprocess", data.FlagInprocess);
     setStatusBtn("FlagFinish", data.FlagFinish);
 
+    // ✅ FinPlus Bank List (ใช้ LoanBankList จาก backend)
+    renderFinPlusBanks(data.LoanBankList);
+
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     modal.show();
+}
+
+
+
+function renderFinPlusBanks(loanBankList) {
+    const box = document.getElementById("finplusBankList");
+    if (!box) {
+        return;
+    }
+
+    box.innerHTML = "";
+
+    if (!Array.isArray(loanBankList) || loanBankList.length === 0) {
+        box.innerHTML = `<div class="text-muted small">No bank selected.</div>`;
+        return;
+    }
+
+    // แสดงสูงสุด 5 ธนาคารใน 1 แถว (ตาม requirement)
+    const items = loanBankList.slice(0, 5);
+
+    let html = "";
+    for (let i = 0; i < items.length; i++) {
+        const bankCode = (items[i] && items[i].BankCode) ? String(items[i].BankCode).trim() : "";
+        if (!bankCode) {
+            continue;
+        }
+
+        html += `
+  <div class="bank-item" title="${bankCode}">
+      <img src="${baseUrl}image/ThaiBankicon/${bankCode}.png"
+           alt="${bankCode}"
+           class="bank-logo">
+      <span class="bank-code">${bankCode}</span>
+  </div>
+`;
+
+    }
+
+    box.innerHTML = html;
 }
 
 

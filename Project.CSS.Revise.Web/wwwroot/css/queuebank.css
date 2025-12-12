@@ -684,31 +684,40 @@ flex: 1;
 .finplus-multi-bank {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* กระจายแบบเท่ากัน */
+    justify-content: flex-start; /* ✅ ชิดซ้าย */
+    flex-wrap: nowrap; /* ✅ ไม่ขึ้นบรรทัด */
+    gap: 6px; /* ✅ ชิดกันขึ้น */
     background: #f8f9fa;
-    padding: 10px 12px;
+    padding: 8px 10px;
     border-radius: 6px;
     border: 1px dashed #ced4da;
-    gap: 10px;
+    overflow-x: auto; /* ✅ ถ้ามีเยอะ เลื่อนได้ */
+    scrollbar-width: thin;
 }
 
-.bank-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 55px; /* ทำให้ทุกช่องกว้างเท่ากัน */
-    text-align: center;
-}
+    .finplus-multi-bank .bank-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px; /* ✅ ระยะโลโก้กับ code */
+        padding: 4px 8px; /* ✅ ทำให้เป็น pill เล็ก ๆ */
+        border-radius: 999px;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        width: auto; /* ✅ ไม่ fix 55px แล้ว */
+        flex: 0 0 auto;
+    }
 
-.bank-logo {
-    width: 32px;
-    height: 32px;
-    object-fit: contain;
-}
+    .finplus-multi-bank .bank-logo {
+        width: 22px; /* ✅ เล็กลงหน่อย */
+        height: 22px;
+        object-fit: contain;
+    }
 
-.bank-code {
-    font-size: 12px;
-    margin-top: 4px;
-    font-weight: 600;
-    color: #333;
-}
+    .finplus-multi-bank .bank-code {
+        font-size: 12px;
+        font-weight: 700;
+        color: #333;
+        line-height: 1;
+    }
+
+
