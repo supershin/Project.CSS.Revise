@@ -708,7 +708,18 @@ function bindRegisterLogModal(data) {
         }
     };
 
-    setChoiceSingle("#ddl_Responsible", data.ResponsibleID);
+    (function () {
+        let responsibleValue = "";
+
+        if (data.ResponsibleID !== null && data.ResponsibleID !== undefined && data.ResponsibleID !== 0) {
+            responsibleValue = String(data.ResponsibleID);
+        } else if (window.CURRENT_LOGIN_ID) {
+            responsibleValue = String(window.CURRENT_LOGIN_ID);
+        }
+
+        setChoiceSingle("#ddl_Responsible", responsibleValue);
+    })();
+
 
     (function () {
         let careerValue = "";
@@ -1267,7 +1278,7 @@ function crSaveRegisterLog(projectId, unitCode, queueTypeId) {
 
 // format ตัวเลขมูลค่าให้เป็น "xx.xx M"
 function qbFormatValueM(raw) {
-    if (raw == null || raw === "") return "0.00 M";
+    if (raw == null || raw === "") return "0.00";
     const num = Number(raw);
     if (Number.isNaN(num)) return raw;
 
@@ -1276,7 +1287,7 @@ function qbFormatValueM(raw) {
     return m.toLocaleString("en-US", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
-    }) + " M";
+    });
 }
 
 function qbUpdateSummaryBox(prefix, data) {
@@ -1436,13 +1447,16 @@ function loadSummaryRegisterAll() {
             qbUpdateSummaryBox("loan-yes", loanMap["ยื่น"]);
             qbUpdateSummaryBox("loan-no", loanMap["ไม่ยื่น"]);
 
-            // 3) CareerType: รายได้ประจำ / เจ้าของกิจการ / อาชีพอิสระ
+            // 3) CareerType: รายได้ประจำ / เจ้าของกิจการ / อาชีพอิสระ / รัฐวิสาหกิจ / ราชการ
             const careerList = res.listDataSummeryRegisterCareerTyp || [];
             const careerMap = qbMapByTopic(careerList);
 
-            qbUpdateSummaryBox("career-freelance", careerMap["อาชีพอิสระ"]);
-            qbUpdateSummaryBox("career-salary", careerMap["รายได้ประจำ"]);
+            qbUpdateSummaryBox("career-salary", careerMap["พนักงานบริษัทเอกชนรายได้ประจำ"]);
             qbUpdateSummaryBox("career-owner", careerMap["เจ้าของกิจการ"]);
+            qbUpdateSummaryBox("career-freelance", careerMap["อาชีพอิสระ"]);
+            qbUpdateSummaryBox("career-soe", careerMap["รัฐวิสาหกิจ"]);
+            qbUpdateSummaryBox("career-government", careerMap["ราชการ"]);
+
         })
         .catch(err => {
             console.error("GetlistSummeryRegister error:", err);
@@ -1458,9 +1472,12 @@ function loadSummaryRegisterAll() {
             qbUpdateSummaryBox("loan-no", null);
 
             // แถวล่าง career
-            qbUpdateSummaryBox("career-freelance", null);
             qbUpdateSummaryBox("career-salary", null);
             qbUpdateSummaryBox("career-owner", null);
+            qbUpdateSummaryBox("career-freelance", null);
+            qbUpdateSummaryBox("career-soe", null);
+            qbUpdateSummaryBox("career-government", null);
+
         })
         .finally(() => {
             if (typeof hideLoading === "function") {

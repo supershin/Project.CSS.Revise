@@ -27,7 +27,11 @@ namespace Project.CSS.Revise.Web.Controllers
             string encryptedLoginNameEN = User.FindFirst("LoginNameEN")?.Value;
             string LoginNameEN = SecurityManager.DecodeFrom64(encryptedLoginNameEN);
 
+            string encryptedLoginID = User.FindFirst("LoginID")?.Value;
+            string LoginID = SecurityManager.DecodeFrom64(encryptedLoginID);
+
             ViewBag.LoginNameEN = LoginNameEN;
+            ViewBag.LoginID = LoginID;
 
             base.OnActionExecuting(context);
         }

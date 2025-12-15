@@ -490,7 +490,7 @@ namespace Project.CSS.Revise.Web.Respositories
             {
                 return new RegisterLog();
             }
-                
+
             // 2) Map ข้อมูลหลักจาก EF -> RegisterLog (ยังไม่เรียก function ภายนอก)
             var data = new RegisterLog
             {
@@ -507,14 +507,25 @@ namespace Project.CSS.Revise.Web.Respositories
                 TransferTypeID = raw.r.TransferTypeID.AsInt(),
                 ReasonID = raw.r.ReasonID.AsInt(),
                 FixedDuration = raw.r.FixedDuration.AsInt(),
-                ContractNumber = raw.ct.ContractNumber,
+
+                ContractNumber = raw.ct != null ? raw.ct.ContractNumber : null,   // ✅ กัน ct null
                 LoanID = raw.r.LoanID.AsGuid(),
                 QuestionAnswersName = GetQuestionAnswer(raw.r.UnitID)
             };
 
+
             // 3) ตอนนี้ EF ปิด DataReader ไปแล้ว → ค่อยเรียก function อื่นที่ใช้ connection เดียวกัน
             data.BankIDs = GetRegisterBankList(raw.r.ID);
-            data.RedirectHousingLoan = _unitRepo.GetRedirectHousingLoan(raw.ct.ContractNumber, UserID, Password);
+
+            // ✅ กัน ct null ก่อนเรียก RedirectHousingLoan
+            if (raw.ct != null && !string.IsNullOrWhiteSpace(raw.ct.ContractNumber))
+            {
+                data.RedirectHousingLoan = _unitRepo.GetRedirectHousingLoan(raw.ct.ContractNumber, UserID, Password);
+            }
+            else
+            {
+                data.RedirectHousingLoan = ""; // หรือ "" แล้วแต่ชนิด property
+            }
 
             if (data.LoanID != Guid.Empty)
             {
@@ -523,6 +534,7 @@ namespace Project.CSS.Revise.Web.Respositories
             }
 
             return data;
+
         }
 
         private string GetRegisterBankList(int? ID)

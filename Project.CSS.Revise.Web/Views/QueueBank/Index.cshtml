@@ -223,8 +223,10 @@
 
                     <!-- 🔹 VIEW แบบกล่อง (เดิม) -->
                     <div id="summary-register-box-view">
-                        <!-- Top Row -->
-                        <div class="summary-row">
+
+                        <!-- Row 1: 6 กล่อง -->
+                        <div class="summary-row summary-row-6">
+                            <!-- Register -->
                             <div class="summary-box bg-green">
                                 <h6>Register</h6>
                                 <div class="summary-values">
@@ -234,6 +236,7 @@
                                 <div class="summary-footer" id="sum-register-percent">0%</div>
                             </div>
 
+                            <!-- Queue -->
                             <div class="summary-box bg-blue">
                                 <h6>Queue</h6>
                                 <div class="summary-values">
@@ -243,6 +246,7 @@
                                 <div class="summary-footer" id="sum-queue-percent">0%</div>
                             </div>
 
+                            <!-- In Process -->
                             <div class="summary-box bg-orange">
                                 <h6>In Process</h6>
                                 <div class="summary-values">
@@ -252,6 +256,7 @@
                                 <div class="summary-footer" id="sum-inprocess-percent">0%</div>
                             </div>
 
+                            <!-- Done -->
                             <div class="summary-box bg-green-light">
                                 <h6>Done</h6>
                                 <div class="summary-values">
@@ -260,10 +265,7 @@
                                 </div>
                                 <div class="summary-footer" id="sum-done-percent">0%</div>
                             </div>
-                        </div>
 
-                        <!-- Second Row -->
-                        <div class="summary-row mt-3">
                             <!-- ยื่น -->
                             <div class="summary-box bg-green-light">
                                 <h6>ยื่น</h6>
@@ -283,10 +285,12 @@
                                 </div>
                                 <div class="summary-footer" id="sum-loan-no-percent">0%</div>
                             </div>
+                        </div>
 
-                            <!-- อาชีพอิสระ -->
+                        <!-- Row 2: 5 กล่อง -->
+                        <div class="summary-row summary-row-5 mt-3">
                             <div class="summary-box bg-pink">
-                                <h6>อาชีพอิสระ</h6>
+                                <h6>พนักงานบริษัทเอกชนรายได้ประจำ</h6>
                                 <div class="summary-values">
                                     <div><strong id="sum-career-freelance-unit">0</strong><br>Unit</div>
                                     <div><strong id="sum-career-freelance-value">0.00 M</strong><br>Value</div>
@@ -294,7 +298,6 @@
                                 <div class="summary-footer" id="sum-career-freelance-percent">0%</div>
                             </div>
 
-                            <!-- รายได้ประจำ -->
                             <div class="summary-box bg-pink">
                                 <h6>รายได้ประจำ</h6>
                                 <div class="summary-values">
@@ -304,7 +307,6 @@
                                 <div class="summary-footer" id="sum-career-salary-percent">0%</div>
                             </div>
 
-                            <!-- เจ้าของกิจการ -->
                             <div class="summary-box bg-pink">
                                 <h6>เจ้าของกิจการ</h6>
                                 <div class="summary-values">
@@ -313,8 +315,28 @@
                                 </div>
                                 <div class="summary-footer" id="sum-career-owner-percent">0%</div>
                             </div>
+
+                            <div class="summary-box bg-pink">
+                                <h6>รัฐวิสาหกิจ</h6>
+                                <div class="summary-values">
+                                    <div><strong id="sum-career-soe-unit">0</strong><br>Unit</div>
+                                    <div><strong id="sum-career-soe-value">0.00 M</strong><br>Value</div>
+                                </div>
+                                <div class="summary-footer" id="sum-career-soe-percent">0%</div>
+                            </div>
+
+                            <div class="summary-box bg-pink">
+                                <h6>ราชการ</h6>
+                                <div class="summary-values">
+                                    <div><strong id="sum-career-government-unit">0</strong><br>Unit</div>
+                                    <div><strong id="sum-career-government-value">0.00 M</strong><br>Value</div>
+                                </div>
+                                <div class="summary-footer" id="sum-career-government-percent">0%</div>
+                            </div>
                         </div>
+
                     </div>
+
 
                     <!-- 🔹 VIEW แบบ TABLE (ซ่อนตอนเริ่ม) -->
                     <div id="summary-register-table-view" class="d-none">
@@ -408,7 +430,7 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>อาชีพอิสระ</td>
+                                            <td>พนักงานบริษัทเอกชนรายได้ประจำ</td>
                                             <td id="tbl-career-freelance-unit">0</td>
                                             <td id="tbl-career-freelance-value">0.00 M</td>
                                             <td id="tbl-career-freelance-percent">0%</td>
@@ -424,6 +446,18 @@
                                             <td id="tbl-career-owner-unit">0</td>
                                             <td id="tbl-career-owner-value">0.00 M</td>
                                             <td id="tbl-career-owner-percent">0%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>รัฐวิสาหกิจ</td>
+                                            <td id="tbl-career-soe-unit">0</td>
+                                            <td id="tbl-career-soe-value">0.00 M</td>
+                                            <td id="tbl-career-soe-percent">0%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>ราชการ</td>
+                                            <td id="tbl-career-government-unit">0</td>
+                                            <td id="tbl-career-government-value">0.00 M</td>
+                                            <td id="tbl-career-government-percent">0%</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -736,6 +770,7 @@
     <script>
         const QueueBankCustomerViewUrl = '@Url.Action("Index", "QueueBankCustomerView")';
         const QueueBankCounterViewUrl = '@Url.Action("Index", "QueueBankCounterView")';
+        window.CURRENT_LOGIN_ID = '@ViewBag.LoginID';
     </script>
 
     <script src="~/js/Pages/QueueBank/QueueBank.js?ver=@DateTime.Now.Ticks.ToString()"></script>
