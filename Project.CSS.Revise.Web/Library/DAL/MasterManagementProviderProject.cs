@@ -2,6 +2,7 @@
 using Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling;
 using Project.CSS.Revise.Web.Models.Pages.QueueBank;
 using System.Data;
+using static Project.CSS.Revise.Web.Models.Pages.QueueBank.ListSummeryRegister;
 
 namespace Project.CSS.Revise.Web.Library.DAL
 {
@@ -49,6 +50,7 @@ namespace Project.CSS.Revise.Web.Library.DAL
 
         public abstract List<ListSummeryRegister.ListSummeryRegisterBank> sp_GetQueueBank_SummeryRegisterBank(GetQueueBankModel en);
         public abstract List<ListCreateRegisterTableModel> sp_GetQueueBank_CreateRegisterTable(GetQueueBankModel en);
+        public abstract List<ListSummeryRegisterBankNonSubmissionReason> sp_GetQueueBank_SummeryRegisterBankNonSubmissionReason(GetQueueBankModel en);
 
         #region __ Reader __
 
@@ -564,6 +566,34 @@ namespace Project.CSS.Revise.Web.Library.DAL
             // 👇 ใหม่
             entity.TotalRecords = Commond.FormatExtension.Nulltoint(reader["TotalRecords"]);
             entity.FilteredRecords = Commond.FormatExtension.Nulltoint(reader["FilteredRecords"]);
+
+            return entity;
+        }
+
+
+        public static List<ListSummeryRegisterBankNonSubmissionReason> sp_GetQueueBank_SummeryRegisterBankNonSubmissionReason_ListReader(IDataReader reader)
+        {
+            var list = new List<ListSummeryRegisterBankNonSubmissionReason>();
+            int index = 1;
+
+            while (reader.Read())
+            {
+                list.Add(sp_GetQueueBank_SummeryRegisterBankNonSubmissionReason_Reader(reader, index));
+                index++;
+            }
+
+            reader.Close();
+            return list;
+        }
+
+        private static ListSummeryRegisterBankNonSubmissionReason sp_GetQueueBank_SummeryRegisterBankNonSubmissionReason_Reader(IDataReader reader, int index)
+        {
+            var entity = new ListSummeryRegisterBankNonSubmissionReason();
+
+            entity.ID = Commond.FormatExtension.Nulltoint(reader["ID"]);
+            entity.Name = Commond.FormatExtension.NullToString(reader["Name"]);
+            entity.Count = Commond.FormatExtension.Nulltoint(reader["Count"]);
+            entity.Percent = Commond.FormatExtension.NullToString(reader["Percent"]);
 
             return entity;
         }

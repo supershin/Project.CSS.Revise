@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Models.Pages.QueueBank;
@@ -55,6 +56,9 @@ namespace Project.CSS.Revise.Web.Controllers
 
             var listBank = _masterService.GetlisDDl(new GetDDLModel { Act = "listAllBank"});
             ViewBag.listBank = listBank;
+
+            var listBankNonSubmissionReason = _masterService.GetlisDDl(new GetDDLModel { Act = "Ext", ID = 69 });
+            ViewBag.listBankNonSubmissionReason = listBankNonSubmissionReason;
 
             return View();
         }
@@ -168,10 +172,9 @@ namespace Project.CSS.Revise.Web.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetlistSummeryRegisterBank([FromForm] GetQueueBankModel model)
+        public async Task<JsonResult> GetlistSummeryRegisterBank([FromForm] GetQueueBankModel model)
         {
-
-            var BankModel = new GetQueueBankModel
+            var bankModel = new GetQueueBankModel
             {
                 L_Act = "SummeryRegisterBank",
                 L_ProjectID = model.L_ProjectID,
@@ -187,10 +190,35 @@ namespace Project.CSS.Revise.Web.Controllers
                 SearchTerm = model.SearchTerm
             };
 
-            var listDataSummeryRegisterType = _configProject.sp_GetQueueBank_SummeryRegisterBank(BankModel);
+            var nonSubmissionModel = new GetQueueBankModel
+            {
+                L_Act = "SummeryRegisterBankNonSubmissionReason",
+                L_ProjectID = model.L_ProjectID,
+                L_RegisterDateStart = model.L_RegisterDateStart,
+                L_RegisterDateEnd = model.L_RegisterDateEnd,
+                L_UnitID = model.L_UnitID,
+                L_CSResponse = model.L_CSResponse,
+                L_UnitCS = model.L_UnitCS,
+                L_ExpectTransfer = model.L_ExpectTransfer,
+                L_QueueTypeID = model.L_QueueTypeID,
+                start = model.start,
+                length = model.length,
+                SearchTerm = model.SearchTerm
+            };
 
-            return Json(new { listDataSummeryRegisterType = listDataSummeryRegisterType });
+            // ❗ ถ้า service/EF ยังเป็น sync: ห่อ Task.Run “เฉพาะจำเป็น”
+            var taskBank = Task.Run(() => _configProject.sp_GetQueueBank_SummeryRegisterBank(bankModel));
+            var taskNon = Task.Run(() => _configProject.sp_GetQueueBank_SummeryRegisterBankNonSubmissionReason(nonSubmissionModel));
+
+            await Task.WhenAll(taskBank, taskNon);
+
+            return Json(new
+            {
+                listDataSummeryRegisterBank = taskBank.Result,
+                listDataSummeryRegisterBankNonSubmissionReason = taskNon.Result
+            });
         }
+
 
         [HttpPost]
         public JsonResult GetlistCreateRegisterTable([FromForm] GetQueueBankModel model)
@@ -290,10 +318,11 @@ namespace Project.CSS.Revise.Web.Controllers
         {
             try
             {
-                // เช็คเฉพาะเงื่อนไข UI ฝั่ง BANK (ต่อจากของเดิม)
-                ValidateSaveRegisterLog(model);
 
-                // เรียก Service → Repo → SaveRegisterLog ที่เราเพิ่งย้ายมาใช้ _context
+                string loginIdClaim = User.FindFirst("LoginID")?.Value;
+                string userID = SecurityManager.TryDecodeFrom64(loginIdClaim ?? string.Empty);
+                model.SaveByID = FormatExtension.Nulltoint(userID);    
+                ValidateSaveRegisterLog(model);
                 _queueBankService.SaveRegisterLog(model);
 
                 // ถ้าทีหลังอยากส่ง SignalR เหมือนระบบเก่า

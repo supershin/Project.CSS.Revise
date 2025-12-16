@@ -12,6 +12,12 @@ public partial class TR_QC5_ProjectSendMail
     [Key]
     public int ID { get; set; }
 
+    [StringLength(50)]
+    [Unicode(false)]
+    public string? SourceType { get; set; }
+
+    public int? BUID { get; set; }
+
     [StringLength(20)]
     [Unicode(false)]
     public string? ProjectID { get; set; }
@@ -23,6 +29,10 @@ public partial class TR_QC5_ProjectSendMail
     [StringLength(200)]
     [Unicode(false)]
     public string? Email { get; set; }
+
+    [ForeignKey("BUID")]
+    [InverseProperty("TR_QC5_ProjectSendMails")]
+    public virtual tm_BU? BU { get; set; }
 
     [ForeignKey("ProjectID")]
     [InverseProperty("TR_QC5_ProjectSendMails")]

@@ -18,4 +18,16 @@ public partial class temp_cs_response
 
     [StringLength(2000)]
     public string? CSResponse { get; set; }
+
+    public int? UnitStatusID { get; set; }
+
+    [StringLength(50)]
+    [Unicode(false)]
+    public string? UnitStatus { get; set; }
+
+    public int? RemarkUnitStatusID { get; set; }
+
+    [StringLength(50)]
+    [Unicode(false)]
+    public string? RemarkUnitStatusName { get; set; }
 }

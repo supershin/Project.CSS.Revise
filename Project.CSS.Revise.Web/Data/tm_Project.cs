@@ -137,6 +137,9 @@ public partial class tm_Project
     public virtual ICollection<TR_QC_CheckList> TR_QC_CheckLists { get; set; } = new List<TR_QC_CheckList>();
 
     [InverseProperty("Project")]
+    public virtual ICollection<TR_QC_ContactLog> TR_QC_ContactLogs { get; set; } = new List<TR_QC_ContactLog>();
+
+    [InverseProperty("Project")]
     public virtual ICollection<TR_QC_Defect> TR_QC_Defects { get; set; } = new List<TR_QC_Defect>();
 
     [InverseProperty("Project")]
@@ -183,6 +186,12 @@ public partial class tm_Project
 
     [InverseProperty("Project")]
     public virtual ICollection<TR_UnitFurniture> TR_UnitFurnitures { get; set; } = new List<TR_UnitFurniture>();
+
+    [InverseProperty("Project")]
+    public virtual ICollection<TR_Unit_Budget_Defect> TR_Unit_Budget_Defects { get; set; } = new List<TR_Unit_Budget_Defect>();
+
+    [InverseProperty("Project")]
+    public virtual ICollection<TR_Unit_Budget> TR_Unit_Budgets { get; set; } = new List<TR_Unit_Budget>();
 
     [InverseProperty("Project")]
     public virtual ICollection<TR_Unsold_RoundUnit> TR_Unsold_RoundUnits { get; set; } = new List<TR_Unsold_RoundUnit>();

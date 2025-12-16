@@ -9,6 +9,7 @@
     var CareerList = ViewBag.listCareer as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
     var ReasonList = ViewBag.listReason as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
     var BankList = ViewBag.listBank as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var BankNonSubmissionReasonList = ViewBag.listBankNonSubmissionReason as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
 }
 
 <div class="container-fluid">
@@ -108,13 +109,23 @@
                         </select>
                     </div>
                     <div class="col-12 col-md-4" id="filter-register-date">
-                        <label for="txt_RegisterDate" class="form-label fw-bold">Register Date</label>
+                        <label class="form-label fw-bold">Register Date</label>
+
                         <div class="input-group">
-                            <input type="date" id="txt_RegisterDateStart" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")">
-                            -
-                            <input type="date" id="txt_RegisterDateEnd" class="form-control" placeholder="End date">
+                            <input type="text"
+                                   id="txt_RegisterDateStart"
+                                   class="form-control"
+                                   placeholder="dd/mm/yyyy">
+
+                            <span class="input-group-text" style="height:38px; display:flex; align-items:center;">-</span>
+
+                            <input type="text"
+                                   id="txt_RegisterDateEnd"
+                                   class="form-control"
+                                   placeholder="dd/mm/yyyy">
                         </div>
                     </div>
+
                 </div>
             </div>
             <div class="card-footer d-flex justify-content-end align-items-center gap-2 flex-nowrap footer-actions p-2">
@@ -130,7 +141,7 @@
     </div>
 
     <!-- Project Table card -->
-    <div class="card filter-card">
+    <div class="card filter-card" id="cardProjectTable">
         <div class="card-header d-flex align-items-center justify-content-between">
             <div>
                 <h5 class="mb-0" id="project-name-selected">Project Table</h5>
@@ -185,7 +196,7 @@
     </div>
 
     <!-- Summary Register card -->
-    <div class="card filter-card">
+    <div class="card filter-card" id="cardSummaryRegister">
         <div class="card-header d-flex align-items-center justify-content-between">
 
             <!-- Left side: title + dynamic date -->
@@ -473,9 +484,9 @@
     </div>
 
     <!--  Summary Bank card -->
-    <div class="card filter-card">
+    <div class="card filter-card" id="cardSummaryBank">
         <div class="card-header d-flex align-items-center justify-content-between">
-            <h5 class="mb-0">Summary Bank</h5>
+            <h5 class="mb-0">Summary Bank & Non-Submission Reason </h5>
             <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
                     type="button"
                     data-bs-toggle="collapse"
@@ -487,26 +498,51 @@
         </div>
         <div id="fltCollapseSummaryBank" class="collapse show">
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered align-middle summary-bank-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 340px;">ธนาคาร</th>
-                                <th style="width: 160px;">อัตราดอกเบี้ยเฉลี่ย 3 ปี</th>
-                                <th style="width: 120px;">จำนวน</th>
-                                <th style="width: 160px;">มูลค่า</th>
-                                <th style="width: 100px;">%</th>
-                            </tr>
-                        </thead>
-                        <tbody id="summary-bank-body">
-                            <tr>
-                                <td colspan="5" class="text-center text-muted">
-                                    Loading...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="row">
+                    <div class="col-8">
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle summary-bank-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 340px;">ธนาคาร</th>
+                                    <th style="width: 160px;">อัตราดอกเบี้ยเฉลี่ย 3 ปี</th>
+                                    <th style="width: 120px;">จำนวน</th>
+                                    <th style="width: 160px;">มูลค่า</th>
+                                    <th style="width: 100px;">%</th>
+                                </tr>
+                            </thead>
+                            <tbody id="summary-bank-body">
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">
+                                        Loading...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+                <div class="col-4">
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle summary-bank-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 340px;">เหตุผลไม่ยื่น</th>
+                                    <th style="width: 160px;">จำนวน</th>
+                                    <th style="width: 100px;">%</th>
+                                </tr>
+                            </thead>
+                            <tbody id="summary-banknonsubmissionreason-body">
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">
+                                        Loading...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+                
             </div>
         </div>
     </div>
@@ -523,6 +559,11 @@
 
         <!-- Right: Action Buttons -->
         <div class="d-flex align-items-center gap-2 flex-wrap">
+            <!-- Capture -->
+            <button id="btnCapture" class="btn btn-primary d-flex align-items-center gap-1">
+                <i class="fa fa-camera"></i> Capture
+            </button>
+
             <!-- Export (Excel) -->
             <button id="btnExport" class="btn d-flex align-items-center gap-1">
                 <i class="fa fa-file-excel-o" aria-hidden="true"></i> Export
@@ -717,30 +758,22 @@
 
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold small mb-1">Fin Plus (Bank)</label>
-                                    <div class="finplus-multi-bank" id="finplusBankList"></div>
+                                 <div class="finplus-multi-bank" id="finplusBankList"></div>
+                            </div>
 
-                                <!-- <div class="finplus-multi-bank">
-                                        <div class="bank-item">
-                                            <img src="/image/ThaiBankicon/KBT.png" class="bank-logo" />
-                                            <span class="bank-code">KBank</span>
-                                        </div>
-                                        <div class="bank-item">
-                                            <img src="/ThaiBankicon/SCB.png" class="bank-logo" />
-                                            <span class="bank-code">SCB</span>
-                                        </div>
-                                        <div class="bank-item">
-                                            <img src="/ThaiBankicon/BBL.png" class="bank-logo" />
-                                            <span class="bank-code">BBL</span>
-                                        </div>
-                                        <div class="bank-item">
-                                            <img src="/ThaiBankicon/GSB.png" class="bank-logo" />
-                                            <span class="bank-code">GSB</span>
-                                        </div>
-                                        <div class="bank-item">
-                                            <img src="/ThaiBankicon/KTB.png" class="bank-logo" />
-                                            <span class="bank-code">KTB</span>
-                                        </div>
-                                    </div>  -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small mb-1">
+                                    Non-Submission Reason <span class="text-danger">*</span>
+                                </label>
+                                <select id="ddl_BankNonSubmissionReason" class="form-control">
+                                    <option value="">-- Select Non-Submission Reason --</option>
+                                    @foreach (var bnsrl in BankNonSubmissionReasonList)
+                                    {
+                                        var val = (bnsrl.ValueInt ?? "").ToString();
+                                        var text = (bnsrl.Text ?? "").ToString();
+                                        <option value="@val">@text</option>
+                                    }
+                                </select>
                             </div>
 
                         </div>
@@ -751,7 +784,7 @@
 
             <div class="modal-footer border-0 pt-0">
                 <button type="button"
-                        onclick="RegisterLog.SaveEditRegister()"
+                        onclick="saveEditRegisterLog()"
                         class="btn btn-success px-4">
                     <i class="fa fa-save me-1" aria-hidden="true"></i> Save
                 </button>
@@ -767,6 +800,10 @@
 </div>
 
 @section Scripts {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script>
         const QueueBankCustomerViewUrl = '@Url.Action("Index", "QueueBankCustomerView")';
         const QueueBankCounterViewUrl = '@Url.Action("Index", "QueueBankCounterView")';

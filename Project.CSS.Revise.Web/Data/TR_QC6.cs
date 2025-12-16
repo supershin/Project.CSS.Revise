@@ -84,6 +84,12 @@ public partial class TR_QC6
     [InverseProperty("QC")]
     public virtual ICollection<TR_ContactLog> TR_ContactLogs { get; set; } = new List<TR_ContactLog>();
 
+    [InverseProperty("QC")]
+    public virtual ICollection<TR_QC_ContactLog> TR_QC_ContactLogs { get; set; } = new List<TR_QC_ContactLog>();
+
+    [InverseProperty("QC")]
+    public virtual ICollection<TR_Unit_Budget_Defect> TR_Unit_Budget_Defects { get; set; } = new List<TR_Unit_Budget_Defect>();
+
     [ForeignKey("UnitID")]
     [InverseProperty("TR_QC6s")]
     public virtual tm_Unit? Unit { get; set; }

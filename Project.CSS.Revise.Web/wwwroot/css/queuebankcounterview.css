@@ -1,32 +1,47 @@
-﻿/* summary register zone now */
+﻿/* ==========================
+    summary register zone now
+   ========================== */
 .summary-register {
     text-align: center;
     margin-top: 20px;
 }
 
+/* ✅ เปลี่ยนจาก flex -> grid เพื่อให้จัด 2 แถวได้ตามที่ต้องการ */
 .summary-row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid !important;
     gap: 16px;
+    justify-content: center;
+    align-items: stretch;
+}
+
+/* Row 1: Register, Queue, In Process, Done, ยื่น, ไม่ยื่น (6 กล่อง) */
+.summary-row-6 {
+    grid-template-columns: repeat(6, minmax(160px, 1fr));
+}
+
+/* Row 2: 5 กล่อง */
+.summary-row-5 {
+    grid-template-columns: repeat(5, minmax(160px, 1fr));
 }
 
 .summary-box {
-    flex: 1 1 180px;
-    max-width: 220px;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     background: #fff;
 }
 
-    /* Header color area */
+    /* Fix header height ให้เท่ากันทุก summary box */
     .summary-box h6 {
-        margin: 0;
+        min-height: 58px; /* ปรับได้ 44–52 ตามดีไซน์ */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        line-height: 1.25;
         padding: 10px;
-        font-weight: 600;
-        color: #222;
     }
+
 
 /* White section (unit/value) */
 .summary-values {
@@ -49,13 +64,46 @@
             border-left: 1px solid rgba(0,0,0,0.1);
         }
 
+
+
 /* Footer */
 .summary-footer {
-    background: #f5f6f8;
     padding: 8px;
     font-weight: 600;
     color: #333;
     font-size: 14px;
+    background: #f5f6f8 !important; /* หรือ #fff ก็ได้ */
+}
+
+/* ✅ Responsive: จอเล็กลงให้ลดคอลัมน์อัตโนมัติ */
+@media (max-width: 1400px) {
+    .summary-row-6 {
+        grid-template-columns: repeat(3, minmax(160px, 1fr));
+    }
+
+    .summary-row-5 {
+        grid-template-columns: repeat(3, minmax(160px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .summary-row-6 {
+        grid-template-columns: repeat(2, minmax(160px, 1fr));
+    }
+
+    .summary-row-5 {
+        grid-template-columns: repeat(2, minmax(160px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .summary-row-6 {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-row-5 {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ===== COLORS ===== */
@@ -128,14 +176,77 @@
     background-color: #fff;
     box-shadow: 0 0 2px rgba(0,0,0,0.15);
 }
+/* =========================
+   Summary Bank Table
+   ========================= */
+.summary-bank-table {
+    background: #fff;
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
 
-/* ===== Counter Boxes ===== */
+    .summary-bank-table thead th {
+        background-color: #f3f6fa;
+        font-weight: 600;
+        text-align: center;
+        border-bottom: 2px solid #dee2e6;
+        color: #222;
+        vertical-align: middle;
+    }
+
+    .summary-bank-table tbody td {
+        text-align: center;
+        vertical-align: middle;
+        padding: 10px 12px;
+        border-color: #e6e8eb;
+        font-size: 14px;
+        color: #333;
+    }
+
+        .summary-bank-table tbody td:first-child {
+            text-align: left;
+        }
+
+    .summary-bank-table tbody tr:nth-child(even) {
+        background-color: #fafbfc;
+    }
+
+.bank-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #fff;
+    box-shadow: 0 0 2px rgba(0,0,0,0.15);
+}
+
+/* =========================
+   Counter Grid (equal height)
+   ========================= */
+.counter-col {
+    display: flex;
+}
+
+    .counter-col > .counter-box {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+/* =========================
+   Counter Boxes
+   (match JS: .active / .empty / .inprocess)
+   ========================= */
 .counter-box {
     border-radius: 10px;
     overflow: hidden;
     text-align: center;
     border: 1px solid #dee2e6;
+    cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: #fff;
 }
 
     .counter-box:hover {
@@ -143,24 +254,82 @@
         box-shadow: 0 3px 10px rgba(0,0,0,0.08);
     }
 
+/* Header base */
 .counter-header {
     font-weight: 600;
-    padding: 8px;
+    padding: 6px 8px;
+    font-size: 0.82rem;
+    line-height: 1.1;
+    white-space: nowrap;
 }
 
+/* Body base (ทำให้เตี้ย/ตัวเล็กลง) */
 .counter-body {
-    background: #fde9e9;
-    padding: 18px 10px;
-    font-weight: 500;
+    background: #fde9e9; /* default: active theme (แดงอ่อน) */
+    padding: 6px 8px; /* ✅ เตี้ยลง */
+    font-weight: 600;
     color: #000;
+    font-size: 0.82rem; /* ✅ ตัวเล็กลง */
+    min-height: 38px; /* ✅ เตี้ยลง */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
+/* ✅ empty theme (ว่าง/เทา-ฟ้าอ่อน) */
 .counter-box.empty .counter-body {
     background: #eaf3ff;
+    color: #111;
 }
 
+/* ✅ active (มีงาน) — JS ใส่ class "active" */
+.counter-box.active .counter-body {
+    background: #fde9e9;
+}
 
-/* ===== Counter Detail Box ===== */
+/* ✅ inprocess body theme (ต้อง override เหนือ active) */
+.counter-box.inprocess .counter-body {
+    background: #e6ffed;
+    color: #155724;
+}
+
+/* Selected states */
+.counter-box.selected {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.4);
+    transform: translateY(-2px);
+}
+
+/* QB selected (เขียว) */
+.qb-counter.selected {
+    box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Bank logo inside body */
+.counter-box .counter-body img {
+    width: 22px;
+    height: auto;
+}
+
+    /* QR image class (JS ใส่ .counter-qr) */
+    .counter-box .counter-body img.counter-qr {
+        width: 64px;
+        height: auto;
+    }
+
+/* โหมด QR: ทำกรอบขาวให้ QR อ่านง่ายบนพื้นหลังสีแดง/เขียว */
+.counter-box.qr-mode .qr-wrap {
+    background: #fff;
+    padding: 6px;
+    border-radius: 10px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.12);
+}
+
+/* =========================
+   Counter Detail Box
+   ========================= */
 .counter-detail-box {
     background: #e9fff0;
     border-radius: 10px;
@@ -176,16 +345,56 @@
         border-radius: 0 6px 6px 0;
     }
 
-/* ===== QR Box ===== */
+    /* input group */
+    .counter-detail-box .input-group {
+        display: flex;
+        width: 100%;
+        align-items: stretch;
+    }
+
+        /* select ปกติ */
+        .counter-detail-box .input-group > #ddlUnitRegister {
+            flex: 1 1 auto;
+            width: auto;
+            min-width: 0;
+            border-radius: 999px 0 0 999px;
+        }
+
+        /* ปุ่ม OK */
+        .counter-detail-box .input-group > #btnSaveUnitRegister {
+            flex: 0 0 auto;
+            border-radius: 0 999px 999px 0;
+            margin-left: -1px;
+        }
+
+        /* Choices.js wrapper */
+        .counter-detail-box .input-group > .choices {
+            flex: 1 1 auto;
+            width: auto;
+            min-width: 0;
+        }
+
+    .counter-detail-box .choices__inner {
+        border-radius: 999px 0 0 999px;
+        min-height: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        padding: 4px 26px 4px 12px;
+    }
+
+/* =========================
+   QR Box (RIGHT panel)
+   ========================= */
 .qr-box img {
     border: 4px solid #fff;
     box-shadow: 0 0 6px rgba(0,0,0,0.15);
     border-radius: 8px;
 }
 
-/* ===== Buttons ===== */
-
-
+/* =========================
+   Buttons
+   ========================= */
 #btnCheckerView {
     background: #f9b65d;
     border: none;
@@ -193,31 +402,13 @@
     font-weight: 600;
 }
 
+    #btnCheckerView:hover {
+        background: #eea545;
+    }
 
-
-#btnCheckerView:hover {
-    background: #eea545;
-}
-
-
-/* ทำให้ counter box ดูเป็นปุ่ม */
-.counter-box {
-    cursor: pointer;
-}
-
-/* ใช้ตอนถูกเลือก */
-.counter-box.selected {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.4);
-    transform: translateY(-2px);
-}
-
-.qb-counter.selected {
-    box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.5);
-    transform: translateY(-2px);
-}
-
-
+/* =========================
+   Fullscreen mode
+   ========================= */
 #Container_counter.fullscreen-mode {
     position: fixed;
     inset: 0;
@@ -227,9 +418,7 @@
     padding: 10px;
 }
 
-    /* ===== Fullscreen: zoom detail & cards ===== */
-
-    /* เมื่อเข้า fullscreen → ขยายทุกอย่างให้ดูใหญ่ขึ้น */
+    /* Zoom detail panel */
     #Container_counter.fullscreen-mode .counter-detail-box {
         padding: 28px 24px;
         border-radius: 14px;
@@ -237,7 +426,6 @@
         font-size: 1.05rem;
     }
 
-    /* Label & title ใหญ่ขึ้น */
     #Container_counter.fullscreen-mode #counterDetailTitle {
         font-size: 1.4rem;
     }
@@ -246,118 +434,60 @@
         font-size: 0.95rem;
     }
 
-    /* ช่องกรอก Unit Code ใหญ่ขึ้น ชัดขึ้น */
     #Container_counter.fullscreen-mode #txtUnitCode {
         font-size: 1.2rem;
         height: 3rem;
         padding-inline: 14px;
     }
 
-    /* ปุ่ม OK ขยายให้บาลานซ์กับ input */
     #Container_counter.fullscreen-mode .counter-detail-box .btn-success {
         padding-inline: 18px;
         font-size: 1rem;
     }
 
-    /* TAG โซนธนาคาร/วันที่ ให้ badge ดูใหญ่ขึ้น */
     #Container_counter.fullscreen-mode #counterTagArea .badge {
         font-size: 0.95rem;
         padding: 0.55rem 0.8rem;
         border-radius: 999px;
     }
 
-    /* QR Code ขยายในโหมด fullscreen */
-    #Container_counter.fullscreen-mode .qr-box img {
-        width: 260px !important; /* override จาก width เดิม 180px */
-        max-width: 100%;
-        height: auto;
-    }
-
-    /* ปุ่ม Checker View ด้านล่าง ขยายเล็กน้อย */
     #Container_counter.fullscreen-mode #btnCheckerView {
         padding: 0.6rem 1.3rem;
         font-size: 0.98rem;
     }
 
-
-    /* ===== Fullscreen: ปรับขนาดการ์ดฝั่งซ้ายให้ดูชัดขึ้นด้วย ===== */
-
-    /* Header การ์ดใหญ่ขึ้นนิดหน่อย */
+    /* Zoom counter cards in fullscreen */
     #Container_counter.fullscreen-mode .counter-box .counter-header {
         font-size: 0.95rem;
         padding-block: 10px;
     }
 
-    /* Body ของ counter → padding กับฟอนต์ใหญ่ขึ้น */
     #Container_counter.fullscreen-mode .counter-box .counter-body {
-        padding: 20px 12px;
-        font-size: 1rem;
+        padding: 10px 12px;
+        font-size: 0.92rem;
+        min-height: 54px; /* keep equal height in fullscreen too */
     }
 
-        /* โลโก้ธนาคารในการ์ดซ้ายให้ใหญ่ขึ้นนิดนึง */
-        #Container_counter.fullscreen-mode .counter-box .counter-body img {
-            width: 32px;
-        }
-
-    /* เพิ่ม shadow นิดนึงให้รู้ว่าอยู่ในหน้าโชว์ใหญ่ */
     #Container_counter.fullscreen-mode .counter-box {
         box-shadow: 0 3px 12px rgba(0,0,0,0.12);
     }
 
-    /* QR ที่อยู่ใน box (grid ซ้าย) ในโหมด fullscreen → ขยาย */
-    #Container_counter.fullscreen-mode .counter-box .counter-body img {
-        width: 96px !important; /* จาก 64px → 96px หรือจะปรับเป็น 120px ก็ได้ */
+   /* =========================
+   Fullscreen: Counter images fix
+   - keep bank logo SMALL
+   - enlarge QR only
+   ========================= */
+
+    /* bank logo small even in fullscreen */
+    #Container_counter.fullscreen-mode .counter-box .counter-body img:not(.counter-qr) {
+        width: 22px !important;
+        height: auto;
+    }
+
+    /* QR only bigger */
+    #Container_counter.fullscreen-mode .counter-box .counter-body img.counter-qr {
+        width: 84px !important;
         height: auto;
     }
 
 
-/* การ์ดที่อยู่ในสถานะ In Process (มี InProcessDate) → ธีมเขียว */
-.counter-box.inprocess .counter-header {
-    background-color: #28a745 !important; /* เขียวแบบ success */
-    color: #fff;
-}
-
-.counter-box.inprocess .counter-body {
-    background: #e6ffed; /* เขียวอ่อน */
-    color: #155724; /* เขียวเข้มอ่านง่าย */
-}
-
-/* ทำให้แถว dropdown + ปุ่ม OK เป็น flex เต็มแถว */
-.counter-detail-box .input-group {
-    display: flex;
-    width: 100%;
-    align-items: stretch;
-}
-
-    /* ===== กรณีใช้ select ธรรมดา ===== */
-    .counter-detail-box .input-group > #ddlUnitRegister {
-        flex: 1 1 auto; /* ขยายกินพื้นที่ที่เหลือ */
-        width: auto; /* ไม่ fix width 50px แล้ว */
-        min-width: 0;
-        border-radius: 999px 0 0 999px; /* pill ซ้าย */
-    }
-
-    /* ปุ่ม OK ติดขวา ไม่โดนยืด */
-    .counter-detail-box .input-group > #btnSaveUnitRegister {
-        flex: 0 0 auto; /* กว้างตามเนื้อปุ่ม */
-        border-radius: 0 999px 999px 0; /* pill ขวา */
-        margin-left: -1px; /* ซ่อนเส้นขอบซ้อนกัน ให้ดูติดกันสนิท */
-    }
-
-    /* ===== กรณีใช้ Choices.js ===== */
-    /* ตัว wrapper .choices ให้ทำตัวเหมือน input ใน input-group */
-    .counter-detail-box .input-group > .choices {
-        flex: 1 1 auto;
-        width: auto;
-        min-width: 0;
-    }
-
-/* กล่องด้านในของ choices (แทน select) */
-.counter-detail-box .choices__inner {
-    border-radius: 999px 0 0 999px;
-    min-height: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    padding: 4px 26px 4px 12px;
-}

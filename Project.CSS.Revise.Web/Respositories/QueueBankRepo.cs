@@ -136,7 +136,6 @@ namespace Project.CSS.Revise.Web.Respositories
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
             return model;
@@ -208,13 +207,10 @@ namespace Project.CSS.Revise.Web.Respositories
                 ProjectID = model.ProjectID,
                 QueueTypeID = model.QueueTypeID.AsInt(),
                 BankCounterStatus = Constants.Register.BankCounterStatus.CHECK_OUT,
-                BankCounterList = new List<RegisterBankCounter_Result>
-        {
-            new RegisterBankCounter_Result
-            {
-                RegisterLogID = model.ID
-            }
-        }
+                BankCounterList = new List<RegisterBankCounter_Result>{ new RegisterBankCounter_Result {
+                                                                            RegisterLogID = model.ID
+                                                                       }
+                }
             };
 
             SaveUpdateRegisterBankCounterFinishData(register);
@@ -275,7 +271,7 @@ namespace Project.CSS.Revise.Web.Respositories
 
             // อัปเดตวันที่ + คนแก้ไข (ควรมีตามมาตรฐาน)
             item.UpdateDate = DateTime.Now;
-            item.UpdateBy = 5;
+            item.UpdateBy = model.SaveByID;
 
             // บันทึก
             _context.SaveChanges();
@@ -321,9 +317,9 @@ namespace Project.CSS.Revise.Web.Respositories
                 FlagActive = true,
                 RegisterDate = now,
                 CreateDate = now,
-                CreateBy = 5,
+                CreateBy = model.SaveByID,
                 UpdateDate = now,
-                UpdateBy = 5
+                UpdateBy = model.SaveByID
             };
 
             return item;
@@ -358,23 +354,62 @@ namespace Project.CSS.Revise.Web.Respositories
                                      ? model.ResponsibleID
                                      : null;
 
-            item.WaitDate = model.FlagWait.AsBool() ? (DateTime?)DateTime.Now : null;
-            item.InprocessDate = model.FlagInprocess.AsBool() ? (DateTime?)DateTime.Now : null;
-            item.FastFixDate = model.FlagFastFix.AsBool() ? (DateTime?)DateTime.Now : null;
-            item.FastFixFinishDate = model.FlagFastFixFinish.AsBool() ? (DateTime?)DateTime.Now : null;
-            item.FinishDate = model.FlagFinish.AsBool() ? (DateTime?)DateTime.Now : null;
+            item.WaitDate = model.FlagWait.AsBool()
+                                ? (DateTime?)DateTime.Now
+                                : null;
+
+            item.InprocessDate = model.FlagInprocess.AsBool()
+                                    ? (DateTime?)DateTime.Now
+                                    : null;
+
+            item.FastFixDate = model.FlagFastFix.AsBool()
+                                    ? (DateTime?)DateTime.Now
+                                    : null;
+
+            item.FastFixFinishDate = model.FlagFastFixFinish.AsBool()
+                                           ? (DateTime?)DateTime.Now
+                                           : null;
+
+            item.FinishDate = model.FlagFinish.AsBool()
+                                ? (DateTime?)DateTime.Now
+                                : null;
 
             item.CareerTypeID = model.CareerTypeID;
             item.TransferTypeID = model.TransferTypeID;
-            item.ReasonID = model.ReasonID;
+
+            // ✅ ReasonID logic (IMPORTANT)
+            if (model.ReasonID.AsInt() <= 0)
+            {
+                item.ReasonID = null;
+                item.ReasonRemarkID = null;
+            }
+            else
+            {
+                item.ReasonID = model.ReasonID;
+
+                if (model.ReasonID == 50) // ยื่น
+                {
+                    item.ReasonRemarkID = null;
+                }
+                else if (model.ReasonID == 51) // ไม่ยื่น
+                {
+                    item.ReasonRemarkID = model.ReasonRemarkID;
+                }
+                else
+                {
+                    item.ReasonRemarkID = null;
+                }
+            }
 
             item.FixedDuration = model.FlagFastFix.AsBool()
-                                  ? model.FixedDuration
-                                  : null;
+                                    ? model.FixedDuration
+                                    : null;
 
             item.UpdateDate = DateTime.Now;
-            item.UpdateBy = 5;
+            item.UpdateBy = model.SaveByID;
         }
+
+
         private void ValidateSaveRegisterLog(RegisterLog model)
         {
 
@@ -506,6 +541,7 @@ namespace Project.CSS.Revise.Web.Respositories
                 CareerTypeID = raw.r.CareerTypeID.AsInt(),
                 TransferTypeID = raw.r.TransferTypeID.AsInt(),
                 ReasonID = raw.r.ReasonID.AsInt(),
+                ReasonRemarkID = raw.r.ReasonRemarkID.AsInt(),
                 FixedDuration = raw.r.FixedDuration.AsInt(),
 
                 ContractNumber = raw.ct != null ? raw.ct.ContractNumber : null,   // ✅ กัน ct null
@@ -596,8 +632,6 @@ namespace Project.CSS.Revise.Web.Respositories
 
             return answerName.Trim();
         }
-
-
 
         public void SaveCustomerSubmit_FINPlus(LoanModel model)
         {

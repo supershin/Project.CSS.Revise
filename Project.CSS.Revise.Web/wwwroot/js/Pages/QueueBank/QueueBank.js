@@ -316,6 +316,60 @@ function loadUnitsByProject() {
         .catch(err => console.error("loadUnitsByProject error:", err));
 }
 
+function setChoiceEnabled(selector, enabled) {
+    const el = document.querySelector(selector);
+    const inst = window.QB_CHOICES ? window.QB_CHOICES[selector] : null;
+
+    if (el) el.disabled = !enabled;
+
+    // สำหรับ Choices: toggle UI ให้ตรงกับ disabled ของ select
+    if (inst) {
+        try {
+            inst.passedElement.element.disabled = !enabled;
+            inst.disable();
+            if (enabled) inst.enable();
+        } catch (e) {
+            console.warn("setChoiceEnabled error:", selector, e);
+        }
+    }
+}
+
+function clearChoice(selector) {
+    const el = document.querySelector(selector);
+    const inst = window.QB_CHOICES ? window.QB_CHOICES[selector] : null;
+
+    if (inst) {
+        try {
+            inst.removeActiveItems();
+        } catch (e) {
+            console.warn("clearChoice (Choices) error:", selector, e);
+        }
+    }
+    if (el) el.value = "";
+}
+
+/** Rule: Reason 50=ยื่น => disable non-submission + clear, 51=ไม่ยื่น => enable */
+function syncNonSubmissionByReason(reasonValue) {
+    const val = (reasonValue ?? "").toString().trim();
+
+    const isSubmit = (val === "50");       // ยื่น
+    const isNotSubmit = (val === "51");    // ไม่ยื่น
+
+    if (isSubmit) {
+        clearChoice("#ddl_BankNonSubmissionReason");
+        setChoiceEnabled("#ddl_BankNonSubmissionReason", false);
+    } else {
+        // ค่าอื่นๆ + ไม่ยื่น => เปิดให้ใช้งาน
+        setChoiceEnabled("#ddl_BankNonSubmissionReason", true);
+
+        // ถ้าอยากบังคับว่า "ไม่ยื่น" เท่านั้นถึงใช้ได้จริง ให้เปิดด้วย isNotSubmit แทน
+        // setChoiceEnabled("#ddl_BankNonSubmissionReason", isNotSubmit);
+        // if (!isNotSubmit) clearChoice("#ddl_BankNonSubmissionReason");
+    }
+}
+
+
+
 // ===== Init all dropdowns =====
 function initFilterDropdowns() {
     const bugInst = createChoice("#ddl_BUG", { placeholderValue: "Select BUG…" });
@@ -326,20 +380,30 @@ function initFilterDropdowns() {
     createChoice("#ddl_UnitCode", { placeholderValue: "Select Unit Code…" });
     createChoice("#ddl_ExpectTransferBy", { placeholderValue: "Select Expect Transfer By…" });
 
-    // 🔥 NEW: multi-select ใน modal Create Register
     createChoice("#DDLUnitCode", { placeholderValue: "Select Unit Code for Register…" });
     createChoice("#ddl_Responsible", { placeholderValue: "Select Responsible..." });
     createChoice("#ddl_Career", { placeholderValue: "Not specified" });
     createChoice("#ddl_Reason", { placeholderValue: "Select Reason..." });
+    createChoice("#ddl_BankNonSubmissionReason", { placeholderValue: "Select Non-Submission Reason..." });
 
-    // ✅ สำคัญ: BUG เปลี่ยน -> โหลด Project ใหม่ (รวมเคส deselect ทั้งหมดด้วย)
+    // ✅ hook Reason -> NonSubmissionReason
+    const reasonEl = document.querySelector("#ddl_Reason");
+    if (reasonEl) {
+        reasonEl.addEventListener("change", () => {
+            syncNonSubmissionByReason(reasonEl.value);
+        });
+
+        // set initial state (ตอนหน้าเพิ่งโหลด)
+        syncNonSubmissionByReason(reasonEl.value);
+    }
+
     if (bugInst) {
-        const bugEl = bugInst.passedElement.element; // original <select>
+        const bugEl = bugInst.passedElement.element;
         bugEl.addEventListener("change", () => {
             loadProjectsByBU();
         });
     }
-    // ✅ Project เปลี่ยน -> โหลด UnitCode ใหม่
+
     if (projInst) {
         const projEl = projInst.passedElement.element;
         projEl.addEventListener("change", () => {
@@ -347,6 +411,40 @@ function initFilterDropdowns() {
         });
     }
 }
+
+let fpRegisterStart = null;
+let fpRegisterEnd = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    fpRegisterStart = flatpickr("#txt_RegisterDateStart", {
+        dateFormat: "d/m/Y",
+        altInput: false,
+        allowInput: true,
+        onChange: function (selectedDates) {
+            if (fpRegisterEnd && selectedDates.length) {
+                fpRegisterEnd.set("minDate", selectedDates[0]);
+            }
+            qbUpdateSummaryRegisterHeaderDate(); // ✅ เพิ่ม
+        }
+    });
+
+    fpRegisterEnd = flatpickr("#txt_RegisterDateEnd", {
+        dateFormat: "d/m/Y",
+        altInput: false,
+        allowInput: true,
+        onChange: function () {
+            qbUpdateSummaryRegisterHeaderDate(); // ✅ เพิ่ม
+        }
+    });
+
+    // ✅ ตั้งค่า header ครั้งแรกตอนโหลดหน้า
+    qbUpdateSummaryRegisterHeaderDate();
+
+});
+
+
+
 
 function loadQueueBankRegisterTable() {
     if (QueueBankRegisterTableDt) {
@@ -745,7 +843,18 @@ function bindRegisterLogModal(data) {
         setChoiceSingle("#ddl_Career", careerValue);
     })();
 
-    setChoiceSingle("#ddl_Reason", data.ReasonID);
+    // ✅ sync enable/disable + clear non-submission based on reason
+    syncNonSubmissionByReason(data.ReasonID);
+
+    // ✅ ถ้า "ไม่ยื่น" และ backend มี Reason ของ non-submission ส่งมา ก็ set ค่าได้
+    // (สมมุติ field ชื่อ data.BankNonSubmissionReasonID)
+    if (String(data.ReasonID || "") === "51") {
+        setChoiceSingle("#ddl_BankNonSubmissionReason", data.ReasonRemarkID);
+    } else {
+        // ยื่น -> เคลียร์ทิ้งแน่นอน
+        setChoiceSingle("#ddl_BankNonSubmissionReason", "");
+    }
+
 
     const setStatusBtn = (id, val) => {
         const btn = document.getElementById(id);
@@ -774,8 +883,6 @@ function bindRegisterLogModal(data) {
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     modal.show();
 }
-
-
 
 function renderFinPlusBanks(loanBankList) {
     const box = document.getElementById("finplusBankList");
@@ -814,90 +921,118 @@ function renderFinPlusBanks(loanBankList) {
     box.innerHTML = html;
 }
 
+async function saveEditRegisterLog() {
+    const modalEl = document.getElementById("EditRegisterLog");
+    if (!modalEl) return;
 
-//function bindRegisterLogModal(data) {
-//    const modalEl = document.getElementById("EditRegisterLog");
-//    if (!modalEl) return;
+    const registerId = Number(modalEl.dataset.registerId || 0);
 
-//    // เก็บ ID ไว้ใน data attribute เผื่อใช้ตอน Save
-//    modalEl.dataset.registerId = data.ID || "";
+    /* =========================
+       Helper
+       ========================= */
+    const getChoiceValue = (selector) => {
+        const inst = window.QB_CHOICES ? window.QB_CHOICES[selector] : null;
+        if (inst) {
+            const val = inst.getValue(true);
+            return val ? String(val) : "";
+        }
+        const el = document.querySelector(selector);
+        return el ? (el.value || "") : "";
+    };
 
-//    // Header Unit Code
-//    const headerEl = document.getElementById("hUnitCode");
-//    if (headerEl) {
-//        headerEl.textContent = data.UnitCode
-//            ? `Unit Code : ${data.UnitCode}`
-//            : "";
-//    }
+    const isActive = (id) =>
+        document.getElementById(id)?.classList.contains("active") ?? false;
 
-//    // helper: set single-select (รองรับทั้ง Choices.js และ select ปกติ)
-//    const setChoiceSingle = (selector, value) => {
-//        const val = (value === null || value === undefined) ? "" : String(value);
+    /* =========================
+       Read values
+       ========================= */
+    const responsibleId = getChoiceValue("#ddl_Responsible");
+    const careerTypeId = getChoiceValue("#ddl_Career");
+    const reasonId = getChoiceValue("#ddl_Reason"); // 50/51 or ""
+    const remarkId = getChoiceValue("#ddl_BankNonSubmissionReason");
 
-//        const inst = window.QB_CHOICES ? window.QB_CHOICES[selector] : null;
-//        if (inst) {
-//            try {
-//                inst.removeActiveItems();
-//                if (val !== "") {
-//                    inst.setChoiceByValue(val);
-//                }
-//            } catch (e) {
-//                console.warn("setChoiceSingle (Choices) error:", selector, e);
-//            }
-//        } else {
-//            const el = document.querySelector(selector);
-//            if (el) el.value = val;
-//        }
-//    };
+    const flagRegister = isActive("FlagRegister");
+    const flagInprocess = isActive("FlagInprocess");
+    const flagFinish = isActive("FlagFinish");
 
-//    // ===== Dropdowns =====
-//    // ResponsibleID
-//    setChoiceSingle("#ddl_Responsible", data.ResponsibleID);
+    // ✅ Validate Finance only when Done
+    const mustValidateFinance = flagFinish === true;
 
-//    // CareerTypeID
-//    setChoiceSingle("#ddl_Career", data.CareerTypeID);
+    /* =========================
+       Validate
+       ========================= */
+    if (!careerTypeId) {
+        Swal.fire("Warning", "Please select Career", "warning");
+        return;
+    }
 
-//    // ReasonID
-//    setChoiceSingle("#ddl_Reason", data.ReasonID);
+    // ✅ Finance validate เฉพาะตอน Done
+    if (mustValidateFinance) {
+        if (!reasonId || reasonId === "0") {
+            Swal.fire("Warning", "Please select Reason", "warning");
+            return;
+        }
 
-//    // FinPlus → ตอนนี้ map กับ TransferTypeID
-//    setChoiceSingle("#ddl_FinPlus", data.TransferTypeID);
+        if (reasonId === "51" && (!remarkId || remarkId === "0")) {
+            Swal.fire("Warning", "Please select Non-Submission Reason", "warning");
+            return;
+        }
+    }
 
-//    // ===== Status buttons (multi-select) =====
-//    const setStatusBtn = (id, val) => {
-//        const btn = document.getElementById(id);
-//        if (!btn) return;
+    /* =========================
+       FormData (FromForm)
+       ========================= */
+    const fd = new FormData();
 
-//        const isOn = !!val;
+    fd.append("ID", registerId);
+    fd.append("ResponsibleID", responsibleId || 0);
+    fd.append("CareerTypeID", careerTypeId || 0);
 
-//        if (isOn) {
-//            btn.classList.add("active", "btn-success");
-//            btn.classList.remove("btn-secondary");
-//        } else {
-//            btn.classList.remove("active", "btn-success");
-//            btn.classList.add("btn-secondary");
-//        }
-//    };
+    fd.append("FlagRegister", flagRegister);
+    fd.append("FlagInprocess", flagInprocess);
+    fd.append("FlagFinish", flagFinish);
+    fd.append("ReasonID", reasonId);
+    fd.append("ReasonRemarkID", remarkId);
 
-//    setStatusBtn("FlagRegister", data.FlagRegister);
-//    setStatusBtn("FlagInprocess", data.FlagInprocess);
-//    setStatusBtn("FlagFinish", data.FlagFinish);
+    /* =========================
+       POST
+       ========================= */
+    try {
+        const res = await fetch(baseUrl + "QueueBank/SaveRegisterLog", {
+            method: "POST",
+            body: fd
+        });
 
-//    // ===== Show modal (Bootstrap 5) =====
-//    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-//    modal.show();
-//}
+        const json = await res.json();
+
+        if (!json.Success) {
+            Swal.fire("Error", json.Message || "Save failed", "error");
+            return;
+        }
+
+        Swal.fire("Success", json.Message, "success");
+
+        bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+
+        if (typeof loadUnitsByProject === "function") {
+            loadUnitsByProject();
+        }
+    } catch (err) {
+        console.error(err);
+        Swal.fire("Error", "System error", "error");
+    }
+}
 
 
+function getFlatpickrISO(fp) {
+    if (!fp || !fp.selectedDates || fp.selectedDates.length === 0) return "";
+    const d = fp.selectedDates[0];
+    return d.toISOString().split("T")[0]; // yyyy-MM-dd
+}
 
-// เรียกตอน page load
-//document.addEventListener("DOMContentLoaded", function () {
-//    initQueueBankRegisterTable();
-//});
-
-// ===== Helpers =====
 function qbGetValues() {
     const get = (sel) => (window.QB_CHOICES[sel]?.getValue(true)) || [];
+
     return {
         BUG: get("#ddl_BUG"),
         Project: get("#ddl_Project"),
@@ -906,10 +1041,13 @@ function qbGetValues() {
         CSResponsible: get("#ddl_CSResponsible"),
         UnitCode: get("#ddl_UnitCode"),
         ExpectTransferBy: get("#ddl_ExpectTransferBy"),
-        RegisterDateStart: document.getElementById("txt_RegisterDateStart")?.value || "",
-        RegisterDateEnd: document.getElementById("txt_RegisterDateEnd")?.value || ""
+
+        // 🔥 date จาก flatpickr
+        RegisterDateStart: getFlatpickrISO(fpRegisterStart),
+        RegisterDateEnd: getFlatpickrISO(fpRegisterEnd)
     };
 }
+
 
 function qbSetValues(map) {
     const set = (sel, vals) => {
@@ -932,21 +1070,17 @@ function qbSetValues(map) {
 }
 
 function ClearFilter() {
-    // clear multi-selects
     Object.keys(window.QB_CHOICES).forEach(k => {
         try { window.QB_CHOICES[k].removeActiveItems(); } catch { }
     });
-    // clear dates
-    const s = document.getElementById("txt_RegisterDateStart");
-    const e = document.getElementById("txt_RegisterDateEnd");
-    if (s) s.value = "";
-    if (e) e.value = "";
 
-    // สำคัญ: ตอนนี้ BUG = ว่าง -> L_BUID = "" -> loadProjectsByBU() = ทุก Project
+    if (fpRegisterStart) fpRegisterStart.clear();
+    if (fpRegisterEnd) fpRegisterEnd.clear();
+
     loadProjectsByBU();
-    // เคลียร์ UnitCode เพราะยังไม่มี Project
     loadUnitsByProject();
 }
+
 
 // ===== Events (Search / Cancel) =====
 function wireButtons() {
@@ -967,29 +1101,6 @@ function wireButtons() {
                 hasProject = !!(projectVal && projectVal.toString().trim() !== "");
             }
 
-            // ❌ ไม่ได้เลือก Project → popup error + หยุด
-            //if (!hasProject) {
-            //    if (typeof Swal !== "undefined") {
-            //        Swal.fire({
-            //            icon: "error",
-            //            title: "Validation Error",
-            //            text: "Please select a project before searching.",
-            //            buttonsStyling: false,
-            //            confirmButtonText: "OK",
-            //            customClass: {
-            //                confirmButton: "btn btn-danger"
-            //            },
-            //            allowOutsideClick: false,
-            //            didOpen: (popup) => {
-            //                popup.parentNode.style.zIndex = 200000;
-            //            }
-            //        });
-            //    } else {
-            //        alert("Please select a project before searching.");
-            //    }
-            //    return; // ⚠️ หยุดไม่ให้ search ต่อ
-            //}
-
             // ✅ ผ่าน validation → ทำงานตามปกติ
             qbUpdateProjectTableHeader();
             loadQueueBankRegisterTable();
@@ -1006,7 +1117,6 @@ function wireButtons() {
         });
     }
 }
-
 
 function qbUpdateProjectTableHeader() {
     const headerEl = document.getElementById("project-name-selected");
@@ -1053,9 +1163,6 @@ function qbUpdateProjectTableHeader() {
     console.log(`➡ Multiple selected: ${labelText}`);
     headerEl.textContent = labelText;
 }
-
-
-
 
 function openCreateRegister() {
     // 1) เช็คก่อนว่ามี Project ไหม
@@ -1116,7 +1223,6 @@ function openCreateRegister() {
         console.warn("DataTables not loaded. Please include jquery.dataTables.js and css.");
     }
 }
-
 
 document.addEventListener("DOMContentLoaded", function () {
     const btnSave = document.getElementById("crBtnSave");
@@ -1363,30 +1469,28 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-
 function qbUpdateSummaryRegisterHeaderDate() {
-    const startEl = document.getElementById("txt_RegisterDateStart");
-    const endEl = document.getElementById("txt_RegisterDateEnd");
     const spanEl = document.getElementById("sum-register-date");
-
     if (!spanEl) return;
 
-    const start = (startEl?.value || "").trim();
-    const end = (endEl?.value || "").trim();
+    const s = (fpRegisterStart && fpRegisterStart.selectedDates?.length)
+        ? fpRegisterStart.selectedDates[0]
+        : null;
 
-    // --- CASES ---
-    if (!start && !end) {
-        spanEl.textContent = "All Days";   // ← default text (you can change anytime)
-        return;
-    }
+    const e = (fpRegisterEnd && fpRegisterEnd.selectedDates?.length)
+        ? fpRegisterEnd.selectedDates[0]
+        : null;
 
-    if (start && end) {
-        spanEl.textContent = `${start} - ${end}`; // ← Your requested format
-        return;
-    }
+    const toDMY = (dt) => {
+        const dd = String(dt.getDate()).padStart(2, "0");
+        const mm = String(dt.getMonth() + 1).padStart(2, "0");
+        const yyyy = dt.getFullYear();
+        return `${dd}/${mm}/${yyyy}`;
+    };
 
-    // Only one side filled
-    spanEl.textContent = start || end;
+    if (!s && !e) { spanEl.textContent = "All Days"; return; }
+    if (s && e) { spanEl.textContent = `${toDMY(s)} - ${toDMY(e)}`; return; }
+    spanEl.textContent = toDMY(s || e);
 }
 
 
@@ -1493,14 +1597,9 @@ function loadSummaryRegisterBank() {
     const filters = qbGetValues();
 
     let projectId = filters.Project;
-    if (Array.isArray(projectId)) {
-        projectId = projectId[0] || "";
-    }
+    if (Array.isArray(projectId)) projectId = projectId[0] || "";
 
     const formData = new FormData();
-
-    // ==== QueueBank filters (เหมือนตัวอื่น) ====
-    formData.append("L_Act", "SummeryRegisterBank");
     formData.append("L_ProjectID", projectId || "");
     formData.append("L_RegisterDateStart", filters.RegisterDateStart || "");
     formData.append("L_RegisterDateEnd", filters.RegisterDateEnd || "");
@@ -1508,19 +1607,27 @@ function loadSummaryRegisterBank() {
     formData.append("L_CSResponse", (filters.CSResponsible || []).join(","));
     formData.append("L_UnitCS", (filters.UnitStatusCS || []).join(","));
     formData.append("L_ExpectTransfer", (filters.ExpectTransferBy || []).join(","));
-
-    // Queue type ของหน้า Bank = 48
     formData.append("L_QueueTypeID", "48");
 
-    // ==== DataTables params (ให้ model ครบเฉย ๆ) ====
+    // model params
     formData.append("draw", "1");
     formData.append("start", "0");
-    formData.append("length", "1000"); // เอามาหมดพอใช้ summary
+    formData.append("length", "1000");
     formData.append("SearchTerm", "");
 
-    if (typeof showLoading === "function") {
-        showLoading();
+    const tbodyBank = document.getElementById("summary-bank-body");
+    const tbodyNon = document.getElementById("summary-banknonsubmissionreason-body");
+
+    if (tbodyBank) {
+        tbodyBank.innerHTML = `
+            <tr><td colspan="5" class="text-center text-muted">Loading...</td></tr>`;
     }
+    if (tbodyNon) {
+        tbodyNon.innerHTML = `
+            <tr><td colspan="3" class="text-center text-muted">Loading...</td></tr>`;
+    }
+
+    if (typeof showLoading === "function") showLoading();
 
     fetch(baseUrl + "QueueBank/GetlistSummeryRegisterBank", {
         method: "POST",
@@ -1528,74 +1635,99 @@ function loadSummaryRegisterBank() {
     })
         .then(r => r.json())
         .then(res => {
-            const tbody = document.getElementById("summary-bank-body");
-            if (!tbody) return;
 
-            // ⚠️ controller คืนชื่อ property ว่า listDataSummeryRegisterType
-            const list = res.listDataSummeryRegisterType || [];
+            /* =========================
+               1) Summary Bank (ซ้าย)
+               ========================= */
+            if (tbodyBank) {
+                const listBank = res.listDataSummeryRegisterBank || [];
 
-            if (!list.length) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">No data</td>
-                    </tr>`;
-                return;
+                if (!listBank.length) {
+                    tbodyBank.innerHTML = `
+                        <tr><td colspan="5" class="text-center text-muted">No data</td></tr>`;
+                } else {
+                    tbodyBank.innerHTML = listBank.map(item => {
+                        const bankCode = (item.BankCode || "").trim();
+                        const bankName = item.BankName || "";
+                        const unit = item.Unit ?? 0;
+                        const valueText = (typeof qbFormatValueM === "function")
+                            ? qbFormatValueM(item.Value)
+                            : (item.Value ?? "0");
+                        const percentText = (item.Percent ?? "0") + "%";
+                        const interestRate = (item.InterestRateAVG ?? "0") + "%";
+
+                        let bankCellHtml = "";
+                        if (bankCode && bankCode.toLowerCase() !== "no data") {
+                            bankCellHtml = `
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="${baseUrl}image/ThaiBankicon/${bankCode}.png"
+                                         alt="${bankCode}"
+                                         class="bank-logo"
+                                         onerror="this.style.display='none'">
+                                    <span>${bankName || bankCode}</span>
+                                </div>`;
+                        } else {
+                            bankCellHtml = `<span>${bankName || "No data"}</span>`;
+                        }
+
+                        return `
+                            <tr>
+                                <td>${bankCellHtml}</td>
+                                <td class="text-center">${interestRate}</td>
+                                <td class="text-center">${unit}</td>
+                                <td class="text-end">${valueText}</td>
+                                <td class="text-center">${percentText}</td>
+                            </tr>`;
+                    }).join("");
+                }
             }
 
-            const rowsHtml = list.map(item => {
-                const bankCode = (item.BankCode || "").trim();
-                const bankName = item.BankName || "";
-                const unit = item.Unit || "0";          // จำนวนยูนิต
-                const valueText = qbFormatValueM(item.Value); // มูลค่า → xx,xxx.xx M
-                const percentText = (item.Percent || "0") + "%";
-                const interestRate = (item.InterestRateAVG || "0") + "%";
+            /* =======================================
+               2) Summary Non-Submission Reason (ขวา)
+               ======================================= */
+            if (tbodyNon) {
+                const listNon = res.listDataSummeryRegisterBankNonSubmissionReason || [];
 
-                // ช่องธนาคาร: ถ้า BankCode = 'No data' ไม่ต้องโชว์โลโก้
-                let bankCellHtml = "";
-                if (bankCode && bankCode.toLowerCase() !== "no data") {
-                    bankCellHtml = `
-                        <div class="d-flex align-items-center gap-2">
-                            <img src="${baseUrl}image/ThaiBankicon/${bankCode}.png"
-                                 alt="${bankCode}"
-                                 class="bank-logo">
-                            <span>${bankName || bankCode}</span>
-                        </div>`;
+                if (!listNon.length) {
+                    tbodyNon.innerHTML = `
+                        <tr><td colspan="3" class="text-center text-muted">No data</td></tr>`;
                 } else {
-                    bankCellHtml = `<span>${bankName || "No data"}</span>`;
+                    tbodyNon.innerHTML = listNon.map(item => {
+                        const name = item.Name || "-";
+                        const count = item.Count ?? 0;
+
+                        // model.Percent เป็น string (เช่น "12.34") หรือ "12.34%"
+                        let percent = (item.Percent ?? "0").toString().trim();
+                        if (percent !== "" && !percent.endsWith("%")) percent += "%";
+
+                        return `
+                            <tr>
+                                <td>${name}</td>
+                                <td class="text-center">${count}</td>
+                                <td class="text-center">${percent}</td>
+                            </tr>`;
+                    }).join("");
                 }
+            }
 
-                // ตอนนี้คอลัมน์ "อัตราดอกเบี้ยเฉลี่ย 3 ปี" ยังไม่มีข้อมูลจาก SP
-                // เลยใส่ "Waiting ask user" ไว้เหมือน mock เดิม
-                return `
-                    <tr>
-                        <td>${bankCellHtml}</td>
-                        <td>${interestRate}</td>
-                        <td>${unit}</td>
-                        <td>${valueText}</td>
-                        <td>${percentText}</td>
-                    </tr>`;
-            }).join("");
-
-            tbody.innerHTML = rowsHtml;
         })
         .catch(err => {
             console.error("GetlistSummeryRegisterBank error:", err);
-            const tbody = document.getElementById("summary-bank-body");
-            if (tbody) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="text-center text-danger">
-                            Error loading Summary Bank
-                        </td>
-                    </tr>`;
+
+            if (tbodyBank) {
+                tbodyBank.innerHTML = `
+                    <tr><td colspan="5" class="text-center text-danger">Error loading Summary Bank</td></tr>`;
+            }
+            if (tbodyNon) {
+                tbodyNon.innerHTML = `
+                    <tr><td colspan="3" class="text-center text-danger">Error loading Non-Submission Reason</td></tr>`;
             }
         })
         .finally(() => {
-            if (typeof hideLoading === "function") {
-                hideLoading();
-            }
+            if (typeof hideLoading === "function") hideLoading();
         });
 }
+
 
 
 // โหลด Unit สำหรับใช้ใน modal Create Register (DDLUnitCode)
@@ -1650,6 +1782,86 @@ function loadUnitForRegisterBank() {
             if (typeof hideLoading === "function") hideLoading();
         });
 }
+
+
+// ---------- helper: download ----------
+function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
+
+// ---------- helper: capture element to PNG blob ----------
+async function captureElementToPng(el, filename) {
+    if (!el) return;
+
+    // ปรับ scale ให้ภาพคมขึ้น (2 = คมกำลังดี)
+    const canvas = await html2canvas(el, {
+        backgroundColor: "#ffffff",
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        // ถ้ามี sticky/transform แปลก ๆ บางทีช่วยได้:
+        // foreignObjectRendering: true,
+        windowWidth: document.documentElement.scrollWidth,
+        windowHeight: document.documentElement.scrollHeight
+    });
+
+    return new Promise((resolve) => {
+        canvas.toBlob((blob) => {
+            if (blob) {
+                downloadBlob(blob, filename);
+            }
+            resolve();
+        }, "image/png");
+    });
+}
+
+// ---------- capture 3 cards ----------
+async function captureThreeCards() {
+    /*const card1 = document.getElementById("cardProjectTable");*/
+    const card2 = document.getElementById("cardSummaryRegister");
+    const card3 = document.getElementById("cardSummaryBank");
+
+    // ตั้งชื่อไฟล์ตามเวลา (กันชนกัน)
+    const now = new Date();
+    const stamp =
+        now.getFullYear().toString() +
+        String(now.getMonth() + 1).padStart(2, "0") +
+        String(now.getDate()).padStart(2, "0") + "_" +
+        String(now.getHours()).padStart(2, "0") +
+        String(now.getMinutes()).padStart(2, "0");
+
+    // (ถ้าการ์ดถูก collapse อยู่ จะ capture ได้แค่ที่เห็น)
+    // ถ้าต้องการให้แคปแม้ยุบอยู่ บอกผม เดี๋ยวผมทำ “auto expand -> capture -> restore” ให้
+
+    /*await captureElementToPng(card1, `ProjectTable_${stamp}.png`);*/
+    await captureElementToPng(card2, `SummaryRegister_${stamp}.png`);
+    await captureElementToPng(card3, `SummaryBank_${stamp}.png`);
+}
+
+// ---------- bind button ----------
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("btnCapture");
+    if (!btn) return;
+
+    btn.addEventListener("click", async () => {
+        try {
+            btn.disabled = true;
+            await captureThreeCards();
+        } catch (e) {
+            console.error("Capture error:", e);
+            alert("Capture failed. Please check console.");
+        } finally {
+            btn.disabled = false;
+        }
+    });
+});
 
 
 

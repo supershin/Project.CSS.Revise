@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // format ตัวเลขมูลค่าให้เป็น "xx.xx M"
 function qbFormatValueM(raw) {
-    if (raw == null || raw === "") return "0.00 M";
+    if (raw == null || raw === "") return "0.00";
     const num = Number(raw);
     if (Number.isNaN(num)) return raw;
 
@@ -88,7 +88,7 @@ function qbFormatValueM(raw) {
     return m.toLocaleString("en-US", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
-    }) + " M";
+    });
 }
 
 function qbUpdateSummaryBox(prefix, data) {
@@ -320,21 +320,26 @@ function renderCounterGrid(items) {
     const rootPath = (typeof baseUrl !== "undefined" ? baseUrl : "/");
     let html = "";
 
+    const hasValue = (v) => {
+        if (v === null || v === undefined) return false;
+        const s = String(v).trim();
+        if (s === "" || s.toLowerCase() === "null" || s.toLowerCase() === "undefined") return false;
+        return true;
+    };
+
     items.forEach(item => {
-        // รองรับ property แบบ C# PascalCase และ JS camelCase
         const counterNo = item.Counter || item.counter || "";
         const bankCode = item.BankCode || item.bankCode || "";
         const bankName = item.BankName || item.bankName || "";
         const unitCode = item.UnitCode || item.unitCode || "";
-        const registerLogID = item.RegisterLogID || item.registerLogID || "";
+        const registerLogID = item.RegisterLogID ?? item.registerLogID ?? "";
 
-        // 👇 NEW: InProcessDate
-        const inProcessDate = item.InProcessDate || item.inProcessDate || "";
-        const hasInProcess = !!inProcessDate;   // true ถ้ามีค่า (ไม่ใช่ null/"")
+        const inProcessDate = item.InProcessDate ?? item.inProcessDate ?? "";
+        const hasInProcess = hasValue(inProcessDate);
 
-        const isActive = registerLogID && registerLogID !== "";
+        // ✅ FIXED
+        const isActive = hasValue(registerLogID);
 
-        // base class + green state ถ้า InProcess
         const boxClass =
             "counter-box qb-counter " +
             (isActive ? "active" : "empty") +
@@ -348,29 +353,36 @@ function renderCounterGrid(items) {
             ? `${bankLogoHtml}${unitCode || "-"}`
             : "";
 
-        // 👇 NEW: header สีเขียว ถ้า InProcess
-        const headerClass = hasInProcess
-            ? "bg-success text-white"
-            : (isActive ? "bg-danger text-white" : "bg-primary text-white");
+        let headerStyle = "";
+        if (hasInProcess) {
+            headerStyle = "background-color:#198754;color:#ffffff;";
+        } else if (isActive) {
+            headerStyle = "background-color:#dc3545;color:#ffffff;";
+        } else {
+            headerStyle = "background-color:#6c757d;color:#ffffff;";
+        }
 
         html += `
-            <div class="counter-col col-6">
-                <div class="${boxClass}"
-                     data-counter="${counterNo}"
-                     data-bank="${bankCode}"
-                     data-bankname="${bankName}"
-                     data-unit="${unitCode}"
-                     data-registerid="${registerLogID}">
-                    <div class="counter-header ${headerClass}">
-                        Counter : ${counterNo}
-                    </div>
-                    <div class="counter-body">
-                        ${bodyContent}
-                    </div>
+        <div class="counter-col col-6">
+            <div class="${boxClass}"
+                 data-counter="${counterNo}"
+                 data-bank="${bankCode}"
+                 data-bankname="${bankName}"
+                 data-unit="${unitCode}"
+                 data-registerid="${registerLogID}">
+         
+                <div class="counter-header" style="${headerStyle}">
+                    Counter : ${counterNo}
+                </div>
+
+                <div class="counter-body">
+                    ${bodyContent}
                 </div>
             </div>
-        `;
+        </div>
+    `;
     });
+
 
     grid.innerHTML = html;
 
@@ -384,9 +396,14 @@ function renderCounterGrid(items) {
         box.dataset.originalBoxClass = box.className;
         box.dataset.originalHeaderHtml = header.innerHTML;
         box.dataset.originalBodyHtml = body.innerHTML;
+
         header.dataset.originalClass = header.className;
         body.dataset.originalClass = body.className;
+
+        // ✅ ADD: จำ inline style เดิมของ header (สีแดง/เขียว/เทา)
+        box.dataset.originalHeaderStyle = header.getAttribute("style") || "";
     });
+
 
     // init behaviour หลังจาก render เสร็จ
     initCounterModeButtons();
@@ -431,30 +448,25 @@ function initCounterModeButtons() {
             const body = box.querySelector(".counter-body");
             if (!header || !body) return;
 
-            if (box.dataset.originalBoxClass) {
-                box.className = box.dataset.originalBoxClass;
-            }
-            if (header.dataset.originalClass) {
-                header.className = header.dataset.originalClass;
-            }
-            if (body.dataset.originalClass) {
-                body.className = body.dataset.originalClass;
-            }
-            if (box.dataset.originalHeaderHtml != null) {
-                header.innerHTML = box.dataset.originalHeaderHtml;
-            }
-            if (box.dataset.originalBodyHtml != null) {
-                body.innerHTML = box.dataset.originalBodyHtml;
-            }
+            if (box.dataset.originalBoxClass) box.className = box.dataset.originalBoxClass;
+
+            if (header.dataset.originalClass) header.className = header.dataset.originalClass;
+            if (body.dataset.originalClass) body.className = body.dataset.originalClass;
+
+            if (box.dataset.originalHeaderHtml != null) header.innerHTML = box.dataset.originalHeaderHtml;
+            if (box.dataset.originalBodyHtml != null) body.innerHTML = box.dataset.originalBodyHtml;
+
+            // ✅ ADD: คืน inline style กลับ (ลบสีเทาที่ QR mode ใส่ไว้)
+            header.setAttribute("style", box.dataset.originalHeaderStyle || "");
         });
 
         setButtonsMode("bank");
 
-        // ⚙️ จัด layout grid ใหม่ด้วย (กรณี panel ขวาเปิด/ปิด)
         if (typeof updateCounterGridLayout === "function") {
             updateCounterGridLayout();
         }
     }
+
 
     // 🟡 โหมด QR → เรียก /QueueBankCounterView/CounterQr ต่อ counter
     function setQRMode() {
@@ -476,10 +488,21 @@ function initCounterModeButtons() {
             const body = box.querySelector(".counter-body");
             if (!header || !body) return;
 
-            const headerText = (header.textContent || box.dataset.originalHeaderHtml || "").trim();
-
             const counterNo = box.dataset.counter || "";
             if (!counterNo) return;
+
+            // ✅ เอาสถานะจาก class เดิมที่เคย render ไว้ (active / empty / inprocess)
+            // ใช้ originalBoxClass เป็นหลัก (เพราะตอนนี้เราอาจอยู่โหมดอื่นแล้ว)
+            const originalClass = box.dataset.originalBoxClass || box.className;
+
+            const hasInProcess = originalClass.includes("inprocess");
+            const isActive = originalClass.includes("active");
+            const isEmpty = originalClass.includes("empty");
+
+            // ✅ คง class เดิมไว้ เพื่อให้ CSS สี body ตรงตามสถานะ
+            // แค่เติม flag ว่าอยู่โหมด QR
+            box.className = originalClass;
+            box.classList.add("qr-mode");
 
             const qrUrl =
                 `${rootPath}QueueBankCounterView/CounterQr` +
@@ -488,31 +511,43 @@ function initCounterModeButtons() {
                 `&queueType=bank` +
                 `&counterNo=${encodeURIComponent(counterNo)}`;
 
-            box.classList.remove("active");
-            if (!box.classList.contains("empty")) {
-                box.classList.add("empty");
+            // ✅ Header: ตั้งสีตามสถานะ (เขียว/แดง/เทา)
+            header.className = "counter-header";
+            header.style.color = "#ffffff";
+            header.textContent = `Counter : ${counterNo}`;
+
+            if (hasInProcess) {
+                header.style.backgroundColor = "#198754"; // green
+            } else if (isActive) {
+                header.style.backgroundColor = "#dc3545"; // red
+            } else if (isEmpty) {
+                header.style.backgroundColor = "#6c757d"; // grey
+            } else {
+                header.style.backgroundColor = "#6c757d";
             }
 
-            header.className = "counter-header bg-primary text-white";
-            header.textContent = headerText;
-
+            // ✅ Body: ใส่ QR แต่ยังให้พื้นหลังสีเดิมทำงานจาก CSS (.active/.inprocess/.empty)
             body.className = "counter-body";
             body.innerHTML = `
-                <div class="d-flex justify-content-center align-items-center" style="min-height:60px;">
+            <div class="d-flex justify-content-center align-items-center" style="min-height:60px;">
+                <div class="qr-wrap">
                     <img src="${qrUrl}"
+                         class="counter-qr"
                          alt="QR Code for Counter ${counterNo}"
                          style="width:64px; height:auto;">
                 </div>
-            `;
+            </div>
+        `;
         });
 
         setButtonsMode("qr");
 
-        // ⚙️ จัด layout grid ใหม่ด้วย (ให้โหมด QR ใช้ col-2 เมื่อปิด panel ขวา)
         if (typeof updateCounterGridLayout === "function") {
             updateCounterGridLayout();
         }
     }
+
+
 
     if (!btnBank.dataset.bound) {
         btnBank.addEventListener("click", function (e) {
@@ -1067,31 +1102,58 @@ function loadSummaryRegisterAll() {
             qbUpdateSummaryBox("loan-yes", loanMap["ยื่น"]);
             qbUpdateSummaryBox("loan-no", loanMap["ไม่ยื่น"]);
 
-            // 3) CareerType: รายได้ประจำ / เจ้าของกิจการ / อาชีพอิสระ
+            // 3) CareerType — ครบ 5 อาชีพ
             const careerList = res.listDataSummeryRegisterCareerTyp || [];
             const careerMap = qbMapByTopic(careerList);
 
-            qbUpdateSummaryBox("career-freelance", careerMap["อาชีพอิสระ"]);
-            qbUpdateSummaryBox("career-salary", careerMap["รายได้ประจำ"]);
-            qbUpdateSummaryBox("career-owner", careerMap["เจ้าของกิจการ"]);
+            // พนักงานบริษัทเอกชนรายได้ประจำ
+            qbUpdateSummaryBox(
+                "career-freelance",
+                careerMap["พนักงานบริษัทเอกชนรายได้ประจำ"]
+            );
+
+            // รายได้ประจำ
+            qbUpdateSummaryBox(
+                "career-salary",
+                careerMap["รายได้ประจำ"]
+            );
+
+            // เจ้าของกิจการ
+            qbUpdateSummaryBox(
+                "career-owner",
+                careerMap["เจ้าของกิจการ"]
+            );
+
+            // รัฐวิสาหกิจ
+            qbUpdateSummaryBox(
+                "career-soe",
+                careerMap["รัฐวิสาหกิจ"]
+            );
+
+            // ราชการ
+            qbUpdateSummaryBox(
+                "career-government",
+                careerMap["ราชการ"]
+            );
+
         })
         .catch(err => {
             console.error("GetlistSummeryRegister error:", err);
 
-            // แถวบน
             qbUpdateSummaryBox("register", null);
             qbUpdateSummaryBox("queue", null);
             qbUpdateSummaryBox("inprocess", null);
             qbUpdateSummaryBox("done", null);
 
-            // แถวล่าง loan
             qbUpdateSummaryBox("loan-yes", null);
             qbUpdateSummaryBox("loan-no", null);
 
-            // แถวล่าง career
+            // Career 5
             qbUpdateSummaryBox("career-freelance", null);
             qbUpdateSummaryBox("career-salary", null);
             qbUpdateSummaryBox("career-owner", null);
+            qbUpdateSummaryBox("career-soe", null);
+            qbUpdateSummaryBox("career-government", null);
         })
         .finally(() => {
             if (typeof hideLoading === "function") {
@@ -1104,18 +1166,17 @@ function loadSummaryRegisterAll() {
 // ======================
 // Summary Bank (table)
 // ======================
+// ===== Summary Bank (table) =====
 function loadSummaryRegisterBank() {
-    const filters = qbGetValuesCounterView();
+    const filters = qbGetValuesCounterView(); // ✅ ใช้ของหน้า CounterView
 
     let projectId = filters.Project;
-    if (Array.isArray(projectId)) {
-        projectId = projectId[0] || "";
-    }
+    if (Array.isArray(projectId)) projectId = projectId[0] || "";
 
     const formData = new FormData();
 
-    // ==== QueueBank filters (เหมือนตัวอื่น) ====
-    formData.append("L_Act", "SummeryRegisterBank");
+    // ==== QueueBank filters ====
+    formData.append("L_Act", "SummeryRegisterBank"); // ✅ ให้เหมือนของเดิม
     formData.append("L_ProjectID", projectId || "");
     formData.append("L_RegisterDateStart", filters.RegisterDateStart || "");
     formData.append("L_RegisterDateEnd", filters.RegisterDateEnd || "");
@@ -1127,15 +1188,23 @@ function loadSummaryRegisterBank() {
     // Queue type ของหน้า Bank = 48
     formData.append("L_QueueTypeID", "48");
 
-    // ==== DataTables params (ให้ model ครบเฉย ๆ) ====
+    // model params
     formData.append("draw", "1");
     formData.append("start", "0");
     formData.append("length", "1000");
     formData.append("SearchTerm", "");
 
-    if (typeof showLoading === "function") {
-        showLoading();
+    const tbodyBank = document.getElementById("summary-bank-body");
+    const tbodyNon = document.getElementById("summary-banknonsubmissionreason-body");
+
+    if (tbodyBank) {
+        tbodyBank.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Loading...</td></tr>`;
     }
+    if (tbodyNon) {
+        tbodyNon.innerHTML = `<tr><td colspan="3" class="text-center text-muted">Loading...</td></tr>`;
+    }
+
+    if (typeof showLoading === "function") showLoading();
 
     fetch(baseUrl + "QueueBank/GetlistSummeryRegisterBank", {
         method: "POST",
@@ -1143,72 +1212,97 @@ function loadSummaryRegisterBank() {
     })
         .then(r => r.json())
         .then(res => {
-            const tbody = document.getElementById("summary-bank-body");
-            if (!tbody) return;
 
-            // controller คืนชื่อ property ว่า listDataSummeryRegisterType
-            const list = res.listDataSummeryRegisterType || [];
+            /* =========================
+               1) Summary Bank
+               ========================= */
+            if (tbodyBank) {
+                const listBank = res.listDataSummeryRegisterBank || [];
 
-            if (!list.length) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">No data</td>
-                    </tr>`;
-                return;
+                if (!listBank.length) {
+                    tbodyBank.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No data</td></tr>`;
+                } else {
+                    tbodyBank.innerHTML = listBank.map(item => {
+                        const bankCode = (item.BankCode || "").trim();
+                        const bankName = item.BankName || "";
+                        const unit = item.Unit ?? 0;
+
+                        const valueText = (typeof qbFormatValueM === "function")
+                            ? qbFormatValueM(item.Value)
+                            : (item.Value ?? "0");
+
+                        const percentText = (item.Percent ?? "0") + "%";
+                        const interestRate = (item.InterestRateAVG ?? "0") + "%";
+
+                        let bankCellHtml = "";
+                        if (bankCode && bankCode.toLowerCase() !== "no data") {
+                            bankCellHtml = `
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="${baseUrl}image/ThaiBankicon/${bankCode}.png"
+                                         alt="${bankCode}"
+                                         class="bank-logo"
+                                         onerror="this.style.display='none'">
+                                    <span>${bankName || bankCode}</span>
+                                </div>`;
+                        } else {
+                            bankCellHtml = `<span>${bankName || "No data"}</span>`;
+                        }
+
+                        return `
+                            <tr>
+                                <td>${bankCellHtml}</td>
+                                <td class="text-center">${interestRate}</td>
+                                <td class="text-center">${unit}</td>
+                                <td class="text-end">${valueText}</td>
+                                <td class="text-center">${percentText}</td>
+                            </tr>`;
+                    }).join("");
+                }
             }
 
-            const rowsHtml = list.map(item => {
-                const bankCode = (item.BankCode || "").trim();
-                const bankName = item.BankName || "";
-                const unit = item.Unit || "0";                  // จำนวนยูนิต
-                const valueText = qbFormatValueM(item.Value);   // มูลค่า → xx,xxx.xx M
-                const percentText = (item.Percent || "0") + "%";
-                const interestRate = (item.InterestRateAVG || "0") + "%";
+            /* =======================================
+               2) Non-Submission Reason
+               ======================================= */
+            if (tbodyNon) {
+                const listNon = res.listDataSummeryRegisterBankNonSubmissionReason || [];
 
-                // ช่องธนาคาร: ถ้า BankCode = 'No data' ไม่ต้องโชว์โลโก้
-                let bankCellHtml = "";
-                if (bankCode && bankCode.toLowerCase() !== "no data") {
-                    bankCellHtml = `
-                        <div class="d-flex align-items-center gap-2">
-                            <img src="${baseUrl}image/ThaiBankicon/${bankCode}.png"
-                                 alt="${bankCode}"
-                                 class="bank-logo">
-                            <span>${bankName || bankCode}</span>
-                        </div>`;
+                if (!listNon.length) {
+                    tbodyNon.innerHTML = `<tr><td colspan="3" class="text-center text-muted">No data</td></tr>`;
                 } else {
-                    bankCellHtml = `<span>${bankName || "No data"}</span>`;
+                    tbodyNon.innerHTML = listNon.map(item => {
+                        // รองรับได้ทั้ง Name/Topic และ Count/Unit แล้วแต่ backend ส่งมา
+                        const name = item.Name ?? item.Topic ?? "-";
+                        const count = item.Count ?? item.Unit ?? 0;
+
+                        let percent = (item.Percent ?? "0").toString().trim();
+                        if (percent !== "" && !percent.endsWith("%")) percent += "%";
+
+                        return `
+                            <tr>
+                                <td>${name}</td>
+                                <td class="text-center">${count}</td>
+                                <td class="text-center">${percent}</td>
+                            </tr>`;
+                    }).join("");
                 }
-
-                return `
-                    <tr>
-                        <td>${bankCellHtml}</td>
-                        <td>${interestRate}</td>
-                        <td>${unit}</td>
-                        <td>${valueText}</td>
-                        <td>${percentText}</td>
-                    </tr>`;
-            }).join("");
-
-            tbody.innerHTML = rowsHtml;
+            }
         })
         .catch(err => {
             console.error("GetlistSummeryRegisterBank error:", err);
-            const tbody = document.getElementById("summary-bank-body");
-            if (tbody) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="text-center text-danger">
-                            Error loading Summary Bank
-                        </td>
-                    </tr>`;
+
+            if (tbodyBank) {
+                tbodyBank.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error loading Summary Bank</td></tr>`;
+            }
+            if (tbodyNon) {
+                tbodyNon.innerHTML = `<tr><td colspan="3" class="text-center text-danger">Error loading Non-Submission Reason</td></tr>`;
             }
         })
         .finally(() => {
-            if (typeof hideLoading === "function") {
-                hideLoading();
-            }
+            if (typeof hideLoading === "function") hideLoading();
         });
 }
+
+
 
 
 document.addEventListener("DOMContentLoaded", function () {

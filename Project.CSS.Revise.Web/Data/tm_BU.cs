@@ -29,6 +29,9 @@ public partial class tm_BU
     public int? UpdateBy { get; set; }
 
     [InverseProperty("BU")]
+    public virtual ICollection<TR_QC5_ProjectSendMail> TR_QC5_ProjectSendMails { get; set; } = new List<TR_QC5_ProjectSendMail>();
+
+    [InverseProperty("BU")]
     public virtual ICollection<tm_BUProject_Mapping> tm_BUProject_Mappings { get; set; } = new List<tm_BUProject_Mapping>();
 
     [InverseProperty("BU")]

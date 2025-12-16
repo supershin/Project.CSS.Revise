@@ -5,6 +5,7 @@ using Project.CSS.Revise.Web.Models.Pages.QueueBank;
 using Serilog;
 using System.Data;
 using System.Data.SqlTypes;
+using static Project.CSS.Revise.Web.Models.Pages.QueueBank.ListSummeryRegister;
 using Log = Serilog.Log;
 
 namespace Project.CSS.Revise.Web.Library.DAL.SQL
@@ -538,6 +539,64 @@ namespace Project.CSS.Revise.Web.Library.DAL.SQL
                 Log.Error(ex, "Error executing sp_GetQueueBank");
 
                 return new List<ListCreateRegisterTableModel>();
+            }
+        }
+
+        public override List<ListSummeryRegisterBankNonSubmissionReason> sp_GetQueueBank_SummeryRegisterBankNonSubmissionReason(GetQueueBankModel en)
+        {
+            var result = new List<ListSummeryRegisterBankNonSubmissionReason>();
+
+            using var sqlCon = new SqlConnection(ConnectionString);
+            using var sqlCmd = new SqlCommand("sp_GetQueueBank", sqlCon)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            sqlCmd.Parameters.Add(new SqlParameter("@Act", SqlDbType.NVarChar, 50)).Value = Commond.FormatExtension.NullToString(en.L_Act);
+            sqlCmd.Parameters.Add(new SqlParameter("@ProjectID", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_ProjectID);
+            sqlCmd.Parameters.Add(new SqlParameter("@RegisterDateStart", SqlDbType.NVarChar, 10)).Value = Commond.FormatExtension.NullToString(en.L_RegisterDateStart);
+            sqlCmd.Parameters.Add(new SqlParameter("@RegisterDateEnd", SqlDbType.NVarChar, 10)).Value = Commond.FormatExtension.NullToString(en.L_RegisterDateEnd);
+            sqlCmd.Parameters.Add(new SqlParameter("@UnitID", SqlDbType.NVarChar, -1)).Value = Commond.FormatExtension.NullToString(en.L_UnitID);
+            sqlCmd.Parameters.Add(new SqlParameter("@CSResponse", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_CSResponse);
+            sqlCmd.Parameters.Add(new SqlParameter("@UnitCS", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_UnitCS);
+            sqlCmd.Parameters.Add(new SqlParameter("@ExpectTransfer", SqlDbType.NVarChar, 100)).Value = Commond.FormatExtension.NullToString(en.L_ExpectTransfer);
+            sqlCmd.Parameters.Add(new SqlParameter("@QueueTypeID", SqlDbType.Int)).Value = en.L_QueueTypeID;
+            // ===== paging params =====
+            sqlCmd.Parameters.Add(new SqlParameter("@Start", SqlDbType.Int)).Value = en.start;
+            sqlCmd.Parameters.Add(new SqlParameter("@Length", SqlDbType.Int)).Value = en.length;
+            sqlCmd.Parameters.Add(new SqlParameter("@SearchText", SqlDbType.NVarChar, 200)).Value = Commond.FormatExtension.NullToString(en.SearchTerm);
+            try
+            {
+                sqlCon.Open();
+                using var reader = ExecuteReader(sqlCmd);
+
+                switch (en.L_Act)
+                {
+                    case "SummeryRegisterBankNonSubmissionReason":
+                        result = sp_GetQueueBank_SummeryRegisterBankNonSubmissionReason_ListReader(reader);
+                        break;
+
+                    default:
+                        result = new List<ListSummeryRegisterBankNonSubmissionReason>();
+                        break;
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Stored name : sp_GetQueueBank");
+                Log.Error("SEND Act: {Act}", en.L_Act);
+                Log.Error("SEND ProjectID: {ProjectID}", en.L_ProjectID);
+                Log.Error("SEND RegisterDate: {RegisterDateStart}", en.L_RegisterDateStart);
+                Log.Error("SEND RegisterDate: {RegisterDateEnd}", en.L_RegisterDateEnd);
+                Log.Error("SEND UnitID: {UnitID}", en.L_UnitID);
+                Log.Error("SEND CSResponse: {CSResponse}", en.L_CSResponse);
+                Log.Error("SEND UnitCS: {UnitCS}", en.L_UnitCS);
+                Log.Error("SEND ExpectTransfer: {ExpectTransfer}", en.L_ExpectTransfer);
+                Log.Error(ex, "Error executing sp_GetQueueBank");
+
+                return new List<ListSummeryRegisterBankNonSubmissionReason>();
             }
         }
     }

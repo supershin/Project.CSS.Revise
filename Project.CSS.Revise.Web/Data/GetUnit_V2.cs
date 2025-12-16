@@ -163,6 +163,10 @@ public partial class GetUnit_V2
 
     [StringLength(10)]
     [Unicode(false)]
+    public string? LastFastTrackDate { get; set; }
+
+    [StringLength(10)]
+    [Unicode(false)]
     public string? TransferDueDate_CS { get; set; }
 
     [StringLength(50)]
@@ -177,10 +181,6 @@ public partial class GetUnit_V2
     [StringLength(10)]
     [Unicode(false)]
     public string? LastExpectDate { get; set; }
-
-    [StringLength(10)]
-    [Unicode(false)]
-    public string? LastFastTrackDate { get; set; }
 
     public int? LineContract { get; set; }
 
@@ -197,9 +197,6 @@ public partial class GetUnit_V2
 
     [Column(TypeName = "decimal(18, 2)")]
     public decimal? TransferNetPrice { get; set; }
-
-    [StringLength(100)]
-    public string? UnitStatus_Sale { get; set; }
 
     [StringLength(10)]
     [Unicode(false)]

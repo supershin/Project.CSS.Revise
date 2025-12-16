@@ -28,4 +28,7 @@ public partial class tm_Vendor
     public DateTime? UpdateDate { get; set; }
 
     public int? UpdateBy { get; set; }
+
+    [InverseProperty("Vendor")]
+    public virtual ICollection<TR_DefectTypeVendor_Mapping> TR_DefectTypeVendor_Mappings { get; set; } = new List<TR_DefectTypeVendor_Mapping>();
 }

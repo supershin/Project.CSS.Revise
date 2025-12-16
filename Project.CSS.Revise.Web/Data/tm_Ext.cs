@@ -70,12 +70,6 @@ public partial class tm_Ext
     [InverseProperty("QCType")]
     public virtual ICollection<TR_AttachFileQC> TR_AttachFileQCs { get; set; } = new List<TR_AttachFileQC>();
 
-    [InverseProperty("ContactReason")]
-    public virtual ICollection<TR_ContactLog> TR_ContactLogContactReasons { get; set; } = new List<TR_ContactLog>();
-
-    [InverseProperty("CustomerType")]
-    public virtual ICollection<TR_ContactLog> TR_ContactLogCustomerTypes { get; set; } = new List<TR_ContactLog>();
-
     [InverseProperty("QCType")]
     public virtual ICollection<TR_ContactLog> TR_ContactLogQCTypes { get; set; } = new List<TR_ContactLog>();
 
@@ -154,6 +148,9 @@ public partial class tm_Ext
     [InverseProperty("QCType")]
     public virtual ICollection<TR_QC_CheckList> TR_QC_CheckLists { get; set; } = new List<TR_QC_CheckList>();
 
+    [InverseProperty("QCType")]
+    public virtual ICollection<TR_QC_ContactLog> TR_QC_ContactLogs { get; set; } = new List<TR_QC_ContactLog>();
+
     [InverseProperty("EstimateStatus")]
     public virtual ICollection<TR_QC_Defect_OverDueExpect> TR_QC_Defect_OverDueExpects { get; set; } = new List<TR_QC_Defect_OverDueExpect>();
 
@@ -164,7 +161,10 @@ public partial class tm_Ext
     public virtual ICollection<TR_QuestionC> TR_QuestionCs { get; set; } = new List<TR_QuestionC>();
 
     [InverseProperty("QCType")]
-    public virtual ICollection<TR_RegisterLog> TR_RegisterLogs { get; set; } = new List<TR_RegisterLog>();
+    public virtual ICollection<TR_RegisterLog> TR_RegisterLogQCTypes { get; set; } = new List<TR_RegisterLog>();
+
+    [InverseProperty("ReasonRemark")]
+    public virtual ICollection<TR_RegisterLog> TR_RegisterLogReasonRemarks { get; set; } = new List<TR_RegisterLog>();
 
     [InverseProperty("RemarkUnitStatusCS")]
     public virtual ICollection<TR_RemarkUnitStatus_Mapping> TR_RemarkUnitStatus_MappingRemarkUnitStatusCs { get; set; } = new List<TR_RemarkUnitStatus_Mapping>();
@@ -207,6 +207,15 @@ public partial class tm_Ext
 
     [InverseProperty("CheckStatus")]
     public virtual ICollection<TR_UnitFurniture> TR_UnitFurnitures { get; set; } = new List<TR_UnitFurniture>();
+
+    [InverseProperty("Status")]
+    public virtual ICollection<TR_UnitStatus_Log> TR_UnitStatus_Logs { get; set; } = new List<TR_UnitStatus_Log>();
+
+    [InverseProperty("BudgetType")]
+    public virtual ICollection<TR_Unit_Budget_Defect> TR_Unit_Budget_Defects { get; set; } = new List<TR_Unit_Budget_Defect>();
+
+    [InverseProperty("BudgetType")]
+    public virtual ICollection<TR_Unit_Budget> TR_Unit_Budgets { get; set; } = new List<TR_Unit_Budget>();
 
     [InverseProperty("ProjectZone")]
     public virtual ICollection<tm_LineToken> tm_LineTokens { get; set; } = new List<tm_LineToken>();

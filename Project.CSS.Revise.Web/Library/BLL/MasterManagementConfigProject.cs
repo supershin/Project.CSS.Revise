@@ -2,6 +2,7 @@
 using Project.CSS.Revise.Web.Models.Pages.CSResponse;
 using Project.CSS.Revise.Web.Models.Pages.ProjectAndTargetRolling;
 using Project.CSS.Revise.Web.Models.Pages.QueueBank;
+using static Project.CSS.Revise.Web.Models.Pages.QueueBank.ListSummeryRegister;
 
 public class MasterManagementConfigProject
 {
@@ -55,5 +56,10 @@ public class MasterManagementConfigProject
     public List<ListCreateRegisterTableModel> sp_GetQueueBank_CreateRegisterTable(GetQueueBankModel en)
     {
         return _provider.sp_GetQueueBank_CreateRegisterTable(en);
+    }
+
+    public List<ListSummeryRegister.ListSummeryRegisterBankNonSubmissionReason> sp_GetQueueBank_SummeryRegisterBankNonSubmissionReason(GetQueueBankModel en)
+    {
+        return _provider.sp_GetQueueBank_SummeryRegisterBankNonSubmissionReason(en);
     }
 }

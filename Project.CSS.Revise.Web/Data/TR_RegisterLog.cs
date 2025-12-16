@@ -48,6 +48,8 @@ public partial class TR_RegisterLog
 
     public int? ReasonID { get; set; }
 
+    public int? ReasonRemarkID { get; set; }
+
     public int? FixedDuration { get; set; }
 
     public int? Counter { get; set; }
@@ -71,8 +73,12 @@ public partial class TR_RegisterLog
     public virtual tm_Project? Project { get; set; }
 
     [ForeignKey("QCTypeID")]
-    [InverseProperty("TR_RegisterLogs")]
+    [InverseProperty("TR_RegisterLogQCTypes")]
     public virtual tm_Ext? QCType { get; set; }
+
+    [ForeignKey("ReasonRemarkID")]
+    [InverseProperty("TR_RegisterLogReasonRemarks")]
+    public virtual tm_Ext? ReasonRemark { get; set; }
 
     [ForeignKey("ResponsibleID")]
     [InverseProperty("TR_RegisterLogs")]

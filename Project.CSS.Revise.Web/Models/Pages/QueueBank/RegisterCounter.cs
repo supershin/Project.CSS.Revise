@@ -13,5 +13,6 @@
         public int ReasonID { get; set; }
         public bool PlaySound { get; set; }
         public bool FlagFastFixFinish { get; set; }
+        public int SaveByID { get; set; }
     }
 }

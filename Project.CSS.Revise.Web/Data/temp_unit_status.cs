@@ -7,8 +7,8 @@ using Microsoft.EntityFrameworkCore;
 namespace Project.CSS.Revise.Web.Data;
 
 [Keyless]
-[Table("temp_unit_status")]
-public partial class temp_unit_status
+[Table("temp_Unit_Status")]
+public partial class temp_Unit_Status
 {
     [StringLength(255)]
     public string? UnitCode { get; set; }

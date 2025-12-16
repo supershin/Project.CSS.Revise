@@ -18,6 +18,9 @@ public partial class tm_Bank
 
     public string? BankName { get; set; }
 
+    [Column(TypeName = "decimal(5, 2)")]
+    public decimal? InterestRateAVG { get; set; }
+
     public int? LineOrder { get; set; }
 
     public bool? FlagActive { get; set; }
@@ -53,6 +56,9 @@ public partial class tm_Bank
 
     [InverseProperty("Bank")]
     public virtual ICollection<PR_UserBank_Mapping> PR_UserBank_Mappings { get; set; } = new List<PR_UserBank_Mapping>();
+
+    [InverseProperty("Bank")]
+    public virtual ICollection<TR_Bank_Target> TR_Bank_Targets { get; set; } = new List<TR_Bank_Target>();
 
     [InverseProperty("Bank")]
     public virtual ICollection<TR_ContactLog> TR_ContactLogs { get; set; } = new List<TR_ContactLog>();

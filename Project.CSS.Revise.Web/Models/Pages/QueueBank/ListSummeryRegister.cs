@@ -32,5 +32,12 @@
             public string Value { get; set; } = "";
             public string Percent { get; set; } = "";
         }
+        public sealed class ListSummeryRegisterBankNonSubmissionReason
+        {
+            public int ID { get; set; } = 0;
+            public string Name { get; set; } = "";
+            public int Count { get; set; } = 0;
+            public string Percent { get; set; } = "";
+        }
     }
 }

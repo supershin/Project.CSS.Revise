@@ -24,6 +24,7 @@ namespace Project.CSS.Revise.Web.Models.Pages.QueueBank
         public string RedirectHousingLoan { get; set; }
         public string ContractNumber { get; set; }
 
+        public int SaveByID { get; set; }
         public LoanModel Loan { get; set; } = new LoanModel();
 
         public bool Isfound { get; set; }

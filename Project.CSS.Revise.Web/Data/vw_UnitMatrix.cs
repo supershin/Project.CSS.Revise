@@ -63,6 +63,9 @@ public partial class vw_UnitMatrix
     [Column(TypeName = "decimal(18, 2)")]
     public decimal? SellingPrice { get; set; }
 
+    [Column(TypeName = "decimal(18, 2)")]
+    public decimal? TransferNetPrice { get; set; }
+
     public int MatrixTypeID { get; set; }
 
     [Unicode(false)]

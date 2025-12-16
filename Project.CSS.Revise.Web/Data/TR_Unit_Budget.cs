@@ -6,28 +6,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Project.CSS.Revise.Web.Data;
 
-[Table("TR_ProjectShopEvent")]
-public partial class TR_ProjectShopEvent
+[Table("TR_Unit_Budget")]
+public partial class TR_Unit_Budget
 {
     [Key]
-    public int ID { get; set; }
+    public Guid ID { get; set; }
 
     [StringLength(20)]
     [Unicode(false)]
     public string? ProjectID { get; set; }
 
-    public int? EventID { get; set; }
+    public Guid? UnitID { get; set; }
 
-    public int? ShopID { get; set; }
+    public int? BudgetTypeID { get; set; }
 
-    [Column(TypeName = "datetime")]
-    public DateTime? EventDate { get; set; }
-
-    public int? UnitQuota { get; set; }
-
-    public int? ShopQuota { get; set; }
-
-    public bool? IsUsed { get; set; }
+    [Column(TypeName = "decimal(18, 2)")]
+    public decimal? Amount { get; set; }
 
     public bool? FlagActive { get; set; }
 
@@ -39,7 +33,17 @@ public partial class TR_ProjectShopEvent
     [Column(TypeName = "datetime")]
     public DateTime? UpdateDate { get; set; }
 
+    public int? UpdateBy { get; set; }
+
+    [ForeignKey("BudgetTypeID")]
+    [InverseProperty("TR_Unit_Budgets")]
+    public virtual tm_Ext? BudgetType { get; set; }
+
     [ForeignKey("ProjectID")]
-    [InverseProperty("TR_ProjectShopEvents")]
+    [InverseProperty("TR_Unit_Budgets")]
     public virtual tm_Project? Project { get; set; }
+
+    [ForeignKey("UnitID")]
+    [InverseProperty("TR_Unit_Budgets")]
+    public virtual tm_Unit? Unit { get; set; }
 }
