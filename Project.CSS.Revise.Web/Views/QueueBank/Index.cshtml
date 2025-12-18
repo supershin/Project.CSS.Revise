@@ -201,7 +201,7 @@
 
             <!-- Left side: title + dynamic date -->
             <div>
-                <h5 class="mb-0">Summary Register</h5>
+                <h5 class="mb-0" id="Show_Name_selected">Summary Register Bank : </h5>
                 <small id="sum-register-date" class="text-muted"></small> <!-- dynamically updated -->
             </div>
 
@@ -298,52 +298,28 @@
                             </div>
                         </div>
 
-                        <!-- Row 2: 5 กล่อง -->
-                        <div class="summary-row summary-row-5 mt-3">
-                            <div class="summary-box bg-pink">
-                                <h6>พนักงานบริษัทเอกชนรายได้ประจำ</h6>
-                                <div class="summary-values">
-                                    <div><strong id="sum-career-freelance-unit">0</strong><br>Unit</div>
-                                    <div><strong id="sum-career-freelance-value">0.00 M</strong><br>Value</div>
-                                </div>
-                                <div class="summary-footer" id="sum-career-freelance-percent">0%</div>
-                            </div>
+                        <!-- Row 2: Career (Dynamic) -->
+                        <div class="summary-row summary-row-6 mt-3" id="careerSummaryRow">
+                            @foreach (var item in CareerList)
+                            {
+                                var id = item.ValueInt;   // ext.ID
+                                var text = item.Text;     // ext.Name
 
-                            <div class="summary-box bg-pink">
-                                <h6>รายได้ประจำ</h6>
-                                <div class="summary-values">
-                                    <div><strong id="sum-career-salary-unit">0</strong><br>Unit</div>
-                                    <div><strong id="sum-career-salary-value">0.00 M</strong><br>Value</div>
-                                </div>
-                                <div class="summary-footer" id="sum-career-salary-percent">0%</div>
-                            </div>
+                                <div class="summary-box bg-pink">
+                                    <h6>@text</h6>
 
-                            <div class="summary-box bg-pink">
-                                <h6>เจ้าของกิจการ</h6>
-                                <div class="summary-values">
-                                    <div><strong id="sum-career-owner-unit">0</strong><br>Unit</div>
-                                    <div><strong id="sum-career-owner-value">0.00 M</strong><br>Value</div>
-                                </div>
-                                <div class="summary-footer" id="sum-career-owner-percent">0%</div>
-                            </div>
+                                    <div class="summary-values">
+                                        <div>
+                                            <strong id="sum-career-@id-unit">0</strong><br />Unit
+                                        </div>
+                                        <div>
+                                            <strong id="sum-career-@id-value">0.00 M</strong><br />Value
+                                        </div>
+                                    </div>
 
-                            <div class="summary-box bg-pink">
-                                <h6>รัฐวิสาหกิจ</h6>
-                                <div class="summary-values">
-                                    <div><strong id="sum-career-soe-unit">0</strong><br>Unit</div>
-                                    <div><strong id="sum-career-soe-value">0.00 M</strong><br>Value</div>
+                                    <div class="summary-footer" id="sum-career-@id-percent">0%</div>
                                 </div>
-                                <div class="summary-footer" id="sum-career-soe-percent">0%</div>
-                            </div>
-
-                            <div class="summary-box bg-pink">
-                                <h6>ราชการ</h6>
-                                <div class="summary-values">
-                                    <div><strong id="sum-career-government-unit">0</strong><br>Unit</div>
-                                    <div><strong id="sum-career-government-value">0.00 M</strong><br>Value</div>
-                                </div>
-                                <div class="summary-footer" id="sum-career-government-percent">0%</div>
-                            </div>
+                            }
                         </div>
 
                     </div>
@@ -360,35 +336,35 @@
                                     <thead>
                                         <tr>
                                             <th style="width: 160px;">Status</th>
-                                            <th style="width: 100px;">Unit</th>
-                                            <th style="width: 140px;">Value (M)</th>
-                                            <th style="width: 80px;">%</th>
+                                            <th class="text-center" style="width: 100px;">Unit</th>
+                                            <th class="text-center" style="width: 140px;">Value (M)</th>
+                                            <th class="text-center" style="width: 80px;">%</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td>Register</td>
-                                            <td id="tbl-register-unit">0</td>
-                                            <td id="tbl-register-value">0.00 M</td>
-                                            <td id="tbl-register-percent">0%</td>
+                                            <td class="text-center" id="tbl-register-unit">0</td>
+                                            <td class="text-center" id="tbl-register-value">0.00 M</td>
+                                            <td class="text-center" id="tbl-register-percent">0%</td>
                                         </tr>
                                         <tr>
                                             <td>Queue</td>
-                                            <td id="tbl-queue-unit">0</td>
-                                            <td id="tbl-queue-value">0.00 M</td>
-                                            <td id="tbl-queue-percent">0%</td>
+                                            <td class="text-center" id="tbl-queue-unit">0</td>
+                                            <td class="text-center" id="tbl-queue-value">0.00 M</td>
+                                            <td class="text-center" id="tbl-queue-percent">0%</td>
                                         </tr>
                                         <tr>
                                             <td>In Process</td>
-                                            <td id="tbl-inprocess-unit">0</td>
-                                            <td id="tbl-inprocess-value">0.00 M</td>
-                                            <td id="tbl-inprocess-percent">0%</td>
+                                            <td class="text-center" id="tbl-inprocess-unit">0</td>
+                                            <td class="text-center" id="tbl-inprocess-value">0.00 M</td>
+                                            <td class="text-center" id="tbl-inprocess-percent">0%</td>
                                         </tr>
                                         <tr>
                                             <td>Done</td>
-                                            <td id="tbl-done-unit">0</td>
-                                            <td id="tbl-done-value">0.00 M</td>
-                                            <td id="tbl-done-percent">0%</td>
+                                            <td class="text-center" id="tbl-done-unit">0</td>
+                                            <td class="text-center" id="tbl-done-value">0.00 M</td>
+                                            <td class="text-center" id="tbl-done-percent">0%</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -403,23 +379,23 @@
                                     <thead>
                                         <tr>
                                             <th style="width: 160px;">ประเภท</th>
-                                            <th style="width: 100px;">Unit</th>
-                                            <th style="width: 140px;">Value (M)</th>
-                                            <th style="width: 80px;">%</th>
+                                            <th class="text-center" style="width: 100px;">Unit</th>
+                                            <th class="text-center" style="width: 140px;">Value (M)</th>
+                                            <th class="text-center" style="width: 80px;">%</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td>ยื่น</td>
-                                            <td id="tbl-loan-yes-unit">0</td>
-                                            <td id="tbl-loan-yes-value">0.00 M</td>
-                                            <td id="tbl-loan-yes-percent">0%</td>
+                                            <td class="text-center" id="tbl-loan-yes-unit">0</td>
+                                            <td class="text-center" id="tbl-loan-yes-value">0.00 M</td>
+                                            <td class="text-center" id="tbl-loan-yes-percent">0%</td>
                                         </tr>
                                         <tr>
                                             <td>ไม่ยื่น</td>
-                                            <td id="tbl-loan-no-unit">0</td>
-                                            <td id="tbl-loan-no-value">0.00 M</td>
-                                            <td id="tbl-loan-no-percent">0%</td>
+                                            <td class="text-center" id="tbl-loan-no-unit">0</td>
+                                            <td class="text-center" id="tbl-loan-no-value">0.00 M</td>
+                                            <td class="text-center" id="tbl-loan-no-percent">0%</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -434,42 +410,25 @@
                                     <thead>
                                         <tr>
                                             <th style="width: 160px;">อาชีพ</th>
-                                            <th style="width: 100px;">Unit</th>
-                                            <th style="width: 140px;">Value (M)</th>
-                                            <th style="width: 80px;">%</th>
+                                            <th class="text-center" style="width: 100px;">Unit</th>
+                                            <th class="text-center" style="width: 140px;">Value (M)</th>
+                                            <th class="text-center" style="width: 80px;">%</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>พนักงานบริษัทเอกชนรายได้ประจำ</td>
-                                            <td id="tbl-career-freelance-unit">0</td>
-                                            <td id="tbl-career-freelance-value">0.00 M</td>
-                                            <td id="tbl-career-freelance-percent">0%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>รายได้ประจำ</td>
-                                            <td id="tbl-career-salary-unit">0</td>
-                                            <td id="tbl-career-salary-value">0.00 M</td>
-                                            <td id="tbl-career-salary-percent">0%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>เจ้าของกิจการ</td>
-                                            <td id="tbl-career-owner-unit">0</td>
-                                            <td id="tbl-career-owner-value">0.00 M</td>
-                                            <td id="tbl-career-owner-percent">0%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>รัฐวิสาหกิจ</td>
-                                            <td id="tbl-career-soe-unit">0</td>
-                                            <td id="tbl-career-soe-value">0.00 M</td>
-                                            <td id="tbl-career-soe-percent">0%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>ราชการ</td>
-                                            <td id="tbl-career-government-unit">0</td>
-                                            <td id="tbl-career-government-value">0.00 M</td>
-                                            <td id="tbl-career-government-percent">0%</td>
-                                        </tr>
+
+                                    <tbody id="tbl-career-body">
+                                        @foreach (var item in CareerList)
+                                        {
+                                            var value = item.ValueInt;   // ext.ID
+                                            var text = item.Text;       // ext.Name
+
+                                            <tr>
+                                                <td>@text</td>
+                                                <td class="text-center" id="tbl-@value-unit">0</td>
+                                                <td class="text-center" id="tbl-@value-value">0.00 M</td>
+                                                <td class="text-center" id="tbl-@value-percent">0%</td>
+                                            </tr>
+                                        }
                                     </tbody>
                                 </table>
                             </div>
@@ -486,7 +445,10 @@
     <!--  Summary Bank card -->
     <div class="card filter-card" id="cardSummaryBank">
         <div class="card-header d-flex align-items-center justify-content-between">
-            <h5 class="mb-0">Summary Bank & Non-Submission Reason </h5>
+            <div>
+                <h5 class="mb-0" id="Show_Name_selected2">Summary Bank & Non-Submission Reason : </h5>
+                <small id="sum-register-date2" class="text-muted"></small>
+            </div>
             <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
                     type="button"
                     data-bs-toggle="collapse"
@@ -500,49 +462,48 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-8">
-                    <div class="table-responsive">
-                        <table class="table table-bordered align-middle summary-bank-table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 340px;">ธนาคาร</th>
-                                    <th style="width: 160px;">อัตราดอกเบี้ยเฉลี่ย 3 ปี</th>
-                                    <th style="width: 120px;">จำนวน</th>
-                                    <th style="width: 160px;">มูลค่า</th>
-                                    <th style="width: 100px;">%</th>
-                                </tr>
-                            </thead>
-                            <tbody id="summary-bank-body">
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted">
-                                        Loading...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle summary-bank-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 340px;">ธนาคาร</th>
+                                        <th style="width: 160px;">อัตราดอกเบี้ยเฉลี่ย 3 ปี</th>
+                                        <th style="width: 120px;">จำนวน</th>
+                                        <th style="width: 160px;">มูลค่า</th>
+                                        <th style="width: 100px;">%</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="summary-bank-body">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">
+                                            Loading...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-                <div class="col-4">
-                    <div class="table-responsive">
-                        <table class="table table-bordered align-middle summary-bank-table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 340px;">เหตุผลไม่ยื่น</th>
-                                    <th style="width: 160px;">จำนวน</th>
-                                    <th style="width: 100px;">%</th>
-                                </tr>
-                            </thead>
-                            <tbody id="summary-banknonsubmissionreason-body">
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted">
-                                        Loading...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="col-4">
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle summary-bank-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 340px;">เหตุผลไม่ยื่น</th>
+                                        <th style="width: 160px;">จำนวน</th>
+                                        <th style="width: 100px;">%</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="summary-banknonsubmissionreason-body">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">
+                                            Loading...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-            </div>
-                
+               </div>          
             </div>
         </div>
     </div>

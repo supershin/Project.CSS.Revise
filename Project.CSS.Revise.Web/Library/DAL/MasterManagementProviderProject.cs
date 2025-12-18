@@ -484,8 +484,9 @@ namespace Project.CSS.Revise.Web.Library.DAL
         {
             var entity = new ListSummeryRegister.ListSummeryRegisterCareerType();
 
+            entity.CareerTypeID = Commond.FormatExtension.NullToString(reader["CareerTypeID"]);
             entity.Topic = Commond.FormatExtension.NullToString(reader["Topic"]);
-            entity.Unit = Commond.FormatExtension.NullToString(reader["Value"]);
+            entity.Unit = Commond.FormatExtension.NullToString(reader["Unit"]);
             entity.Value = Commond.FormatExtension.NullToString(reader["SellingPriceSum"]);
             entity.Percent = Commond.FormatExtension.NullToString(reader["PercentValue"]);
 

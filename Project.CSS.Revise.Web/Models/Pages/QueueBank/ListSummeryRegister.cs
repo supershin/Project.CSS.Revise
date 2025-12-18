@@ -18,6 +18,7 @@
         }
         public sealed class ListSummeryRegisterCareerType
         {
+            public string CareerTypeID { get; set; } = "";
             public string Topic { get; set; } = "";
             public string Unit { get; set; } = "";
             public string Value { get; set; } = "";

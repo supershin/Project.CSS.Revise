@@ -217,17 +217,15 @@ function createChoice(sel, opts) {
 function loadProjectsByBU() {
     const bugInst = window.QB_CHOICES["#ddl_BUG"];
     const projInst = window.QB_CHOICES["#ddl_Project"];
-    if (!projInst) return;
+    if (!projInst) return Promise.resolve();
 
     const selectedBU = bugInst ? bugInst.getValue(true) : [];
-    const l_buid = (selectedBU && selectedBU.length > 0)
-        ? selectedBU.join(",")
-        : "";
+    const l_buid = (selectedBU && selectedBU.length > 0) ? selectedBU.join(",") : "";
 
     const formData = new FormData();
     formData.append("L_BUID", l_buid);
 
-    fetch(baseUrl + "QueueBank/GetProjectListByBU", {
+    return fetch(baseUrl + "QueueBank/GetProjectListByBU", {
         method: "POST",
         body: formData
     })
@@ -237,8 +235,11 @@ function loadProjectsByBU() {
 
             const projects = res.data || [];
 
+            // ล้าง selections + choices เก่า
+            projInst.removeActiveItems();
             projInst.clearChoices();
 
+            // ✅ ใส่เฉพาะรายการ project (ไม่ต้องยัด placeholder ซ้ำ)
             projInst.setChoices(
                 projects.map(p => ({
                     value: p.ProjectID,
@@ -250,7 +251,11 @@ function loadProjectsByBU() {
                 true
             );
 
-            // 🔥 NEW: BU เปลี่ยน -> ล้าง Unit ทั้งหมด
+            // ✅ บังคับให้กลับไปโชว์ placeholder
+            projInst.removeActiveItems();
+            projInst.passedElement.element.value = "";
+
+            // 🔥 BU เปลี่ยน -> ล้าง Unit
             const unitInst = window.QB_CHOICES["#ddl_UnitCode"];
             if (unitInst) {
                 try {
@@ -261,6 +266,8 @@ function loadProjectsByBU() {
         })
         .catch(err => console.error("loadProjectsByBU error:", err));
 }
+
+
 
 
 // ===== Load UnitCodes by Project =====
@@ -584,10 +591,28 @@ function initQueueBankRegisterTable() {
                 }
             },
 
-            { data: "Appointment", name: "Appointment" },
-            { data: "Status", name: "Status" },
+            { data: "Appointment", name: "Appointment", className: "tbody-center" },
+            {
+                data: "Status",
+                name: "Status",
+                render: function (data, type) {
+                    if (type !== "display") return data;
+
+                    const status = (data || "").toString().trim();
+
+                    if (status === "Register") {
+                        return `<span style="color:red;">${status}</span>`;
+                    }
+
+                    if (status === "Inprocess") {
+                        return `<span style="color:green;">${status}</span>`;
+                    }
+
+                    return `<span style="color:black;">${status}</span>`;
+                }
+            },
             { data: "StatusTime", name: "StatusTime" },
-            { data: "Counter", name: "Counter" },
+            { data: "Counter", name: "Counter", className: "tbody-center" },
             { data: "Unitstatus_CS", name: "Unitstatus_CS" },
             { data: "CSResponse", name: "CSResponse" },
             {
@@ -1069,7 +1094,7 @@ function qbSetValues(map) {
     if (typeof map?.RegisterDateEnd === "string") document.getElementById("txt_RegisterDateEnd").value = map.RegisterDateEnd;
 }
 
-function ClearFilter() {
+async function ClearFilter() {
     Object.keys(window.QB_CHOICES).forEach(k => {
         try { window.QB_CHOICES[k].removeActiveItems(); } catch { }
     });
@@ -1077,9 +1102,16 @@ function ClearFilter() {
     if (fpRegisterStart) fpRegisterStart.clear();
     if (fpRegisterEnd) fpRegisterEnd.clear();
 
-    loadProjectsByBU();
+    // ✅ รอให้ project โหลดใหม่ + ใส่ placeholder ก่อน
+    await loadProjectsByBU();
+
+    // ✅ project ยังไม่เลือก -> unit ต้อง clear แน่ๆ
     loadUnitsByProject();
+
+    // ✅ รีเซ็ตหัวตารางหลังจาก select อยู่ใน state ใหม่แล้ว
+    qbUpdateProjectTableHeader();
 }
+
 
 
 // ===== Events (Search / Cancel) =====
@@ -1111,58 +1143,53 @@ function wireButtons() {
 
     const btnCancel = document.getElementById("btnFilterCancel");
     if (btnCancel) {
-        btnCancel.addEventListener("click", () => {
-            ClearFilter();
-            qbUpdateProjectTableHeader(); // reset header after clear
+        btnCancel.addEventListener("click", async () => {
+            await ClearFilter();
         });
     }
+
 }
 
 function qbUpdateProjectTableHeader() {
     const headerEl = document.getElementById("project-name-selected");
+    const summaryEl1 = document.getElementById("Show_Name_selected");
+    const summaryEl2 = document.getElementById("Show_Name_selected2");
     const selectEl = document.getElementById("ddl_Project");
-    const defaultTitle = "Project Table";
 
-    if (!headerEl) {
-        console.warn("❗ #project-name-selected not found");
-        return;
-    }
-    if (!selectEl) {
-        console.warn("❗ #ddl_Project not found");
-        headerEl.textContent = defaultTitle;
-        return;
-    }
+    const defaultProjectTitle = "Project Table";
+    const projectTitleDefaultWhenNone = "Project"; // (ถ้าอยากให้แสดงเป็น "Project" เฉยๆ)
 
-    // Get selected <option> elements from the real select
-    const selectedOptions = Array.from(selectEl.selectedOptions || []);
-    console.log("📌 Selected project options:", selectedOptions);
+    const prefix1 = "Summary Register Bank : ";
+    const prefix2 = "Summary Bank & Non-Submission Reason : ";
 
-    // Case 1: No selection
-    if (selectedOptions.length === 0) {
-        console.log("➡ No project selected → use default title");
-        headerEl.textContent = defaultTitle;
-        return;
-    }
+    if (!headerEl) return;
 
-    // Helper to get clean text
-    const getText = (opt) => (opt?.textContent || "").trim();
+    const val = (selectEl?.value || "").toString().trim();
 
-    // Case 2: One project selected
-    if (selectedOptions.length === 1) {
-        const name = getText(selectedOptions[0]) || defaultTitle;
-        console.log("➡ One project selected:", name);
-        headerEl.textContent = name;
+    // ✅ ไม่เลือก Project -> reset
+    if (!selectEl || val === "") {
+        headerEl.textContent = defaultProjectTitle;
+
+        if (summaryEl1) summaryEl1.textContent = prefix1;
+        if (summaryEl2) summaryEl2.textContent = prefix2;
+
         return;
     }
 
-    // Case 3: Multiple projects selected
-    const firstName = getText(selectedOptions[0]) || "Project";
-    const moreCount = selectedOptions.length - 1;
-    const labelText = `${firstName} (+${moreCount})`;
+    // ✅ ใช้ชื่อที่เลือกจริง
+    const opt = selectEl.selectedOptions?.[0];
+    const projectText =
+        (opt?.textContent || "").trim() ||
+        projectTitleDefaultWhenNone;
 
-    console.log(`➡ Multiple selected: ${labelText}`);
-    headerEl.textContent = labelText;
+    headerEl.textContent = projectText;
+
+    if (summaryEl1) summaryEl1.textContent = prefix1 + projectText;
+    if (summaryEl2) summaryEl2.textContent = prefix2 + projectText;
 }
+
+
+
 
 function openCreateRegister() {
     // 1) เช็คก่อนว่ามี Project ไหม
@@ -1470,8 +1497,9 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function qbUpdateSummaryRegisterHeaderDate() {
-    const spanEl = document.getElementById("sum-register-date");
-    if (!spanEl) return;
+    const spanEl1 = document.getElementById("sum-register-date");
+    const spanEl2 = document.getElementById("sum-register-date2");
+    if (!spanEl1 && !spanEl2) return;
 
     const s = (fpRegisterStart && fpRegisterStart.selectedDates?.length)
         ? fpRegisterStart.selectedDates[0]
@@ -1488,10 +1516,15 @@ function qbUpdateSummaryRegisterHeaderDate() {
         return `${dd}/${mm}/${yyyy}`;
     };
 
-    if (!s && !e) { spanEl.textContent = "All Days"; return; }
-    if (s && e) { spanEl.textContent = `${toDMY(s)} - ${toDMY(e)}`; return; }
-    spanEl.textContent = toDMY(s || e);
+    let text = "";
+    if (!s && !e) text = "All Days";
+    else if (s && e) text = `${toDMY(s)} - ${toDMY(e)}`;
+    else text = toDMY(s || e);
+
+    if (spanEl1) spanEl1.textContent = text;
+    if (spanEl2) spanEl2.textContent = text;
 }
+
 
 
 function loadSummaryRegisterAll() {
@@ -1502,11 +1535,9 @@ function loadSummaryRegisterAll() {
         projectId = projectId[0] || "";
     }
 
-    // 🔹 อัปเดตหัวข้อวันที่จาก filter
     qbUpdateSummaryRegisterHeaderDate();
 
     const formData = new FormData();
-    // ==== QueueBank filters ====
     formData.append("L_Act", "SummeryRegisterType");
     formData.append("L_ProjectID", projectId || "");
     formData.append("L_RegisterDateStart", filters.RegisterDateStart || "");
@@ -1515,19 +1546,14 @@ function loadSummaryRegisterAll() {
     formData.append("L_CSResponse", (filters.CSResponsible || []).join(","));
     formData.append("L_UnitCS", (filters.UnitStatusCS || []).join(","));
     formData.append("L_ExpectTransfer", (filters.ExpectTransferBy || []).join(","));
-
-    // QueueTypeID หน้า Bank = 48
     formData.append("L_QueueTypeID", "48");
 
-    // dataTables params (SP ไม่ได้ใช้ แต่ model ต้องมี)
     formData.append("draw", "1");
     formData.append("start", "0");
     formData.append("length", "10");
     formData.append("SearchTerm", "");
 
-    if (typeof showLoading === "function") {
-        showLoading();
-    }
+    if (typeof showLoading === "function") showLoading();
 
     fetch(baseUrl + "QueueBank/GetlistSummeryRegister", {
         method: "POST",
@@ -1551,44 +1577,92 @@ function loadSummaryRegisterAll() {
             qbUpdateSummaryBox("loan-yes", loanMap["ยื่น"]);
             qbUpdateSummaryBox("loan-no", loanMap["ไม่ยื่น"]);
 
-            // 3) CareerType: รายได้ประจำ / เจ้าของกิจการ / อาชีพอิสระ / รัฐวิสาหกิจ / ราชการ
+            // 3) CareerType: render BOTH box + table (dynamic by CareerTypeID)
             const careerList = res.listDataSummeryRegisterCareerTyp || [];
-            const careerMap = qbMapByTopic(careerList);
-
-            qbUpdateSummaryBox("career-salary", careerMap["พนักงานบริษัทเอกชนรายได้ประจำ"]);
-            qbUpdateSummaryBox("career-owner", careerMap["เจ้าของกิจการ"]);
-            qbUpdateSummaryBox("career-freelance", careerMap["อาชีพอิสระ"]);
-            qbUpdateSummaryBox("career-soe", careerMap["รัฐวิสาหกิจ"]);
-            qbUpdateSummaryBox("career-government", careerMap["ราชการ"]);
-
+            qbRenderCareerBox(careerList);
+            qbRenderCareerTable(careerList);
         })
         .catch(err => {
             console.error("GetlistSummeryRegister error:", err);
 
-            // แถวบน
             qbUpdateSummaryBox("register", null);
             qbUpdateSummaryBox("queue", null);
             qbUpdateSummaryBox("inprocess", null);
             qbUpdateSummaryBox("done", null);
 
-            // แถวล่าง loan
             qbUpdateSummaryBox("loan-yes", null);
             qbUpdateSummaryBox("loan-no", null);
 
-            // แถวล่าง career
-            qbUpdateSummaryBox("career-salary", null);
-            qbUpdateSummaryBox("career-owner", null);
-            qbUpdateSummaryBox("career-freelance", null);
-            qbUpdateSummaryBox("career-soe", null);
-            qbUpdateSummaryBox("career-government", null);
-
+            qbResetCareerBox();
+            qbResetCareerTable();
         })
         .finally(() => {
-            if (typeof hideLoading === "function") {
-                hideLoading();
-            }
+            if (typeof hideLoading === "function") hideLoading();
         });
 }
+
+// ===== Career: BOX view =====
+function qbRenderCareerBox(list) {
+    qbResetCareerBox();
+
+    (list || []).forEach(x => {
+        const id = (x.CareerTypeID || "").toString().trim();
+        if (!id) return;
+
+        const unit = x.Unit ?? "0";
+        const value = x.Value ?? "0";
+        const percent = x.Percent ?? "0";
+
+        const unitEl = document.getElementById(`sum-career-${id}-unit`);
+        const valueEl = document.getElementById(`sum-career-${id}-value`);
+        const percentEl = document.getElementById(`sum-career-${id}-percent`);
+
+        if (unitEl) unitEl.textContent = unit;
+        if (valueEl) valueEl.textContent = qbFormatValueM(value);
+        if (percentEl) percentEl.textContent = `${percent}%`;
+    });
+}
+
+function qbResetCareerBox() {
+    // reset เฉพาะ career boxes เท่านั้น
+    document.querySelectorAll('[id^="sum-career-"][id$="-unit"]').forEach(el => el.textContent = "0");
+    document.querySelectorAll('[id^="sum-career-"][id$="-value"]').forEach(el => el.textContent = qbFormatValueM("0"));
+    document.querySelectorAll('[id^="sum-career-"][id$="-percent"]').forEach(el => el.textContent = "0%");
+}
+
+// ===== Career: TABLE view =====
+function qbRenderCareerTable(list) {
+    qbResetCareerTable();
+
+    (list || []).forEach(x => {
+        const id = (x.CareerTypeID || "").toString().trim();
+        if (!id) return;
+
+        const unit = x.Unit ?? "0";
+        const value = x.Value ?? "0";
+        const percent = x.Percent ?? "0";
+
+        const unitEl = document.getElementById(`tbl-${id}-unit`);
+        const valueEl = document.getElementById(`tbl-${id}-value`);
+        const percentEl = document.getElementById(`tbl-${id}-percent`);
+
+        if (unitEl) unitEl.textContent = unit;
+        if (valueEl) valueEl.textContent = qbFormatValueM(value);
+        if (percentEl) percentEl.textContent = `${percent}%`;
+    });
+}
+
+function qbResetCareerTable() {
+    // reset เฉพาะ tbody career table
+    const body = document.getElementById("tbl-career-body");
+    if (!body) return;
+
+    body.querySelectorAll('[id^="tbl-"][id$="-unit"]').forEach(el => el.textContent = "0");
+    body.querySelectorAll('[id^="tbl-"][id$="-value"]').forEach(el => el.textContent = qbFormatValueM("0"));
+    body.querySelectorAll('[id^="tbl-"][id$="-percent"]').forEach(el => el.textContent = "0%");
+}
+
+
 
 
 // ===== Summary Bank (table) =====
@@ -1644,41 +1718,73 @@ function loadSummaryRegisterBank() {
 
                 if (!listBank.length) {
                     tbodyBank.innerHTML = `
-                        <tr><td colspan="5" class="text-center text-muted">No data</td></tr>`;
+            <tr><td colspan="5" class="text-center text-muted">No data</td></tr>`;
                 } else {
-                    tbodyBank.innerHTML = listBank.map(item => {
+
+                    let totalUnit = 0;
+                    let totalValue = 0;
+
+                    const rowsHtml = listBank.map(item => {
                         const bankCode = (item.BankCode || "").trim();
                         const bankName = item.BankName || "";
-                        const unit = item.Unit ?? 0;
+
+                        const unit = Number(item.Unit ?? 0);
+                        const value = Number(item.Value ?? 0);
+
+                        totalUnit += unit;
+                        totalValue += value;
+
                         const valueText = (typeof qbFormatValueM === "function")
-                            ? qbFormatValueM(item.Value)
-                            : (item.Value ?? "0");
-                        const percentText = (item.Percent ?? "0") + "%";
-                        const interestRate = (item.InterestRateAVG ?? "0") + "%";
+                            ? qbFormatValueM(value)
+                            : value.toString();
+
+                        // ✅ แถวปกติ: ใช้ percent จาก data (ถ้าไม่มีให้เป็น "-")
+                        let percentText = (item.Percent ?? "").toString().trim();
+                        if (percentText === "" || percentText.toLowerCase() === "no data") {
+                            percentText = "-";
+                        } else if (!percentText.endsWith("%")) {
+                            percentText += "%";
+                        }
 
                         let bankCellHtml = "";
                         if (bankCode && bankCode.toLowerCase() !== "no data") {
                             bankCellHtml = `
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="${baseUrl}image/ThaiBankicon/${bankCode}.png"
-                                         alt="${bankCode}"
-                                         class="bank-logo"
-                                         onerror="this.style.display='none'">
-                                    <span>${bankName || bankCode}</span>
-                                </div>`;
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="${baseUrl}image/ThaiBankicon/${bankCode}.png"
+                             alt="${bankCode}"
+                             class="bank-logo"
+                             onerror="this.style.display='none'">
+                        <span>${bankName || bankCode}</span>
+                    </div>`;
                         } else {
                             bankCellHtml = `<span>${bankName || "No data"}</span>`;
                         }
 
                         return `
-                            <tr>
-                                <td>${bankCellHtml}</td>
-                                <td class="text-center">${interestRate}</td>
-                                <td class="text-center">${unit}</td>
-                                <td class="text-end">${valueText}</td>
-                                <td class="text-center">${percentText}</td>
-                            </tr>`;
+                <tr>
+                    <td>${bankCellHtml}</td>
+                    <td class="text-center">-</td>
+                    <td class="text-center">${unit}</td>
+                    <td class="text-end">${valueText}</td>
+                    <td class="text-center">${percentText}</td>
+                </tr>`;
                     }).join("");
+
+                    // ✅ Total row: % = 100% เท่านั้น
+                    const totalRowHtml = `
+            <tr class="fw-bold">
+                <td class="text-start">Total</td>
+                <td class="text-center">-</td>
+                <td class="text-center">${totalUnit}</td>
+                <td class="text-end">
+                    ${typeof qbFormatValueM === "function"
+                            ? qbFormatValueM(totalValue)
+                            : totalValue}
+                </td>
+                <td class="text-center">100%</td>
+            </tr>`;
+
+                    tbodyBank.innerHTML = rowsHtml + totalRowHtml;
                 }
             }
 
@@ -1690,13 +1796,20 @@ function loadSummaryRegisterBank() {
 
                 if (!listNon.length) {
                     tbodyNon.innerHTML = `
-                        <tr><td colspan="3" class="text-center text-muted">No data</td></tr>`;
+            <tr><td colspan="3" class="text-center text-muted">No data</td></tr>`;
                 } else {
-                    tbodyNon.innerHTML = listNon.map(item => {
+
+                    // ✅ total count
+                    const totalCount = listNon.reduce((sum, x) => {
+                        const n = Number(x?.Count ?? 0);
+                        return sum + (Number.isFinite(n) ? n : 0);
+                    }, 0);
+
+                    // ✅ rows
+                    const rowsHtml = listNon.map(item => {
                         const name = item.Name || "-";
                         const count = item.Count ?? 0;
 
-                        // model.Percent เป็น string (เช่น "12.34") หรือ "12.34%"
                         let percent = (item.Percent ?? "0").toString().trim();
                         if (percent !== "" && !percent.endsWith("%")) percent += "%";
 
@@ -1707,8 +1820,20 @@ function loadSummaryRegisterBank() {
                                 <td class="text-center">${percent}</td>
                             </tr>`;
                     }).join("");
+
+                    // ✅ total row (Count sum + 100%)
+                    const totalRowHtml = `
+                    <tr class="fw-bold">
+                        <td class="text-start">Total</td>
+                        <td class="text-center">${totalCount}</td>
+                        <td class="text-center">100%</td>
+                    </tr>`;
+
+
+                    tbodyNon.innerHTML = rowsHtml + totalRowHtml;
                 }
             }
+
 
         })
         .catch(err => {
