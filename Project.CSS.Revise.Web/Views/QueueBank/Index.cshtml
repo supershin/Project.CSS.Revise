@@ -186,10 +186,6 @@
                             </tbody>
                         </table>
                     </div>
-
-               
-
-
                 </div>
             </div>
         </div>
@@ -532,13 +528,19 @@
 
             <!-- Customer View (Desktop) -->
             <button id="btnCustomerView" class="btn btn-success d-flex align-items-center gap-1">
-                <i class="fa fa-desktop"></i> Customer View
+                <i class="fa fa-desktop"></i> Customer
             </button>
 
-            <!-- Counter (Bookmark) -->
-            <button id="btnCounter" class="btn d-flex align-items-center gap-1">
-                <i class="fa fa-bookmark"></i> Counter
+            <button id="btnChecker" class="btn btn-warning d-flex align-items-center gap-1">
+                <i class="fa fa-check-square"></i> Checker
             </button>
+
+            <button id="btnCounter" class="btn btn-info d-flex align-items-center gap-1">
+                <i class="fa fa-list-ol"></i> Counter
+            </button>
+
+
+
         </div>
 
     </div>
@@ -767,6 +769,7 @@
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script>
         const QueueBankCustomerViewUrl = '@Url.Action("Index", "QueueBankCustomerView")';
+        const QueueBankCheckerViewUrl = '@Url.Action("Index", "QueueBankCheckerView")';
         const QueueBankCounterViewUrl = '@Url.Action("Index", "QueueBankCounterView")';
         window.CURRENT_LOGIN_ID = '@ViewBag.LoginID';
     </script>

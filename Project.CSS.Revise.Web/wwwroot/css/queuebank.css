@@ -464,27 +464,7 @@ table.dataTable {
         background-color: #20863a;
     }
 
-/* Counter (Bookmark button) */
-#btnCounter {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 20px;
-    padding: 6px 14px;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.2s ease;
-}
 
-    #btnCounter:hover {
-        background-color: #0066d3;
-    }
-
-    #btnExport i,
-    #btnCustomerView i,
-    #btnCounter i {
-        font-size: 14px;
-    }
 
 
 

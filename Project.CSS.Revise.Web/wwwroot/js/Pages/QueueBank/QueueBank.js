@@ -39,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const btnCustomerView = document.getElementById("btnCustomerView");
 
-    // ✅ ใช้ QueueBankCustomerViewUrl ให้เหมือน QueueBankCounterViewUrl
     if (btnCustomerView && typeof QueueBankCustomerViewUrl !== "undefined") {
 
         btnCustomerView.addEventListener("click", function () {
@@ -93,6 +92,70 @@ document.addEventListener("DOMContentLoaded", () => {
                 "&projectName=" + encodeURIComponent(projectName);
 
             // 4) เปิดแท็บใหม่
+            window.open(url, "_blank");
+        });
+    }
+});
+
+// ==============================
+// Open Checker View
+// ==============================
+document.addEventListener("DOMContentLoaded", () => {
+    const btnChecker = document.getElementById("btnChecker");
+
+    if (btnChecker && typeof QueueBankCheckerViewUrl !== "undefined") {
+        btnChecker.addEventListener("click", function () {
+
+            // 1) เอา projectId จาก Choices.js (ฟังก์ชัน qbGetValues ที่พ่อใหญ่มีอยู่แล้ว)
+            const filters = qbGetValues();
+            let projectId = filters.Project;
+
+            if (Array.isArray(projectId)) {
+                projectId = projectId[0] || "";
+            }
+
+            // ถ้ายังไม่ได้เลือก Project → ไม่ให้ไปหน้า Counter
+            if (!projectId) {
+                if (typeof Swal !== "undefined") {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Validation Error",
+                        text: "Please select a project before open Counter view.",
+                        buttonsStyling: false,
+                        confirmButtonText: "OK",
+                        customClass: {
+                            confirmButton: "btn btn-danger"
+                        },
+                        allowOutsideClick: false,
+                        didOpen: (popup) => {
+                            popup.parentNode.style.zIndex = 200000;
+                        }
+                    });
+                } else {
+                    alert("Please select a project before open Counter view.");
+                }
+                return;
+            }
+
+            // 2) เอา Project Name จาก select จริง (#ddl_Project)
+            let projectName = "";
+            const projSelect = document.getElementById("ddl_Project");
+            if (projSelect && projSelect.selectedOptions.length > 0) {
+                projectName = (projSelect.selectedOptions[0].textContent || "").trim();
+            }
+
+            // fallback ถ้าไม่มีชื่อ
+            if (!projectName) {
+                projectName = "Project";
+            }
+
+            // 3) ประกอบ URL ส่งไปหน้า Counter
+            const url =
+                QueueBankCheckerViewUrl +
+                "?projectId=" + encodeURIComponent(projectId) +
+                "&projectName=" + encodeURIComponent(projectName);
+
+            // 4) เปิดหน้า Counter ในแท็บใหม่
             window.open(url, "_blank");
         });
     }
@@ -633,6 +696,68 @@ function initQueueBankRegisterTable() {
         order: [[1, "asc"]]
     });
 }
+
+// 🗑️ Delete Register Log (using common confirmMessage)
+$(document).on("click", ".btn-del", async function () {
+    const id = $(this).data("id");
+
+    if (!id) {
+        errorToast("Invalid record ID");
+        return;
+    }
+
+    const confirmed = await confirmMessage(
+        "Do you want to delete this register log?",
+        {
+            title: "Confirm Delete",
+            confirmText: "Delete",
+            cancelText: "Cancel",
+            icon: "warning"
+        }
+    );
+
+    if (!confirmed) return;
+
+    removeRegisterLog(id);
+});
+
+function removeRegisterLog(id) {
+    const formData = new FormData();
+    formData.append("ID", id);
+
+    showLoading();
+
+    fetch(baseUrl + "QueueBank/RemoveRegisterLog", {
+        method: "POST",
+        body: formData
+    })
+        .then(r => r.json())
+        .then(res => {
+
+            if (res && res.result === "SUCCESS") {
+                successToastV2("Deleted successfully");
+
+                // 🔄 Reload DataTable (stay on same page)
+                $('#QueueBankRegisterTable')
+                    .DataTable()
+                    .ajax.reload(null, false);
+            }
+            else if (res && res.result === "NOT_FOUND") {
+                errorToast("Record not found");
+            }
+            else {
+                errorToast("Delete failed");
+            }
+        })
+        .catch(err => {
+            console.error("RemoveRegisterLog error:", err);
+            errorToast("System error occurred");
+        })
+        .finally(() => {
+            hideLoading();
+        });
+}
+
 
 function initCreateRegisterTable() {
     if (CreateRegisterTableDt) {

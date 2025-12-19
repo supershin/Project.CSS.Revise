@@ -10,6 +10,7 @@ namespace Project.CSS.Revise.Web.Service
         public RegisterLog SaveRegisterLog(RegisterLog model);
         public RegisterLog GetRegisterLogInfo(RegisterLog criteria, string UserID, string Password);
         public void SaveCustomerSubmit_FINPlus(LoanModel model);
+        public string RemoveRegisterLog(int id);
     }
 
     public class QueueBankService : IQueueBankService
@@ -44,6 +45,11 @@ namespace Project.CSS.Revise.Web.Service
         public void SaveCustomerSubmit_FINPlus(LoanModel model)
         {
              _QueueBankRepo.SaveCustomerSubmit_FINPlus(model);
+        }
+
+        public string RemoveRegisterLog(int id)
+        {
+            return _QueueBankRepo.RemoveRegisterLog(id);
         }
     }
 }

@@ -1,4 +1,227 @@
-﻿/* =========================
+﻿/* ==========================
+    summary register zone now
+   ========================== */
+.summary-register {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* ✅ เปลี่ยนจาก flex -> grid เพื่อให้จัด 2 แถวได้ตามที่ต้องการ */
+.summary-row {
+    display: grid !important;
+    gap: 16px;
+    justify-content: center;
+    align-items: stretch;
+}
+
+/* Row 1: Register, Queue, In Process, Done, ยื่น, ไม่ยื่น (6 กล่อง) */
+.summary-row-6 {
+    grid-template-columns: repeat(6, minmax(160px, 1fr));
+}
+
+/* Row 2: 5 กล่อง */
+.summary-row-5 {
+    grid-template-columns: repeat(5, minmax(160px, 1fr));
+}
+
+.summary-box {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    background: #fff;
+}
+
+    /* Fix header height ให้เท่ากันทุก summary box */
+    .summary-box h6 {
+        min-height: 58px; /* ปรับได้ 44–52 ตามดีไซน์ */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        line-height: 1.25;
+        padding: 10px;
+    }
+
+
+/* White section (unit/value) */
+.summary-values {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    padding: 12px 16px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    font-size: 14px;
+    color: #333;
+}
+
+    .summary-values > div {
+        flex: 1;
+    }
+
+        .summary-values > div + div {
+            border-left: 1px solid rgba(0,0,0,0.1);
+        }
+
+
+
+/* Footer */
+.summary-footer {
+    padding: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+    background: #f5f6f8 !important; /* หรือ #fff ก็ได้ */
+}
+
+/* ✅ Responsive: จอเล็กลงให้ลดคอลัมน์อัตโนมัติ */
+@media (max-width: 1400px) {
+    .summary-row-6 {
+        grid-template-columns: repeat(3, minmax(160px, 1fr));
+    }
+
+    .summary-row-5 {
+        grid-template-columns: repeat(3, minmax(160px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .summary-row-6 {
+        grid-template-columns: repeat(2, minmax(160px, 1fr));
+    }
+
+    .summary-row-5 {
+        grid-template-columns: repeat(2, minmax(160px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .summary-row-6 {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-row-5 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== COLORS ===== */
+.bg-green {
+    background-color: #bdf8cc;
+}
+
+.bg-blue {
+    background-color: #c8e2ff;
+}
+
+.bg-orange {
+    background-color: #ffe0b5;
+}
+
+.bg-green-light {
+    background-color: #c3f2c0;
+}
+
+.bg-pink {
+    background-color: #f5c0ef;
+}
+
+.bg-pink-soft {
+    background-color: #f8d2e4;
+}
+
+.bg-yellow {
+    background-color: #fff4b8;
+}
+
+.summary-bank-table {
+    background: #fff;
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+    .summary-bank-table thead th {
+        background-color: #f3f6fa;
+        font-weight: 600;
+        text-align: center;
+        border-bottom: 2px solid #dee2e6;
+        color: #222;
+        vertical-align: middle;
+    }
+
+    .summary-bank-table tbody td {
+        text-align: center;
+        vertical-align: middle;
+        padding: 10px 12px;
+        border-color: #e6e8eb;
+        font-size: 14px;
+        color: #333;
+    }
+
+        .summary-bank-table tbody td:first-child {
+            text-align: left;
+        }
+
+    .summary-bank-table tbody tr:nth-child(even) {
+        background-color: #fafbfc;
+    }
+
+.bank-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #fff;
+    box-shadow: 0 0 2px rgba(0,0,0,0.15);
+}
+/* =========================
+   Summary Bank Table
+   ========================= */
+.summary-bank-table {
+    background: #fff;
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+    .summary-bank-table thead th {
+        background-color: #f3f6fa;
+        font-weight: 600;
+        text-align: center;
+        border-bottom: 2px solid #dee2e6;
+        color: #222;
+        vertical-align: middle;
+    }
+
+    .summary-bank-table tbody td {
+        text-align: center;
+        vertical-align: middle;
+        padding: 10px 12px;
+        border-color: #e6e8eb;
+        font-size: 14px;
+        color: #333;
+    }
+
+        .summary-bank-table tbody td:first-child {
+            text-align: left;
+        }
+
+    .summary-bank-table tbody tr:nth-child(even) {
+        background-color: #fafbfc;
+    }
+
+.bank-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #fff;
+    box-shadow: 0 0 2px rgba(0,0,0,0.15);
+}
+
+/* =========================
    Counter Grid (equal height)
    ========================= */
 .counter-col {
@@ -60,7 +283,7 @@
     color: #111;
 }
 
-/* ✅ active (มีงาน) */
+/* ✅ active (มีงาน) — JS ใส่ class "active" */
 .counter-box.active .counter-body {
     background: #fde9e9;
 }
@@ -170,7 +393,7 @@
 }
 
 /* =========================
-   Buttons (ถ้าไม่ได้ใช้ btnCheckerView แล้ว ลบได้)
+   Buttons
    ========================= */
 #btnCheckerView {
     background: #f9b65d;
@@ -211,7 +434,6 @@
         font-size: 0.95rem;
     }
 
-    /* (ถ้าไม่มี #txtUnitCode แล้ว ลบ block นี้ได้) */
     #Container_counter.fullscreen-mode #txtUnitCode {
         font-size: 1.2rem;
         height: 3rem;
@@ -243,20 +465,48 @@
     #Container_counter.fullscreen-mode .counter-box .counter-body {
         padding: 10px 12px;
         font-size: 0.92rem;
-        min-height: 54px;
+        min-height: 54px; /* keep equal height in fullscreen too */
     }
 
     #Container_counter.fullscreen-mode .counter-box {
         box-shadow: 0 3px 12px rgba(0,0,0,0.12);
     }
 
-    /* Fullscreen: Counter images fix */
-    #Container_counter.fullscreen-mode .counter-box .counter-body img:not(.counter-qr) {
-        width: 22px !important;
-        height: auto;
+        /* =========================
+   Fullscreen: Counter images fix
+   - keep bank logo SMALL
+   - enlarge QR only
+   ========================= */
+
+        /* bank logo small even in fullscreen */
+        #Container_counter.fullscreen-mode .counter-box .counter-body img:not(.counter-qr) {
+            width: 22px !important;
+            height: auto;
+        }
+
+        /* QR only bigger */
+        #Container_counter.fullscreen-mode .counter-box .counter-body img.counter-qr {
+            width: 84px !important;
+            height: auto;
+        }
+.btn-qb-checker {
+    background: #f9b65d;
+    border: none;
+    color: #fff;
+    font-weight: 600;
+}
+
+    .btn-qb-checker:hover {
+        background: #eea545;
     }
 
-    #Container_counter.fullscreen-mode .counter-box .counter-body img.counter-qr {
-        width: 84px !important;
-        height: auto;
+.btn-qb-counter {
+    background: #0d6efd;
+    border: none;
+    color: #fff;
+    font-weight: 600;
+}
+
+    .btn-qb-counter:hover {
+        background: #0b5ed7;
     }

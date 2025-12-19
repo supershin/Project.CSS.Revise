@@ -54,13 +54,20 @@ namespace Project.CSS.Revise.Web.Controllers
             var listReason = _masterService.GetlisDDl(new GetDDLModel { Act = "Ext", ID = 15 });
             ViewBag.listReason = listReason;
 
-            var listBank = _masterService.GetlisDDl(new GetDDLModel { Act = "listAllBank"});
+            var listBank = _masterService.GetlisDDl(new GetDDLModel { Act = "listAllBank" });
             ViewBag.listBank = listBank;
 
             var listBankNonSubmissionReason = _masterService.GetlisDDl(new GetDDLModel { Act = "Ext", ID = 69 });
             ViewBag.listBankNonSubmissionReason = listBankNonSubmissionReason;
 
             return View();
+        }
+
+        [HttpPost]
+        public JsonResult RemoveRegisterLog(int ID)
+        {
+            var Issuccess = _queueBankService.RemoveRegisterLog(ID);
+            return Json(new { result = Issuccess });
         }
 
         [HttpPost]
@@ -373,7 +380,6 @@ namespace Project.CSS.Revise.Web.Controllers
                 });
             }
         }
-
 
     }
 }
