@@ -2140,3 +2140,93 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // (Optional) expose helpers
 window.QueueBankFilters = { get: qbGetValues, set: qbSetValues, clear: ClearFilter };
+
+(function initQueueBankSignalR() {
+    if (typeof signalR === "undefined") {
+        console.warn("SignalR client not loaded");
+        return;
+    }
+
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl(baseUrl + "hubs/queuebank") // baseUrl ของพ่อใหญ่มีอยู่แล้ว
+        .withAutomaticReconnect()
+        .build();
+
+    let currentProjectId = "";
+
+    function getSelectedProjectId() {
+        const filters = qbGetValues();
+        let pid = filters.Project;
+        if (Array.isArray(pid)) pid = pid[0] || "";
+        return (pid || "").toString().trim();
+    }
+
+    async function switchProjectGroup() {
+        const pid = getSelectedProjectId();
+
+        // ไม่เปลี่ยนก็ไม่ทำอะไร
+        if (pid === currentProjectId) return;
+
+        // leave old
+        if (currentProjectId) {
+            try { await connection.invoke("LeaveProject", currentProjectId); } catch { }
+        }
+
+        currentProjectId = pid;
+
+        // join new
+        if (currentProjectId) {
+            try { await connection.invoke("JoinProject", currentProjectId); } catch { }
+        }
+    }
+
+    function refreshAll() {
+        // ✅ เหมือนกด Search
+        if (typeof loadQueueBankRegisterTable === "function") loadQueueBankRegisterTable();
+        if (typeof loadSummaryRegisterAll === "function") loadSummaryRegisterAll();
+        if (typeof loadSummaryRegisterBank === "function") loadSummaryRegisterBank();
+    }
+
+    // รับ event จาก server
+    connection.on("QueueBankChanged", (payload) => {
+        // ถ้าเปิด modal edit อยู่ ไม่ต้องเด้งทันที (กัน UX พัง)
+        const modalEl = document.getElementById("EditRegisterLog");
+        const isEditOpen = modalEl && modalEl.classList.contains("show");
+
+        // ถ้า payload projectId ไม่ตรงกับที่เลือกอยู่ ก็ไม่ต้องทำอะไร
+        const pidNow = getSelectedProjectId();
+        if (payload && payload.projectId && payload.projectId !== pidNow) return;
+
+        if (isEditOpen) {
+            // แจ้งเฉยๆ แล้วให้ user กด search / หรือปิด modal ก่อน
+            if (typeof infoToast === "function") infoToast("Data updated by another user. Please refresh after closing modal.");
+            return;
+        }
+
+        refreshAll();
+    });
+
+    // start
+    connection.start()
+        .then(async () => {
+            await switchProjectGroup();
+        })
+        .catch(err => console.error("SignalR start error:", err));
+
+    // ✅ เมื่อ Project เปลี่ยน → switch group
+    document.addEventListener("DOMContentLoaded", () => {
+        const projInst = window.QB_CHOICES && window.QB_CHOICES["#ddl_Project"];
+        const projEl = projInst ? projInst.passedElement.element : document.getElementById("ddl_Project");
+        if (!projEl) return;
+
+        projEl.addEventListener("change", async () => {
+            await switchProjectGroup();
+        });
+    });
+
+    // เผื่อ reconnect → join group ใหม่
+    connection.onreconnected(async () => {
+        await switchProjectGroup();
+    });
+
+})();

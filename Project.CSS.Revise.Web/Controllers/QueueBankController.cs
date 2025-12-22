@@ -6,6 +6,8 @@ using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Models.Pages.QueueBank;
 using Project.CSS.Revise.Web.Service;
+using Microsoft.AspNetCore.SignalR;
+using Project.CSS.Revise.Web.Hubs;
 
 namespace Project.CSS.Revise.Web.Controllers
 {
@@ -17,20 +19,26 @@ namespace Project.CSS.Revise.Web.Controllers
         private readonly IUserAndPermissionService _userAndPermissionService;
         private readonly MasterManagementConfigProject _configProject;
         private readonly IQueueBankService _queueBankService;
+        private readonly IHubContext<QueueBankHub> _hub;
 
-        public QueueBankController(IHttpContextAccessor httpContextAccessor
-                          , IMasterService masterService
-                          , ICSResponseService csResponseServic
-                          , MasterManagementConfigProject configProject
-                          , IUserAndPermissionService userAndPermissionService
-                          , IQueueBankService queueBankService) : base(httpContextAccessor)
+        public QueueBankController(
+            IHttpContextAccessor httpContextAccessor,
+            IMasterService masterService,
+            ICSResponseService csResponseServic,
+            MasterManagementConfigProject configProject,
+            IUserAndPermissionService userAndPermissionService,
+            IQueueBankService queueBankService,
+            IHubContext<QueueBankHub> hub
+        ) : base(httpContextAccessor)
         {
             _masterService = masterService;
             _csResponseServic = csResponseServic;
             _configProject = configProject;
             _userAndPermissionService = userAndPermissionService;
             _queueBankService = queueBankService;
+            _hub = hub;
         }
+
         public IActionResult Index()
         {
             var listBu = _masterService.GetlistBU(new BUModel());
@@ -69,6 +77,29 @@ namespace Project.CSS.Revise.Web.Controllers
             var Issuccess = _queueBankService.RemoveRegisterLog(ID);
             return Json(new { result = Issuccess });
         }
+
+        //[HttpPost]
+        //public async Task<JsonResult> RemoveRegisterLog(int ID)
+        //{
+        //    // ✅ หาค่า projectId ก่อนลบ
+        //    var projectId = _queueBankService.GetProjectIdByRegisterLogId(ID); // <-- เพิ่มใน service/repo
+
+        //    var Issuccess = _queueBankService.RemoveRegisterLog(ID);
+
+        //    if (!string.IsNullOrWhiteSpace(projectId))
+        //    {
+        //        await _hub.Clients.Group($"queuebank:project:{projectId}")
+        //            .SendAsync("QueueBankChanged", new
+        //            {
+        //                action = "delete",
+        //                projectId = projectId,
+        //                id = ID
+        //            });
+        //    }
+
+        //    return Json(new { result = Issuccess });
+        //}
+
 
         [HttpPost]
         public JsonResult GetProjectListByBU([FromForm] ProjectModel model)
@@ -320,36 +351,72 @@ namespace Project.CSS.Revise.Web.Controllers
             }
         }
 
+        //[HttpPost]
+        //public JsonResult SaveRegisterLog([FromForm] RegisterLog model)
+        //{
+        //    try
+        //    {
+
+        //        string loginIdClaim = User.FindFirst("LoginID")?.Value;
+        //        string userID = SecurityManager.TryDecodeFrom64(loginIdClaim ?? string.Empty);
+        //        model.SaveByID = FormatExtension.Nulltoint(userID);    
+        //        ValidateSaveRegisterLog(model);
+        //        _queueBankService.SaveRegisterLog(model);
+
+        //        // ถ้าทีหลังอยากส่ง SignalR เหมือนระบบเก่า
+        //        // NotifyCounterSignalR();
+
+        //        return Json(new
+        //        {
+        //            Message = Constants.Message.SUCCESS.SAVE_SUCCESS,
+        //            Success = true
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new
+        //        {
+        //            Success = false,
+        //            Message = InnerException(ex)
+        //        });
+        //    }
+        //}
+
+
         [HttpPost]
-        public JsonResult SaveRegisterLog([FromForm] RegisterLog model)
+        public async Task<JsonResult> SaveRegisterLog([FromForm] RegisterLog model)
         {
             try
             {
-
                 string loginIdClaim = User.FindFirst("LoginID")?.Value;
                 string userID = SecurityManager.TryDecodeFrom64(loginIdClaim ?? string.Empty);
-                model.SaveByID = FormatExtension.Nulltoint(userID);    
+
+                model.SaveByID = FormatExtension.Nulltoint(userID);
                 ValidateSaveRegisterLog(model);
+
                 _queueBankService.SaveRegisterLog(model);
 
-                // ถ้าทีหลังอยากส่ง SignalR เหมือนระบบเก่า
-                // NotifyCounterSignalR();
-
-                return Json(new
+                // ✅ ยิงแจ้ง refresh เฉพาะ Project
+                var projectId = model.ProjectID?.ToString() ?? ""; // ให้ตรง type ที่ model ใช้จริง
+                if (!string.IsNullOrWhiteSpace(projectId))
                 {
-                    Message = Constants.Message.SUCCESS.SAVE_SUCCESS,
-                    Success = true
-                });
+                    await _hub.Clients.Group($"queuebank:project:{projectId}")
+                        .SendAsync("QueueBankChanged", new
+                        {
+                            action = "save",
+                            projectId = projectId,
+                            id = model.ID
+                        });
+                }
+
+                return Json(new { Message = Constants.Message.SUCCESS.SAVE_SUCCESS, Success = true });
             }
             catch (Exception ex)
             {
-                return Json(new
-                {
-                    Success = false,
-                    Message = InnerException(ex)
-                });
+                return Json(new { Success = false, Message = InnerException(ex) });
             }
         }
+
 
         [HttpPost]
         public ActionResult RegisterLogInfo(RegisterLog criteria)

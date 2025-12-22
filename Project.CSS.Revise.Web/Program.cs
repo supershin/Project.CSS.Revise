@@ -89,6 +89,7 @@ builder.Services.Configure<Project.CSS.Revise.Web.Models.Config.CentralizeApiCon
     builder.Configuration.GetSection("ThirdPartyApis:CentralizeAPI"));
 
 builder.Services.AddSingleton<SystemConstantCentralize>();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -130,5 +131,7 @@ app.UseStaticFiles(new StaticFileOptions
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Login}/{action=Index}/{id?}");
+
+app.MapHub<Project.CSS.Revise.Web.Hubs.QueueBankHub>("/hubs/queuebank");
 
 app.Run();
