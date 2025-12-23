@@ -1788,10 +1788,7 @@ function qbResetCareerTable() {
 }
 
 
-
-
 // ===== Summary Bank (table) =====
-
 function loadSummaryRegisterBank() {
     const filters = qbGetValues();
 

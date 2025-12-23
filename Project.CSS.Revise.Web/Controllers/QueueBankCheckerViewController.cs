@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.CSS.Revise.Web.Commond;
+using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Models.Pages.QueueBankCounterView;
 using Project.CSS.Revise.Web.Service;
 
@@ -33,6 +34,9 @@ namespace Project.CSS.Revise.Web.Controllers
             ViewBag.ProjectName = projectName;
             var list = _queueBankCounterViewService.GetUnitDropdown(projectId);
             ViewBag.listunitforregister = list;
+
+            var listCareer = _masterService.GetlisDDl(new GetDDLModel { Act = "Ext", ID = 12 });
+            ViewBag.listCareer = listCareer;
 
             return View();
         }
