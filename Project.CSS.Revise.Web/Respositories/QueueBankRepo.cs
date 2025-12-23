@@ -17,6 +17,7 @@ namespace Project.CSS.Revise.Web.Respositories
         public RegisterLog GetRegisterLogInfo(RegisterLog criteria, string UserID, string Password);
         public void SaveCustomerSubmit_FINPlus(LoanModel model);
         public string RemoveRegisterLog(int id);
+        public string GetProjectIDRegisterLog(int id);
     }
     public class QueueBankRepo : IQueueBankRepo
     {
@@ -668,6 +669,21 @@ namespace Project.CSS.Revise.Web.Respositories
             _context.SaveChanges();
 
             return "SUCCESS";
+        }
+
+        public string GetProjectIDRegisterLog(int id)
+        {
+            var projectId = _context.TR_RegisterLogs
+                .Where(r => r.ID == id)
+                .Select(r => r.ProjectID) // ✅ string
+                .FirstOrDefault();
+
+            if (string.IsNullOrEmpty(projectId))
+            {
+                return "NOT_FOUND";
+            }
+
+            return projectId;
         }
 
     }

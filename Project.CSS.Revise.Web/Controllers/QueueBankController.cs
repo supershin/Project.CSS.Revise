@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Project.CSS.Revise.Web.Commond;
+using Project.CSS.Revise.Web.Hubs;
 using Project.CSS.Revise.Web.Models.Master;
 using Project.CSS.Revise.Web.Models.Pages.QueueBank;
 using Project.CSS.Revise.Web.Service;
-using Microsoft.AspNetCore.SignalR;
-using Project.CSS.Revise.Web.Hubs;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Project.CSS.Revise.Web.Controllers
 {
@@ -71,34 +72,34 @@ namespace Project.CSS.Revise.Web.Controllers
             return View();
         }
 
-        [HttpPost]
-        public JsonResult RemoveRegisterLog(int ID)
-        {
-            var Issuccess = _queueBankService.RemoveRegisterLog(ID);
-            return Json(new { result = Issuccess });
-        }
-
         //[HttpPost]
-        //public async Task<JsonResult> RemoveRegisterLog(int ID)
+        //public JsonResult RemoveRegisterLog(int ID)
         //{
-        //    // ✅ หาค่า projectId ก่อนลบ
-        //    var projectId = _queueBankService.GetProjectIdByRegisterLogId(ID); // <-- เพิ่มใน service/repo
-
         //    var Issuccess = _queueBankService.RemoveRegisterLog(ID);
-
-        //    if (!string.IsNullOrWhiteSpace(projectId))
-        //    {
-        //        await _hub.Clients.Group($"queuebank:project:{projectId}")
-        //            .SendAsync("QueueBankChanged", new
-        //            {
-        //                action = "delete",
-        //                projectId = projectId,
-        //                id = ID
-        //            });
-        //    }
-
         //    return Json(new { result = Issuccess });
         //}
+
+        [HttpPost]
+        public async Task<JsonResult> RemoveRegisterLog(int ID)
+        {
+            // ✅ หาค่า projectId ก่อนลบ
+            var projectId = _queueBankService.GetProjectIDRegisterLog(ID); 
+
+            var Issuccess = _queueBankService.RemoveRegisterLog(ID);
+
+            if (!string.IsNullOrWhiteSpace(projectId))
+            {
+                await _hub.Clients.Group($"queuebank:project:{projectId}")
+                    .SendAsync("QueueBankChanged", new
+                    {
+                        action = "delete",
+                        projectId = projectId,
+                        id = ID
+                    });
+            }
+
+            return Json(new { result = Issuccess });
+        }
 
 
         [HttpPost]
@@ -407,6 +408,17 @@ namespace Project.CSS.Revise.Web.Controllers
                             projectId = projectId,
                             id = model.ID
                         });
+                }
+                else
+                {
+                    projectId = _queueBankService.GetProjectIDRegisterLog(model.ID);
+                    await _hub.Clients.Group($"queuebank:project:{projectId}")
+                    .SendAsync("QueueBankChanged", new
+                    {
+                        action = "save",
+                        projectId = projectId,
+                        id = model.ID
+                    });
                 }
 
                 return Json(new { Message = Constants.Message.SUCCESS.SAVE_SUCCESS, Success = true });

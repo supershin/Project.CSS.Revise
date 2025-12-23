@@ -1058,13 +1058,13 @@ function renderFinPlusBanks(loanBankList) {
         }
 
         html += `
-  <div class="bank-item" title="${bankCode}">
-      <img src="${baseUrl}image/ThaiBankicon/${bankCode}.png"
-           alt="${bankCode}"
-           class="bank-logo">
-      <span class="bank-code">${bankCode}</span>
-  </div>
-`;
+                <div class="bank-item" title="${bankCode}">
+                    <img src="${baseUrl}image/ThaiBankicon/${bankCode}.png"
+                        alt="${bankCode}"
+                        class="bank-logo">
+                    <span class="bank-code">${bankCode}</span>
+                </div>
+            `;
 
     }
 

@@ -1,8 +1,9 @@
 ﻿/* =========================================================
    QueueBankCheckerView.js
    - Focus: Summary Register Career (Dynamic by ext.ID)
-   - Also keeps: collapse toggle, summary toggle, fullscreen,
+   - Keeps: collapse toggle, summary toggle, fullscreen,
      counter grid, counter detail, remove badge, update unit
+   - FIX: RIGHT Counter Detail broken (double binding / duplicate modules)
 ========================================================= */
 
 /* =========================
@@ -43,6 +44,10 @@ function qbSetText(id, text) {
 function initCollapseChevronToggle() {
     const toggles = document.querySelectorAll('[data-bs-toggle="collapse"][data-bs-target]');
     toggles.forEach(btn => {
+        // ✅ prevent double bind
+        if (btn.dataset.boundChevron === "1") return;
+        btn.dataset.boundChevron = "1";
+
         const targetSel = btn.getAttribute("data-bs-target");
         const target = document.querySelector(targetSel);
         if (!target) return;
@@ -78,6 +83,10 @@ function initSummaryToggleView() {
     const tableView = document.getElementById("summary-register-table-view");
     if (!btnToggle || !boxView || !tableView) return;
 
+    // ✅ prevent double bind
+    if (btnToggle.dataset.bound === "1") return;
+    btnToggle.dataset.bound = "1";
+
     btnToggle.addEventListener("click", function () {
         const icon = btnToggle.querySelector("i");
         const isBoxVisible = !boxView.classList.contains("d-none");
@@ -97,9 +106,7 @@ function initSummaryToggleView() {
             boxView.classList.remove("d-none");
 
             if (icon) {
-                icon.classListremove?.("fa-th-large");
-                icon.classList.add("fa-table");
-            } else if (icon) {
+                // ✅ FIX: was icon.classListremove?.(...)
                 icon.classList.remove("fa-th-large");
                 icon.classList.add("fa-table");
             }
@@ -214,20 +221,15 @@ function qbUpdateCareerUIById(careerId, data) {
 }
 
 function qbUpdateCareerSummaryDynamic(apiCareerList) {
-    // 1) clear first (so old data won't remain)
     qbClearAllCareerUI();
-
-    // 2) build name->id map from UI
     const { nameToId } = qbBuildCareerNameToIdMap();
 
-    // 3) apply data from API
     (apiCareerList || []).forEach(item => {
-        // backend usually sends Topic = career name
         const topicName = qbNorm(item.Topic || item.Name || "");
         if (!topicName) return;
 
         const uiId = nameToId[topicName];
-        if (!uiId) return; // not found in UI
+        if (!uiId) return;
 
         qbUpdateCareerUIById(uiId, item);
     });
@@ -255,7 +257,6 @@ function loadSummaryRegisterAll() {
     formData.append("L_ExpectTransfer", (filters.ExpectTransferBy || []).join(","));
     formData.append("L_QueueTypeID", "48");
 
-    // datatables placeholder
     formData.append("draw", "1");
     formData.append("start", "0");
     formData.append("length", "10");
@@ -269,19 +270,16 @@ function loadSummaryRegisterAll() {
     })
         .then(r => r.json())
         .then(res => {
-            // 1) Register Type
             const typeMap = qbMapByTopic(res.listDataSummeryRegisterType || []);
             qbUpdateSummaryBox("register", typeMap["register"]);
             qbUpdateSummaryBox("queue", typeMap["queue"]);
             qbUpdateSummaryBox("inprocess", typeMap["in process"]);
             qbUpdateSummaryBox("done", typeMap["done"]);
 
-            // 2) Loan Type
             const loanMap = qbMapByTopic(res.listDataSummeryRegisterLoanTyp || []);
             qbUpdateSummaryBox("loan-yes", loanMap["ยื่น"]);
             qbUpdateSummaryBox("loan-no", loanMap["ไม่ยื่น"]);
 
-            // 3) ✅ Career Type (DYNAMIC by UI map)
             qbUpdateCareerSummaryDynamic(res.listDataSummeryRegisterCareerTyp || []);
         })
         .catch(err => {
@@ -341,7 +339,6 @@ function loadSummaryRegisterBank() {
     })
         .then(r => r.json())
         .then(res => {
-            // 1) Summary Bank
             if (tbodyBank) {
                 const listBank = res.listDataSummeryRegisterBank || [];
                 if (!listBank.length) {
@@ -381,7 +378,6 @@ function loadSummaryRegisterBank() {
                 }
             }
 
-            // 2) Non-Submission Reason
             if (tbodyNon) {
                 const listNon = res.listDataSummeryRegisterBankNonSubmissionReason || [];
                 if (!listNon.length) {
@@ -422,6 +418,10 @@ function initFullscreen() {
     const container = document.getElementById("Container_counter");
     if (!btnFull || !container) return;
 
+    // ✅ prevent double bind
+    if (btnFull.dataset.bound === "1") return;
+    btnFull.dataset.bound = "1";
+
     function enterFullScreen() {
         if (container.requestFullscreen) container.requestFullscreen();
         container.classList.add("fullscreen-mode");
@@ -442,13 +442,17 @@ function initFullscreen() {
         else exitFullScreen();
     });
 
-    document.addEventListener("fullscreenchange", function () {
-        if (!document.fullscreenElement && container.classList.contains("fullscreen-mode")) {
-            container.classList.remove("fullscreen-mode");
-            btnFull.innerHTML = '<i class="fa fa-expand"></i>';
-            if (typeof updateCounterGridLayout === "function") updateCounterGridLayout();
-        }
-    });
+    // ✅ bind once via dataset on container
+    if (container.dataset.boundFullscreenChange !== "1") {
+        container.dataset.boundFullscreenChange = "1";
+        document.addEventListener("fullscreenchange", function () {
+            if (!document.fullscreenElement && container.classList.contains("fullscreen-mode")) {
+                container.classList.remove("fullscreen-mode");
+                btnFull.innerHTML = '<i class="fa fa-expand"></i>';
+                if (typeof updateCounterGridLayout === "function") updateCounterGridLayout();
+            }
+        });
+    }
 }
 
 /* =========================
@@ -585,7 +589,10 @@ function renderCounterGrid(items) {
     });
 
     initCounterModeButtons();
+
+    // ✅ SAFE: will bind only once
     initCounterCardClick();
+
     updateCounterGridLayout();
 }
 
@@ -695,7 +702,7 @@ function initCounterModeButtons() {
 
 /* =========================
    [M] Counter Detail Click / Load / Remove badge / Update unit
-   (kept from your original; no change to business logic)
+   ✅ FIX: prevent double binding & do not override loadCounterDetail
 ========================= */
 function initCounterCardClick() {
     const grid = document.getElementById("counterGrid");
@@ -706,63 +713,420 @@ function initCounterCardClick() {
 
     if (!grid || !detailCol) return;
 
-    if (leftCol && detailCol.classList.contains("d-none")) {
-        leftCol.classList.remove("col-lg-8");
-        leftCol.classList.add("col-lg-12");
-        updateCounterGridLayout();
-    }
+    // ✅ prevent grid click binding multiple times (THIS WAS BREAKING RIGHT PANEL)
+    if (grid.dataset.boundCounterClick !== "1") {
+        grid.dataset.boundCounterClick = "1";
 
-    grid.addEventListener("click", function (e) {
-        const box = e.target.closest(".qb-counter");
-        if (!box || !grid.contains(box)) return;
-
-        const counterNo = box.dataset.counter || "";
-        currentCounterNo = counterNo;
-
-        detailCol.classList.remove("d-none");
-        if (leftCol) {
-            leftCol.classList.remove("col-lg-12");
-            leftCol.classList.add("col-lg-8");
+        // initial layout: right hidden -> left full
+        if (leftCol && detailCol.classList.contains("d-none")) {
+            leftCol.classList.remove("col-lg-8");
+            leftCol.classList.add("col-lg-12");
+            updateCounterGridLayout();
         }
 
-        if (titleEl) titleEl.textContent = counterNo ? `Counter : ${counterNo}` : "Counter";
+        grid.addEventListener("click", function (e) {
+            const box = e.target.closest(".qb-counter");
+            if (!box || !grid.contains(box)) return;
 
-        grid.querySelectorAll(".qb-counter.selected").forEach(el => el.classList.remove("selected"));
-        box.classList.add("selected");
+            const counterNo = box.dataset.counter || "";
+            if (!counterNo) return;
 
-        updateCounterGridLayout();
+            currentCounterNo = counterNo;
 
-        if (typeof loadCounterDetail === "function" && counterNo) loadCounterDetail(counterNo);
+            // show right
+            detailCol.classList.remove("d-none");
 
-        const ddl = document.getElementById("ddlUnitRegister");
-        if (window.unitRegisterChoices) {
-            unitRegisterChoices.removeActiveItems();
-            unitRegisterChoices.setChoiceByValue("");
-        } else if (ddl) ddl.value = "";
-    });
+            // left back to 8
+            if (leftCol) {
+                leftCol.classList.remove("col-lg-12");
+                leftCol.classList.add("col-lg-8");
+            }
 
-    if (closeBtn && !closeBtn.dataset.bound) {
+            if (titleEl) titleEl.textContent = `Counter : ${counterNo}`;
+
+            grid.querySelectorAll(".qb-counter.selected").forEach(el => el.classList.remove("selected"));
+            box.classList.add("selected");
+
+            updateCounterGridLayout();
+
+            // load detail (use YOUR real function below)
+            if (typeof loadCounterDetail === "function") loadCounterDetail(counterNo);
+
+            // reset dropdown
+            const ddl = document.getElementById("ddlUnitRegister");
+            if (unitRegisterChoices) {
+                unitRegisterChoices.removeActiveItems();
+                unitRegisterChoices.setChoiceByValue("");
+            } else if (ddl) {
+                ddl.value = "";
+            }
+        });
+    }
+
+    // ✅ bind close once
+    if (closeBtn && closeBtn.dataset.bound !== "1") {
         closeBtn.addEventListener("click", function () {
             detailCol.classList.add("d-none");
+
             if (leftCol) {
                 leftCol.classList.remove("col-lg-8");
                 leftCol.classList.add("col-lg-12");
             }
+
             grid.querySelectorAll(".qb-counter.selected").forEach(el => el.classList.remove("selected"));
             currentCounterNo = null;
+
             updateCounterGridLayout();
         });
+
         closeBtn.dataset.bound = "1";
     }
 }
 
-/* --- your existing loadCounterDetail / remove badge / update unit functions
-   Keep using exactly the same as your original file ---
-   (If you want me to merge them in too, paste the tail-end of your file again)
-*/
+/* =========================
+   [M.1] Load Counter Detail (Right Panel)  ✅ REAL
+========================= */
+async function loadCounterDetail(counterNo) {
+    const projectIdInput = document.getElementById("hidProjectId");
+    const projectNameEl = document.getElementById("project_name");
+    const tagArea = document.getElementById("counterTagArea");
+    const qrBox = document.getElementById("counterQrBox");
+
+    if (!projectIdInput || !tagArea || !qrBox) return;
+
+    const projectId = projectIdInput.value || "";
+    const projectName = projectNameEl ? projectNameEl.textContent.trim() : "";
+
+    const rootPath = (typeof baseUrl !== "undefined" ? baseUrl : "/");
+
+    const url =
+        `${rootPath}QueueBankCheckerView/GetCounterDetailsList` +
+        `?projectId=${encodeURIComponent(projectId)}` +
+        `&counter=${encodeURIComponent(counterNo)}`;
+
+    tagArea.innerHTML = `<span class="text-muted">Loading counter details...</span>`;
+    qrBox.innerHTML = "";
+
+    try {
+        const resp = await fetch(url, {
+            method: "GET",
+            headers: { "Accept": "application/json" }
+        });
+
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+
+        const json = await resp.json();
+
+        if (!json.success) {
+            tagArea.innerHTML = `<span class="text-danger">Cannot load details.</span>`;
+            return;
+        }
+
+        const items = json.data || [];
+
+        if (!items.length) {
+            const qrUrl =
+                `${rootPath}QueueBankCheckerView/CounterQr` +
+                `?projectId=${encodeURIComponent(projectId)}` +
+                `&projectName=${encodeURIComponent(projectName)}` +
+                `&queueType=bank` +
+                `&counterNo=${encodeURIComponent(counterNo)}`;
+
+            tagArea.innerHTML = `<span class="text-muted">No register on this counter.</span>`;
+            qrBox.innerHTML = `<img src="${qrUrl}" alt="QR" width="180">`;
+            return;
+        }
+
+        let tagHtml = "";
+
+        items.forEach(it => {
+            const registerLogId = it.ID || it.id || "";
+            const unitCode = it.UnitCode || it.unitCode || "";
+            const unitId = it.UnitID || it.unitID || "";
+
+            if (unitCode) {
+                tagHtml += `
+                <span class="badge bg-info text-white p-2 me-1 mb-1 counter-badge"
+                      data-type="unit"
+                      data-projectid="${projectId}"
+                      data-id="${registerLogId}"
+                      data-unitid="${unitId}"
+                      data-counter="${counterNo}">
+                    ${unitCode}
+                    <i class="fa fa-times ms-1 badge-remove" role="button"></i>
+                </span>`;
+            }
+        });
+
+        const first = items[0] || {};
+        const bankCode = first.BankCode || first.bankCode || "";
+        const bankId = first.BankID || first.bankId || "";
+        const firstRegisterLogId = first.ID || first.id || "";
+
+        if (bankCode) {
+            const logoHtml = `<img src="${rootPath}image/ThaiBankicon/${bankCode}.png" width="20" class="me-1">`;
+            tagHtml += `
+            <span class="badge bg-light border text-dark p-2 me-1 mb-1 counter-badge"
+                  data-type="bank"
+                  data-projectid="${projectId}"
+                  data-id="${firstRegisterLogId}"
+                  data-counter="${counterNo}"
+                  data-bankid="${bankId}"
+                  data-bankcode="${bankCode}">
+                ${logoHtml}${bankCode}
+                <i class="fa fa-times ms-1 badge-remove" role="button"></i>
+            </span>`;
+        }
+
+        tagArea.innerHTML = tagHtml || `<span class="text-muted">No detail data.</span>`;
+
+        const qrUrl =
+            `${rootPath}QueueBankCheckerView/CounterQr` +
+            `?projectId=${encodeURIComponent(projectId)}` +
+            `&projectName=${encodeURIComponent(projectName)}` +
+            `&queueType=bank` +
+            `&counterNo=${encodeURIComponent(counterNo)}`;
+
+        qrBox.innerHTML = `<img src="${qrUrl}" alt="QR" width="180">`;
+
+        if (!tagArea.dataset.boundClick) {
+            tagArea.addEventListener("click", onCounterBadgeClicked);
+            tagArea.dataset.boundClick = "1";
+        }
+
+    } catch (err) {
+        console.error("❌ loadCounterDetail error:", err);
+        tagArea.innerHTML = `<span class="text-danger">Error loading details.</span>`;
+    }
+}
+
 
 /* =========================
-   [N] Init Page
+   [M.2] Remove badge (unit / bank) + ✅ CONFIRM
+   - Uses SweetAlert2 if available (Swal)
+   - Fallback to window.confirm
+========================= */
+
+async function qbConfirm({ title, text, confirmText = "Yes", cancelText = "Cancel" }) {
+    // ✅ SweetAlert2
+    if (window.Swal && typeof Swal.fire === "function") {
+        const res = await Swal.fire({
+            icon: "warning",
+            title: title || "Confirm",
+            text: text || "Are you sure?",
+            showCancelButton: true,
+            confirmButtonText: confirmText,
+            cancelButtonText: cancelText,
+            reverseButtons: true,
+            allowOutsideClick: false
+        });
+        return res.isConfirmed === true;
+    }
+
+    // ✅ Fallback
+    return window.confirm(`${title ? title + "\n" : ""}${text || "Are you sure?"}`);
+}
+
+async function onCounterBadgeClicked(e) {
+    const icon = e.target.closest(".badge-remove");
+    if (!icon) return;
+
+    const badge = icon.closest(".counter-badge");
+    if (!badge) return;
+
+    const type = badge.dataset.type || "unit";
+    const projectId = badge.dataset.projectid || "";
+    const registerLogId = parseInt(badge.dataset.id || "0", 10);
+    const unitId = badge.dataset.unitid || "";
+    const counterNo = badge.dataset.counter || "";
+    const bankId = parseInt(badge.dataset.bankid || "0", 10);
+
+    // =========================
+    // ✅ BANK: confirm then checkout
+    // =========================
+    if (type === "bank") {
+        if (!registerLogId || !bankId) {
+            errorMessage("Bank or register is invalid.");
+            return;
+        }
+
+        const bankCode = badge.dataset.bankcode || "";
+        const ok = await qbConfirm({
+            title: "Remove bank from counter?",
+            text: `Counter ${counterNo} : ${bankCode || "Bank"} will be checked out.`,
+            confirmText: "Yes, remove",
+            cancelText: "No"
+        });
+
+        if (!ok) return;
+
+        await callCheckoutBankCounter({
+            RegisterLogID: registerLogId,
+            BankID: bankId,
+            ContactDetail: ""
+        }, badge, counterNo);
+
+        return;
+    }
+
+    // =========================
+    // ✅ UNIT: confirm then remove
+    // =========================
+    if (!projectId || !unitId) {
+        errorMessage("Project or Unit is invalid.");
+        return;
+    }
+
+    // show unit code in confirm (nice)
+    const unitCodeText = (badge.textContent || "").replace("×", "").trim(); // remove icon text
+    const ok = await qbConfirm({
+        title: "Remove unit from counter?",
+        text: `Counter ${counterNo} : ${unitCodeText || "This unit"} will be removed.`,
+        confirmText: "Yes, remove",
+        cancelText: "No"
+    });
+
+    if (!ok) return;
+
+    await callRemoveUnitRegister(
+        { ProjectID: projectId, UnitID: unitId, Counter: parseInt(counterNo || "0", 10) },
+        badge,
+        counterNo
+    );
+}
+
+async function callRemoveUnitRegister(payload, badge, counterNo) {
+    const rootPath = (typeof baseUrl !== "undefined" ? baseUrl : "/");
+    const url = `${rootPath}QueueBankCheckerView/RemoveUnitRegister`;
+
+    try {
+        if (typeof showLoading === "function") showLoading();
+
+        const resp = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+
+        const json = await resp.json();
+        const success = json.Issucces ?? json.issucces ?? false;
+        const text = json.TextResult ?? json.textResult ?? "No message from server.";
+
+        if (success) {
+            successMessage(text);
+            if (badge) badge.remove();
+
+            if (typeof loadCounterList === "function") loadCounterList();
+            if (typeof loadCounterDetail === "function" && counterNo) loadCounterDetail(counterNo);
+        } else {
+            errorMessage(text);
+        }
+
+    } catch (err) {
+        console.error("❌ Error calling RemoveUnitRegister:", err);
+        errorMessage("Error while removing unit from counter.");
+    } finally {
+        if (typeof hideLoading === "function") hideLoading();
+    }
+}
+
+async function callCheckoutBankCounter(payload, badge, counterNo) {
+    const rootPath = (typeof baseUrl !== "undefined" ? baseUrl : "/");
+    const url = `${rootPath}QueueBankCheckerView/CheckoutBankCounter`;
+
+    try {
+        if (typeof showLoading === "function") showLoading();
+
+        const resp = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+
+        const json = await resp.json();
+        const success = json.Issucces ?? json.issucces ?? false;
+        const text = json.TextResult ?? json.textResult ?? "No message from server.";
+
+        if (success) {
+            successMessage(text, "Bank Checked Out");
+            if (badge) badge.remove();
+
+            if (typeof loadCounterList === "function") loadCounterList();
+            if (typeof loadCounterDetail === "function" && counterNo) loadCounterDetail(counterNo);
+        } else {
+            errorMessage(text);
+        }
+
+    } catch (err) {
+        console.error("❌ Error calling CheckoutBankCounter:", err);
+        errorMessage("Error while checking out bank counter.");
+    } finally {
+        if (typeof hideLoading === "function") hideLoading();
+    }
+}
+
+
+async function onSaveUnitRegisterClicked() {
+    const projectIdInput = document.getElementById("hidProjectId");
+    const ddl = document.getElementById("ddlUnitRegister");
+
+    const projectId = projectIdInput ? projectIdInput.value : "";
+    const unitId = ddl ? ddl.value : "";
+    const counterNo = currentCounterNo;
+
+    if (!projectId) { errorMessage("Project is invalid."); return; }
+    if (!counterNo) { errorMessage("Please select a counter first."); return; }
+    if (!unitId) { errorMessage("Please select a unit."); return; }
+
+    const rootPath = (typeof baseUrl !== "undefined" ? baseUrl : "/");
+    const url = `${rootPath}QueueBankCheckerView/UpdateUnitRegister`;
+
+    const payload = {
+        ProjectID: projectId,
+        UnitID: unitId,
+        Counter: parseInt(counterNo, 10)
+    };
+
+    try {
+        const resp = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+
+        const json = await resp.json();
+        const success = json.Issucces ?? json.issucces ?? false;
+        const text = json.TextResult ?? json.textResult ?? "No message from server.";
+
+        if (success) successMessage(text, "Completed");
+        else errorMessage(text);
+
+        if (success) {
+            if (typeof loadCounterList === "function") loadCounterList();
+            if (typeof loadCounterDetail === "function") loadCounterDetail(counterNo);
+
+            if (unitRegisterChoices) {
+                unitRegisterChoices.removeActiveItems();
+                unitRegisterChoices.setChoiceByValue('');
+            } else if (ddl) {
+                ddl.value = "";
+            }
+        }
+
+    } catch (err) {
+        console.error("❌ Error calling UpdateUnitRegister:", err);
+        errorMessage("Error while updating unit register.", "Request Failed");
+    }
+}
+
+/* =========================
+   [N] Init Page (ONE DOMContentLoaded ONLY)
 ========================= */
 document.addEventListener("DOMContentLoaded", function () {
     initCollapseChevronToggle();
@@ -776,7 +1140,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // refresh button
     const btnRefresh = document.getElementById("btnRefreshCounter");
-    if (btnRefresh && !btnRefresh.dataset.bound) {
+    if (btnRefresh && btnRefresh.dataset.bound !== "1") {
         btnRefresh.addEventListener("click", function (e) {
             e.preventDefault();
             loadCounterList();
@@ -789,18 +1153,22 @@ document.addEventListener("DOMContentLoaded", function () {
     // init Choices for ddlUnitRegister
     const ddl = document.getElementById("ddlUnitRegister");
     if (ddl && window.Choices) {
-        unitRegisterChoices = new Choices(ddl, {
-            searchEnabled: true,
-            itemSelectText: "",
-            shouldSort: false,
-            removeItemButton: false
-        });
-        window.unitRegisterChoices = unitRegisterChoices;
+        // ✅ prevent recreate choices
+        if (!ddl.dataset.boundChoices) {
+            unitRegisterChoices = new Choices(ddl, {
+                searchEnabled: true,
+                itemSelectText: "",
+                shouldSort: false,
+                removeItemButton: false
+            });
+            ddl.dataset.boundChoices = "1";
+            window.unitRegisterChoices = unitRegisterChoices;
+        }
     }
 
     // bind OK button
     const btnSave = document.getElementById("btnSaveUnitRegister");
-    if (btnSave && !btnSave.dataset.bound) {
+    if (btnSave && btnSave.dataset.bound !== "1") {
         btnSave.addEventListener("click", onSaveUnitRegisterClicked);
         btnSave.dataset.bound = "1";
     }
