@@ -776,4 +776,14 @@
 
     <script src="~/js/Pages/QueueBank/QueueBank.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <link rel="stylesheet" type="text/css" href="~/css/queuebank.css?ver=@DateTime.Now.Ticks.ToString()">
+
+    <script src="~/js/jquery.signalR-2.4.2.js"></script>
+    <script src="~/js/app-signalr.js?ver=@DateTime.Now.Ticks.ToString()"></script>
+    <script type="text/javascript">
+        var ChatServerUrl = "http://localhost:14093/signalr/js";       
+        $(document).ready(function () {
+            appSignalR.init();            
+        });
+    </script>
 }
+

@@ -91,6 +91,21 @@ builder.Services.Configure<Project.CSS.Revise.Web.Models.Config.CentralizeApiCon
 builder.Services.AddSingleton<SystemConstantCentralize>();
 builder.Services.AddSignalR();
 
+// ✅ Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("SignalRCors", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:14093/"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials(); // 🔴 จำเป็นมากสำหรับ SignalR
+    });
+});
+
 var app = builder.Build();
 
 // Map physical "<contentroot>/ProjectFloorPlan" -> "/ProjectFloorPlan"
@@ -114,6 +129,11 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+
+// ✅ Use CORS (ต้องอยู่ก่อน MapHub)
+app.UseCors("SignalRCors");
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
