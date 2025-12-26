@@ -16,6 +16,18 @@ var appSignalR = {
             //alert(data.CallStaffStatus);
         });
 
+        ChatProxy.on("notifyCounter", function () {
+
+            const btn = document.getElementById("btnSearch");
+
+            if (btn) {
+                btn.click();
+            } else {
+                console.warn("btnSearch not found");
+            }
+
+        });
+
 
         //connecting the client to the signalr hub   
         SignalrConnection.start().done(function () {

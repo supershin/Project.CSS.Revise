@@ -104,8 +104,9 @@
                             {
                                 var val = (et.ValueInt ?? "").ToString();
                                 var text = (et.Text ?? "").ToString();
-                                <option value="@val">@text</option>
+                                <option alue="@val">@text</option>
                             }
+v
                         </select>
                     </div>
                     <div class="col-12 col-md-4" id="filter-register-date">
@@ -587,25 +588,21 @@
                     <table class="table table-sm table-hover mb-0 cr-table" id="crTable">
                         <thead>
                             <tr>
-                                <th style="width:64px;">No.</th>
-                                <th style="width:120px;">Unit Code</th>
+                                <th>No.</th>
+                                <th>Unit Code</th>
                                 <th>Customer Name</th>
-                                <th style="width:180px;">Responsible Name</th>
-                                <th style="width:120px;">Register</th>
-                                <th style="width:120px;">Wait</th>
-                                <th style="width:120px;">In Process</th>
-                                <th style="width:120px;">FastFix</th>
-                                <th style="width:120px;">FixedDuration</th>
-                                <th style="width:120px;">FastFixFinish</th>
-                                <th style="width:120px;">Done</th>
-                                <th style="width:120px;">Reason</th>
-                                <th style="width:120px;">Counter</th>
-                                <th style="width:120px;">Create By</th>
-                                <th style="width:120px;">Update Date</th>
-                                <th style="width:120px;">Update By</th>
+                                <th>Responsible Name</th>
+                                <th>Register</th>
+                                <th>In Process</th>
+                                <th>Done</th>
+                                <th>Counter</th>
+                                <th>Create By</th>
+                                <th>Update Date</th>
+                                <th>Update By</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody>
+                        </tbody>
                     </table>
                 </div>
 
@@ -619,6 +616,7 @@
         </div>
     </div>
 </div>
+
 <!-- Modal: Edit Register -->
 <div id="EditRegisterLog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="hUnitCode" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -780,7 +778,7 @@
     <script src="~/js/jquery.signalR-2.4.2.js"></script>
     <script src="~/js/app-signalr.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <script type="text/javascript">
-        var ChatServerUrl = "http://localhost:14093/signalr/js";       
+        var ChatServerUrl = "https://aswinno.assetwise.co.th/QCInspection/signalr/js";
         $(document).ready(function () {
             appSignalR.init();            
         });

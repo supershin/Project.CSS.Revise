@@ -98,7 +98,7 @@ builder.Services.AddCors(options =>
     {
         policy
             .WithOrigins(
-                "http://localhost:14093/"
+                "https://aswinno.assetwise.co.th/QCInspection/signalr/js"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()

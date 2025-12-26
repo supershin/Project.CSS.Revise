@@ -72,13 +72,6 @@ namespace Project.CSS.Revise.Web.Controllers
             return View();
         }
 
-        //[HttpPost]
-        //public JsonResult RemoveRegisterLog(int ID)
-        //{
-        //    var Issuccess = _queueBankService.RemoveRegisterLog(ID);
-        //    return Json(new { result = Issuccess });
-        //}
-
         [HttpPost]
         public async Task<JsonResult> RemoveRegisterLog(int ID)
         {

@@ -455,4 +455,12 @@
 
     <script src="~/js/Pages/QueueBankCheckerView/QueueBankCheckerView.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <link rel="stylesheet" type="text/css" href="~/css/queuebankcheckerview.css?ver=@DateTime.Now.Ticks.ToString()">
+    <script src="~/js/jquery.signalR-2.4.2.js"></script>
+    <script src="~/js/app-signalr.js?ver=@DateTime.Now.Ticks.ToString()"></script>
+    <script type="text/javascript">
+        var ChatServerUrl = "https://aswinno.assetwise.co.th/QCInspection/signalr/js";
+        $(document).ready(function () {
+            appSignalR.init();
+        });
+    </script>
 }

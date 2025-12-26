@@ -758,48 +758,52 @@ function removeRegisterLog(id) {
         });
 }
 
-
+// ===============================
+// Create Register (DataTable)
+// FIX: header/body line mismatch in modal + scrollX
+// ===============================
 function initCreateRegisterTable() {
-    if (CreateRegisterTableDt) {
-        // ถ้าเคย init แล้ว แค่ reload ด้วย filter ปัจจุบัน
-        CreateRegisterTableDt.ajax.reload();
+
+    // ✅ already init -> just reload + re-calc width
+    if (window.CreateRegisterTableDt) {
+        window.CreateRegisterTableDt.ajax.reload(function () {
+            window.CreateRegisterTableDt.columns.adjust().draw(false);
+        }, false);
         return;
     }
 
-    CreateRegisterTableDt = $('#crTable').DataTable({
+    const $table = $('#crTable');
+
+    window.CreateRegisterTableDt = $table.DataTable({
         processing: true,
-        serverSide: true,     // ✅ ใช้ server-side เหมือน RegisterTable
+        serverSide: true,
         searching: true,
         lengthChange: true,
         pageLength: 10,
         ordering: false,
+
         autoWidth: false,
         scrollX: true,
+        scrollCollapse: true,
+        deferRender: true,
+
         ajax: function (data, callback, settings) {
 
             const filters = qbGetValues();
             let projectId = filters.Project;
-            if (Array.isArray(projectId)) {
-                projectId = projectId[0] || "";
-            }
+            if (Array.isArray(projectId)) projectId = projectId[0] || "";
 
             const formData = new FormData();
-            // ===== DataTables params =====
             formData.append("draw", data.draw);
             formData.append("start", data.start);
             formData.append("length", data.length);
-            formData.append("SearchTerm",
-                (data.search && data.search.value)
-                    ? data.search.value.trim()
-                    : ""
+            formData.append(
+                "SearchTerm",
+                (data.search && data.search.value) ? data.search.value.trim() : ""
             );
-
-            // ===== Filters =====
             formData.append("L_ProjectID", projectId || "");
 
-            if (typeof showLoading === "function") {
-                showLoading();
-            }
+            if (typeof showLoading === "function") showLoading();
 
             fetch(baseUrl + "QueueBank/GetlistCreateRegisterTable", {
                 method: "POST",
@@ -815,7 +819,6 @@ function initCreateRegisterTable() {
                     });
                 })
                 .catch(err => {
-                    console.error("GetlistCreateRegisterTable error:", err);
                     callback({
                         draw: data.draw,
                         recordsTotal: 0,
@@ -824,17 +827,30 @@ function initCreateRegisterTable() {
                     });
                 })
                 .finally(() => {
-                    if (typeof hideLoading === "function") {
-                        hideLoading();
-                    }
+                    if (typeof hideLoading === "function") hideLoading();
+
+                    // ✅ important: after first ajax render, force width sync (like paging does)
+                    setTimeout(() => {
+                        if (window.CreateRegisterTableDt) {
+                            window.CreateRegisterTableDt.columns.adjust();
+                        }
+                    }, 0);
+
+                    setTimeout(() => {
+                        if (window.CreateRegisterTableDt) {
+                            window.CreateRegisterTableDt.columns.adjust();
+                        }
+                    }, 120);
+
                 });
         },
+
         columns: [
             {
                 data: null,
                 name: "index",
+                width: "60px",
                 render: function (data, type, row, meta) {
-                    // row index ในหน้านั้น ๆ
                     return meta.row + 1 + meta.settings._iDisplayStart;
                 }
             },
@@ -842,21 +858,30 @@ function initCreateRegisterTable() {
             { data: "CustomerName", name: "CustomerName" },
             { data: "CSResponse", name: "CSResponse" },
             { data: "RegisterDate", name: "RegisterDate" },
-            { data: "WaitDate", name: "WaitDate" },
             { data: "InprocessDate", name: "InprocessDate" },
-            { data: "FastFixDate", name: "FastFixDate" },
-            { data: "FixedDuration", name: "FixedDuration" },
-            { data: "FastFixFinishDate", name: "FastFixFinishDate" },
             { data: "Done", name: "Done" },
-            { data: "ReasonName", name: "ReasonName" },
             { data: "Counter", name: "Counter" },
             { data: "CreateBy", name: "CreateBy" },
             { data: "UpdateDate", name: "UpdateDate" },
             { data: "UpdateBy", name: "UpdateBy" }
-        ],
-        order: [[1, "asc"]]
+        ]
+        // ❌ อย่าใส่ order ตอน ordering:false (ไม่จำเป็น และบางทีทำให้ DT พยายามคำนวณเพิ่ม)
     });
+
+    // ✅ when modal is fully visible -> recalc once more
+    const modalEl = document.getElementById('modalCreateRegister');
+    if (modalEl && !modalEl.dataset.crAlignBound) {
+        modalEl.dataset.crAlignBound = "1";
+
+        modalEl.addEventListener('shown.bs.modal', function () {
+            if (window.CreateRegisterTableDt) {
+                window.CreateRegisterTableDt.columns.adjust().draw(false);
+            }
+        });
+    }
 }
+
+
 
 // delegate click on UnitCode link
 $('#QueueBankRegisterTable').on('click', '.qb-unit-link', function (e) {
@@ -1313,9 +1338,6 @@ function qbUpdateProjectTableHeader() {
     if (summaryEl2) summaryEl2.textContent = prefix2 + projectText;
 }
 
-
-
-
 function openCreateRegister() {
     // 1) เช็คก่อนว่ามี Project ไหม
     const filters = qbGetValues();
@@ -1369,12 +1391,13 @@ function openCreateRegister() {
         if (!window.CreateRegisterTableDt) {
             initCreateRegisterTable();
         } else {
-            window.CreateRegisterTableDt.ajax.reload();
+            window.CreateRegisterTableDt.ajax.reload(null, true);   // true = reset paging
         }
     } else {
         console.warn("DataTables not loaded. Please include jquery.dataTables.js and css.");
     }
 }
+
 
 document.addEventListener("DOMContentLoaded", function () {
     const btnSave = document.getElementById("crBtnSave");
@@ -1483,9 +1506,10 @@ function crSaveRegisterLog(projectId, unitCode, queueTypeId) {
                 // ===============================
                 // 🔄 Reload ตารางทั้งหมดที่เกี่ยวข้อง
                 // ===============================
-                if (typeof CreateRegisterTableDt !== "undefined" && CreateRegisterTableDt) {
-                    CreateRegisterTableDt.ajax.reload(null, false);
+                if (window.CreateRegisterTableDt) {
+                    window.CreateRegisterTableDt.ajax.reload(null, true); // true = reset paging
                 }
+
 
                 if (typeof QueueBankRegisterTableDt !== "undefined" && QueueBankRegisterTableDt) {
                     QueueBankRegisterTableDt.ajax.reload(null, false);
@@ -1517,7 +1541,7 @@ function crSaveRegisterLog(projectId, unitCode, queueTypeId) {
             }
         })
         .catch(err => {
-            console.error("SaveRegisterLog error:", err);
+            //console.error("SaveRegisterLog error:", err);
 
             Swal.fire({
                 toast: true,
