@@ -1139,7 +1139,7 @@ document.addEventListener("DOMContentLoaded", function () {
     loadSummaryRegisterBank();
 
     // refresh button
-    const btnRefresh = document.getElementById("btnRefreshCounter");
+    const btnRefresh = document.getElementById("btnRefreshChecker");
     if (btnRefresh && btnRefresh.dataset.bound !== "1") {
         btnRefresh.addEventListener("click", function (e) {
             e.preventDefault();

@@ -19,11 +19,26 @@ var appSignalR = {
         ChatProxy.on("notifyCounter", function () {
 
             const btn = document.getElementById("btnSearch");
+            const btnChecker = document.getElementById("btnRefreshChecker");
+            const btnCounter = document.getElementById("btnRefreshCounter");
 
             if (btn) {
                 btn.click();
+                /*alert("notifyCounter");*/
             } else {
                 console.warn("btnSearch not found");
+            }
+
+            if (btnChecker) {
+                btnChecker.click();
+            } else {
+                console.warn("btnRefreshChecker not found");
+            }
+
+            if (btnCounter) {
+                btnCounter.click();
+            } else {
+                console.warn("btnRefreshCounter not found");
             }
 
         });
@@ -31,8 +46,7 @@ var appSignalR = {
 
         //connecting the client to the signalr hub   
         SignalrConnection.start().done(function () {
-            
-            alert("Connected to Signalr Server");
+            console.log("Connected to Signalr Server");
         })
             .fail(function () {
                 appSignalR.reconnect();
