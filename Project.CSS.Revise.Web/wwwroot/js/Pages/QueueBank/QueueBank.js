@@ -446,12 +446,12 @@ function initFilterDropdowns() {
     const projInst = createChoice("#ddl_Project", { placeholderValue: "Select Project…" });
     createChoice("#ddl_UnitStatusCS", { placeholderValue: "Select Unit Status (CS)..." });
     createChoice("#ddl_CustomerStatus", { placeholderValue: "Select Customer Status…" });
-    createChoice("#ddl_CSResponsible", { placeholderValue: "Select CS Responsible…" });
+    createChoice("#ddl_CSResponsible", { placeholderValue: "Select CS Response…" });
     createChoice("#ddl_UnitCode", { placeholderValue: "Select Unit Code…" });
     createChoice("#ddl_ExpectTransferBy", { placeholderValue: "Select Expect Transfer By…" });
 
     createChoice("#DDLUnitCode", { placeholderValue: "Select Unit Code for Register…" });
-    createChoice("#ddl_Responsible", { placeholderValue: "Select Responsible..." });
+    createChoice("#ddl_Responsible", { placeholderValue: "Select Response..." });
     createChoice("#ddl_Career", { placeholderValue: "Not specified" });
     createChoice("#ddl_Reason", { placeholderValue: "Select Reason..." });
     createChoice("#ddl_BankNonSubmissionReason", { placeholderValue: "Select Non-Submission Reason..." });
@@ -1910,7 +1910,7 @@ function loadSummaryRegisterBank() {
                 <tr>
                     <td>${bankCellHtml}</td>
                     <td class="text-center">-</td>
-                    <td class="text-center">${unit}</td>
+                    <td class="text-center">${parseFloat(unit || 0).toLocaleString()}</td>
                     <td class="text-end">${valueText}</td>
                     <td class="text-center">${percentText}</td>
                 </tr>`;
@@ -1921,7 +1921,7 @@ function loadSummaryRegisterBank() {
             <tr class="fw-bold">
                 <td class="text-start">Total</td>
                 <td class="text-center">-</td>
-                <td class="text-center">${totalUnit}</td>
+                <td class="text-center">${parseFloat(totalUnit || 0).toLocaleString()}</td>
                 <td class="text-end">
                     ${typeof qbFormatValueM === "function"
                             ? qbFormatValueM(totalValue)

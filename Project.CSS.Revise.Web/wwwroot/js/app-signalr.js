@@ -12,9 +12,21 @@ var appSignalR = {
 
         //trigger call staff
         ChatProxy.on("sendCallStaff", function (data) {
-            alert(data.Counter);
-            //alert(data.CallStaffStatus);
+            console.log("sendCallStaff:", data);
+
+            const currentProjectId = document.getElementById("hidProjectId")?.value || "";
+
+            // ถ้ามี ProjectID และไม่ตรงโปรเจกต์นี้ -> ไม่ทำอะไร
+            if (data?.ProjectID && currentProjectId && String(data.ProjectID) !== String(currentProjectId)) {
+                return;
+            }
+
+            // ✅ กระพริบ Counter ที่ส่งมา (15 วิ) และไม่ล้างตัวอื่น
+            if (data?.Counter !== undefined && data?.Counter !== null) {
+                qbBlinkCounters([data.Counter], { durationMs: 15000, replace: false });
+            }
         });
+
 
         ChatProxy.on("notifyCounter", function () {
 
@@ -42,15 +54,13 @@ var appSignalR = {
             }
 
         });
-
-
         //connecting the client to the signalr hub   
         SignalrConnection.start().done(function () {
             console.log("Connected to Signalr Server");
         })
-            .fail(function () {
-                appSignalR.reconnect();
-            })
+        .fail(function () {
+            appSignalR.reconnect();
+        })
     },
     reconnect: function () {
         SignalrConnection.start().done(function () {

@@ -431,7 +431,7 @@ namespace Project.CSS.Revise.Web.Library.DAL
             var entity = new ListSummeryRegister.ListSummeryRegisterType();
 
             entity.Topic = Commond.FormatExtension.NullToString(reader["Topic"]);
-            entity.Unit = Commond.FormatExtension.NullToString(reader["Value"]);
+            entity.Unit = Commond.FormatExtension.ConvertToShortNameUnit(reader["Value"]);
             entity.Value = Commond.FormatExtension.NullToString(reader["SellingPriceSum"]);
             entity.Percent = Commond.FormatExtension.NullToString(reader["PercentValue"]);
 
@@ -458,7 +458,7 @@ namespace Project.CSS.Revise.Web.Library.DAL
             var entity = new ListSummeryRegister.ListSummeryRegisterLoanType();
 
             entity.Topic = Commond.FormatExtension.NullToString(reader["Topic"]);
-            entity.Unit = Commond.FormatExtension.NullToString(reader["Value"]);
+            entity.Unit = Commond.FormatExtension.ConvertToShortNameUnit(reader["Value"]);
             entity.Value = Commond.FormatExtension.NullToString(reader["SellingPriceSum"]);
             entity.Percent = Commond.FormatExtension.NullToString(reader["PercentValue"]);
 
@@ -486,7 +486,7 @@ namespace Project.CSS.Revise.Web.Library.DAL
 
             entity.CareerTypeID = Commond.FormatExtension.NullToString(reader["CareerTypeID"]);
             entity.Topic = Commond.FormatExtension.NullToString(reader["Topic"]);
-            entity.Unit = Commond.FormatExtension.NullToString(reader["Unit"]);
+            entity.Unit = Commond.FormatExtension.ConvertToShortNameUnit(reader["Unit"]);
             entity.Value = Commond.FormatExtension.NullToString(reader["SellingPriceSum"]);
             entity.Percent = Commond.FormatExtension.NullToString(reader["PercentValue"]);
 

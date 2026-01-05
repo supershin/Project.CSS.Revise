@@ -510,3 +510,24 @@
     .btn-qb-counter:hover {
         background: #0b5ed7;
     }
+
+
+@keyframes qbBlink {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .25;
+    }
+}
+
+/* กระพริบทั้ง card */
+.qb-counter.blink {
+    animation: qbBlink 0.7s infinite;
+}
+
+/* ถ้ากำลัง selected อยู่ หยุดกระพริบ */
+.qb-counter.selected.blink {
+    animation: none;
+}

@@ -11,6 +11,113 @@
 ========================= */
 let currentCounterNo = null;
 let unitRegisterChoices = null;
+/* =========================
+   [BLINK] Counter Blink Engine
+========================= */
+let qbBlinkSet = new Set();
+let qbBlinkTimers = new Map(); // counterNo -> timeoutId
+
+function qbBlinkNormalizeCounter(counterNo) {
+    const s = String(counterNo ?? "").trim();
+    return s;
+}
+
+// สั่งให้ counter กระพริบ (รองรับ array)
+function qbBlinkCounters(counterList, { durationMs = 15000, replace = false } = {}) {
+    const list = (counterList || []).map(qbBlinkNormalizeCounter).filter(Boolean);
+    if (!list.length) return;
+
+    let hasNew = false;
+
+    if (replace) qbBlinkClearAll();
+
+    list.forEach(no => {
+        if (!qbBlinkSet.has(no)) hasNew = true; // 👈 ตัวใหม่
+        qbBlinkSet.add(no);
+
+        if (qbBlinkTimers.has(no)) {
+            clearTimeout(qbBlinkTimers.get(no));
+            qbBlinkTimers.delete(no);
+        }
+
+        if (durationMs > 0) {
+            const t = setTimeout(() => {
+                qbBlinkSet.delete(no);
+                qbBlinkTimers.delete(no);
+                qbApplyBlinkToGrid();
+            }, durationMs);
+
+            qbBlinkTimers.set(no, t);
+        }
+    });
+
+    // 🔔 เล่นเสียงถ้ามี counter ใหม่
+    if (hasNew) qbPlayDing();
+
+    qbApplyBlinkToGrid();
+}
+
+
+function qbBlinkClearAll() {
+    qbBlinkSet.clear();
+    qbBlinkTimers.forEach(t => clearTimeout(t));
+    qbBlinkTimers.clear();
+    qbApplyBlinkToGrid();
+}
+
+function qbBlinkStop(counterNo) {
+    const no = qbBlinkNormalizeCounter(counterNo);
+    if (!no) return;
+
+    qbBlinkSet.delete(no);
+
+    if (qbBlinkTimers.has(no)) {
+        clearTimeout(qbBlinkTimers.get(no));
+        qbBlinkTimers.delete(no);
+    }
+
+    qbApplyBlinkToGrid();
+}
+
+function qbApplyBlinkToGrid() {
+    const grid = document.getElementById("counterGrid");
+    if (!grid) return;
+
+    grid.querySelectorAll(".qb-counter").forEach(box => {
+        const no = qbBlinkNormalizeCounter(box.dataset.counter);
+
+        // ถ้า selected อยู่ ไม่กระพริบ
+        const shouldBlink = qbBlinkSet.has(no) && !box.classList.contains("selected");
+
+        if (shouldBlink) box.classList.add("blink");
+        else box.classList.remove("blink");
+    });
+}
+
+/* =========================
+   [SOUND] Counter Ding Sound
+========================= */
+const qbDingAudio = new Audio((typeof baseUrl !== "undefined" ? baseUrl : "/") + "sounds/counter-ding.mp3");
+qbDingAudio.preload = "auto";
+
+// mobile & chrome require user interaction before play
+function qbUnlockSound() {
+    qbDingAudio.play().then(() => {
+        qbDingAudio.pause();
+        qbDingAudio.currentTime = 0;
+        document.removeEventListener("click", qbUnlockSound);
+        document.removeEventListener("keydown", qbUnlockSound);
+    }).catch(() => { });
+}
+document.addEventListener("click", qbUnlockSound);
+document.addEventListener("keydown", qbUnlockSound);
+
+function qbPlayDing() {
+    try {
+        qbDingAudio.currentTime = 0;
+        qbDingAudio.play();
+    } catch (e) { }
+}
 
 function qbNorm(s) {
     return (s ?? "").toString().trim().toLowerCase();
@@ -594,6 +701,8 @@ function renderCounterGrid(items) {
     initCounterCardClick();
 
     updateCounterGridLayout();
+
+    qbApplyBlinkToGrid(); // ✅ ทำให้ blink ยังอยู่หลัง re-render
 }
 
 /* =========================
@@ -746,6 +855,7 @@ function initCounterCardClick() {
 
             grid.querySelectorAll(".qb-counter.selected").forEach(el => el.classList.remove("selected"));
             box.classList.add("selected");
+            qbBlinkStop(counterNo); // ✅ user click แล้วหยุดกระพริบ counter นี้
 
             updateCounterGridLayout();
 
@@ -1069,7 +1179,6 @@ async function callCheckoutBankCounter(payload, badge, counterNo) {
     }
 }
 
-
 async function onSaveUnitRegisterClicked() {
     const projectIdInput = document.getElementById("hidProjectId");
     const ddl = document.getElementById("ddlUnitRegister");
@@ -1124,6 +1233,9 @@ async function onSaveUnitRegisterClicked() {
         errorMessage("Error while updating unit register.", "Request Failed");
     }
 }
+
+
+
 
 /* =========================
    [N] Init Page (ONE DOMContentLoaded ONLY)
