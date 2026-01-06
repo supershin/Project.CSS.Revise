@@ -26,6 +26,7 @@ namespace Project.CSS.Revise.Web.Respositories
         {
             _context = context;
         }
+
         public List<ListCounterModel.ListCounterItem> GetListsCounterQueueBank(ListCounterModel.Filter filter)
         {
             List<ListCounterModel.ListCounterItem> result = new List<ListCounterModel.ListCounterItem>();

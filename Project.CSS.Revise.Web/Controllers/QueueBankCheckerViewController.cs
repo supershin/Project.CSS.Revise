@@ -219,12 +219,8 @@ namespace Project.CSS.Revise.Web.Controllers
 
                 // ✅ userId (ปรับ claim name ตามระบบพ่อใหญ่)
                 int userId = 0;
-
-
                 string loginIdClaim = User.FindFirst("LoginID")?.Value;
                 string passClaim = User.FindFirst("Password")?.Value;
-
-                // ถอดแบบ "ปลอดภัย" – ถ้าไม่ใช่ base64 จะได้ไม่ระเบิด
                 string _userID = SecurityManager.TryDecodeFrom64(loginIdClaim ?? string.Empty);
 
                 if (!int.TryParse(_userID, out userId))

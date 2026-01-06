@@ -18,6 +18,11 @@ let qbBlinkSet = new Set();
 let qbBlinkTimers = new Map(); // counterNo -> timeoutId
 
 let qbLastDingAt = 0;
+/* =========================
+   [CALL STAFF] State + Stop Button (Right panel)
+========================= */
+let qbCallStaffMap = new Map(); // counterNo -> { projectId, registerLogId }
+
 function qbPlayDingCooldown(ms = 1500) {
     const now = Date.now();
     if (now - qbLastDingAt < ms) return;
@@ -141,6 +146,25 @@ function qbPlayDingSafe() {
     } catch (e) { }
 }
 
+async function qbResolveRegisterLogId(projectId, counterNo) {
+    const rootPath = (typeof baseUrl !== "undefined" ? baseUrl : "/");
+    const url =
+        `${rootPath}QueueBankCheckerView/GetCounterDetailsList` +
+        `?projectId=${encodeURIComponent(projectId)}` +
+        `&counter=${encodeURIComponent(counterNo)}`;
+
+    const resp = await fetch(url, { method: "GET", headers: { "Accept": "application/json" } });
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
+
+    const json = await resp.json();
+    if (!json.success) return 0;
+
+    const items = json.data || [];
+    const first = items[0] || {};
+    const id = parseInt(first.ID || first.id || "0", 10);
+
+    return Number.isFinite(id) ? id : 0;
+}
 
 function qbNorm(s) {
     return (s ?? "").toString().trim().toLowerCase();
@@ -166,6 +190,182 @@ function qbFormatValueM(raw) {
 function qbSetText(id, text) {
     const el = document.getElementById(id);
     if (el) el.textContent = text;
+}
+
+/* =========================
+   Counter Detail Part
+========================= */
+function qbNormalizeCounterNo(counterNo) {
+    return String(counterNo ?? "").trim();
+}
+
+function qbEnsureStopButtonUI() {
+    const detailBox = document.querySelector("#counterDetailColumn .counter-detail-box");
+    if (!detailBox) { return; }
+
+    // ✅ already injected
+    if (detailBox.dataset.boundStopBtn === "1") { return; }
+    detailBox.dataset.boundStopBtn = "1";
+
+    // ✅ ensure footer container
+    let footer = document.getElementById("counterDetailFooter");
+    if (!footer) {
+        footer = document.createElement("div");
+        footer.id = "counterDetailFooter";
+        footer.className = "d-flex justify-content-center gap-2 mt-3 pt-2 border-top";
+        detailBox.appendChild(footer);
+    }
+
+    // ✅ create button in footer
+    if (!document.getElementById("btnStopCallStaff")) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.id = "btnStopCallStaff";
+        btn.className = "btn btn-sm btn-danger d-none";
+        btn.innerHTML = `<i class="fa fa-bell-slash me-1"></i> Stop Call Staff`;
+
+        btn.addEventListener("click", qbOnStopCallStaffClicked);
+        footer.appendChild(btn);
+    }
+}
+
+
+function qbUpdateStopButtonUI(counterNo) {
+    qbEnsureStopButtonUI();
+
+    const stopBtn = document.getElementById("btnStopCallStaff");
+    if (!stopBtn) { return; }
+
+    const no = qbNormalizeCounterNo(counterNo);
+    const info = qbCallStaffMap.get(no);
+
+    if (info) {
+        stopBtn.classList.remove("d-none");
+        // เก็บค่าไว้ที่ปุ่ม เพื่อใช้ตอนกด stop
+        stopBtn.dataset.counter = no;
+        stopBtn.dataset.projectid = info.projectId || "";
+        stopBtn.dataset.registerlogid = String(info.registerLogId || "");
+    } else {
+        stopBtn.classList.add("d-none");
+        stopBtn.dataset.counter = "";
+        stopBtn.dataset.projectid = "";
+        stopBtn.dataset.registerlogid = "";
+    }
+}
+
+async function qbOnStopCallStaffClicked() {
+    const stopBtn = document.getElementById("btnStopCallStaff");
+    if (!stopBtn) { return; }
+
+    const projectId = stopBtn.dataset.projectid || (document.getElementById("hidProjectId")?.value || "");
+    const counterNo = stopBtn.dataset.counter || (currentCounterNo || "");
+    let registerLogId = parseInt(stopBtn.dataset.registerlogid || "0", 10);
+
+    // ✅ fallback 1: จาก selected card
+    if (!registerLogId) {
+        const selectedBox = document.querySelector("#counterGrid .qb-counter.selected");
+        const cardRegId = selectedBox?.dataset?.registerid || "";
+        registerLogId = parseInt(cardRegId || "0", 10);
+    }
+
+    // ✅ fallback 2: จาก map
+    if (!registerLogId) {
+        const info = qbCallStaffMap.get(qbNormalizeCounterNo(counterNo));
+        registerLogId = parseInt(info?.registerLogId || "0", 10);
+    }
+
+    // ✅ fallback 3: fetch detail ตรง ๆ (ไม่ต้องคลิกสลับการ์ด)
+    if (!registerLogId) {
+        try {
+            registerLogId = await qbResolveRegisterLogId(projectId, counterNo);
+
+            if (registerLogId) {
+                // sync กลับเข้าปุ่ม + map
+                stopBtn.dataset.registerlogid = String(registerLogId);
+
+                const no = qbNormalizeCounterNo(counterNo);
+                const info = qbCallStaffMap.get(no) || { projectId: projectId, registerLogId: 0 };
+                info.projectId = projectId;
+                info.registerLogId = registerLogId;
+                qbCallStaffMap.set(no, info);
+            }
+        } catch (e) {
+            console.error("Resolve RegisterLogID failed:", e);
+        }
+    }
+
+
+    if (!projectId) { errorMessage?.("Project is invalid."); return; }
+    if (!counterNo) { errorMessage?.("Counter is invalid."); return; }
+    if (!registerLogId) { errorMessage?.("RegisterLogID is invalid."); return; }
+
+    // ✅ confirm
+    let ok = true;
+    if (window.Swal && typeof Swal.fire === "function") {
+        const res = await Swal.fire({
+            icon: "warning",
+            title: "Stop call staff?",
+            text: `Counter ${counterNo} will stop calling staff.`,
+            showCancelButton: true,
+            confirmButtonText: "Yes, stop",
+            cancelButtonText: "Cancel",
+            reverseButtons: true,
+            allowOutsideClick: false
+        });
+        ok = (res.isConfirmed === true);
+    } else {
+        ok = window.confirm(`Stop call staff on Counter ${counterNo}?`);
+    }
+
+    if (!ok) { return; }
+
+    // ✅ call API (action เดียว start/stop ของพ่อใหญ่)
+    const rootPath = (typeof baseUrl !== "undefined" ? baseUrl : "/");
+    const url = `${rootPath}QueueBankCheckerView/SaveRegisterCallStaffCounter`;
+
+    const payload = {
+        ProjectID: projectId,
+        QueueTypeID: 48,
+        Counter: parseInt(counterNo, 10),
+        RegisterLogID: registerLogId,
+        CallStaffStatus: "stop",
+        RegisterLogList: [] // ใส่/ไม่ใส่ก็ได้ ถ้า backend ไม่ใช้
+    };
+
+    try {
+        if (typeof showLoading === "function") { showLoading(); }
+
+        const resp = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) { throw new Error("HTTP " + resp.status); }
+
+        const json = await resp.json();
+        if (!json.Success) {
+            errorMessage?.(json.Message || "Stop call staff failed.");
+            return;
+        }
+
+        successMessage?.(json.Message || "Stopped.");
+
+        // ✅ update local UI immediately (SignalR จะส่ง stop มาซ้ำอีกทีได้ ไม่เป็นไร)
+        qbCallStaffMap.delete(qbNormalizeCounterNo(counterNo));
+        qbUpdateStopButtonUI(counterNo);
+        if (typeof qbBlinkStop === "function") { qbBlinkStop(counterNo); }
+
+        // refresh grid/detail (optional)
+        if (typeof loadCounterList === "function") { loadCounterList(); }
+        if (typeof loadCounterDetail === "function") { loadCounterDetail(counterNo); }
+
+    } catch (err) {
+        console.error("❌ StopCallStaff error:", err);
+        errorMessage?.("Error while stopping call staff.");
+    } finally {
+        if (typeof hideLoading === "function") { hideLoading(); }
+    }
 }
 
 /* =========================
@@ -868,6 +1068,9 @@ function initCounterCardClick() {
             // show right
             detailCol.classList.remove("d-none");
 
+            // ✅ update stop button
+            qbUpdateStopButtonUI(counterNo);
+
             // left back to 8
             if (leftCol) {
                 leftCol.classList.remove("col-lg-12");
@@ -1025,6 +1228,17 @@ async function loadCounterDetail(counterNo) {
         if (!tagArea.dataset.boundClick) {
             tagArea.addEventListener("click", onCounterBadgeClicked);
             tagArea.dataset.boundClick = "1";
+        }
+
+        // ✅ ถ้า counter นี้กำลัง call staff อยู่ แต่ยังไม่มี registerLogId ใน map → ใส่ให้
+        const no = qbNormalizeCounterNo(counterNo);
+        if (qbCallStaffMap.has(no)) {
+            const info = qbCallStaffMap.get(no);
+            if (!info.registerLogId && firstRegisterLogId) {
+                info.registerLogId = parseInt(firstRegisterLogId, 10) || 0;
+                qbCallStaffMap.set(no, info);
+            }
+            qbUpdateStopButtonUI(counterNo);
         }
 
     } catch (err) {

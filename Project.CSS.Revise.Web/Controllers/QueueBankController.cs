@@ -251,7 +251,6 @@ namespace Project.CSS.Revise.Web.Controllers
             });
         }
 
-
         [HttpPost]
         public JsonResult GetlistCreateRegisterTable([FromForm] GetQueueBankModel model)
         {
@@ -298,7 +297,6 @@ namespace Project.CSS.Revise.Web.Controllers
                 data = result
             });
         }
-
 
         [HttpPost]
         public JsonResult GetListUnitForRegisterBankTable(string ProjectID)
