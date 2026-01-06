@@ -17,6 +17,14 @@ let unitRegisterChoices = null;
 let qbBlinkSet = new Set();
 let qbBlinkTimers = new Map(); // counterNo -> timeoutId
 
+let qbLastDingAt = 0;
+function qbPlayDingCooldown(ms = 1500) {
+    const now = Date.now();
+    if (now - qbLastDingAt < ms) return;
+    qbLastDingAt = now;
+    qbPlayDingSafe();
+}
+
 function qbBlinkNormalizeCounter(counterNo) {
     const s = String(counterNo ?? "").trim();
     return s;
@@ -52,11 +60,10 @@ function qbBlinkCounters(counterList, { durationMs = 15000, replace = false } = 
     });
 
     // 🔔 เล่นเสียงถ้ามี counter ใหม่
-    if (hasNew) qbPlayDing();
+    if (hasNew) qbPlayDingSafe();
 
     qbApplyBlinkToGrid();
 }
-
 
 function qbBlinkClearAll() {
     qbBlinkSet.clear();
@@ -87,37 +94,53 @@ function qbApplyBlinkToGrid() {
         const no = qbBlinkNormalizeCounter(box.dataset.counter);
 
         // ถ้า selected อยู่ ไม่กระพริบ
-        const shouldBlink = qbBlinkSet.has(no) && !box.classList.contains("selected");
+        const shouldBlink = qbBlinkSet.has(no);
 
         if (shouldBlink) box.classList.add("blink");
         else box.classList.remove("blink");
     });
 }
 
+function qbNormStatus(s) {
+    return (s ?? "").toString().trim().toLowerCase();
+}
+
+
 /* =========================
    [SOUND] Counter Ding Sound
 ========================= */
+let qbSoundUnlocked = false;
 const qbDingAudio = new Audio((typeof baseUrl !== "undefined" ? baseUrl : "/") + "sounds/counter-ding.mp3");
 qbDingAudio.preload = "auto";
 
-// mobile & chrome require user interaction before play
-function qbUnlockSound() {
+function qbUnlockSoundOnce() {
+    qbDingAudio.muted = true;
+
     qbDingAudio.play().then(() => {
         qbDingAudio.pause();
         qbDingAudio.currentTime = 0;
-        document.removeEventListener("click", qbUnlockSound);
-        document.removeEventListener("keydown", qbUnlockSound);
-    }).catch(() => { });
-}
-document.addEventListener("click", qbUnlockSound);
-document.addEventListener("keydown", qbUnlockSound);
+        qbDingAudio.muted = false;
+        qbSoundUnlocked = true;
 
-function qbPlayDing() {
+        document.removeEventListener("click", qbUnlockSoundOnce);
+        document.removeEventListener("keydown", qbUnlockSoundOnce);
+        console.log("✅ Sound unlocked");
+    }).catch(() => {
+        console.log("Sound catch");
+    });
+}
+
+document.addEventListener("click", qbUnlockSoundOnce, { once: false });
+document.addEventListener("keydown", qbUnlockSoundOnce, { once: false });
+
+function qbPlayDingSafe() {
+    if (!qbSoundUnlocked) return; // ✅ กัน NotAllowedError
     try {
         qbDingAudio.currentTime = 0;
-        qbDingAudio.play();
+        qbDingAudio.play().catch(() => { });
     } catch (e) { }
 }
+
 
 function qbNorm(s) {
     return (s ?? "").toString().trim().toLowerCase();

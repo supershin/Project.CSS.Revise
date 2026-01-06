@@ -227,7 +227,7 @@ function initAllProjectCheckbox() {
     el.checked = false;
 
     // เปลี่ยนแล้วให้รีเฟรชรายการโปรเจ็กต์ (ถ้าต้องการ)
-    el.addEventListener('change', onFilterChanged);
+    //el.addEventListener('change', onFilterChanged);
 }
 
 

@@ -16,16 +16,31 @@ var appSignalR = {
 
             const currentProjectId = document.getElementById("hidProjectId")?.value || "";
 
-            // ถ้ามี ProjectID และไม่ตรงโปรเจกต์นี้ -> ไม่ทำอะไร
+            // ignore event จาก project อื่น
             if (data?.ProjectID && currentProjectId && String(data.ProjectID) !== String(currentProjectId)) {
                 return;
             }
 
-            // ✅ กระพริบ Counter ที่ส่งมา (15 วิ) และไม่ล้างตัวอื่น
-            if (data?.Counter !== undefined && data?.Counter !== null) {
-                qbBlinkCounters([data.Counter], { durationMs: 15000, replace: false });
+            const counterNo = data?.Counter;
+            if (counterNo === undefined || counterNo === null) return;
+
+            const status = qbNormStatus(data?.CallStaffStatus);
+
+            if (status === "start") {
+                // ✅ start: blink (จนกว่าจะ stop หรือ timeout)
+                qbBlinkCounters([counterNo], { durationMs: 0, replace: false }); // durationMs:0 = ไม่หมดเวลาเอง
+                qbPlayDingSafe(); // 🔔 เล่นเสียง (ถ้า unlock แล้ว)
+
+            } else if (status === "stop") {
+                // ✅ stop: หยุด blink
+                qbBlinkStop(counterNo);
+            } else {
+                // ถ้า status แปลกๆ -> treat as start (หรือจะ ignore ก็ได้)
+                qbBlinkCounters([counterNo], { durationMs: 15000, replace: false });
+                qbPlayDingSafe();
             }
         });
+
 
 
         ChatProxy.on("notifyCounter", function () {

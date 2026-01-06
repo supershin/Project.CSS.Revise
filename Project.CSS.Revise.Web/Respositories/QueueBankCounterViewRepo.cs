@@ -1,7 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Commond;
+using Project.CSS.Revise.Web.Data;
+using Project.CSS.Revise.Web.Models;
+using Project.CSS.Revise.Web.Models.Pages.QueueBank;
 using Project.CSS.Revise.Web.Models.Pages.QueueBankCounterView;
 
 namespace Project.CSS.Revise.Web.Respositories
@@ -14,6 +16,7 @@ namespace Project.CSS.Revise.Web.Respositories
         public UpdateUnitRegisterModel.Message UpdateUnitRegister(UpdateUnitRegisterModel.Entity input);
         public UpdateUnitRegisterModel.Message RemoveUnitFromCounter(UpdateUnitRegisterModel.Entity input);
         public UpdateUnitRegisterModel.Message CheckoutBankCounter(BankCheckoutRequest input);
+        public bool SaveRegisterCallStaffCounter(RegisterCallStaffCounter model, int userId);
     }
     public class QueueBankCounterViewRepo : IQueueBankCounterViewRepo
     {
@@ -492,6 +495,41 @@ namespace Project.CSS.Revise.Web.Respositories
             return item;
         }
 
+        public bool SaveRegisterCallStaffCounter(RegisterCallStaffCounter model, int userId)
+        {
+            if (model == null)
+            {
+                throw new ArgumentNullException(nameof(model));
+            }
+
+            if (model.RegisterLogID <= 0)
+            {
+                throw new ArgumentException("RegisterLogID is required.");
+            }
+
+            var status = (model.CallStaffStatus ?? "").Trim().ToLower();
+
+            if (status != "start" && status != "stop")
+            {
+                throw new ArgumentException("CallStaffStatus must be 'start' or 'stop'.");
+            }
+
+            var now = DateTime.Now;
+
+            var entity = new TR_Register_CallStaffCounter
+            {
+                RegisterLogID = model.RegisterLogID,
+                CallStaffStatus = status,
+                ActionDate = now,
+                CreateDate = now,
+                CreateBy = userId
+            };
+
+            _context.TR_Register_CallStaffCounters.Add(entity);
+            var rows = _context.SaveChanges();   // จำนวน row ที่ insert
+
+            return rows > 0;   // ✅ true ถ้า insert สำเร็จ
+        }
 
     }
 }

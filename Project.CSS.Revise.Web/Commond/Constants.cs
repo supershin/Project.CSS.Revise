@@ -376,6 +376,7 @@ namespace Project.CSS.Revise.Web.Commond
             public static readonly int Projectandunitfloorplan = 34;
             public static readonly int Project = 36;
         }
+
         public static class WARNING
         {
             public static readonly string APPOINTMENT_HAS_EXISTS = "An appointment already exists on {0} at {1}.";
