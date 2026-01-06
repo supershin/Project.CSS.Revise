@@ -153,5 +153,6 @@ app.MapControllerRoute(
     pattern: "{controller=Login}/{action=Index}/{id?}");
 
 app.MapHub<Project.CSS.Revise.Web.Hubs.QueueBankHub>("/hubs/queuebank");
+app.MapHub<Project.CSS.Revise.Web.Hubs.NotifyHub>("/notifyHub");
 
 app.Run();

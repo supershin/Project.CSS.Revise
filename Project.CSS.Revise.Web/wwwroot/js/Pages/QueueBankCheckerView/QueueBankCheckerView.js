@@ -1472,7 +1472,24 @@ async function onSaveUnitRegisterClicked() {
 }
 
 
+async function startNotifyHub() {
+    if (window._notifyHubConnection) return;
 
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/notifyHub")
+        .withAutomaticReconnect()
+        .build();
+
+    window._notifyHubConnection = connection;
+
+    connection.on("notifyCounter", () => {
+        document.getElementById("btnSearch")?.click();
+        document.getElementById("btnRefreshChecker")?.click();
+        document.getElementById("btnRefreshCounter")?.click();
+    });
+
+    await connection.start();
+}
 
 /* =========================
    [N] Init Page (ONE DOMContentLoaded ONLY)
@@ -1521,4 +1538,6 @@ document.addEventListener("DOMContentLoaded", function () {
         btnSave.addEventListener("click", onSaveUnitRegisterClicked);
         btnSave.dataset.bound = "1";
     }
+
+    startNotifyHub();
 });

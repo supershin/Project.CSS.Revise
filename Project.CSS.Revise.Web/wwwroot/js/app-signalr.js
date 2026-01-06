@@ -11,34 +11,6 @@ var appSignalR = {
         ChatProxy = SignalrConnection.createHubProxy('NotifyHub');
 
         //trigger call staff
-        //ChatProxy.on("sendCallStaff", function (data) {
-        //    console.log("sendCallStaff:", data);
-
-        //    const currentProjectId = document.getElementById("hidProjectId")?.value || "";
-
-        //    // ignore event จาก project อื่น
-        //    if (data?.ProjectID && currentProjectId && String(data.ProjectID) !== String(currentProjectId)) {
-        //        return;
-        //    }
-
-        //    const counterNo = data?.Counter;
-        //    if (counterNo === undefined || counterNo === null) return;
-
-        //    const status = qbNormStatus(data?.CallStaffStatus);
-
-        //    if (status//}); === "start") {
-        //        // ✅ start: blink (จนกว่าจะ stop หรือ timeout)
-        //        qbBlinkCounters([counterNo], { durationMs: 0, replace: false }); // durationMs:0 = ไม่หมดเวลาเอง
-        //        qbPlayDingSafe(); // 🔔 เล่นเสียง (ถ้า unlock แล้ว)
-
-        //    } else if (status === "stop") {
-        //        // ✅ stop: หยุด blink
-        //        qbBlinkStop(counterNo);
-        //    } else {
-        //        // ถ้า status แปลกๆ -> treat as start (หรือจะ ignore ก็ได้)
-        //        qbBlinkCounters([counterNo], { durationMs: 15000, replace: false });
-        //        qbPlayDingSafe();
-        //    }
 
         ChatProxy.on("sendCallStaff", function (data) {
             const status = qbNormStatus(data?.CallStaffStatus);
@@ -65,10 +37,8 @@ var appSignalR = {
             if (String(currentCounterNo ?? "") === counterNo) {
                 qbUpdateStopButtonUI(counterNo);
             }
+
         });
-
-
-
 
         ChatProxy.on("notifyCounter", function () {
 
@@ -78,7 +48,6 @@ var appSignalR = {
 
             if (btn) {
                 btn.click();
-                /*alert("notifyCounter");*/
             } else {
                 console.warn("btnSearch not found");
             }
@@ -95,6 +64,12 @@ var appSignalR = {
                 console.warn("btnRefreshCounter not found");
             }
 
+            // ✅ CustomerView: reload ผ่าน global object ที่พ่อใหญ่ expose ไว้
+            if (window.QueueBankCustomerView) {
+                window.QueueBankCustomerView.reloadTable?.();
+                window.QueueBankCustomerView.reloadSummary?.();
+                return;
+            }
         });
         //connecting the client to the signalr hub   
         SignalrConnection.start().done(function () {

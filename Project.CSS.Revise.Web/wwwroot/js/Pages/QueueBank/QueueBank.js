@@ -1192,6 +1192,12 @@ async function saveEditRegisterLog() {
         if (typeof loadUnitsByProject === "function") {
             loadUnitsByProject();
         }
+        const btn = document.getElementById("btnSearch");
+        if (btn) {
+            btn.click();
+        } else {
+            console.warn("btnSearch not found");
+        }
     } catch (err) {
         console.error(err);
         Swal.fire("Error", "System error", "error");

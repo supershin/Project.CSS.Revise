@@ -104,9 +104,15 @@ namespace Project.CSS.Revise.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult UpdateUnitRegister([FromBody] UpdateUnitRegisterModel.Entity model)
+        public async Task<IActionResult> UpdateUnitRegister([FromBody] UpdateUnitRegisterModel.Entity model)
         {
             var message = _queueBankCounterViewService.UpdateUnitRegister(model);
+
+            if (message?.Issucces == true)
+            {
+                await _notifyHubContext.Clients.All.SendAsync("notifyCounter");
+            }
+
             return Json(message);
         }
 
@@ -114,6 +120,10 @@ namespace Project.CSS.Revise.Web.Controllers
         public IActionResult RemoveUnitRegister([FromBody] UpdateUnitRegisterModel.Entity model)
         {
             var message = _queueBankCounterViewService.RemoveUnitFromCounter(model);
+            if (message?.Issucces == true)
+            {
+                _notifyHubContext.Clients.All.SendAsync("notifyCounter");
+            }
             return Json(message);
         }
 
@@ -121,6 +131,10 @@ namespace Project.CSS.Revise.Web.Controllers
         public IActionResult CheckoutBankCounter([FromBody] BankCheckoutRequest model)
         {
             var message = _queueBankCounterViewService.CheckoutBankCounter(model);
+            if (message?.Issucces == true)
+            {
+                _notifyHubContext.Clients.All.SendAsync("notifyCounter");
+            }
             return Json(message);
         }
 
@@ -163,24 +177,6 @@ namespace Project.CSS.Revise.Web.Controllers
 
             return File(pngBytes, "image/png");
         }
-
-        //[HttpPost]
-        //public async Task<IActionResult> StopCallStaff([FromBody] RegisterCallStaffCounter model)
-        //{
-        //    if (model == null)
-        //        return BadRequest(new { success = false, message = "Model is null." });
-
-        //    // ✅ บังคับให้เป็น stop
-        //    model.CallStaffStatus = "stop";
-
-        //    // (optional) ใส่ ActionDate/อื่นๆ ถ้าต้องการ
-        //    // model.ActionDate = DateTime.Now;
-
-        //    // ✅ Broadcast ไปทุก client
-        //    await _notifyHubContext.Clients.All.SendAsync("sendCallStaff", model);
-
-        //    return Json(new { success = true, message = "Stop call staff broadcasted.", data = model });
-        //}
 
         [HttpPost]
         public async Task<IActionResult> SaveRegisterCallStaffCounter([FromBody] RegisterCallStaffCounter model)
@@ -237,7 +233,7 @@ namespace Project.CSS.Revise.Web.Controllers
                 }
 
                 // ✅ broadcast ไป client
-                await _notifyHubContext.Clients.All.SendAsync("sendCallStaff", model);
+                await _notifyHubContext.Clients.All.SendAsync("notifyCounter");
 
                 return Json(new
                 {

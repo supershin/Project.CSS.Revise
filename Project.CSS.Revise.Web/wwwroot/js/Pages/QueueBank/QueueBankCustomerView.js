@@ -181,6 +181,9 @@
     // Summary Register (4 กล่อง)
     // =========================
     function loadSummaryRegisterAllCustomer() {
+
+        console.log("loadSummaryRegisterAllCustomer called");
+
         const projectId = getProjectId() || "";
 
         const formData = new FormData();
