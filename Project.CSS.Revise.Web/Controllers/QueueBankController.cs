@@ -343,37 +343,6 @@ namespace Project.CSS.Revise.Web.Controllers
             }
         }
 
-        //[HttpPost]
-        //public JsonResult SaveRegisterLog([FromForm] RegisterLog model)
-        //{
-        //    try
-        //    {
-
-        //        string loginIdClaim = User.FindFirst("LoginID")?.Value;
-        //        string userID = SecurityManager.TryDecodeFrom64(loginIdClaim ?? string.Empty);
-        //        model.SaveByID = FormatExtension.Nulltoint(userID);    
-        //        ValidateSaveRegisterLog(model);
-        //        _queueBankService.SaveRegisterLog(model);
-
-        //        // ถ้าทีหลังอยากส่ง SignalR เหมือนระบบเก่า
-        //        // NotifyCounterSignalR();
-
-        //        return Json(new
-        //        {
-        //            Message = Constants.Message.SUCCESS.SAVE_SUCCESS,
-        //            Success = true
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new
-        //        {
-        //            Success = false,
-        //            Message = InnerException(ex)
-        //        });
-        //    }
-        //}
-
 
         [HttpPost]
         public async Task<JsonResult> SaveRegisterLog([FromForm] RegisterLog model)

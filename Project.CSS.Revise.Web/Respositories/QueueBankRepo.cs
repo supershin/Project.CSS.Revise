@@ -532,6 +532,7 @@ namespace Project.CSS.Revise.Web.Respositories
             var data = new RegisterLog
             {
                 ID = raw.r.ID,
+                ProjectID = raw.r.ProjectID,    
                 UnitCode = raw.u.UnitCode,
                 ResponsibleID = raw.r.ResponsibleID.AsInt(),
                 FlagRegister = raw.r.RegisterDate != null,
@@ -565,10 +566,19 @@ namespace Project.CSS.Revise.Web.Respositories
                 data.RedirectHousingLoan = ""; // หรือ "" แล้วแต่ชนิด property
             }
 
-            if (data.LoanID != Guid.Empty)
+            //if (data.LoanID != Guid.Empty)
+            //{
+            //    data.Loan = getLoanByID_FINPlus(data.LoanID.AsGuid());
+            //    data.LoanBankList = getLoanBank_FINPlus(data.LoanID.AsGuid());
+            //}
+
+            if (data.ProjectID != "" && data.UnitCode != "")
             {
-                data.Loan = getLoanByID_FINPlus(data.LoanID.AsGuid());
-                data.LoanBankList = getLoanBank_FINPlus(data.LoanID.AsGuid());
+                data.Loan = getLoanByID_FINPlus(data.ProjectID, data.UnitCode);
+            }
+            if (data.Loan != null && data.Loan.ID != Guid.Empty)
+            {
+                data.LoanBankList = getLoanBank_FINPlus(data.Loan.ID);
             }
 
             return data;
@@ -581,9 +591,9 @@ namespace Project.CSS.Revise.Web.Respositories
 
             return string.Join(",", banks);
         }
-        private LoanModel getLoanByID_FINPlus(Guid loanID)
+        private LoanModel getLoanByID_FINPlus(string? ProjectID, string? UnitCode)
         {
-            var data = _context.PR_Loans.Where(e => e.ID == loanID && e.FlagActive == true)
+            var data = _context.PR_Loans.Where(e => e.ProjectID == ProjectID && e.UnitCode == UnitCode && e.FlagActive == true)
                 .Select(e => new LoanModel
                 {
                     ID = e.ID,

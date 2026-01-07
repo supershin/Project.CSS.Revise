@@ -984,11 +984,13 @@ function bindRegisterLogModal(data) {
     (function () {
         let responsibleValue = "";
 
-        if (data.ResponsibleID !== null && data.ResponsibleID !== undefined && data.ResponsibleID !== 0) {
-            responsibleValue = String(data.ResponsibleID);
-        } else if (window.CURRENT_LOGIN_ID) {
-            responsibleValue = String(window.CURRENT_LOGIN_ID);
-        }
+        //if (data.ResponsibleID !== null && data.ResponsibleID !== undefined && data.ResponsibleID !== 0) {
+        //    responsibleValue = String(data.ResponsibleID);
+        //} else if (window.CURRENT_LOGIN_ID) {
+        //    responsibleValue = String(window.CURRENT_LOGIN_ID);
+        //}
+
+        responsibleValue = String(window.CURRENT_LOGIN_ID);
 
         setChoiceSingle("#ddl_Responsible", responsibleValue);
     })();
