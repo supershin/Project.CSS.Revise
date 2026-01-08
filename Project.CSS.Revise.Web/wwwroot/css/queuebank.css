@@ -745,4 +745,36 @@ table.dataTable {
     vertical-align: middle !important;
 }
 
+.status-done {
+    background: #2563eb; /* blue */
+    color: #fff;
+}
 
+.cr-status {
+    cursor: help;
+}
+
+#crTable tbody td.tbody-center {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+/* Create modal ชั้นล่าง */
+#modalCreateRegister {
+    z-index: 1055 !important;
+}
+
+/* Edit modal ชั้นบน */
+#EditRegisterLog {
+    z-index: 1065 !important;
+}
+
+/* backdrop ของ Create ให้ต่ำลง (ชั้นล่าง) */
+.modal-backdrop.cr-backdrop {
+    z-index: 1050 !important;
+}
+
+/* backdrop ของ Edit ให้สูงขึ้น (ชั้นบน) */
+.modal-backdrop.edit-backdrop {
+    z-index: 1060 !important;
+}

@@ -40,37 +40,51 @@ var appSignalR = {
 
         });
 
-        ChatProxy.on("notifyCounter", function () {
+        ChatProxy.on("notifyCounter", async function (data) {
 
-            const btn = document.getElementById("btnSearch");
-            const btnChecker = document.getElementById("btnRefreshChecker");
-            const btnCounter = document.getElementById("btnRefreshCounter");
+            // 🔍 LOG everything from SignalR
+            console.log("📡 [SignalR] notifyCounter received:", data);
+            console.log("  projectId:", data?.ProjectID);
+            console.log("  counter:", data?.Counter);
+            console.log("  registerLogId:", data?.RegisterLogID);
+            console.log("  status:", data?.Status || data?.CallStaffStatus);
 
-            if (btn) {
-                btn.click();
-            } else {
-                console.warn("btnSearch not found");
+            // 1) refresh list/summary
+            document.getElementById("btnSearch")?.click();
+            document.getElementById("btnRefreshChecker")?.click();
+            document.getElementById("btnRefreshCounter")?.click();
+
+            // 2) 🔔 ding
+            if (typeof qbPlayDingCooldown === "function") qbPlayDingCooldown(1500);
+
+            // 3) ✅ refresh RIGHT PANEL
+            try {
+                const detailCol = document.getElementById("counterDetailColumn");
+                const isRightOpen = detailCol && !detailCol.classList.contains("d-none");
+
+                // if server tells which counter → use it
+                const serverCounter = data?.Counter?.toString?.() || data?.counter?.toString?.();
+
+                const counterToReload = serverCounter || currentCounterNo;
+
+                if (isRightOpen && counterToReload && typeof loadCounterDetail === "function") {
+                    console.log("🔄 Reload right panel for counter:", counterToReload);
+                    await loadCounterDetail(counterToReload);
+                    qbUpdateStopButtonUI(counterToReload);
+                }
+
+            } catch (e) {
+                console.error("notifyCounter -> reload counter detail failed:", e);
             }
 
-            if (btnChecker) {
-                btnChecker.click();
-            } else {
-                console.warn("btnRefreshChecker not found");
-            }
-
-            if (btnCounter) {
-                btnCounter.click();
-            } else {
-                console.warn("btnRefreshCounter not found");
-            }
-
-            // ✅ CustomerView: reload ผ่าน global object ที่พ่อใหญ่ expose ไว้
+            // 4) Customer View
             if (window.QueueBankCustomerView) {
                 window.QueueBankCustomerView.reloadTable?.();
                 window.QueueBankCustomerView.reloadSummary?.();
-                return;
             }
         });
+
+
         //connecting the client to the signalr hub   
         SignalrConnection.start().done(function () {
             console.log("Connected to Signalr Server");

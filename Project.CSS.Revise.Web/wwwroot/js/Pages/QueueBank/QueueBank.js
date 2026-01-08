@@ -760,7 +760,6 @@ function removeRegisterLog(id) {
 
 // ===============================
 // Create Register (DataTable)
-// FIX: header/body line mismatch in modal + scrollX
 // ===============================
 function initCreateRegisterTable() {
 
@@ -773,6 +772,37 @@ function initCreateRegisterTable() {
     }
 
     const $table = $('#crTable');
+
+    // ✅ escape HTML (avoid XSS)
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
+    // ✅ tooltip text by status -> show date-time
+    function getStatusDateText(row) {
+        const st = (row.Status || '').toLowerCase();
+
+        if (st.startsWith('reg')) return row.RegisterDate ? `Register at: ${row.RegisterDate}` : 'Register at: -';
+        if (st.startsWith('inp')) return row.InprocessDate ? `Inprocess at: ${row.InprocessDate}` : 'Inprocess at: -';
+        if (st.startsWith('do')) return row.Done ? `Done at: ${row.Done}` : 'Done at: -';
+
+        return '';
+    }
+
+    // ✅ status pill class
+    function getStatusClass(status) {
+        const st = (status || '').toLowerCase();
+        if (st.startsWith('reg')) return 'status-pill status-reg';
+        if (st.startsWith('inp')) return 'status-pill status-proc';
+        if (st.startsWith('do')) return 'status-pill status-done';
+        return 'status-pill';
+    }
 
     window.CreateRegisterTableDt = $table.DataTable({
         processing: true,
@@ -797,10 +827,7 @@ function initCreateRegisterTable() {
             formData.append("draw", data.draw);
             formData.append("start", data.start);
             formData.append("length", data.length);
-            formData.append(
-                "SearchTerm",
-                (data.search && data.search.value) ? data.search.value.trim() : ""
-            );
+            formData.append("SearchTerm", (data.search && data.search.value) ? data.search.value.trim() : "");
             formData.append("L_ProjectID", projectId || "");
 
             if (typeof showLoading === "function") showLoading();
@@ -829,23 +856,14 @@ function initCreateRegisterTable() {
                 .finally(() => {
                     if (typeof hideLoading === "function") hideLoading();
 
-                    // ✅ important: after first ajax render, force width sync (like paging does)
-                    setTimeout(() => {
-                        if (window.CreateRegisterTableDt) {
-                            window.CreateRegisterTableDt.columns.adjust();
-                        }
-                    }, 0);
-
-                    setTimeout(() => {
-                        if (window.CreateRegisterTableDt) {
-                            window.CreateRegisterTableDt.columns.adjust();
-                        }
-                    }, 120);
-
+                    // ✅ after ajax render, force width sync
+                    setTimeout(() => window.CreateRegisterTableDt?.columns.adjust(), 0);
+                    setTimeout(() => window.CreateRegisterTableDt?.columns.adjust(), 120);
                 });
         },
 
         columns: [
+            // No.
             {
                 data: null,
                 name: "index",
@@ -854,33 +872,87 @@ function initCreateRegisterTable() {
                     return meta.row + 1 + meta.settings._iDisplayStart;
                 }
             },
-            { data: "UnitCode", name: "UnitCode" },
-            { data: "CustomerName", name: "CustomerName" },
-            { data: "CSResponse", name: "CSResponse" },
-            { data: "RegisterDate", name: "RegisterDate" },
-            { data: "InprocessDate", name: "InprocessDate" },
-            { data: "Done", name: "Done" },
-            { data: "Counter", name: "Counter" },
-            { data: "CreateBy", name: "CreateBy" },
-            { data: "UpdateDate", name: "UpdateDate" },
-            { data: "UpdateBy", name: "UpdateBy" }
+
+            // New select fields
+            {
+                data: "UnitCode",
+                name: "UnitCode",
+                className: "tbody-center",
+                defaultContent: "",
+                render: function (data, type, row) {
+                    if (type !== "display") return data;
+
+                    const unitCode = escapeHtml(data || "");
+                    const id = escapeHtml(row.RegisterLogID || ""); // ✅ ใช้ RegisterLogID
+
+                    return `
+            <a href="javascript:void(0)" class="qb-unit-link unit-pill"
+               data-unit="${unitCode}" data-id="${id}">
+               <i class="fa fa-home unit-icon"></i> ${unitCode}
+            </a>`;
+                }
+            },
+            { data: "CustomerName", name: "CustomerName", defaultContent: "", render: (d, t) => t === "display" ? escapeHtml(d) : d },
+            { data: "ResponsibleName", name: "ResponsibleName", defaultContent: "", render: (d, t) => t === "display" ? escapeHtml(d) : d },
+            { data: "CSResponseName", name: "CSResponseName", defaultContent: "", render: (d, t) => t === "display" ? escapeHtml(d) : d },
+
+            // ✅ Status pill + native tooltip via title
+            {
+                data: "Status",
+                name: "Status",
+                defaultContent: "",
+                render: function (data, type, row) {
+                    if (type !== "display") return data;
+
+                    const statusText = escapeHtml(data || '');
+                    const tip = escapeHtml(getStatusDateText(row));
+                    const cls = getStatusClass(data);
+
+                    // native tooltip: title=""
+                    return `<span class="cr-status ${cls}" title="${tip}">${statusText}</span>`;
+                }
+            },
+
+            {
+                data: "Counter",
+                name: "Counter",
+                className: "tbody-center",   // 👈 เพิ่ม
+                defaultContent: "",
+                render: (d, t) => t === "display" ? escapeHtml(d) : d
+            },
+            { data: "CreateBy", name: "CreateBy", defaultContent: "", render: (d, t) => t === "display" ? escapeHtml(d) : d },
+            { data: "UpdateDate", name: "UpdateDate", defaultContent: "", render: (d, t) => t === "display" ? escapeHtml(d) : d },
+            { data: "UpdateBy", name: "UpdateBy", defaultContent: "", render: (d, t) => t === "display" ? escapeHtml(d) : d }
         ]
-        // ❌ อย่าใส่ order ตอน ordering:false (ไม่จำเป็น และบางทีทำให้ DT พยายามคำนวณเพิ่ม)
+        // ❌ no drawCallback needed (we use native title tooltip)
     });
 
     // ✅ when modal is fully visible -> recalc once more
     const modalEl = document.getElementById('modalCreateRegister');
     if (modalEl && !modalEl.dataset.crAlignBound) {
         modalEl.dataset.crAlignBound = "1";
-
         modalEl.addEventListener('shown.bs.modal', function () {
-            if (window.CreateRegisterTableDt) {
-                window.CreateRegisterTableDt.columns.adjust().draw(false);
-            }
+            window.CreateRegisterTableDt?.columns.adjust().draw(false);
         });
     }
 }
 
+// ✅ delegate click on UnitCode link (Create Register table)
+$('#crTable').on('click', '.qb-unit-link', function (e) {
+    e.preventDefault();
+
+    const unitCode = this.getAttribute('data-unit') || "";
+    const registerId = this.getAttribute('data-id') || "";
+
+    // ✅ use same function + same modal as main table
+    loadRegisterLogForEdit(registerId, unitCode);
+});
+
+document.getElementById('modalCreateRegister')
+    ?.addEventListener('shown.bs.modal', () => {
+        document.querySelectorAll('.modal-backdrop')
+            .forEach(b => b.classList.add('cr-backdrop'));
+    });
 
 
 // delegate click on UnitCode link
@@ -950,6 +1022,20 @@ function bindRegisterLogModal(data) {
     if (!modalEl) {
         return;
     }
+    const editModal = new bootstrap.Modal(modalEl);
+
+    modalEl.addEventListener('shown.bs.modal', () => {
+        // backdrop ตัวล่าสุดคือของ edit
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        const last = backdrops[backdrops.length - 1];
+        if (last) {
+            last.classList.remove('cr-backdrop');
+            last.classList.add('edit-backdrop');
+        }
+    }, { once: true });
+
+    editModal.show();
+
 
     modalEl.dataset.registerId = data.ID || "";
 
@@ -1098,6 +1184,7 @@ function renderFinPlusBanks(loanBankList) {
     box.innerHTML = html;
 }
 
+
 async function saveEditRegisterLog() {
     const modalEl = document.getElementById("EditRegisterLog");
     if (!modalEl) return;
@@ -1190,6 +1277,27 @@ async function saveEditRegisterLog() {
         Swal.fire("Success", json.Message, "success");
 
         bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+
+        // ✅ หลังปิด Edit -> เปิด Create แล้ว reload table
+        modalEl.addEventListener('hidden.bs.modal', function onHidden() {
+            modalEl.removeEventListener('hidden.bs.modal', onHidden);
+
+            // 1) show Create modal อีกครั้ง (ถ้ามันถูกปิดอยู่)
+            const crEl = document.getElementById("modalCreateRegister");
+            if (crEl) {
+                bootstrap.Modal.getOrCreateInstance(crEl).show();
+            }
+
+            // 2) reload Create Register table
+            if (window.CreateRegisterTableDt) {
+                window.CreateRegisterTableDt.ajax.reload(function () {
+                    window.CreateRegisterTableDt.columns.adjust().draw(false);
+                }, false);
+            } else if (typeof initCreateRegisterTable === "function") {
+                // ถ้ายังไม่ init (กันพลาด)
+                initCreateRegisterTable();
+            }
+        });
 
         if (typeof loadUnitsByProject === "function") {
             loadUnitsByProject();

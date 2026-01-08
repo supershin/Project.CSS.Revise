@@ -552,6 +552,22 @@ namespace Project.CSS.Revise.Web.Commond
 
             return string.Empty;
         }
+        public static string ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY_HH_MM(object dateObject)
+        {
+            if (dateObject == null || dateObject == DBNull.Value)
+            {
+                return string.Empty;
+            }
+
+            if (DateTime.TryParse(dateObject.ToString(), out DateTime date))
+            {
+                return date.ToString("dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture);
+            }
+
+            return string.Empty;
+        }
+
+
 
         public static Guid ConvertStringToGuid(object guidObject)
         {

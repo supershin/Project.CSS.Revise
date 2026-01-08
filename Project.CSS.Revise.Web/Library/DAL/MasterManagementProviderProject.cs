@@ -547,29 +547,34 @@ namespace Project.CSS.Revise.Web.Library.DAL
 
             entity.UnitCode = Commond.FormatExtension.NullToString(reader["UnitCode"]);
             entity.CustomerName = Commond.FormatExtension.NullToString(reader["CustomerName"]);
-            entity.CSResponse = Commond.FormatExtension.NullToString(reader["CSResponse"]);
 
-            entity.RegisterDate = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["RegisterDate"]);
-            entity.WaitDate = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["WaitDate"]);
-            entity.InprocessDate = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["InprocessDate"]);
-            entity.FastFixDate = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["FastFixDate"]);
-            entity.FixedDuration = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["FixedDuration"]);
-            entity.FastFixFinishDate = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["FastFixFinishDate"]);
-            entity.Done = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["Done"]);
+            // ✅ names (ตาม select ใหม่)
+            entity.ResponsibleName = Commond.FormatExtension.NullToString(reader["ResponsibleName"]);
+            entity.CSResponseName = Commond.FormatExtension.NullToString(reader["CSResponseName"]);
+
+            // ✅ dates (ตาม select ใหม่)
+            entity.RegisterDate = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY_HH_MM(reader["RegisterDate"]);
+            entity.InprocessDate = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY_HH_MM(reader["InprocessDate"]);
+            entity.Done = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY_HH_MM(reader["Done"]);
+
+            // ✅ status (ใหม่)
+            entity.Status = Commond.FormatExtension.NullToString(reader["Status"]);
 
             entity.ReasonName = Commond.FormatExtension.NullToString(reader["ReasonName"]);
             entity.Counter = Commond.FormatExtension.NullToString(reader["Counter"]);
 
+            // ✅ created/updated (ตาม select ใหม่)
             entity.CreateBy = Commond.FormatExtension.NullToString(reader["CreateBy"]);
             entity.UpdateDate = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["UpdateDate"]);
             entity.UpdateBy = Commond.FormatExtension.NullToString(reader["UpdateBy"]);
 
-            // 👇 ใหม่
+            // ✅ paging meta
             entity.TotalRecords = Commond.FormatExtension.Nulltoint(reader["TotalRecords"]);
             entity.FilteredRecords = Commond.FormatExtension.Nulltoint(reader["FilteredRecords"]);
 
             return entity;
         }
+
 
 
         public static List<ListSummeryRegisterBankNonSubmissionReason> sp_GetQueueBank_SummeryRegisterBankNonSubmissionReason_ListReader(IDataReader reader)

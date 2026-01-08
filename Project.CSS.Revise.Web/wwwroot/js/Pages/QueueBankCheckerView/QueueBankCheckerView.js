@@ -1450,10 +1450,8 @@ async function onSaveUnitRegisterClicked() {
         const success = json.Issucces ?? json.issucces ?? false;
         const text = json.TextResult ?? json.textResult ?? "No message from server.";
 
-        if (success) successMessage(text, "Completed");
-        else errorMessage(text);
-
         if (success) {
+            successMessage(text, "Completed");
             if (typeof loadCounterList === "function") loadCounterList();
             if (typeof loadCounterDetail === "function") loadCounterDetail(counterNo);
 
@@ -1463,6 +1461,11 @@ async function onSaveUnitRegisterClicked() {
             } else if (ddl) {
                 ddl.value = "";
             }
+            startNotifyHub(); 
+        }
+        else 
+        {
+            errorMessage(text);
         }
 
     } catch (err) {
@@ -1470,6 +1473,50 @@ async function onSaveUnitRegisterClicked() {
         errorMessage("Error while updating unit register.", "Request Failed");
     }
 }
+
+//async function startNotifyHub() {
+//    if (window._notifyHubConnection) return;
+
+//    const connection = new signalR.HubConnectionBuilder()
+//        .withUrl("/notifyHub")
+//        .withAutomaticReconnect()
+//        .build();
+
+//    window._notifyHubConnection = connection;
+
+//    // กันยิงรัว
+//    let lastNotifyAt = 0;
+
+//    connection.on("notifyCounter", async () => {
+//        const now = Date.now();
+//        if (now - lastNotifyAt < 400) return;
+//        lastNotifyAt = now;
+
+//        qbPlayDingCooldown(1500);
+
+//        // ✅ 1) Refresh card detail RIGHT PANEL ก่อน (ถ้ามีการเลือก counter อยู่)
+//        const detailCol = document.getElementById("counterDetailColumn");
+//        const isRightOpen = detailCol && !detailCol.classList.contains("d-none");
+
+//        if (isRightOpen && currentCounterNo) {
+//            try {
+//                await loadCounterDetail(currentCounterNo);     // ✅ fetch badge + QR
+//                qbUpdateStopButtonUI(currentCounterNo);        // ✅ sync stop btn ด้วย
+//            } catch (e) {
+//                console.error("notifyCounter -> loadCounterDetail failed:", e);
+//            }
+//        }
+
+//        // ✅ 2) (optional) refresh grid/summary ด้วย ถ้าพ่อใหญ่ยังต้องการ
+//        // ถ้าไม่อยากให้หนัก ให้คอมเมนต์ 3 บรรทัดนี้ออก
+//        if (typeof loadCounterList === "function") loadCounterList();
+//        if (typeof loadSummaryRegisterAll === "function") loadSummaryRegisterAll();
+//        if (typeof loadSummaryRegisterBank === "function") loadSummaryRegisterBank();
+//    });
+
+//    await connection.start();
+//}
+
 
 
 async function startNotifyHub() {
@@ -1483,6 +1530,7 @@ async function startNotifyHub() {
     window._notifyHubConnection = connection;
 
     connection.on("notifyCounter", () => {
+        qbPlayDingCooldown(1500); // 🔔 ดังตอนมี notify
         document.getElementById("btnSearch")?.click();
         document.getElementById("btnRefreshChecker")?.click();
         document.getElementById("btnRefreshCounter")?.click();
