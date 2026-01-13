@@ -1283,10 +1283,10 @@ async function saveEditRegisterLog() {
             modalEl.removeEventListener('hidden.bs.modal', onHidden);
 
             // 1) show Create modal อีกครั้ง (ถ้ามันถูกปิดอยู่)
-            const crEl = document.getElementById("modalCreateRegister");
-            if (crEl) {
-                bootstrap.Modal.getOrCreateInstance(crEl).show();
-            }
+            //const crEl = document.getElementById("modalCreateRegister");
+            //if (crEl) {
+            //    bootstrap.Modal.getOrCreateInstance(crEl).show();
+            //}
 
             // 2) reload Create Register table
             if (window.CreateRegisterTableDt) {

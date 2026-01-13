@@ -260,3 +260,21 @@
         width: 84px !important;
         height: auto;
     }
+
+/* blink effect */
+.qb-counter.blink {
+    animation: qbBlink 0.9s infinite;
+    box-shadow: 0 0 0.35rem rgba(255, 193, 7, 0.9);
+}
+
+@keyframes qbBlink {
+    0%, 100% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+        filter: brightness(1.2);
+    }
+}

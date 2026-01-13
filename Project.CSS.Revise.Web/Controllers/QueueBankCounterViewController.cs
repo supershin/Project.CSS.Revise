@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.CSS.Revise.Web.Commond;
+using Project.CSS.Revise.Web.Hubs;
 using Project.CSS.Revise.Web.Models.Pages.QueueBankCounterView;
 using Project.CSS.Revise.Web.Service;
 
@@ -15,16 +17,19 @@ namespace Project.CSS.Revise.Web.Controllers
         private readonly IUserAndPermissionService _userAndPermissionService;
         private readonly IQueueBankCounterViewService _queueBankCounterViewService;
         private readonly IQueueBankService _queueBankService;
+        private readonly IHubContext<NotifyHub> _notifyHubContext;
         public QueueBankCounterViewController(IHttpContextAccessor httpContextAccessor
             , IMasterService masterService
             , IUserAndPermissionService userAndPermissionService
             , IQueueBankCounterViewService queueBankCounterViewService
-            , IQueueBankService queueBankService) : base(httpContextAccessor)
+            , IQueueBankService queueBankService
+            , IHubContext<NotifyHub> notifyHubContext) : base(httpContextAccessor)
         {
             _masterService = masterService;
             _userAndPermissionService = userAndPermissionService;
             _queueBankCounterViewService = queueBankCounterViewService;
             _queueBankService = queueBankService;
+            _notifyHubContext = notifyHubContext;
         }
 
         public IActionResult Index(string projectId, string projectName)
@@ -93,23 +98,35 @@ namespace Project.CSS.Revise.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult UpdateUnitRegister([FromBody] UpdateUnitRegisterModel.Entity model)
+        public async Task<IActionResult> UpdateUnitRegister([FromBody] UpdateUnitRegisterModel.Entity model)
         {
             var message = _queueBankCounterViewService.UpdateUnitRegister(model);
+
+            if (message?.Issucces == true)
+                await _notifyHubContext.Clients.All.SendAsync("notifyCounter");
+
             return Json(message);
         }
 
         [HttpPost]
-        public IActionResult RemoveUnitRegister([FromBody] UpdateUnitRegisterModel.Entity model)
+        public async Task<IActionResult> RemoveUnitRegister([FromBody] UpdateUnitRegisterModel.Entity model)
         {
             var message = _queueBankCounterViewService.RemoveUnitFromCounter(model);
+
+            if (message?.Issucces == true)
+                await _notifyHubContext.Clients.All.SendAsync("notifyCounter");
+
             return Json(message);
         }
 
         [HttpPost]
-        public IActionResult CheckoutBankCounter([FromBody] BankCheckoutRequest model)
+        public async Task<IActionResult> CheckoutBankCounter([FromBody] BankCheckoutRequest model)
         {
             var message = _queueBankCounterViewService.CheckoutBankCounter(model);
+
+            if (message?.Issucces == true)
+                await _notifyHubContext.Clients.All.SendAsync("notifyCounter");
+
             return Json(message);
         }
 
@@ -118,6 +135,7 @@ namespace Project.CSS.Revise.Web.Controllers
         //  NEW: QR image ต่อ Counter
         //  GET /QueueBankCounterView/CounterQr?projectId=...&projectName=...&queueType=bank&counterNo=1
         // ============================
+
         [HttpGet]
         [AllowAnonymous] // ถ้าต้องให้เครื่อง tablet ดูได้โดยไม่ login; ถ้าไม่ต้องก็ลบออก
         public async Task<IActionResult> CounterQr(

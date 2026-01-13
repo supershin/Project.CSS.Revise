@@ -1492,12 +1492,37 @@ async function startNotifyHub() {
 
     window._notifyHubConnection = connection;
 
-    connection.on("notifyCounter", () => {
+    //connection.on("notifyCounter", () => {
+    //    qbPlayDingCooldown(1500);
+    //    document.getElementById("btnSearch")?.click();
+    //    document.getElementById("btnRefreshChecker")?.click();
+    //    document.getElementById("btnRefreshCounter")?.click();
+    //});
+    connection.on("notifyCounter", async (data) => {
+        console.log("📡 [notifyHub NEW] notifyCounter (CheckerView):", data);
         qbPlayDingCooldown(1500);
-        document.getElementById("btnSearch")?.click();
-        document.getElementById("btnRefreshChecker")?.click();
-        document.getElementById("btnRefreshCounter")?.click();
+
+        // ✅ โหลดจริง ไม่พึ่ง click
+        try { await loadCounterList(); } catch { }
+        try { loadSummaryRegisterAll(); } catch { }
+        try { loadSummaryRegisterBank(); } catch { }
+
+        // ✅ reload right panel ถ้าเปิดอยู่
+        try {
+            const detailCol = document.getElementById("counterDetailColumn");
+            const isRightOpen = detailCol && !detailCol.classList.contains("d-none");
+            const serverCounter = (data?.Counter ?? data?.counter ?? "").toString().trim();
+            const counterToReload = serverCounter || currentCounterNo;
+
+            if (isRightOpen && counterToReload && typeof loadCounterDetail === "function") {
+                await loadCounterDetail(counterToReload);
+                qbUpdateStopButtonUI(counterToReload);
+            }
+        } catch (e) {
+            console.error("NEW notifyCounter -> reload detail failed:", e);
+        }
     });
+
 
     connection.on("stopCallStaff", (data) => {
         const counterNo = (data?.Counter ?? data?.counter ?? "").toString().trim();
@@ -1517,6 +1542,42 @@ async function startNotifyHub() {
     console.log("✅ New hub connected:", connection.state, hubUrl);
 }
 
+function qbBindOldSignalRIfAvailable_Checker() {
+    if (!window.ChatProxy || typeof window.ChatProxy.on !== "function") return;
+    const ChatProxy = window.ChatProxy;
+
+    if (ChatProxy.__qbCheckerViewBound === true) return;
+    ChatProxy.__qbCheckerViewBound = true;
+
+    ChatProxy.on("notifyCounter", async function (data) {
+        console.log("📡 [OLD SignalR] notifyCounter (CheckerView):", data);
+
+        qbPlayDingCooldown(1500);
+
+        // ✅ อย่าพึ่ง click อย่างเดียว ให้ load จริง ๆ เลย
+        try { await loadCounterList(); } catch { }
+        try { loadSummaryRegisterAll(); } catch { }
+        try { loadSummaryRegisterBank(); } catch { }
+
+        // ถ้า right panel เปิดอยู่ -> reload detail
+        try {
+            const detailCol = document.getElementById("counterDetailColumn");
+            const isRightOpen = detailCol && !detailCol.classList.contains("d-none");
+            const serverCounter = (data?.Counter ?? data?.counter ?? "").toString().trim();
+            const counterToReload = serverCounter || currentCounterNo;
+
+            if (isRightOpen && counterToReload && typeof loadCounterDetail === "function") {
+                await loadCounterDetail(counterToReload);
+                qbUpdateStopButtonUI(counterToReload);
+            }
+        } catch (e) {
+            console.error("OLD notifyCounter -> reload detail failed:", e);
+        }
+    });
+
+    // (ถ้ามี sendCallStaff/stopCallStaff จาก old ด้วย จะใส่เพิ่มได้)
+    console.log("✅ CheckerView bound to OLD ChatProxy events");
+}
 
 
 async function qbStopCallStaffViaNewHub(payload) {
@@ -1588,4 +1649,5 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     startNotifyHub();
+    qbBindOldSignalRIfAvailable_Checker(); // ✅ เพิ่มบรรทัดนี้
 });

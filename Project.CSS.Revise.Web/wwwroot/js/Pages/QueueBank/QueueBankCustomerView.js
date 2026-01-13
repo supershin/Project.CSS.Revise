@@ -127,22 +127,12 @@
                     name: "CustomerName"
                 },
                 {
-                    data: null,
+                    data: "Appointment",
                     name: "Appointment",
                     render: function (data, type, row) {
-                        if (type !== "display") {
-                            return row.Appointment;
-                        }
+                        if (type !== "display") return data;
 
-                        const hasAppointment =
-                            row.Appointment &&
-                            String(row.Appointment).trim() !== "";
-
-                        const iconClass = hasAppointment
-                            ? "fa-check text-success"
-                            : "fa-times text-secondary";
-
-                        return `<i class="fa ${iconClass} fs-5"></i>`;
+                        return (data && String(data).trim() !== "") ? "Y" : "N";
                     }
                 },
                 {
@@ -318,6 +308,23 @@
             });
     }
 
+    function bindRefreshButton() {
+        const btn = document.getElementById("btnRefreshCustomerView");
+        if (!btn) return;
+
+        btn.addEventListener("click", function () {
+            // reload table
+            if (CustomerQueueTableDt) {
+                CustomerQueueTableDt.ajax.reload(null, false); // false = ไม่เด้งกลับหน้าแรก
+            }
+
+            // reload summary
+            loadSummaryRegisterAllCustomer();
+            loadSummaryRegisterBankCustomer();
+        });
+    }
+
+
     // =========================
     // Boot
     // =========================
@@ -325,7 +332,9 @@
         initCustomerQueueTable();
         loadSummaryRegisterAllCustomer();
         loadSummaryRegisterBankCustomer();
+        bindRefreshButton(); // ✅ เพิ่มบรรทัดนี้
     }
+
 
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", boot);
