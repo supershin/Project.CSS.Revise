@@ -19,7 +19,7 @@ namespace Project.CSS.Revise.Web.Hubs
             await Clients.All.SendAsync("stopCallStaff", payload);
 
             // (ถ้าต้องการ) สั่ง refresh event ด้วย
-            await Clients.All.SendAsync("notifyCounter");
+            //await Clients.All.SendAsync("notifyCounter");
         }
     }
 }
