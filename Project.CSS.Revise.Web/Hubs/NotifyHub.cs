@@ -12,14 +12,14 @@ namespace Project.CSS.Revise.Web.Hubs
             await Clients.All.SendAsync("notifyCounter");
         }
 
-        //public async Task SendCheckIn()
-        //{
-        //    await Clients.All.SendCoreAsync("SendCheckIn", Array.Empty<object>());
-        //}
+        // ✅ เพิ่มเมธอดนี้
+        public async Task StopCallStaff(RegisterCallStaffCounter payload)
+        {
+            // ส่งให้ทุก client ไปซ่อนปุ่ม + sync UI
+            await Clients.All.SendAsync("stopCallStaff", payload);
 
-        //public async Task SendCallStaff(RegisterCallStaffCounter data)
-        //{
-        //    await Clients.All.SendCoreAsync("sendCallStaff", new object[] { data });
-        //}
+            // (ถ้าต้องการ) สั่ง refresh event ด้วย
+            await Clients.All.SendAsync("notifyCounter");
+        }
     }
 }

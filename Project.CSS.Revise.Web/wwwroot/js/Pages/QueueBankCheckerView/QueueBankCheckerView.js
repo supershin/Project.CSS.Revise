@@ -1,9 +1,9 @@
 ﻿/* =========================================================
-   QueueBankCheckerView.js
-   - Focus: Summary Register Career (Dynamic by ext.ID)
-   - Keeps: collapse toggle, summary toggle, fullscreen,
-     counter grid, counter detail, remove badge, update unit
-   - FIX: RIGHT Counter Detail broken (double binding / duplicate modules)
+  QueueBankCheckerView.js
+  - Focus: Summary Register Career (Dynamic by ext.ID)
+  - Keeps: collapse toggle, summary toggle, fullscreen,
+    counter grid, counter detail, remove badge, update unit
+  - FIX: RIGHT Counter Detail broken (double binding / duplicate modules)
 ========================================================= */
 
 /* =========================
@@ -136,6 +136,7 @@ function qbUnlockSoundOnce() {
 }
 
 document.addEventListener("click", qbUnlockSoundOnce, { once: false });
+
 document.addEventListener("keydown", qbUnlockSoundOnce, { once: false });
 
 function qbPlayDingSafe() {
@@ -349,8 +350,11 @@ async function qbOnStopCallStaffClicked() {
             return;
         }
 
+        await qbStopCallStaffViaNewHub(payload);
+
         successMessage?.(json.Message || "Stopped.");
 
+       
         // ✅ update local UI immediately (SignalR จะส่ง stop มาซ้ำอีกทีได้ ไม่เป็นไร)
         qbCallStaffMap.delete(qbNormalizeCounterNo(counterNo));
         qbUpdateStopButtonUI(counterNo);
@@ -1461,10 +1465,9 @@ async function onSaveUnitRegisterClicked() {
             } else if (ddl) {
                 ddl.value = "";
             }
-            startNotifyHub(); 
+            startNotifyHub();
         }
-        else 
-        {
+        else {
             errorMessage(text);
         }
 
@@ -1474,51 +1477,9 @@ async function onSaveUnitRegisterClicked() {
     }
 }
 
-//async function startNotifyHub() {
-//    if (window._notifyHubConnection) return;
-
-//    const connection = new signalR.HubConnectionBuilder()
-//        .withUrl("/notifyHub")
-//        .withAutomaticReconnect()
-//        .build();
-
-//    window._notifyHubConnection = connection;
-
-//    // กันยิงรัว
-//    let lastNotifyAt = 0;
-
-//    connection.on("notifyCounter", async () => {
-//        const now = Date.now();
-//        if (now - lastNotifyAt < 400) return;
-//        lastNotifyAt = now;
-
-//        qbPlayDingCooldown(1500);
-
-//        // ✅ 1) Refresh card detail RIGHT PANEL ก่อน (ถ้ามีการเลือก counter อยู่)
-//        const detailCol = document.getElementById("counterDetailColumn");
-//        const isRightOpen = detailCol && !detailCol.classList.contains("d-none");
-
-//        if (isRightOpen && currentCounterNo) {
-//            try {
-//                await loadCounterDetail(currentCounterNo);     // ✅ fetch badge + QR
-//                qbUpdateStopButtonUI(currentCounterNo);        // ✅ sync stop btn ด้วย
-//            } catch (e) {
-//                console.error("notifyCounter -> loadCounterDetail failed:", e);
-//            }
-//        }
-
-//        // ✅ 2) (optional) refresh grid/summary ด้วย ถ้าพ่อใหญ่ยังต้องการ
-//        // ถ้าไม่อยากให้หนัก ให้คอมเมนต์ 3 บรรทัดนี้ออก
-//        if (typeof loadCounterList === "function") loadCounterList();
-//        if (typeof loadSummaryRegisterAll === "function") loadSummaryRegisterAll();
-//        if (typeof loadSummaryRegisterBank === "function") loadSummaryRegisterBank();
-//    });
-
-//    await connection.start();
-//}
-
-
-
+// =========================================================
+// [NEW HUB] Helpers (ASP.NET Core SignalR) - STOP only
+// =========================================================
 async function startNotifyHub() {
     if (window._notifyHubConnection) return;
 
@@ -1529,15 +1490,65 @@ async function startNotifyHub() {
 
     window._notifyHubConnection = connection;
 
+    // ✅ new hub ใช้ refresh
     connection.on("notifyCounter", () => {
-        qbPlayDingCooldown(1500); // 🔔 ดังตอนมี notify
+        qbPlayDingCooldown(1500);
         document.getElementById("btnSearch")?.click();
         document.getElementById("btnRefreshChecker")?.click();
         document.getElementById("btnRefreshCounter")?.click();
     });
 
+    // ✅ new hub ใช้ "stop" เพื่อให้ทุก client ซ่อนปุ่มเหมือนกัน
+    connection.on("stopCallStaff", (data) => {
+        try {
+            const counterNo = (data?.Counter ?? data?.counter ?? "").toString().trim();
+            if (!counterNo) return;
+
+            // 1) ลบสถานะ call staff ในทุก client
+            qbCallStaffMap.delete(qbNormalizeCounterNo(counterNo));
+
+            // 2) ซ่อนปุ่ม + sync right panel
+            qbUpdateStopButtonUI(counterNo);
+
+            // 3) หยุด blink ของ counter นี้
+            if (typeof qbBlinkStop === "function") qbBlinkStop(counterNo);
+
+            // 4) refresh grid/detail (optional)
+            if (typeof loadCounterList === "function") loadCounterList();
+
+            // ถ้าตอนนั้น user เปิด detail counter เดียวกันอยู่ ก็ reload detail ให้
+            if (typeof loadCounterDetail === "function" && currentCounterNo === counterNo) {
+                loadCounterDetail(counterNo);
+            }
+        } catch (e) {
+            console.error("stopCallStaff handler error:", e);
+        }
+    });
+
     await connection.start();
+    console.log("✅ New hub connected:", connection.state);
 }
+
+
+async function qbStopCallStaffViaNewHub(payload) {
+    // ensure connection exists
+    if (!window._notifyHubConnection) {
+        await startNotifyHub();
+    }
+
+    const conn = window._notifyHubConnection;
+
+    // ensure connected
+    if (conn.state !== signalR.HubConnectionState.Connected) {
+        await conn.start();
+    }
+
+    // ✅ ตอนนี้ C# Hub มีเมธอด StopCallStaff แล้ว
+    return await conn.invoke("StopCallStaff", payload);
+}
+
+
+
 
 /* =========================
    [N] Init Page (ONE DOMContentLoaded ONLY)

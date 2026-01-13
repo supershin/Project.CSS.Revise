@@ -89,15 +89,15 @@ var appSignalR = {
         SignalrConnection.start().done(function () {
             console.log("Connected to Signalr Server");
         })
-        .fail(function () {
-            appSignalR.reconnect();
-        })
+            .fail(function () {
+                appSignalR.reconnect();
+            })
     },
     reconnect: function () {
         SignalrConnection.start().done(function () {
             console.log("Connected to Signalr Server");
         }).fail(function () {
-            alert("failed in connecting to the signalr server");           
+            alert("failed in connecting to the signalr server");
             setTimeout(() => {
                 appSignalR.reconnect();
             }, 5000);
