@@ -353,8 +353,7 @@ async function qbOnStopCallStaffClicked() {
         await qbStopCallStaffViaNewHub(payload);
 
         successMessage?.(json.Message || "Stopped.");
-
-       
+    
         // ✅ update local UI immediately (SignalR จะส่ง stop มาซ้ำอีกทีได้ ไม่เป็นไร)
         qbCallStaffMap.delete(qbNormalizeCounterNo(counterNo));
         qbUpdateStopButtonUI(counterNo);
@@ -1483,14 +1482,16 @@ async function onSaveUnitRegisterClicked() {
 async function startNotifyHub() {
     if (window._notifyHubConnection) return;
 
+    const rootPath = (typeof baseUrl !== "undefined" ? baseUrl : "/");
+    const hubUrl = rootPath.replace(/\/?$/, "/") + "notifyHub"; // ✅ ต่อ slash ให้ชัวร์
+
     const connection = new signalR.HubConnectionBuilder()
-        .withUrl("/notifyHub")
+        .withUrl(hubUrl) // ✅ ใช้ baseUrl
         .withAutomaticReconnect()
         .build();
 
     window._notifyHubConnection = connection;
 
-    // ✅ new hub ใช้ refresh
     connection.on("notifyCounter", () => {
         qbPlayDingCooldown(1500);
         document.getElementById("btnSearch")?.click();
@@ -1498,36 +1499,24 @@ async function startNotifyHub() {
         document.getElementById("btnRefreshCounter")?.click();
     });
 
-    // ✅ new hub ใช้ "stop" เพื่อให้ทุก client ซ่อนปุ่มเหมือนกัน
     connection.on("stopCallStaff", (data) => {
-        try {
-            const counterNo = (data?.Counter ?? data?.counter ?? "").toString().trim();
-            if (!counterNo) return;
+        const counterNo = (data?.Counter ?? data?.counter ?? "").toString().trim();
+        if (!counterNo) return;
 
-            // 1) ลบสถานะ call staff ในทุก client
-            qbCallStaffMap.delete(qbNormalizeCounterNo(counterNo));
+        qbCallStaffMap.delete(qbNormalizeCounterNo(counterNo));
+        qbUpdateStopButtonUI(counterNo);
+        if (typeof qbBlinkStop === "function") qbBlinkStop(counterNo);
 
-            // 2) ซ่อนปุ่ม + sync right panel
-            qbUpdateStopButtonUI(counterNo);
-
-            // 3) หยุด blink ของ counter นี้
-            if (typeof qbBlinkStop === "function") qbBlinkStop(counterNo);
-
-            // 4) refresh grid/detail (optional)
-            if (typeof loadCounterList === "function") loadCounterList();
-
-            // ถ้าตอนนั้น user เปิด detail counter เดียวกันอยู่ ก็ reload detail ให้
-            if (typeof loadCounterDetail === "function" && currentCounterNo === counterNo) {
-                loadCounterDetail(counterNo);
-            }
-        } catch (e) {
-            console.error("stopCallStaff handler error:", e);
+        if (typeof loadCounterList === "function") loadCounterList();
+        if (typeof loadCounterDetail === "function" && currentCounterNo === counterNo) {
+            loadCounterDetail(counterNo);
         }
     });
 
     await connection.start();
-    console.log("✅ New hub connected:", connection.state);
+    console.log("✅ New hub connected:", connection.state, hubUrl);
 }
+
 
 
 async function qbStopCallStaffViaNewHub(payload) {
