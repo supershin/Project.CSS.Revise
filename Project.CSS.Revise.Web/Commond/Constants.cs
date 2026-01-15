@@ -5,7 +5,7 @@ namespace Project.CSS.Revise.Web.Commond
     {
         public static class ThirdPartyApis
         {
-            public static readonly string HousingLoanRedirect = "http://localhost:57535/Utility/AuthenticationCS?Authorize=";
+            public static readonly string HousingLoanRedirect = "https://aswinno.assetwise.co.th/finplus/Utility/AuthenticationCS?Authorize=";
         }
 
         public static class Ext

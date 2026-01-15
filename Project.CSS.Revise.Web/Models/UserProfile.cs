@@ -7,6 +7,7 @@
         public string? DepartmentName { get; set; }
         public int? RoleID { get; set; }
         public int? BUID { get; set; }
+        public string? UserID { get; set; }
         public string? TitleTH { get; set; }
         public string? TitleEN { get; set; }
         public string? FirstNameTH { get; set; }

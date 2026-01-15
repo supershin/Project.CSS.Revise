@@ -6,5 +6,6 @@
         public Guid LoanBankID { get; set; }
         public string BankCode { get; set; }
         public DateTime? CreateDate { get; set; }
+        public string? UpdateBy { get; set; }
     }
 }

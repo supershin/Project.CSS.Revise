@@ -59,6 +59,7 @@ namespace Project.CSS.Revise.Web.Controllers
                 {
                     new Claim("LoginID", SecurityManager.EnCryptPassword(userProfile.ID.ToString())),
                     new Claim("Password", SecurityManager.EnCryptPassword(Password.ToString())),
+                    new Claim("UserID", SecurityManager.EnCryptPassword(userProfile.UserID ?? string.Empty)),
                     new Claim("LoginNameTH", SecurityManager.EnCryptPassword(userProfile.TitleTH + " " + userProfile.FirstNameTH + " " + userProfile.LastNameTH ?? "")),
                     new Claim("LoginNameEN", SecurityManager.EnCryptPassword(userProfile.TitleEN + " " + userProfile.FirstNameEN + " " + userProfile.LastNameEN ?? "")),
                     new Claim(ClaimTypes.Email, SecurityManager.EnCryptPassword(userProfile.Email ?? "")),

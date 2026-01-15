@@ -739,6 +739,39 @@ table.dataTable {
         line-height: 1;
     }
 
+    .finplus-multi-bank .bank-item {
+        position: relative; /* ✅ ให้ปุ่ม absolute อิง bank-item */
+    }
+
+    .finplus-multi-bank .bank-remove {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        border: 1px solid rgba(0,0,0,.18);
+        background: #fff;
+        font-size: 12px;
+        line-height: 16px;
+        font-weight: 900;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,.10);
+    }
+
+        .finplus-multi-bank .bank-remove:hover {
+            transform: scale(1.06);
+        }
+
+        .finplus-multi-bank .bank-remove:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
 
 #QueueBankRegisterTable tbody td.tbody-center {
     text-align: center !important;
@@ -777,4 +810,55 @@ table.dataTable {
 /* backdrop ของ Edit ให้สูงขึ้น (ชั้นบน) */
 .modal-backdrop.edit-backdrop {
     z-index: 1060 !important;
+}
+
+.finplus-submit-card {
+    border: 1px dashed rgba(0,0,0,.18);
+    border-radius: 12px;
+    padding: 10px 12px;
+    background: rgba(13,110,253,.04);
+}
+
+.finplus-submit-title {
+    font-size: .82rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.finplus-submit-date {
+    font-size: .9rem;
+    font-weight: 700;
+    margin: 3px 0 0;
+}
+
+.finplus-submit-sub {
+    font-size: .75rem;
+    color: rgba(0,0,0,.55);
+    margin: 2px 0 0;
+}
+
+
+.contract-card {
+    border: 1px solid rgba(0,0,0,.12);
+    border-radius: 12px;
+    padding: 10px 12px;
+    background: rgba(25,135,84,.04);
+}
+
+.contract-title {
+    font-size: .82rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.contract-sub {
+    font-size: .75rem;
+    color: rgba(0,0,0,.55);
+    margin: 2px 0 8px;
 }

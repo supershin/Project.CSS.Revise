@@ -76,7 +76,7 @@ namespace Project.CSS.Revise.Web.Controllers
         public async Task<JsonResult> RemoveRegisterLog(int ID)
         {
             // ✅ หาค่า projectId ก่อนลบ
-            var projectId = _queueBankService.GetProjectIDRegisterLog(ID); 
+            var projectId = _queueBankService.GetProjectIDRegisterLog(ID);
 
             var Issuccess = _queueBankService.RemoveRegisterLog(ID);
 
@@ -395,12 +395,13 @@ namespace Project.CSS.Revise.Web.Controllers
         {
             try
             {
-                string loginIdClaim = User.FindFirst("LoginID")?.Value;
+                string loginIdClaim = User.FindFirst("UserID")?.Value;
                 string passClaim = User.FindFirst("Password")?.Value;
 
                 // ถอดแบบ "ปลอดภัย" – ถ้าไม่ใช่ base64 จะได้ไม่ระเบิด
                 string userID = SecurityManager.TryDecodeFrom64(loginIdClaim ?? string.Empty);
-                string password = SecurityManager.TryDecodeFrom64(passClaim ?? string.Empty);
+                //string password = SecurityManager.TryDecodeFrom64(passClaim ?? string.Empty);
+                string password = passClaim ?? string.Empty;
 
                 var model = _queueBankService.GetRegisterLogInfo(criteria, userID, password);
 
@@ -419,6 +420,46 @@ namespace Project.CSS.Revise.Web.Controllers
                 });
             }
         }
+
+
+        [HttpPost]
+        public ActionResult CustomerSubmitFinPlus(LoanModel model)
+        {
+            try
+            {
+                _queueBankService.SaveCustomerSubmit_FINPlus(model);
+                return Json(new { Success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Success = false, Message = InnerException(ex) });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult RemoveFinPlusBank(LoanBankModel model)
+        {
+            try
+            {
+                // ✅ Read LoginNameEN from cookie claims (encrypted)
+                string loginNameEnClaim = User.FindFirst("LoginNameEN")?.Value;
+
+                // ✅ decrypt safely
+                string loginNameEn = SecurityManager.TryDecodeFrom64(loginNameEnClaim ?? string.Empty);
+
+                // ✅ set UpdateBy on server (do NOT trust client)
+                model.UpdateBy = loginNameEn;
+
+                _queueBankService.SaveDeleteLoanBank_FINPlus(model);
+
+                return Json(new { Success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Success = false, Message = InnerException(ex) });
+            }
+        }
+
 
     }
 }

@@ -12,6 +12,7 @@ namespace Project.CSS.Revise.Web.Service
         public void SaveCustomerSubmit_FINPlus(LoanModel model);
         public string RemoveRegisterLog(int id);
         public string GetProjectIDRegisterLog(int id);
+        public void SaveDeleteLoanBank_FINPlus(LoanBankModel model);
     }
 
     public class QueueBankService : IQueueBankService
@@ -56,6 +57,11 @@ namespace Project.CSS.Revise.Web.Service
         public string GetProjectIDRegisterLog(int id)
         {
             return _QueueBankRepo.GetProjectIDRegisterLog(id);
+        }
+
+        public void SaveDeleteLoanBank_FINPlus(LoanBankModel model)
+        {
+            _QueueBankRepo.SaveDeleteLoanBank_FINPlus(model);
         }
     }
 }

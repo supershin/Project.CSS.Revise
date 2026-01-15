@@ -18,6 +18,7 @@ namespace Project.CSS.Revise.Web.Respositories
         public void SaveCustomerSubmit_FINPlus(LoanModel model);
         public string RemoveRegisterLog(int id);
         public string GetProjectIDRegisterLog(int id);
+        public void SaveDeleteLoanBank_FINPlus(LoanBankModel model);
     }
     public class QueueBankRepo : IQueueBankRepo
     {
@@ -532,7 +533,7 @@ namespace Project.CSS.Revise.Web.Respositories
             var data = new RegisterLog
             {
                 ID = raw.r.ID,
-                ProjectID = raw.r.ProjectID,    
+                ProjectID = raw.r.ProjectID,
                 UnitCode = raw.u.UnitCode,
                 ResponsibleID = raw.r.ResponsibleID.AsInt(),
                 FlagRegister = raw.r.RegisterDate != null,
@@ -694,6 +695,29 @@ namespace Project.CSS.Revise.Web.Respositories
             }
 
             return projectId;
+        }
+
+        public void SaveDeleteLoanBank_FINPlus(LoanBankModel model)
+        {
+            var option = new TransactionOptions { Timeout = new TimeSpan(1, 0, 0) };
+
+            using (var scope = new TransactionScope(TransactionScopeOption.Required, option, TransactionScopeAsyncFlowOption.Enabled))
+            {
+                saveDeleteLoanBank_FINPlus(model);
+                scope.Complete();
+            }
+        }
+
+        private void saveDeleteLoanBank_FINPlus(LoanBankModel model)
+        {
+            var item = _context.PR_LoanBanks.FirstOrDefault(e => e.ID == model.LoanBankID);
+            if (item == null) return;
+
+            item.FlagActive = false;
+            item.UpdateDate = DateTime.Now;
+            item.UpdateBy = model.UpdateBy; // ✅ หรือ user id ที่แท้จริง (อย่าใช้ item.UpdateBy = item.UpdateBy)
+
+            _context.SaveChanges();
         }
 
     }

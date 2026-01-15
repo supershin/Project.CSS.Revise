@@ -49,6 +49,7 @@ namespace Project.CSS.Revise.Web.Respositories
                         select new UserProfile
                         {
                             ID = u.ID,
+                            UserID = u.UserID,
                             TitleEN = tEN.Name,
                             TitleTH = tTH.Name, 
                             FirstNameTH = u.FirstName,

@@ -62,6 +62,7 @@ namespace Project.CSS.Revise.Web.Respositories
                                         ,COUNT(RPS.[BankID])  AS COUNT_Bank
                                         ,SUM(RPS.[Staff])   AS COUNT_Staff
                                     FROM [TR_Register_ProjectBankStaff] AS RPS WITH (NOLOCK)
+                                    WHERE RPS.FlagActive = 1
                                     GROUP BY RPS.[ProjectID]
                                 ) AS SubBankStaff
                                     ON T1.[ProjectID] = SubBankStaff.[ProjectID]

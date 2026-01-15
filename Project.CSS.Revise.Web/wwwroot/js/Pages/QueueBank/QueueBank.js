@@ -226,16 +226,16 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-document.querySelectorAll('#EditRegisterLog .er-status-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-        if (this.disabled) return;
+//document.querySelectorAll('#EditRegisterLog .er-status-btn').forEach(btn => {
+//    btn.addEventListener('click', function () {
+//        if (this.disabled) return;
 
-        // ✅ toggle เปิด/ปิดเอง ไม่ไปยุ่งกับปุ่มอื่น
-        this.classList.toggle('active');
+//        // ✅ toggle เปิด/ปิดเอง ไม่ไปยุ่งกับปุ่มอื่น
+//        this.classList.toggle('active');
 
-        console.log("Selected Status:", this.id, "Active:", this.classList.contains("active"));
-    });
-});
+//        console.log("Selected Status:", this.id, "Active:", this.classList.contains("active"));
+//    });
+//});
 
 // /js/Pages/QueueBank/QueueBank.js
 
@@ -331,8 +331,6 @@ function loadProjectsByBU() {
 }
 
 
-
-
 // ===== Load UnitCodes by Project =====
 function loadUnitsByProject() {
     const projInst = window.QB_CHOICES["#ddl_Project"];
@@ -392,17 +390,17 @@ function setChoiceEnabled(selector, enabled) {
 
     if (el) el.disabled = !enabled;
 
-    // สำหรับ Choices: toggle UI ให้ตรงกับ disabled ของ select
     if (inst) {
         try {
             inst.passedElement.element.disabled = !enabled;
-            inst.disable();
             if (enabled) inst.enable();
+            else inst.disable();
         } catch (e) {
             console.warn("setChoiceEnabled error:", selector, e);
         }
     }
 }
+
 
 function clearChoice(selector) {
     const el = document.querySelector(selector);
@@ -973,7 +971,7 @@ function loadRegisterLogForEdit(registerId, unitCode) {
     }
 
     const formData = new FormData();
-    formData.append("ID", registerId);    // ตรงกับ RegisterLog criteria.ID
+    formData.append("ID", registerId);    // match RegisterLog criteria.ID
 
     if (typeof showLoading === "function") showLoading();
 
@@ -984,9 +982,12 @@ function loadRegisterLogForEdit(registerId, unitCode) {
         .then(r => r.json())
         .then(json => {
             if (!json || !json.Success) {
-                const msg = (json && json.Message) ? json.Message : "ไม่สามารถดึงข้อมูล RegisterLog ได้";
+                const msg = (json && json.Message)
+                    ? json.Message
+                    : "Unable to load RegisterLog data.";
+
                 if (typeof Swal !== "undefined") {
-                    Swal.fire("ข้อผิดพลาด", msg, "error");
+                    Swal.fire("Error", msg, "error");
                 } else if (window.Application && typeof Application.PNotify === "function") {
                     Application.PNotify(msg, "error");
                 } else {
@@ -997,7 +998,7 @@ function loadRegisterLogForEdit(registerId, unitCode) {
 
             const data = json.Data || {};
 
-            // ถ้า backend ไม่คืน UnitCode มา ใช้ตัวที่เรามีจาก table
+            // If backend does not return UnitCode, use the one from table
             if (!data.UnitCode && unitCode) {
                 data.UnitCode = unitCode;
             }
@@ -1006,10 +1007,13 @@ function loadRegisterLogForEdit(registerId, unitCode) {
         })
         .catch(err => {
             console.error("RegisterLogInfo error:", err);
+
+            const msg = "An error occurred while loading RegisterLog data.";
+
             if (typeof Swal !== "undefined") {
-                Swal.fire("ข้อผิดพลาด", "เกิดข้อผิดพลาดขณะดึงข้อมูล RegisterLog", "error");
+                Swal.fire("Error", msg, "error");
             } else {
-                alert("เกิดข้อผิดพลาดขณะดึงข้อมูล RegisterLog");
+                alert(msg);
             }
         })
         .finally(() => {
@@ -1019,33 +1023,19 @@ function loadRegisterLogForEdit(registerId, unitCode) {
 
 function bindRegisterLogModal(data) {
     const modalEl = document.getElementById("EditRegisterLog");
-    if (!modalEl) {
-        return;
-    }
-    const editModal = new bootstrap.Modal(modalEl);
+    if (!modalEl) return;
 
-    modalEl.addEventListener('shown.bs.modal', () => {
-        // backdrop ตัวล่าสุดคือของ edit
-        const backdrops = document.querySelectorAll('.modal-backdrop');
-        const last = backdrops[backdrops.length - 1];
-        if (last) {
-            last.classList.remove('cr-backdrop');
-            last.classList.add('edit-backdrop');
-        }
-    }, { once: true });
+    const editModal = bootstrap.Modal.getOrCreateInstance(modalEl);
 
-    editModal.show();
-
-
+    // ===== set registerId / header =====
     modalEl.dataset.registerId = data.ID || "";
 
     const headerEl = document.getElementById("hUnitCode");
-    if (headerEl) {
-        headerEl.textContent = data.UnitCode
-            ? `Unit Code : ${data.UnitCode}`
-            : "";
-    }
+    if (headerEl) headerEl.textContent = data.UnitCode ? `Unit Code : ${data.UnitCode}` : "";
 
+    // =========================
+    // helper: set Choices single
+    // =========================
     const setChoiceSingle = (selector, value) => {
         const val = (value === null || value === undefined) ? "" : String(value);
 
@@ -1053,81 +1043,63 @@ function bindRegisterLogModal(data) {
         if (inst) {
             try {
                 inst.removeActiveItems();
-                if (val !== "") {
-                    inst.setChoiceByValue(val);
-                }
+                if (val !== "") inst.setChoiceByValue(val);
             } catch (e) {
-                console.warn("setChoiceSingle (Choices) error:", selector, e);
+                console.warn("setChoiceSingle error:", selector, e);
             }
         } else {
             const el = document.querySelector(selector);
-            if (el) {
-                el.value = val;
-            }
+            if (el) el.value = val;
         }
     };
 
-    (function () {
-        let responsibleValue = "";
+    // Responsible: ถ้าอยาก "เคารพ backend ก่อน" ใช้แบบนี้
+    const responsibleValue =
+        (data.ResponsibleID && String(data.ResponsibleID) !== "0")
+            ? String(data.ResponsibleID)
+            : (window.CURRENT_LOGIN_ID ? String(window.CURRENT_LOGIN_ID) : "");
+    setChoiceSingle("#ddl_Responsible", responsibleValue);
 
-        //if (data.ResponsibleID !== null && data.ResponsibleID !== undefined && data.ResponsibleID !== 0) {
-        //    responsibleValue = String(data.ResponsibleID);
-        //} else if (window.CURRENT_LOGIN_ID) {
-        //    responsibleValue = String(window.CURRENT_LOGIN_ID);
-        //}
-
-        responsibleValue = String(window.CURRENT_LOGIN_ID);
-
-        setChoiceSingle("#ddl_Responsible", responsibleValue);
-    })();
-
-
-    (function () {
-        let careerValue = "";
-
-        if (data.CareerTypeID !== null && data.CareerTypeID !== undefined && data.CareerTypeID !== 0) {
-            careerValue = String(data.CareerTypeID);
-        } else if (data.QuestionAnswersName) {
-            const targetName = String(data.QuestionAnswersName).trim();
-            const selectEl = document.querySelector("#ddl_Career");
-
-            if (selectEl) {
-                const options = selectEl.options;
-                for (let i = 0; i < options.length; i++) {
-                    const optText = options[i].text ? options[i].text.trim() : "";
-                    if (optText === targetName) {
-                        careerValue = options[i].value;
-                        break;
-                    }
+    // Career
+    let careerValue = "";
+    if (data.CareerTypeID && String(data.CareerTypeID) !== "0") {
+        careerValue = String(data.CareerTypeID);
+    } else if (data.QuestionAnswersName) {
+        const targetName = String(data.QuestionAnswersName).trim();
+        const selectEl = document.querySelector("#ddl_Career");
+        if (selectEl) {
+            const options = selectEl.options;
+            for (let i = 0; i < options.length; i++) {
+                const optText = options[i].text ? options[i].text.trim() : "";
+                if (optText === targetName) {
+                    careerValue = options[i].value;
+                    break;
                 }
             }
         }
+    }
+    setChoiceSingle("#ddl_Career", careerValue);
 
-        setChoiceSingle("#ddl_Career", careerValue);
-    })();
+    // Reason + NonSubmissionReason
+    setChoiceSingle("#ddl_Reason", data.ReasonID);
+    if (typeof syncNonSubmissionByReason === "function") {
+        syncNonSubmissionByReason(data.ReasonID);
+    }
 
-    // ✅ sync enable/disable + clear non-submission based on reason
-    syncNonSubmissionByReason(data.ReasonID);
-
-    // ✅ ถ้า "ไม่ยื่น" และ backend มี Reason ของ non-submission ส่งมา ก็ set ค่าได้
-    // (สมมุติ field ชื่อ data.BankNonSubmissionReasonID)
     if (String(data.ReasonID || "") === "51") {
         setChoiceSingle("#ddl_BankNonSubmissionReason", data.ReasonRemarkID);
     } else {
-        // ยื่น -> เคลียร์ทิ้งแน่นอน
         setChoiceSingle("#ddl_BankNonSubmissionReason", "");
     }
 
-
-    const setStatusBtn = (id, val) => {
+    // =========================
+    // Status helpers
+    // =========================
+    const setStatusBtn = (id, on) => {
         const btn = document.getElementById(id);
-        if (!btn) {
-            return;
-        }
+        if (!btn) return;
 
-        const isOn = !!val;
-
-        if (isOn) {
+        if (on) {
             btn.classList.add("active", "btn-success");
             btn.classList.remove("btn-secondary");
         } else {
@@ -1136,52 +1108,300 @@ function bindRegisterLogModal(data) {
         }
     };
 
-    setStatusBtn("FlagRegister", data.FlagRegister);
-    setStatusBtn("FlagInprocess", data.FlagInprocess);
-    setStatusBtn("FlagFinish", data.FlagFinish);
+    const getOn = (id) =>
+        document.getElementById(id)?.classList.contains("active") === true;
 
-    // ✅ FinPlus Bank List (ใช้ LoanBankList จาก backend)
-    renderFinPlusBanks(data.LoanBankList);
+    // init from backend
+    setStatusBtn("FlagRegister", !!data.FlagRegister);
+    setStatusBtn("FlagInprocess", !!data.FlagInprocess);
+    setStatusBtn("FlagFinish", !!data.FlagFinish);
 
-    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-    modal.show();
+    // bind once
+    if (modalEl.dataset.statusBound !== "1") {
+        modalEl.dataset.statusBound = "1";
+
+        document.getElementById("FlagRegister")?.addEventListener("click", () => {
+            setStatusBtn("FlagRegister", !getOn("FlagRegister"));
+        });
+
+        document.getElementById("FlagInprocess")?.addEventListener("click", () => {
+            const nextIn = !getOn("FlagInprocess");
+            setStatusBtn("FlagInprocess", nextIn);
+            if (!nextIn) setStatusBtn("FlagFinish", false);
+        });
+
+        document.getElementById("FlagFinish")?.addEventListener("click", () => {
+            const nextDone = !getOn("FlagFinish");
+            setStatusBtn("FlagFinish", nextDone);
+            if (nextDone) setStatusBtn("FlagInprocess", true);
+        });
+    }
+
+    // =========================
+    // shown handler (cleanup each time)
+    // =========================
+    const onShown = () => {
+        modalEl.removeEventListener("shown.bs.modal", onShown);
+
+        // backdrop class
+        const backdrops = document.querySelectorAll(".modal-backdrop");
+        const lastBackdrop = backdrops[backdrops.length - 1];
+        if (lastBackdrop) {
+            lastBackdrop.classList.remove("cr-backdrop");
+            lastBackdrop.classList.add("edit-backdrop");
+        }
+
+        // ensure z-index
+        modalEl.style.zIndex = "1055";
+        if (lastBackdrop) lastBackdrop.style.zIndex = "1050";
+
+        // FinPlus banks
+        if (typeof renderFinPlusBanks === "function") {
+            renderFinPlusBanks(data);
+        }
+
+        // ✅ show submit date (if any)
+        renderFinPlusSubmitDate(data);
+
+        // ✅ render submit button (only if allowed)
+        renderCustomerSubmitFinPlus(data);
+
+        // ✅ Contract (show/hide by Done)
+        renderContractBlock(data);
+
+    };
+
+    modalEl.addEventListener("shown.bs.modal", onShown);
+
+    // show once (พอ) — อย่า show ซ้ำสองรอบแบบ backup
+    editModal.show();
 }
 
-function renderFinPlusBanks(loanBankList) {
+function renderFinPlusBanks(data) {
     const box = document.getElementById("finplusBankList");
-    if (!box) {
-        return;
-    }
+    if (!box) return;
 
     box.innerHTML = "";
 
+    const loanBankList = data?.LoanBankList;
     if (!Array.isArray(loanBankList) || loanBankList.length === 0) {
         box.innerHTML = `<div class="text-muted small">No bank selected.</div>`;
         return;
     }
 
-    // แสดงสูงสุด 5 ธนาคารใน 1 แถว (ตาม requirement)
+    const isDone = !!data?.FlagFinish; // ✅ Done
+
     const items = loanBankList.slice(0, 5);
 
     let html = "";
     for (let i = 0; i < items.length; i++) {
-        const bankCode = (items[i] && items[i].BankCode) ? String(items[i].BankCode).trim() : "";
-        if (!bankCode) {
-            continue;
-        }
+        const bank = items[i] || {};
+        const bankCode = bank.BankCode ? String(bank.BankCode).trim() : "";
+        const loanBankId = bank.LoanBankID ? String(bank.LoanBankID) : "";
+
+        if (!bankCode) continue;
 
         html += `
-                <div class="bank-item" title="${bankCode}">
-                    <img src="${baseUrl}image/ThaiBankicon/${bankCode}.png"
-                        alt="${bankCode}"
-                        class="bank-logo">
-                    <span class="bank-code">${bankCode}</span>
-                </div>
-            `;
+            <div class="bank-item" title="${bankCode}">
+                <img src="${baseUrl}image/ThaiBankicon/${bankCode}.png"
+                     alt="${bankCode}"
+                     class="bank-logo">
+                <span class="bank-code">${bankCode}</span>
 
+                ${(!isDone && loanBankId)
+                ? `<button type="button"
+                               class="bank-remove"
+                               data-loanbankid="${loanBankId}"
+                               data-bankcode="${bankCode}"
+                               aria-label="Remove ${bankCode}"
+                               title="Remove ${bankCode}">×</button>`
+                : ``}
+            </div>
+        `;
     }
 
     box.innerHTML = html;
+
+    qbBindFinPlusRemoveOnce();
+}
+
+
+function qbBindFinPlusRemoveOnce() {
+    const box = document.getElementById("finplusBankList");
+    if (!box) return;
+
+    if (box.dataset.removeBound === "1") return;
+    box.dataset.removeBound = "1";
+
+    box.addEventListener("click", async (e) => {
+        const btn = e.target.closest(".bank-remove");
+        if (!btn) return;
+
+        const modalEl = document.getElementById("EditRegisterLog");
+        const registerLogId = modalEl?.dataset?.registerId || "";
+        const loanBankId = btn.dataset.loanbankid || "";
+        const bankCode = btn.dataset.bankcode || "";
+
+        if (!registerLogId || !loanBankId) {
+            Swal.fire("Error", "Invalid RegisterLogID or LoanBankID.", "error");
+            return;
+        }
+
+        const res = await Swal.fire({
+            icon: "warning",
+            title: "Remove bank?",
+            text: `Remove ${bankCode} from FINPlus list?`,
+            showCancelButton: true,
+            confirmButtonText: "Remove",
+            cancelButtonText: "Cancel"
+        });
+        if (!res.isConfirmed) return;
+
+        btn.disabled = true;
+
+        try {
+            const fd = new FormData();
+            fd.append("RegisterLogID", String(registerLogId)); // ✅ match model
+            fd.append("LoanBankID", String(loanBankId));       // ✅ match model
+            fd.append("BankCode", String(bankCode));           // optional
+
+            const resp = await fetch(baseUrl + "QueueBank/RemoveFinPlusBank", {
+                method: "POST",
+                body: fd
+            });
+
+            const json = await resp.json();
+
+            if (!json || json.Success !== true) {
+                btn.disabled = false;
+                Swal.fire("Error", json?.Message || "Remove failed", "error");
+                return;
+            }
+
+            // ✅ remove pill from UI
+            btn.closest(".bank-item")?.remove();
+
+            // if empty -> show message
+            if (box.querySelectorAll(".bank-item").length === 0) {
+                box.innerHTML = `<div class="text-muted small">No bank selected.</div>`;
+            }
+
+            // ✅ re-check submit button rule (banks count affects it)
+            qbRecalcSubmitButtonFromDom();
+
+            Swal.fire("Success", "Bank removed.", "success");
+
+        } catch (err) {
+            console.error("RemoveFinPlusBank error:", err);
+            btn.disabled = false;
+            Swal.fire("Error", "An error occurred while removing the bank.", "error");
+        }
+    });
+}
+
+
+function qbRecalcSubmitButtonFromDom() {
+    const slot = document.getElementById("finplusSubmitSlot");
+    if (!slot) return;
+
+    const modalEl = document.getElementById("EditRegisterLog");
+    const registerLogId = modalEl?.dataset?.registerId || "";
+    const loanId = modalEl?.dataset?.loanId || "";
+
+    // ถ้ามี submit date card แสดงอยู่ = submit แล้ว -> ไม่ให้มีปุ่ม
+    const hasSubmitDateCard = (document.getElementById("Show_Submit_FinplusDate")?.innerText || "").trim().length > 0;
+    if (hasSubmitDateCard) {
+        slot.innerHTML = "";
+        return;
+    }
+
+    // เช็คจำนวน bank ที่เหลือใน DOM
+    const bankCount = document.querySelectorAll("#finplusBankList .bank-item").length;
+
+    // ถ้าไม่มี bank -> ไม่ render ปุ่ม
+    if (bankCount === 0) {
+        slot.innerHTML = "";
+        return;
+    }
+
+    // ถ้ามี bank และยังไม่ submit -> render ปุ่ม submit
+    slot.innerHTML = "";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn btn-dark mt-3 w-100";
+    btn.textContent = "📤 Customer Submit FINPlus";
+    btn.addEventListener("click", () => qbSubmitFinPlus(registerLogId, loanId));
+    slot.appendChild(btn);
+}
+
+
+
+//function renderFinPlusBanks(loanBankList) {
+//    const box = document.getElementById("finplusBankList");
+//    if (!box) {
+//        return;
+//    }
+
+//    box.innerHTML = "";
+
+//    if (!Array.isArray(loanBankList) || loanBankList.length === 0) {
+//        box.innerHTML = `<div class="text-muted small">No bank selected.</div>`;
+//        return;
+//    }
+
+//    // แสดงสูงสุด 5 ธนาคารใน 1 แถว (ตาม requirement)
+//    const items = loanBankList.slice(0, 5);
+
+//    let html = "";
+//    for (let i = 0; i < items.length; i++) {
+//        const bankCode = (items[i] && items[i].BankCode) ? String(items[i].BankCode).trim() : "";
+//        if (!bankCode) {
+//            continue;
+//        }
+
+//        html += `
+//                <div class="bank-item" title="${bankCode}">
+//                    <img src="${baseUrl}image/ThaiBankicon/${bankCode}.png"
+//                        alt="${bankCode}"
+//                        class="bank-logo">
+//                    <span class="bank-code">${bankCode}</span>
+//                </div>
+//            `;
+
+//    }
+
+//    box.innerHTML = html;
+//}
+
+function renderCustomerSubmitFinPlus(data) {
+    const slot = document.getElementById("finplusSubmitSlot");
+    if (!slot) return;
+
+    slot.innerHTML = ""; // ล้างก่อนทุกครั้ง
+
+    const submitDate = data?.Loan?.SubmitDate ?? null;
+    const banks = data?.LoanBankList;
+
+    const hasBanks = Array.isArray(banks) && banks.length > 0;
+    const notSubmitted = submitDate === null; // ตรง Razor
+
+    // ถ้า submit แล้ว หรือไม่มี bank → ไม่ render ปุ่ม
+    if (!(notSubmitted && hasBanks)) return;
+
+    const registerLogId = data?.ID || "";          // int
+    const loanId = data?.Loan?.ID || "";           // Guid
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn btn-dark mt-3 w-100";
+    btn.innerHTML = `<i class="fa fa-paper-plane me-1"></i> Customer Submit FINPlus`;
+
+    btn.dataset.registerLogId = String(registerLogId);
+    btn.dataset.loanId = String(loanId);
+
+    btn.addEventListener("click", () => qbSubmitFinPlus(btn.dataset.registerLogId, btn.dataset.loanId));
+
+    slot.appendChild(btn);
 }
 
 
@@ -1314,6 +1534,176 @@ async function saveEditRegisterLog() {
     }
 }
 
+
+async function qbSubmitFinPlus(registerLogId, loanId) {
+
+    if (!registerLogId || !loanId) {
+        Swal.fire("Error", "Invalid register or loan id.", "error");
+        return;
+    }
+
+    const confirm = await Swal.fire({
+        icon: "warning",
+        title: "Customer Submit FINPlus?",
+        text: "This will submit FINPlus for this customer.",
+        showCancelButton: true,
+        confirmButtonText: "Yes, submit",
+        cancelButtonText: "Cancel"
+    });
+    if (!confirm.isConfirmed) return;
+
+    try {
+        const fd = new FormData();
+        fd.append("RegisterLogID", String(registerLogId));
+        fd.append("ID", String(loanId));   // LoanModel.ID
+
+        const resp = await fetch(baseUrl + "QueueBank/CustomerSubmitFinPlus", {
+            method: "POST",
+            body: fd
+        });
+
+        const json = await resp.json();
+
+        if (!json || json.Success !== true) {
+            Swal.fire("Error", json?.Message || "Submit failed", "error");
+            return;
+        }
+
+        Swal.fire("Success", "FINPlus submitted.", "success");
+
+        // ✅ ใช้เวลาปัจจุบันของ browser เป็น SubmitDate สำหรับ UI
+        const nowIso = new Date().toISOString();
+
+        // Render submit date
+        renderFinPlusSubmitDate({
+            Loan: { SubmitDate: nowIso }
+        });
+
+        // ลบปุ่มออก (เพราะ submit แล้ว)
+        const slot = document.getElementById("finplusSubmitSlot");
+        if (slot) slot.innerHTML = "";
+
+    } catch (err) {
+        console.error("CustomerSubmitFinPlus error:", err);
+        Swal.fire("Error", "An error occurred while submitting FINPlus.", "error");
+    }
+}
+
+function renderFinPlusSubmitDate(data) {
+    const box = document.getElementById("Show_Submit_FinplusDate");
+    if (!box) return;
+
+    box.innerHTML = "";
+
+    const submitDate = data?.Loan?.SubmitDate ?? null;
+    if (!submitDate) return; // ไม่มีวัน → ไม่ต้องโชว์อะไร
+
+    const show = qbFormatSubmitDate(submitDate);
+
+    box.innerHTML = `
+        <div class="finplus-submit-card mt-2">
+            <div class="finplus-submit-title">
+                <i class="fa fa-check-circle text-success"></i>
+                FINPlus Submitted
+            </div>
+            <div class="finplus-submit-date">${show}</div>
+            <div class="finplus-submit-sub">This customer has already submitted FINPlus.</div>
+        </div>
+    `;
+}
+
+function qbFormatSubmitDate(val) {
+    if (!val) return "";
+
+    const d = new Date(val);
+    if (Number.isNaN(d.getTime())) return String(val);
+
+    // show as: 15 Jan 2026, 13:25
+    return new Intl.DateTimeFormat("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    }).format(d);
+}
+
+
+function renderContractBlock(data) {
+    const section = document.getElementById("Show_Contract_Number");
+    const slot = document.getElementById("contractSlot");
+    if (!section || !slot) return;
+
+    slot.innerHTML = "";
+
+    const isDone = !!data?.FlagFinish;
+
+    if (!isDone) {
+        section.style.display = "none";
+        return;
+    }
+
+    section.style.display = "";
+
+    const contractNo = (data?.ContractNumber || "").trim();
+    const redirectUrlRaw = (data?.RedirectHousingLoan || "").trim();
+
+    // ✅ validate url (basic)
+    let redirectUrl = redirectUrlRaw;
+    if (redirectUrl && !/^https?:\/\//i.test(redirectUrl) && !redirectUrl.startsWith("/")) {
+        // ถ้า backend ส่งมาเป็นโดเมน/พาธแปลก ๆ ให้ prefix baseUrl ไว้กันพัง
+        redirectUrl = baseUrl.replace(/\/+$/, "") + "/" + redirectUrl.replace(/^\/+/, "");
+    }
+
+    // Done แต่ไม่พบเลขสัญญา
+    if (!contractNo) {
+        slot.innerHTML = `
+            <div class="contract-card mt-2">
+                <div class="contract-title">
+                    <i class="fa fa-exclamation-triangle text-warning"></i>
+                    Contract missing
+                </div>
+                <div class="contract-sub">This register is marked as Done, but no contract number was found.</div>
+            </div>
+        `;
+        return;
+    }
+
+    // Done + มี contract แต่ไม่มี redirect url
+    if (!redirectUrl) {
+        slot.innerHTML = `
+            <div class="contract-card mt-2">
+                <div class="contract-title">
+                    Contract Number
+                </div>
+                <div class="contract-sub">No contract link is available.</div>
+            </div>
+        `;
+
+        return;
+    }
+
+    // ✅ Normal: open new tab ไปอีกระบบพร้อม param (ตาม RedirectHousingLoan)
+    slot.innerHTML = `
+    <div class="contract-card mt-2">
+        <div class="contract-title">
+            📄 <strong>Contract Number</strong>
+        </div>
+        <div class="contract-sub">Open contract details in a new tab.</div>
+
+        <div class="d-flex gap-2 flex-wrap">
+            <a class="btn btn-primary"
+               href="${redirectUrl}"
+               target="_blank"
+               rel="noopener">
+                🔗 ${contractNo}
+            </a>
+        </div>
+    </div>
+`;
+
+
+}
 
 function getFlatpickrISO(fp) {
     if (!fp || !fp.selectedDates || fp.selectedDates.length === 0) return "";
