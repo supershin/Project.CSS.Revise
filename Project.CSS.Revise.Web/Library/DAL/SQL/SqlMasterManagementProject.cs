@@ -290,6 +290,10 @@ namespace Project.CSS.Revise.Web.Library.DAL.SQL
                         result = sp_GetQueueBank_LisSummeryRegisterType(reader);
                         break;
 
+                    case "SummeryRegisterTypeCustomerView":
+                        result = sp_GetQueueBank_LisSummeryRegisterType(reader);
+                        break;
+
                     default:
                         result = new List<ListSummeryRegister.ListSummeryRegisterType>();
                         break;

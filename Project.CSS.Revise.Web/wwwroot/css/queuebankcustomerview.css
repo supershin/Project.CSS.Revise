@@ -124,3 +124,56 @@ body.qb-cv-sticky .qb-sticky-right {
         width: auto !important;
     }
 }
+
+/* Small service badges next to name */
+.svc-badges {
+    margin-left: 6px;
+}
+
+.svc {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #fff;
+    margin-left: 4px;
+    position: relative;
+    cursor: pointer;
+}
+
+
+
+.svc-blue {
+    background: #1c88ff;
+}
+
+.svc-orange {
+    background: #ff9f43;
+}
+
+.svc-green {
+    background: #2ecc71;
+}
+
+/* ให้ตาราง bank ใน summary เลื่อนลงได้ */
+.qb-bank-scroll {
+    max-height: 320px; /* ปรับได้ตามใจ */
+    overflow-y: auto;
+    overflow-x: hidden; /* กันเลื่อนขวาในกล่องนี้ */
+}
+
+    /* ทำหัวตาราง sticky เวลาสกอลล์ในกล่อง (optional แต่สวยมาก) */
+    .qb-bank-scroll thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: #f8f9fa; /* ให้ทับเนื้อหาแล้วไม่โปร่ง */
+    }
+
+    /* กันตารางยุบ/เพี้ยน */
+    .qb-bank-scroll table {
+        margin-bottom: 0;
+    }

@@ -123,19 +123,54 @@
                 { data: "index", name: "index" },
                 { data: "UnitCode", name: "UnitCode" },
                 {
-                    data: "CustomerName",
-                    name: "CustomerName"
+                    data: null,
+                    name: "CustomerName",
+                    className: "customer-col",
+
+                    render: function (data, type, row) {
+                        if (type !== "display") return row.CustomerName;
+
+                        let badges = "";
+
+                        // 🟩 WiseConnect (มี Line user ผูกอยู่)
+                        if (parseInt(row.LineUserContract_Count || "0") > 0) {
+                            badges += `
+                <span class="svc svc-green" data-title="WiseConnect">
+                    <i class="fa fa-comment"></i>
+                </span>`;
+                        }
+
+                        // 🟦 Register FinPlus
+                        if (row.LoanDraftDate && String(row.LoanDraftDate).trim() !== "") {
+                            badges += `
+                <span class="svc svc-blue" data-title="Register FinPlus">
+                    R
+                </span>`;
+                        }
+
+                        // 🟧 Summit Bank
+                        if (row.LoanSubmitDate && String(row.LoanSubmitDate).trim() !== "") {
+                            badges += `
+                <span class="svc svc-orange" data-title="Summit Bank">
+                    B
+                </span>`;
+                        }
+
+                        return `
+            <div class="customer-cell">
+                <span class="cust-name">${row.CustomerName || ""}</span>
+                <span class="svc-badges">
+                    ${badges}
+                </span>
+            </div>
+        `;
+                    }
                 },
+
                 {
                     data: "Appointment",
                     name: "Appointment",
-                    className: "text-center",
-
-                    render: function (data, type, row) {
-                        if (type !== "display") return data;
-
-                        return (data && String(data).trim() !== "") ? "Y" : "N";
-                    }
+                    className: "text-center"
                 },
                 {
                     data: "Status",
@@ -260,7 +295,7 @@
         })
             .then(r => r.json())
             .then(res => {
-                const list = res.listDataSummeryRegisterType || [];
+                const list = res.listDataSummeryRegisterBank || [];
 
                 if (!list.length) {
                     tbody.innerHTML = `

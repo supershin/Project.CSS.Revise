@@ -884,21 +884,20 @@ function initCreateRegisterTable() {
                     const id = escapeHtml(row.RegisterLogID || ""); // ✅ ใช้ RegisterLogID
 
                     return `
-            <a href="javascript:void(0)" class="qb-unit-link unit-pill"
-               data-unit="${unitCode}" data-id="${id}">
-               <i class="fa fa-home unit-icon"></i> ${unitCode}
-            </a>`;
+                            <a href="javascript:void(0)" class="qb-unit-link unit-pill"
+                               data-unit="${unitCode}" data-id="${id}">
+                               <i class="fa fa-home unit-icon"></i> ${unitCode}
+                            </a>`
+                    ;
                 }
             },
             { data: "CustomerName", name: "CustomerName", defaultContent: "", render: (d, t) => t === "display" ? escapeHtml(d) : d },
             { data: "ResponsibleName", name: "ResponsibleName", defaultContent: "", render: (d, t) => t === "display" ? escapeHtml(d) : d },
             { data: "CSResponseName", name: "CSResponseName", defaultContent: "", render: (d, t) => t === "display" ? escapeHtml(d) : d },
-
-            // ✅ Status pill + native tooltip via title
             {
                 data: "Status",
                 name: "Status",
-                defaultContent: "",
+                defaultContent: "",               
                 render: function (data, type, row) {
                     if (type !== "display") return data;
 
@@ -906,11 +905,15 @@ function initCreateRegisterTable() {
                     const tip = escapeHtml(getStatusDateText(row));
                     const cls = getStatusClass(data);
 
-                    // native tooltip: title=""
-                    return `<span class="cr-status ${cls}" title="${tip}">${statusText}</span>`;
+                    return `
+                                <div class="d-flex justify-content-center">
+                                    <span class="cr-status ${cls}" title="${tip}">
+                                        ${statusText}
+                                    </span>
+                                </div>`;
                 }
-            },
 
+            },
             {
                 data: "Counter",
                 name: "Counter",

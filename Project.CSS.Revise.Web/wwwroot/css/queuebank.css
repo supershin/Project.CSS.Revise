@@ -99,16 +99,21 @@ table.dataTable {
     font-weight: 600;
     font-size: 0.875rem;
 }
+.status-done {
+    background: #0d6efd; /* primary */
+    color: #fff;
+}
 
 .status-reg {
-    background: #1ccf6a;
+    background: #dc3545; /* danger */
     color: #fff;
 }
-/* green */
+
 .status-proc {
-    background: #ffb54d;
+    background: #198754; /* success */
     color: #fff;
 }
+
 /* orange */
 
 /* Appointment check / cross */
@@ -778,10 +783,6 @@ table.dataTable {
     vertical-align: middle !important;
 }
 
-.status-done {
-    background: #2563eb; /* blue */
-    color: #fff;
-}
 
 .cr-status {
     cursor: help;

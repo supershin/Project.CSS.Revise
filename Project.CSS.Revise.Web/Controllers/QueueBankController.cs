@@ -138,7 +138,7 @@ namespace Project.CSS.Revise.Web.Controllers
             // ถ้าต้องใช้ L_Act ต่างกัน ให้ clone model แต่ละตัว
             var typeModel = new GetQueueBankModel
             {
-                L_Act = "SummeryRegisterType",
+                L_Act = "SummeryRegisterTypeCustomerView",
                 L_ProjectID = model.L_ProjectID,
                 L_RegisterDateStart = model.L_RegisterDateStart,
                 L_RegisterDateEnd = model.L_RegisterDateEnd,
@@ -205,6 +205,54 @@ namespace Project.CSS.Revise.Web.Controllers
 
         [HttpPost]
         public async Task<JsonResult> GetlistSummeryRegisterBank([FromForm] GetQueueBankModel model)
+        {
+            var bankModel = new GetQueueBankModel
+            {
+                L_Act = "SummeryRegisterBank",
+                L_ProjectID = model.L_ProjectID,
+                L_RegisterDateStart = model.L_RegisterDateStart,
+                L_RegisterDateEnd = model.L_RegisterDateEnd,
+                L_UnitID = model.L_UnitID,
+                L_CSResponse = model.L_CSResponse,
+                L_UnitCS = model.L_UnitCS,
+                L_ExpectTransfer = model.L_ExpectTransfer,
+                L_QueueTypeID = model.L_QueueTypeID,
+                start = model.start,
+                length = model.length,
+                SearchTerm = model.SearchTerm
+            };
+
+            var nonSubmissionModel = new GetQueueBankModel
+            {
+                L_Act = "SummeryRegisterBankNonSubmissionReason",
+                L_ProjectID = model.L_ProjectID,
+                L_RegisterDateStart = model.L_RegisterDateStart,
+                L_RegisterDateEnd = model.L_RegisterDateEnd,
+                L_UnitID = model.L_UnitID,
+                L_CSResponse = model.L_CSResponse,
+                L_UnitCS = model.L_UnitCS,
+                L_ExpectTransfer = model.L_ExpectTransfer,
+                L_QueueTypeID = model.L_QueueTypeID,
+                start = model.start,
+                length = model.length,
+                SearchTerm = model.SearchTerm
+            };
+
+            // ❗ ถ้า service/EF ยังเป็น sync: ห่อ Task.Run “เฉพาะจำเป็น”
+            var taskBank = Task.Run(() => _configProject.sp_GetQueueBank_SummeryRegisterBank(bankModel));
+            var taskNon = Task.Run(() => _configProject.sp_GetQueueBank_SummeryRegisterBankNonSubmissionReason(nonSubmissionModel));
+
+            await Task.WhenAll(taskBank, taskNon);
+
+            return Json(new
+            {
+                listDataSummeryRegisterBank = taskBank.Result,
+                listDataSummeryRegisterBankNonSubmissionReason = taskNon.Result
+            });
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> GetlistSummeryRegisterBankCustomerView([FromForm] GetQueueBankModel model)
         {
             var bankModel = new GetQueueBankModel
             {
