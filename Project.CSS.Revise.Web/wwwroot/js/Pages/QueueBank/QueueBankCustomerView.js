@@ -78,7 +78,7 @@
                 formData.append("SearchTerm", searchValue);
 
                 // QueueBank filters
-                formData.append("L_Act", "RegisterTable");
+                formData.append("L_Act", "RegisterTableForCustomerView");
                 formData.append("L_ProjectID", projectId);
                 formData.append("L_RegisterDateStart", "");
                 formData.append("L_RegisterDateEnd", "");
@@ -129,6 +129,8 @@
                 {
                     data: "Appointment",
                     name: "Appointment",
+                    className: "text-center",
+
                     render: function (data, type, row) {
                         if (type !== "display") return data;
 
@@ -138,21 +140,25 @@
                 {
                     data: "Status",
                     name: "Status",
+
+                    // ✅ อันนี้คือสำคัญ ทำให้ทั้งช่องอยู่กึ่งกลาง
+                    className: "text-center",
+
                     render: function (data, type, row) {
                         if (type !== "display") return data;
 
                         const text = (data || "").trim();
                         const lower = text.toLowerCase();
 
-                        let cls = "bg-secondary text-white";
+                        let cls = "bg-danger text-white";
                         if (lower === "register") {
-                            cls = "bg-success text-white";
+                            cls = "bg-danger text-white";
                         } else if (lower === "queue") {
-                            cls = "bg-info text-white";
-                        } else if (lower === "in process") {
-                            cls = "bg-warning text-dark";
-                        } else if (lower === "done") {
                             cls = "bg-success text-white";
+                        } else if (lower === "inprocess") {
+                            cls = "bg-success text-white";
+                        } else if (lower === "done") {
+                            cls = "bg-primary text-white";
                         }
 
                         return `<span class="status-pill ${cls}">${text}</span>`;

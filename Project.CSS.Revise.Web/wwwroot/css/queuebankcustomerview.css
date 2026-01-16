@@ -46,11 +46,11 @@
     overflow: hidden;
     background: #fff;
     box-shadow: 0 1px 5px rgba(0,0,0,.05);
-    transition: transform .2s ease
+    transition: transform .2s ease;
 }
 
     .summary-card:hover {
-        transform: translateY(-2px)
+        transform: translateY(-2px);
     }
 
     .summary-card .sc-head {
@@ -58,7 +58,7 @@
         font-weight: 600;
         font-size: 12px;
         text-align: center;
-        background: #f0f3f8
+        background: #f0f3f8;
     }
 
     .summary-card .sc-body {
@@ -66,20 +66,20 @@
         justify-items: center;
         gap: 1px;
         padding: 8px 6px;
-        background: #fff
+        background: #fff;
     }
 
     .summary-card .sc-stat {
         font-size: 18px;
         line-height: 1;
         font-weight: 700;
-        color: #111827
+        color: #111827;
     }
 
     .summary-card .sc-meta {
         font-size: 9px;
         color: #6b7280;
-        margin-top: -1px
+        margin-top: -1px;
     }
 
     /* Color variants */
@@ -98,4 +98,29 @@
         color: #a36100;
     }
 
+/* =========================
+   Sticky/Fixed Right (Customer View only)
+   ========================= */
+body.qb-cv-sticky .qb-sticky-right {
+    position: sticky;
+    top: var(--qb-topbar-h, 90px);
+    z-index: 50;
+}
 
+    /* ✅ FIXED MODE (ชัวร์กว่า sticky ในธีมที่มี scroll container แปลกๆ) */
+    body.qb-cv-sticky .qb-sticky-right.qb-fixed {
+        position: fixed !important;
+        top: var(--qb-topbar-h, 90px);
+        z-index: 200; /* ให้สูงกว่า table/content */
+    }
+
+/* ✅ มือถือไม่ต้อง fixed/sticky */
+@media (max-width: 991.98px) {
+    body.qb-cv-sticky .qb-sticky-right,
+    body.qb-cv-sticky .qb-sticky-right.qb-fixed {
+        position: static !important;
+        top: auto !important;
+        left: auto !important;
+        width: auto !important;
+    }
+}

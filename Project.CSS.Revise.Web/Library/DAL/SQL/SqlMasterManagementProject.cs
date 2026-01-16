@@ -228,6 +228,10 @@ namespace Project.CSS.Revise.Web.Library.DAL.SQL
                         result = sp_GetQueueBank_ListDataRegisterTable(reader);
                         break;
 
+                    case "RegisterTableForCustomerView":
+                        result = sp_GetQueueBank_ListDataRegisterTable(reader);
+                        break;
+
                     default:
                         result = new List<ListDataRegisterTable>();
                         break;
