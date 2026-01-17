@@ -2418,7 +2418,7 @@ function loadSummaryRegisterBank() {
                         return `
                 <tr>
                     <td>${bankCellHtml}</td>
-                    <td class="text-center">-</td>
+                    <td class="text-center">${item.InterestRateAVG}</td>
                     <td class="text-center">${parseFloat(unit || 0).toLocaleString()}</td>
                     <td class="text-end">${valueText}</td>
                     <td class="text-center">${percentText}</td>

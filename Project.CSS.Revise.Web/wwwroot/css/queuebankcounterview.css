@@ -31,14 +31,27 @@
         box-shadow: 0 3px 10px rgba(0,0,0,0.08);
     }
 
-/* Header base */
+/* Header base (ลดความสูง) */
 .counter-header {
-    font-weight: 600;
-    padding: 6px 8px;
-    font-size: 0.82rem;
-    line-height: 1.1;
+    font-weight: 700;
+    padding: 3px 8px; /* ✅ จาก 6px -> 3px */
+    font-size: 0.80rem; /* ✅ เล็กลงนิด */
+    line-height: 1; /* ✅ ชิดขึ้น */
     white-space: nowrap;
 }
+
+    .counter-header .counter-no {
+        min-width: 34px;
+        padding: 1px 8px; /* ✅ จาก 2px 10px -> 1px 8px */
+        margin-left: 6px;
+        border-radius: 999px;
+        font-size: 1.20em; /* ✅ ลดนิด เพื่อไม่ดันความสูง */
+        font-weight: 800;
+        letter-spacing: 0.4px;
+        background: rgba(255,255,255,0.25);
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35);
+    }
+
 
 /* Body base (ทำให้เตี้ย/ตัวเล็กลง) */
 .counter-body {
@@ -278,3 +291,52 @@
         filter: brightness(1.2);
     }
 }
+
+
+/* ✅ ให้การ์ดสูงเท่ากันทุกใบ */
+.counter-box {
+    height: 108px; /* ปรับได้: 100-120 */
+}
+
+/* ✅ ให้ body กินพื้นที่ที่เหลือ (แทนการใช้ min-height) */
+.counter-body {
+    flex: 1;
+    min-height: 0 !important; /* override ของเดิม 38px */
+}
+
+/* ✅ empty: ไม่ต้องมีพื้นสีฟ้า (จะไม่ดูเหมือน white space) */
+.counter-box.empty .counter-body {
+    background: transparent !important;
+}
+
+
+
+/* label เล็กลงนิด */
+.counter-header .counter-label,
+.counter-header .counter-sep {
+    font-size: 0.85em;
+    opacity: 0.95;
+}
+
+/* ✅ เลข Counter ให้เป็นสีเหลือง */
+.counter-header .counter-no {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    padding: 2px 10px;
+    margin-left: 6px;
+    border-radius: 999px;
+
+    font-size: 1.25em;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+
+    /* 💛 สีเหลือง */
+    color: #ffeb3b;                     /* เหลืองหลัก */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);  /* ให้ชัดบนทุกพื้น */
+
+    background: rgba(0,0,0,0.25);       /* ฉากหลังเข้มช่วยตัดสี */
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25);
+}
+

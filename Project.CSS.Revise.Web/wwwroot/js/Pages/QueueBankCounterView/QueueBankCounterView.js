@@ -359,22 +359,53 @@ function renderCounterGrid(items) {
 
         const hasInProcess = qbHasValue(inProcessDate);
         const isActive = qbHasValue(registerLogID);
+        const hasLogo = qbHasValue(bankCode);
 
         const boxClass =
             "counter-box qb-counter " +
             (isActive ? "active" : "empty") +
-            (hasInProcess ? " inprocess" : "");
+            (hasInProcess ? " inprocess" : "") +
+            (!hasLogo ? " no-logo" : "");
 
-        const bankLogoHtml = bankCode
-            ? `<img src="${rootPath}image/ThaiBankicon/${bankCode}.png" alt="${bankCode}" width="26" class="me-2">`
-            : "";
-
-        const bodyContent = isActive ? `${bankLogoHtml}${unitCode || "-"}` : "";
-
+        // Header color
         let headerStyle = "";
         if (hasInProcess) headerStyle = "background-color:#198754;color:#ffffff;";
         else if (isActive) headerStyle = "background-color:#dc3545;color:#ffffff;";
         else headerStyle = "background-color:#6c757d;color:#ffffff;";
+
+        // Bank logo 40px (override CSS)
+        const bankLogoHtml = bankCode
+            ? `<img src="${rootPath}image/ThaiBankicon/${bankCode}.png"
+                    alt="${bankCode}"
+                    class="me-2"
+                    style="width:40px !important;height:auto;object-fit:contain;">`
+            : "";
+
+        // ✅ Body content: keep SAME height for all cards, but no visible "-" for empty
+        let bodyContent = "";
+        let bodyStyle = "";
+
+        if (isActive) {
+            // normal active
+            bodyContent = `
+                <div class="d-flex align-items-center justify-content-center gap-2 w-100">
+                    ${hasLogo ? `<span class="d-inline-flex align-items-center">${bankLogoHtml}</span>` : ""}
+                    <span>${unitCode || ""}</span>
+                </div>
+            `;
+            bodyStyle = "";
+        } else {
+            // ✅ empty: put invisible spacer that matches the visual height of "logo + text"
+            // - no "-" shown
+            // - card height stays consistent
+            bodyContent = `
+                <div class="d-flex align-items-center justify-content-center w-100"
+                     style="min-height:40px;">
+                    <span style="opacity:0; user-select:none;">SPACER</span>
+                </div>
+            `;
+            bodyStyle = ""; // keep CSS theme (blue/grey) and size
+        }
 
         html += `
       <div class="counter-col col-6">
@@ -384,8 +415,12 @@ function renderCounterGrid(items) {
              data-bankname="${bankName}"
              data-unit="${unitCode}"
              data-registerid="${registerLogID}">
-          <div class="counter-header" style="${headerStyle}">Counter : ${counterNo}</div>
-          <div class="counter-body">${bodyContent}</div>
+            <div class="counter-header" style="${headerStyle}">
+                <span class="counter-label">Counter</span>
+                <span class="counter-sep">:</span>
+                <span class="counter-no">${counterNo}</span>
+            </div>
+          <div class="counter-body" style="${bodyStyle}">${bodyContent}</div>
         </div>
       </div>
     `;
@@ -411,9 +446,10 @@ function renderCounterGrid(items) {
     initCounterModeButtons();
     initCounterCardClick();
     updateCounterGridLayout();
-
-    qbApplyBlinkToGrid(); // ✅ keep blink after re-render
+    qbApplyBlinkToGrid();
 }
+
+
 
 /* =========================
    [UI] Counter Mode Buttons (Bank / QR)
