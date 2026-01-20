@@ -1,0 +1,23 @@
+﻿/* Highlight only the Project label */
+label[for="ddl_Project"] {
+    font-size: 17px; /* ใหญ่กว่าฟิลด์อื่น */
+    font-weight: 800; /* หนาขึ้น */
+    color: #2e59d9; /* น้ำเงินเข้ม */
+    letter-spacing: 0.3px;
+    position: relative;
+}
+
+.qi-date-input,
+.qi-date-sep {
+    height: 48px !important;
+    font-size: 1.05rem;
+    border-radius: 8px;
+}
+
+.qi-date-sep {
+    padding: 0 14px;
+    font-weight: 600;
+    background: #f8f9fa;
+}
+
+

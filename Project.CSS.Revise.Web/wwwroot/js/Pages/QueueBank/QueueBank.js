@@ -1709,10 +1709,14 @@ function renderContractBlock(data) {
 }
 
 function getFlatpickrISO(fp) {
-    if (!fp || !fp.selectedDates || fp.selectedDates.length === 0) return "";
+    if (!fp || !fp.selectedDates?.length) return "";
     const d = fp.selectedDates[0];
-    return d.toISOString().split("T")[0]; // yyyy-MM-dd
+
+    // shift by timezone offset to keep the local date
+    const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+    return local.toISOString().split("T")[0];
 }
+
 
 function qbGetValues() {
     const get = (sel) => (window.QB_CHOICES[sel]?.getValue(true)) || [];
