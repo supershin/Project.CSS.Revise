@@ -18,6 +18,7 @@
 
 
         public string ReasonName { get; set; } = "";
+        public string ReasonRemarkName { get; set; } = "";
         public string Counter { get; set; } = "";
 
         public string CreateBy { get; set; } = "";

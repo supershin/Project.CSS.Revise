@@ -954,19 +954,22 @@ table.dataTable {
 
     /* ✅ ล็อคความกว้างคอลัมน์ด้วย rem */
     .qb-table .col-no {
-        width: 3.75rem;
+        width: 1.5rem;
     }
     /* 60px */
     .qb-table .col-unit {
-        width: 6.875rem;
+        width: 4rem;
     }
     /* 110px */
     .qb-table .col-customer {
-        width: 23.75rem;
+        width: 15rem;
     }
     /* 380px */
     .qb-table .col-appoint {
-        width: 7.5rem;
+        width: 4rem;
+    }
+    .qb-table .col-submission {
+        width: 4rem;
     }
     /* 120px */
     .qb-table .col-status {
@@ -978,15 +981,15 @@ table.dataTable {
     }
     /* 160px */
     .qb-table .col-counter {
-        width: 5rem;
+        width: 4.2rem;
     }
     /* 80px */
     .qb-table .col-unitstatus {
-        width: 7.5rem;
+        width: 5rem;
     }
     /* 120px */
     .qb-table .col-cs {
-        width: 8.75rem;
+        width: 6rem;
     }
     /* 140px */
     .qb-table .col-action {

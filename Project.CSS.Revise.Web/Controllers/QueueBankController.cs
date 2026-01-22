@@ -324,8 +324,8 @@ namespace Project.CSS.Revise.Web.Controllers
             {
                 L_Act = "CreateRegisterTable",
                 L_ProjectID = model.L_ProjectID,
-                L_RegisterDateStart = "",
-                L_RegisterDateEnd = "",
+                L_RegisterDateStart = model.L_RegisterDateStart,
+                L_RegisterDateEnd = model.L_RegisterDateEnd,
                 L_UnitID = "",
                 L_CSResponse = "",
                 L_UnitCS = "",
@@ -335,8 +335,7 @@ namespace Project.CSS.Revise.Web.Controllers
                 SearchTerm = model.SearchTerm
             };
 
-            var result = _configProject.sp_GetQueueBank_CreateRegisterTable(bankModel)
-                         ?? new List<ListCreateRegisterTableModel>();
+            var result = _configProject.sp_GetQueueBank_CreateRegisterTable(bankModel) ?? new List<ListCreateRegisterTableModel>();
 
             int total = 0;
             int filtered = 0;
