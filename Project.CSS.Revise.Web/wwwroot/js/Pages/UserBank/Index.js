@@ -747,11 +747,13 @@ document.getElementById('btnSaveNewUserBank')?.addEventListener('click', async (
             body: JSON.stringify(payload)
         });
         const json = await res.json();
+
         if (json?.success) {
             // ปิด modal + รีเฟรชหน้า list
             bootstrap.Modal.getInstance(document.getElementById('modalAddUserBank'))?.hide();
             successMessage('บันทึกสำเร็จ');  
-            await loadUserBankPage(); // reload list/cards
+            //แก้ฟีลเตอร์ไม่หายเเล้ว
+            await doSearchUserBank(); // reload list/cards
         } else {
             hideLoading()
             successMessage('บันทึกล้มเหลว');
@@ -1035,7 +1037,7 @@ async function saveCurrentUserBank() {
         if (json?.success) {
             // รีโหลดข้อมูลรวม (การ์ด/ลิสต์/ฯลฯ)
             window.showLoading?.();
-            await loadUserBankPage();
+            await doSearchUserBank();
 
             // พยายามเลือกกลับมาที่ user เดิม
             const list = document.querySelector('#userBankList');
@@ -1120,7 +1122,8 @@ document.getElementById('btnDeleteUserBank')?.addEventListener('click', async ()
                 await Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', timer: 1200, showConfirmButton: false });
             }
             // reload left list + cards
-            await loadUserBankPage();
+
+            await doSearchUserBank();
 
             // Clear right panel fields (optional)
             document.getElementById('editUserBankFullName').textContent = '';
