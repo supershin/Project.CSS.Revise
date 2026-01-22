@@ -373,12 +373,12 @@ function renderCounterGrid(items) {
         else if (isActive) headerStyle = "background-color:#dc3545;color:#ffffff;";
         else headerStyle = "background-color:#6c757d;color:#ffffff;";
 
-        // Bank logo 40px (override CSS)
+        // Bank logo 55px (override CSS)
         const bankLogoHtml = bankCode
             ? `<img src="${rootPath}image/ThaiBankicon/${bankCode}.png"
                     alt="${bankCode}"
                     class="me-2"
-                    style="width:40px !important;height:auto;object-fit:contain;">`
+                    style="width:55px !important;height:auto;object-fit:contain;">`
             : "";
 
         // ✅ Body content: keep SAME height for all cards, but no visible "-" for empty
@@ -390,7 +390,10 @@ function renderCounterGrid(items) {
             bodyContent = `
                 <div class="d-flex align-items-center justify-content-center gap-2 w-100">
                     ${hasLogo ? `<span class="d-inline-flex align-items-center">${bankLogoHtml}</span>` : ""}
-                    <span>${unitCode || ""}</span>
+                    <span style="font-size:1.80rem;">
+                        ${unitCode || ""}
+                    </span>
+
                 </div>
             `;
             bodyStyle = "";
@@ -408,22 +411,26 @@ function renderCounterGrid(items) {
         }
 
         html += `
-      <div class="counter-col col-6">
-        <div class="${boxClass}"
-             data-counter="${counterNo}"
-             data-bank="${bankCode}"
-             data-bankname="${bankName}"
-             data-unit="${unitCode}"
-             data-registerid="${registerLogID}">
-            <div class="counter-header" style="${headerStyle}">
-                <span class="counter-label">Counter</span>
-                <span class="counter-sep">:</span>
-                <span class="counter-no">${counterNo}</span>
-            </div>
-          <div class="counter-body" style="${bodyStyle}">${bodyContent}</div>
+  <div class="counter-col col-6">
+    <div class="${boxClass}"
+         data-counter="${counterNo}"
+         data-bank="${bankCode}"
+         data-bankname="${bankName}"
+         data-unit="${unitCode}"
+         data-registerid="${registerLogID}">
+        <div class="counter-header" style="${headerStyle}">
+            ${isActive
+                ? `<span class="counter-label">Counter</span>
+                       <span class="counter-sep">:</span>
+                       <span class="counter-no">${counterNo}</span>`
+                : `<span class="counter-no">${counterNo}</span>`
+            }
         </div>
-      </div>
-    `;
+      <div class="counter-body" style="${bodyStyle}">${bodyContent}</div>
+    </div>
+  </div>
+`;
+
     });
 
     grid.innerHTML = html;

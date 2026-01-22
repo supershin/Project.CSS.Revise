@@ -68,9 +68,11 @@ namespace Project.CSS.Revise.Web.Respositories
                                 ,MAX(RL.ID)                            AS RegisterLogID
                                 ,MAX(RL.UnitID)                        AS UnitID
 
-                                -- 💥 รวม UnitCode ต่อ counter เช่น ""26/11,26/10""
-                                ,STRING_AGG(TU.UnitCode, ',') 
-                                    WITHIN GROUP (ORDER BY TU.UnitCode) AS UnitCode
+                                 ,CASE
+								    WHEN COUNT(DISTINCT TU.UnitCode) > 1
+									    THEN CONCAT(MIN(TU.UnitCode), ' +')
+								    ELSE MIN(TU.UnitCode)
+							      END AS UnitCode
 
                                 ,MAX(RL.ResponsibleID)                 AS ResponsibleID
                                 ,MAX(RL.FastFixDate)                   AS FastFixDate
