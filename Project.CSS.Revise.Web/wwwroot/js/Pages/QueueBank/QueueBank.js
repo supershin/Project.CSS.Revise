@@ -607,12 +607,13 @@ function initQueueBankRegisterTable() {
                     const id = row.ID || "";
 
                     return `
-                            <a href="javascript:void(0)" class="qb-unit-link unit-pill"
-                               data-unit="${unitCode}" data-id="${id}">
-                               <i class="fa fa-home unit-icon"></i> ${unitCode}
-                            </a>`;
+            <a href="#" class="qb-unit-link"
+               data-unit="${unitCode}" data-id="${id}">
+               ${unitCode}
+            </a>`;
                 }
             },
+
             {
                 data: null,
                 name: "CustomerName",
@@ -2187,8 +2188,6 @@ function qbUpdateSummaryRegisterHeaderDate() {
     if (spanEl2) spanEl2.textContent = text;
 }
 
-
-
 function loadSummaryRegisterAll() {
     const filters = qbGetValues();
 
@@ -2240,9 +2239,9 @@ function loadSummaryRegisterAll() {
             qbUpdateSummaryBox("loan-no", loanMap["ไม่ยื่น"]);
 
             // 3) CareerType: render BOTH box + table (dynamic by CareerTypeID)
-            const careerList = res.listDataSummeryRegisterCareerTyp || [];
-            qbRenderCareerBox(careerList);
-            qbRenderCareerTable(careerList);
+            //const careerList = res.listDataSummeryRegisterCareerTyp || [];
+            //qbRenderCareerBox(careerList);
+            //qbRenderCareerTable(careerList);
         })
         .catch(err => {
             console.error("GetlistSummeryRegister error:", err);
@@ -2255,8 +2254,8 @@ function loadSummaryRegisterAll() {
             qbUpdateSummaryBox("loan-yes", null);
             qbUpdateSummaryBox("loan-no", null);
 
-            qbResetCareerBox();
-            qbResetCareerTable();
+            //qbResetCareerBox();
+            //qbResetCareerTable();
         })
         .finally(() => {
             if (typeof hideLoading === "function") hideLoading();
@@ -2293,6 +2292,7 @@ function qbResetCareerBox() {
 }
 
 // ===== Career: TABLE view =====
+
 function qbRenderCareerTable(list) {
     qbResetCareerTable();
 
@@ -2313,6 +2313,9 @@ function qbRenderCareerTable(list) {
         if (percentEl) percentEl.textContent = `${percent}%`;
     });
 }
+
+
+
 
 function qbResetCareerTable() {
     // reset เฉพาะ tbody career table
@@ -2350,6 +2353,7 @@ function loadSummaryRegisterBank() {
 
     const tbodyBank = document.getElementById("summary-bank-body");
     const tbodyNon = document.getElementById("summary-banknonsubmissionreason-body");
+    const tbodyCareer = document.getElementById("summary-RegisterCareerType-body");
 
     if (tbodyBank) {
         tbodyBank.innerHTML = `
@@ -2358,6 +2362,10 @@ function loadSummaryRegisterBank() {
     if (tbodyNon) {
         tbodyNon.innerHTML = `
             <tr><td colspan="3" class="text-center text-muted">Loading...</td></tr>`;
+    }
+    if (tbodyCareer) {
+        tbodyCareer.innerHTML = `
+            <tr><td colspan="4" class="text-center text-muted">Loading...</td></tr>`;
     }
 
     if (typeof showLoading === "function") showLoading();
@@ -2493,6 +2501,84 @@ function loadSummaryRegisterBank() {
                 }
             }
 
+            /* =======================================
+              3) Summary Career Type (ขวาล่าง) ✅✅✅
+              ใช้: res.listDataSummerycareerTask
+              ======================================= */
+            if (tbodyCareer) {
+                const listCareer = res.listDataSummerycareerTask || [];
+
+                if (!listCareer.length) {
+                    tbodyCareer.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No data</td></tr>`;
+                } else {
+
+                    // helper: parse string -> number (รองรับ "1,234" / "1.2K" / "3M")
+                    const parseSmartNumber = (input) => {
+                        if (input === null || input === undefined) return 0;
+                        let s = input.toString().trim().toUpperCase();
+                        if (!s) return 0;
+
+                        s = s.replace(/,/g, "");
+
+                        let mul = 1;
+                        const last = s.slice(-1);
+
+                        if (last === "K") { mul = 1000; s = s.slice(0, -1); }
+                        else if (last === "M") { mul = 1000000; s = s.slice(0, -1); }
+                        else if (last === "B") { mul = 1000000000; s = s.slice(0, -1); }
+
+                        const n = parseFloat(s);
+                        if (!Number.isFinite(n)) return 0;
+                        return n * mul;
+                    };
+
+                    let totalUnit = 0;
+                    let totalValue = 0;
+
+                    const rowsHtml = listCareer.map(item => {
+                        const careerName = item.Topic || "-";
+
+                        const unitRaw = item.Unit ?? "0";
+                        const valueRaw = item.Value ?? "0";
+                        const percentRaw = (item.Percent ?? "0").toString().trim();
+
+                        const unitNum = parseSmartNumber(unitRaw);
+                        const valueNum = parseSmartNumber(valueRaw);
+
+                        totalUnit += unitNum;
+                        totalValue += valueNum;
+
+                        const unitText = (unitRaw ?? "0").toString(); // โชว์ตาม backend (ถ้าเป็น short-name ก็ยังสวย)
+                        const valueText = (typeof qbFormatValueM === "function")
+                            ? qbFormatValueM(valueNum)
+                            : valueNum.toLocaleString();
+
+                        const percentText = percentRaw.endsWith("%") ? percentRaw : `${percentRaw}%`;
+
+                        return `
+                            <tr>
+                                <td class="text-start">${careerName}</td>
+                                <td class="text-center">${unitText}</td>
+                                <td class="text-end">${valueText}</td>
+                                <td class="text-center">${percentText}</td>
+                            </tr>`;
+                    }).join("");
+
+                    const totalRowHtml = `
+                        <tr class="fw-bold">
+                            <td class="text-start">Total</td>
+                            <td class="text-center">${totalUnit.toLocaleString()}</td>
+                            <td class="text-end">
+                                ${typeof qbFormatValueM === "function"
+                            ? qbFormatValueM(totalValue)
+                            : totalValue.toLocaleString()}
+                            </td>
+                            <td class="text-center">100%</td>
+                        </tr>`;
+
+                    tbodyCareer.innerHTML = rowsHtml + totalRowHtml;
+                }
+            }
 
         })
         .catch(err => {
@@ -2511,8 +2597,6 @@ function loadSummaryRegisterBank() {
             if (typeof hideLoading === "function") hideLoading();
         });
 }
-
-
 
 // โหลด Unit สำหรับใช้ใน modal Create Register (DDLUnitCode)
 function loadUnitForRegisterBank() {
@@ -2566,7 +2650,6 @@ function loadUnitForRegisterBank() {
             if (typeof hideLoading === "function") hideLoading();
         });
 }
-
 
 // ---------- helper: download ----------
 function downloadBlob(blob, filename) {
