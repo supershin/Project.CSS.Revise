@@ -242,14 +242,19 @@ table.dataTable {
 
 
 /* ==========================
-    summary register zone now
+   Summary Register (BOX view)
+   - NEW Layout 2 ฝั่ง
+   - No <strong> (no bold)
+   - ชิดบนขึ้น + ขยายได้เมื่อเลขยาว
    ========================== */
+
+/* ✅ ชิดบนขึ้น */
 .summary-register {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 0px; /* เดิม 20px -> 0px */
 }
 
-/* ✅ เปลี่ยนจาก flex -> grid เพื่อให้จัด 2 แถวได้ตามที่ต้องการ */
+/* base grid */
 .summary-row {
     display: grid !important;
     gap: 16px;
@@ -257,15 +262,37 @@ table.dataTable {
     align-items: stretch;
 }
 
-/* Row 1: Register, Queue, In Process, Done, ยื่น, ไม่ยื่น (6 กล่อง) */
-.summary-row-6 {
-    grid-template-columns: repeat(6, minmax(160px, 1fr));
+/* ✅ 2 columns layout: ขยายได้เมื่อเลขเยอะ */
+.summary-row-2col {
+    grid-template-columns: repeat(2, minmax(320px, 1fr)); /* ✅ ยืดได้ */
+    gap: 20px;
+    width: 100%;
+    max-width: 920px; /* ✅ คุมความกว้างรวมให้อยู่กลาง */
 }
 
-/* Row 2: 5 กล่อง */
-.summary-row-5 {
-    grid-template-columns: repeat(5, minmax(160px, 1fr));
+/* แต่ละฝั่งเป็น stack */
+.summary-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
+
+/* แถวล่าง 2 กล่อง */
+.summary-row-2inner {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+    gap: 16px;
+}
+
+/* ✅ คุมให้ box-view อยู่กลาง */
+#summary-register-box-view {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/* ==========================
+   Summary Box Design
+   ========================== */
 
 .summary-box {
     border-radius: 12px;
@@ -274,20 +301,21 @@ table.dataTable {
     background: #fff;
 }
 
-    /* Fix header height ให้เท่ากันทุก summary box */
-    .summary-box h6 {
-        min-height: 58px; /* ปรับได้ 44–52 ตามดีไซน์ */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        line-height: 1.25;
-        padding: 10px;
-    }
+/* ✅ หัวข้อ 1.30rem แต่ไม่หนา */
+#summary-register-box-view .summary-box h6 {
+    min-height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.25;
+    padding: 10px;
+    font-size: 1.30rem;
+    font-weight: 400;
+}
 
-
-/* White section (unit/value) */
-.summary-values {
+/* Unit/Value label เท่าเดิม */
+#summary-register-box-view .summary-values {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -299,55 +327,71 @@ table.dataTable {
     color: #333;
 }
 
-    .summary-values > div {
+    #summary-register-box-view .summary-values > div {
         flex: 1;
     }
 
-        .summary-values > div + div {
+        #summary-register-box-view .summary-values > div + div {
             border-left: 1px solid rgba(0,0,0,0.1);
         }
 
+/* ✅ ตัวเลข Unit/Value 1.30rem ไม่หนา + ไม่ตัดบรรทัด */
+#summary-register-box-view .summary-num {
+    display: inline-block;
+    font-size: 1.30rem;
+    font-weight: 400;
+    line-height: 1.1;
+    white-space: nowrap; /* ✅ กันเลขยาวตกบรรทัด */
+}
 
-
-/* Footer */
-.summary-footer {
+/* ✅ เปอร์เซ็นต์ 1.30rem ไม่หนา */
+#summary-register-box-view .summary-footer {
     padding: 8px;
-    font-weight: 600;
     color: #333;
-    font-size: 14px;
-    background: #f5f6f8 !important; /* หรือ #fff ก็ได้ */
+    background: #f5f6f8 !important;
+    font-size: 1.30rem;
+    font-weight: 400;
 }
 
-/* ✅ Responsive: จอเล็กลงให้ลดคอลัมน์อัตโนมัติ */
-@media (max-width: 1400px) {
-    .summary-row-6 {
-        grid-template-columns: repeat(3, minmax(160px, 1fr));
-    }
-
-    .summary-row-5 {
-        grid-template-columns: repeat(3, minmax(160px, 1fr));
-    }
+/* ==========================
+   Desktop (Default)
+   - 2 ฝั่งซ้าย/ขวา
+   ========================== */
+.summary-row-2col {
+    grid-template-columns: repeat(2, minmax(320px, 1fr));
+    gap: 20px;
+    width: 100%;
+    max-width: 920px; /* คุมให้ไม่กว้างเกิน */
 }
 
+/* ==========================
+   iPad mini (และเล็กกว่า)
+   - ให้เรียงลงกลางแบบรูป
+   ========================== */
 @media (max-width: 768px) {
-    .summary-row-6 {
-        grid-template-columns: repeat(2, minmax(160px, 1fr));
+    .summary-row-2col {
+        grid-template-columns: 1fr; /* ✅ เหลือ 1 คอลัมน์ */
+        max-width: 520px; /* ✅ กล่องอยู่กลาง ไม่ยืดสุดจอ */
     }
 
-    .summary-row-5 {
+    /* ✅ แถว Queue/In Process และ ยื่น/ไม่ยื่น ยังเป็น 2 ช่องเหมือนรูป */
+    .summary-row-2inner {
         grid-template-columns: repeat(2, minmax(160px, 1fr));
     }
 }
 
+/* ==========================
+   มือถือเล็กมาก
+   - 2 ช่อง -> 1 ช่อง
+   ========================== */
 @media (max-width: 480px) {
-    .summary-row-6 {
-        grid-template-columns: 1fr;
-    }
-
-    .summary-row-5 {
+    .summary-row-2inner {
         grid-template-columns: 1fr;
     }
 }
+
+
+
 
 /* ===== COLORS ===== */
 .bg-green {
@@ -358,8 +402,17 @@ table.dataTable {
     background-color: #c8e2ff;
 }
 
+.bg-blue-strong {
+    background-color: #2070c7; /* ✅ ฟ้าเข้มขึ้น */
+}
+
+
 .bg-orange {
     background-color: #ffe0b5;
+}
+
+.bg-green-strong {
+    background-color: #0fad05;
 }
 
 .bg-green-light {
@@ -385,31 +438,38 @@ table.dataTable {
     width: 100%;
 }
 
-    .summary-bank-table thead th {
-        background-color: #f3f6fa;
-        font-weight: 600;
-        text-align: center;
-        border-bottom: 2px solid #dee2e6;
-        color: #222;
-        vertical-align: middle;
-    }
+.summary-bank-table thead th {
+    background-color: #f3f6fa;
+    font-weight: 600;
+    text-align: center;
+    border-bottom: 2px solid #dee2e6;
+    color: #222;
+    vertical-align: middle;
+}
 
-    .summary-bank-table tbody td {
-        text-align: center;
-        vertical-align: middle;
-        padding: 10px 12px;
-        border-color: #e6e8eb;
-        font-size: 14px;
-        color: #333;
-    }
+.summary-bank-table tbody td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 10px 12px;
+    border-color: #e6e8eb;
+    font-size: 1.125rem; /* ✅ ใหญ่ขึ้น */
+    color: #333;
+}
 
-        .summary-bank-table tbody td:first-child {
-            text-align: left;
-        }
+.summary-bank-table tbody td:first-child {
+    text-align: left;
+}
 
-    .summary-bank-table tbody tr:nth-child(even) {
-        background-color: #fafbfc;
-    }
+.summary-bank-table tbody tr:nth-child(even) {
+    background-color: #fafbfc;
+}
+
+.table-wrapper {
+    border: 1px solid #dee2e6;
+    border-radius: 8px; /* อยากเหลี่ยมก็ลบได้ */
+    overflow: hidden; /* สำคัญมาก ทำให้กรอบไม่ขาด */
+    background: #fff;
+}
 
 .bank-logo {
     width: 32px;
@@ -418,6 +478,16 @@ table.dataTable {
     object-fit: cover;
     background-color: #fff;
     box-shadow: 0 0 2px rgba(0,0,0,0.15);
+}
+
+.qb-unit-link {
+    text-decoration: underline !important; /* ✅ เส้นใต้ */
+    color: #0d6efd; /* ✅ สีลิงก์แบบปกติ */
+    cursor: pointer;
+}
+
+.qb-unit-link:hover {
+    text-decoration: underline !important;
 }
 
 
@@ -469,9 +539,13 @@ table.dataTable {
         background-color: #20863a;
     }
 
+#Show_Name_selected {
+    font-size: 1.125rem;
+}
 
-
-
+#Show_Name_selected2 {
+    font-size: 1.125rem;
+}
 
 /* Modal shell */
 #cr-modal .modal-header.cr-header {
@@ -778,12 +852,6 @@ table.dataTable {
         }
 
 
-#QueueBankRegisterTable tbody td.tbody-center {
-    text-align: center !important;
-    vertical-align: middle !important;
-}
-
-
 .cr-status {
     cursor: help;
 }
@@ -863,3 +931,80 @@ table.dataTable {
     color: rgba(0,0,0,.55);
     margin: 2px 0 8px;
 }
+
+
+/* ✅ wrapper ให้เลื่อนแนวนอนแบบตารางเดียว (หัว/ตัวตรงแน่นอน) */
+.qb-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* ✅ ล็อค layout */
+.qb-table {
+    width: 100%;
+    table-layout: fixed; /* ✅ ตัวสำคัญ: ล็อคหัว/ตัวให้เท่ากัน */
+    min-width: 62rem; /* ✅ กันตารางแคบเกิน (ประมาณ 992px) */
+}
+
+    /* ✅ แนะนำให้ทุก cell ไม่เพี้ยน */
+    .qb-table th,
+    .qb-table td {
+        vertical-align: middle;
+    }
+
+    /* ✅ ล็อคความกว้างคอลัมน์ด้วย rem */
+    .qb-table .col-no {
+        width: 1.5rem;
+    }
+    /* 60px */
+    .qb-table .col-unit {
+        width: 4rem;
+    }
+    /* 110px */
+    .qb-table .col-customer {
+        width: 15rem;
+    }
+    /* 380px */
+    .qb-table .col-appoint {
+        width: 4rem;
+    }
+    .qb-table .col-submission {
+        width: 4rem;
+    }
+    /* 120px */
+    .qb-table .col-status {
+        width: 5.625rem;
+    }
+    /* 90px */
+    .qb-table .col-time {
+        width: 10rem;
+    }
+    /* 160px */
+    .qb-table .col-counter {
+        width: 4.2rem;
+    }
+    /* 80px */
+    .qb-table .col-unitstatus {
+        width: 5rem;
+    }
+    /* 120px */
+    .qb-table .col-cs {
+        width: 6rem;
+    }
+    /* 140px */
+    .qb-table .col-action {
+        width: 3.75rem;
+    }
+    /* 60px */
+
+    /* ✅ Customer Name ยาว -> ให้ตัดคำแบบอ่านได้ ไม่ตกเป็นตัวๆ */
+    .qb-table td:nth-child(3) {
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    /* ✅ UnitCode เป็น <a> มีเส้นใต้ธรรมดา */
+    .qb-table a.qb-unit-link {
+        text-decoration: underline;
+        color: #0d6efd;
+    }

@@ -8,6 +8,8 @@
         public string UnitID { get; set; } = string.Empty;
         public string UnitCode { get; set; } = string.Empty;
         public string CustomerName { get; set; } = string.Empty;
+        public string ReasonName { get; set; } = string.Empty;
+        public string ReasonRemarkName { get; set; } = string.Empty;
 
         public string LineUserContract_Count { get; set; } = string.Empty;
         public string LoanDraftDate { get; set; } = string.Empty;

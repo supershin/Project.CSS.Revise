@@ -389,6 +389,9 @@ namespace Project.CSS.Revise.Web.Library.DAL
             entity.UnitID = Commond.FormatExtension.NullToString(reader["UnitID"]);
             entity.UnitCode = Commond.FormatExtension.NullToString(reader["UnitCode"]);
             entity.CustomerName = Commond.FormatExtension.NullToString(reader["CustomerName"]);
+            entity.ReasonName = Commond.FormatExtension.NullToString(reader["ReasonName"]);
+            entity.ReasonRemarkName = Commond.FormatExtension.NullToString(reader["ReasonRemarkName"]);
+
 
             entity.LineUserContract_Count = Commond.FormatExtension.NullToString(reader["LineUserContract_Count"]);
             entity.LoanDraftDate = Commond.FormatExtension.NullToString(reader["LoanDraftDate"]);
@@ -567,6 +570,8 @@ namespace Project.CSS.Revise.Web.Library.DAL
             entity.CreateBy = Commond.FormatExtension.NullToString(reader["CreateBy"]);
             entity.UpdateDate = Commond.FormatExtension.ToStringFrom_DD_MM_YYYY_To_DD_MM_YYYY(reader["UpdateDate"]);
             entity.UpdateBy = Commond.FormatExtension.NullToString(reader["UpdateBy"]);
+
+            entity.ReasonRemarkName = Commond.FormatExtension.NullToString(reader["ReasonRemarkName"]);
 
             // ✅ paging meta
             entity.TotalRecords = Commond.FormatExtension.Nulltoint(reader["TotalRecords"]);

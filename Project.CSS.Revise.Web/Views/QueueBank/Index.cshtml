@@ -167,24 +167,27 @@
             <div class="card-body">
                 <div class="project-table-card">
                     <div class="card-body p-3">
-                        <table id="QueueBankRegisterTable" class="table table-hover table-nowrap queue-table mb-0">
-                            <thead>
-                                <tr>
-                                    <th>No.</th>
-                                    <th>Unit Code</th>
-                                    <th>Customer Name</th>
-                                    <th>Appointment</th>
-                                    <th>Status</th>
-                                    <th>Time</th>
-                                    <th>Counter</th>
-                                    <th>Unit Status</th>
-                                    <th>CS Response</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody id="QueueBankRegisterTableBody">
-                            </tbody>
-                        </table>
+                        <div class="qb-table-wrap">
+                            <table id="QueueBankRegisterTable" class="table table-bordered table-hover mb-0 qb-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-no">#</th>
+                                        <th class="col-unit">Unit Code</th>
+                                        <th class="col-customer">Customer Name</th>
+                                        <th class="col-appoint">Appointment</th>
+                                        <!-- <th class="col-submission">Submission</th> -->
+                                        <th class="col-status">Status</th>
+                                        <th class="col-time">Time</th>
+                                        <th class="col-counter">Counter</th>
+                                        <th class="col-unitstatus">Unit Status</th>
+                                        <th class="col-cs">CS Response</th>
+                                        <th class="col-action"></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -228,98 +231,107 @@
             <div class="card-body">
                 <div class="summary-register">
 
-                    <!-- 🔹 VIEW แบบกล่อง (เดิม) -->
+                    <!-- 🔹 VIEW แบบกล่อง (NEW Layout) -->
                     <div id="summary-register-box-view">
 
-                        <!-- Row 1: 6 กล่อง -->
-                        <div class="summary-row summary-row-6">
-                            <!-- Register -->
-                            <div class="summary-box bg-green">
-                                <h6>Register</h6>
-                                <div class="summary-values">
-                                    <div><strong id="sum-register-unit">0</strong><br>Unit</div>
-                                    <div><strong id="sum-register-value">0.00 M</strong><br>Value</div>
-                                </div>
-                                <div class="summary-footer" id="sum-register-percent">0%</div>
-                            </div>
+                        <div class="summary-row summary-row-2col">
 
-                            <!-- Queue -->
-                            <div class="summary-box bg-blue">
-                                <h6>Queue</h6>
-                                <div class="summary-values">
-                                    <div><strong id="sum-queue-unit">0</strong><br>Unit</div>
-                                    <div><strong id="sum-queue-value">0.00 M</strong><br>Value</div>
-                                </div>
-                                <div class="summary-footer" id="sum-queue-percent">0%</div>
-                            </div>
-
-                            <!-- In Process -->
-                            <div class="summary-box bg-orange">
-                                <h6>In Process</h6>
-                                <div class="summary-values">
-                                    <div><strong id="sum-inprocess-unit">0</strong><br>Unit</div>
-                                    <div><strong id="sum-inprocess-value">0.00 M</strong><br>Value</div>
-                                </div>
-                                <div class="summary-footer" id="sum-inprocess-percent">0%</div>
-                            </div>
-
-                            <!-- Done -->
-                            <div class="summary-box bg-green-light">
-                                <h6>Done</h6>
-                                <div class="summary-values">
-                                    <div><strong id="sum-done-unit">0</strong><br>Unit</div>
-                                    <div><strong id="sum-done-value">0.00 M</strong><br>Value</div>
-                                </div>
-                                <div class="summary-footer" id="sum-done-percent">0%</div>
-                            </div>
-
-                            <!-- ยื่น -->
-                            <div class="summary-box bg-green-light">
-                                <h6>ยื่น</h6>
-                                <div class="summary-values">
-                                    <div><strong id="sum-loan-yes-unit">0</strong><br>Unit</div>
-                                    <div><strong id="sum-loan-yes-value">0.00 M</strong><br>Value</div>
-                                </div>
-                                <div class="summary-footer" id="sum-loan-yes-percent">0%</div>
-                            </div>
-
-                            <!-- ไม่ยื่น -->
-                            <div class="summary-box bg-pink-soft">
-                                <h6>ไม่ยื่น</h6>
-                                <div class="summary-values">
-                                    <div><strong id="sum-loan-no-unit">0</strong><br>Unit</div>
-                                    <div><strong id="sum-loan-no-value">0.00 M</strong><br>Value</div>
-                                </div>
-                                <div class="summary-footer" id="sum-loan-no-percent">0%</div>
-                            </div>
-                        </div>
-
-                        <!-- Row 2: Career (Dynamic) -->
-                        <div class="summary-row summary-row-6 mt-3" id="careerSummaryRow">
-                            @foreach (var item in CareerList)
-                            {
-                                var id = item.ValueInt;   // ext.ID
-                                var text = item.Text;     // ext.Name
-
-                                <div class="summary-box bg-pink">
-                                    <h6>@text</h6>
-
+                            <!-- LEFT -->
+                            <div class="summary-col">
+                                <!-- Register -->
+                                <div class="summary-box bg-blue-strong">
+                                    <h6>Register</h6>
                                     <div class="summary-values">
                                         <div>
-                                            <strong id="sum-career-@id-unit">0</strong><br />Unit
+                                            <span class="summary-num" id="sum-register-unit">0</span><br>Unit
                                         </div>
                                         <div>
-                                            <strong id="sum-career-@id-value">0.00 M</strong><br />Value
+                                            <span class="summary-num" id="sum-register-value">0.00 M</span><br>Value
                                         </div>
                                     </div>
 
-                                    <div class="summary-footer" id="sum-career-@id-percent">0%</div>
+                                    <div class="summary-footer" id="sum-register-percent">0%</div>
                                 </div>
-                            }
+
+                                <!-- Queue + In Process -->
+                                <div class="summary-row summary-row-2inner">
+                                    <div class="summary-box bg-blue">
+                                        <h6>Queue</h6>
+                                        <div class="summary-values">
+                                            <div>
+                                                <span class="summary-num" id="sum-queue-unit">0</span><br>Unit
+                                            </div>
+                                            <div>
+                                                <span class="summary-num" id="sum-queue-value">0.00 M</span><br>Value
+                                            </div>
+                                        </div>
+
+                                        <div class="summary-footer" id="sum-queue-percent">0%</div>
+                                    </div>
+
+                                    <div class="summary-box bg-orange">
+                                        <h6>In Process</h6>
+                                        <div class="summary-values">
+                                            <div>
+                                                <span class="summary-num" id="sum-inprocess-unit">0</span><br>Unit
+                                            </div>
+                                            <div>
+                                                <span class="summary-num" id="sum-inprocess-value">0.00 M</span><br>Value
+                                            </div>
+                                        </div>
+                                        <div class="summary-footer" id="sum-inprocess-percent">0%</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RIGHT -->
+                            <div class="summary-col">
+                                <!-- Done -->
+                                <div class="summary-box bg-green-strong">
+                                    <h6>Done</h6>
+                                    <div class="summary-values">
+                                        <div>
+                                            <span class="summary-num" id="sum-done-unit">0</span><br>Unit
+                                        </div>
+                                        <div>
+                                            <span class="summary-num" id="sum-done-value">0.00 M</span><br>Value
+                                        </div>
+                                    </div>
+                                    <div class="summary-footer" id="sum-done-percent">0%</div>
+                                </div>
+
+                                <!-- ยื่น + ไม่ยื่น -->
+                                <div class="summary-row summary-row-2inner">
+                                    <div class="summary-box bg-green-light">
+                                        <h6>ยื่น</h6>
+                                        <div class="summary-values">
+                                            <div>
+                                                <span class="summary-num" id="sum-loan-yes-unit">0</span><br>Unit
+                                            </div>
+                                            <div>
+                                                <span class="summary-num" id="sum-loan-yes-value">0.00 M</span><br>Value
+                                            </div>
+                                        </div>
+                                        <div class="summary-footer" id="sum-loan-yes-percent">0%</div>
+                                    </div>
+
+                                    <div class="summary-box bg-pink-soft">
+                                        <h6>ไม่ยื่น</h6>
+                                        <div class="summary-values">
+                                            <div>
+                                                <span class="summary-num" id="sum-loan-no-unit">0</span><br>Unit
+                                            </div>
+                                            <div>
+                                                <span class="summary-num" id="sum-loan-no-value">0.00 M</span><br>Value
+                                            </div>
+                                        </div>
+                                        <div class="summary-footer" id="sum-loan-no-percent">0%</div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
-
                     </div>
-
 
                     <!-- 🔹 VIEW แบบ TABLE (ซ่อนตอนเริ่ม) -->
                     <div id="summary-register-table-view" class="d-none">
@@ -398,39 +410,8 @@
                             </div>
                         </div>
 
-                        <!-- Group 3: อาชีพ -->
-                        <div>
-                            <h6 class="fw-bold mb-2">Career Type</h6>
-                            <div class="table-responsive">
-                                <table class="table table-sm table-bordered mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 160px;">อาชีพ</th>
-                                            <th class="text-center" style="width: 100px;">Unit</th>
-                                            <th class="text-center" style="width: 140px;">Value (M)</th>
-                                            <th class="text-center" style="width: 80px;">%</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody id="tbl-career-body">
-                                        @foreach (var item in CareerList)
-                                        {
-                                            var value = item.ValueInt;   // ext.ID
-                                            var text = item.Text;       // ext.Name
-
-                                            <tr>
-                                                <td>@text</td>
-                                                <td class="text-center" id="tbl-@value-unit">0</td>
-                                                <td class="text-center" id="tbl-@value-value">0.00 M</td>
-                                                <td class="text-center" id="tbl-@value-percent">0%</td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
                     </div> 
+
                     <!-- /table view -->
 
                 </div>
@@ -457,46 +438,104 @@
         <div id="fltCollapseSummaryBank" class="collapse show">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-8">
-                        <div class="table-responsive">
-                            <table class="table table-bordered align-middle summary-bank-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 340px;">ธนาคาร</th>
-                                        <th style="width: 160px;">อัตราดอกเบี้ยเฉลี่ย 3 ปี</th>
-                                        <th style="width: 120px;">จำนวน</th>
-                                        <th style="width: 160px;">มูลค่า</th>
-                                        <th style="width: 100px;">%</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="summary-bank-body">
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted">
-                                            Loading...
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    <div class="col-12 col-lg-8">
+                        <div class="table-wrapper mb-4">
+                            <div class="table-responsive">
+                                <table class="table table-bordered align-middle summary-bank-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 340px;">ธนาคาร</th>
+                                            <th style="width: 160px;">อัตราดอกเบี้ยเฉลี่ย 3 ปี</th>
+                                            <th style="width: 120px;">จำนวน</th>
+                                            <th style="width: 160px;">มูลค่า</th>
+                                            <th style="width: 100px;">%</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="summary-bank-body">
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">
+                                                Loading...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-4">
-                        <div class="table-responsive">
-                            <table class="table table-bordered align-middle summary-bank-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 340px;">เหตุผลไม่ยื่น</th>
-                                        <th style="width: 160px;">จำนวน</th>
-                                        <th style="width: 100px;">%</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="summary-banknonsubmissionreason-body">
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted">
-                                            Loading...
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    <div class="col-12 col-lg-4">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="table-wrapper mb-4">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered align-middle summary-bank-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 340px;">เหตุผลไม่ยื่น</th>
+                                                    <th style="width: 160px;">จำนวน</th>
+                                                    <th style="width: 100px;">%</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="summary-banknonsubmissionreason-body">
+                                                <tr>
+                                                    <td colspan="5" class="text-center text-muted">
+                                                        Loading...
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="table-wrapper mb-4">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered align-middle summary-bank-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 340px;">อาชีพ</th>
+                                                    <th style="width: 160px;">Unit</th>
+                                                    <th style="width: 160px;">Value</th>
+                                                    <th style="width: 100px;">%</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="summary-RegisterCareerType-body">
+                                                @foreach (var item in CareerList)
+                                                {
+                                                    var id = item.ValueInt;   // ext.ID
+                                                    var text = item.Text;     // ext.Name
+
+                                                    <tr data-career-id="@id">
+                                                        <td class="text-start">@text</td>
+
+                                                        <td class="text-center">
+                                                            <span id="tbl-@id-unit">0</span>
+                                                        </td>
+
+                                                        <td class="text-end">
+                                                            <span id="tbl-@id-value">0.00</span>
+                                                        </td>
+
+                                                        <td class="text-center">
+                                                            <span id="tbl-@id-percent">0%</span>
+                                                        </td>
+                                                    </tr>
+                                                }
+
+                                                <!-- ✅ Total Row -->
+                                                <tr class="fw-bold" id="tbl-career-total-row">
+                                                    <td class="text-start">Total</td>
+                                                    <td class="text-center" id="tbl-career-total-unit">0</td>
+                                                    <td class="text-end" id="tbl-career-total-value">0.00</td>
+                                                    <td class="text-center">100%</td>
+                                                </tr>
+                                            </tbody>
+
+                                        </table>
+                                    </div>
+                                </div>
+
+                            </div>
                         </div>
                     </div>
                </div>          
@@ -587,15 +626,14 @@
                     <table class="table table-sm table-hover mb-0 cr-table" id="crTable">
                         <thead>
                             <tr>
-                                <th>No.</th>
+                                <th>#</th>
                                 <th>Unit Code</th>
                                 <th>Customer Name</th>
                                 <th>Responsible Name</th>
                                 <th>CSResponse Name</th>
                                 <th>Status</th>
                                 <th>Counter</th>
-                                <th>Create By</th>
-                                <th>Update Date</th>
+                                <th>Submission</th>
                                 <th>Update By</th>
                             </tr>
                         </thead>

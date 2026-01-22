@@ -600,6 +600,7 @@ function initQueueBankRegisterTable() {
             {
                 data: "UnitCode",
                 name: "UnitCode",
+                className: "text-center",
                 render: function (data, type, row) {
                     if (type !== "display") return data;
 
@@ -607,9 +608,9 @@ function initQueueBankRegisterTable() {
                     const id = row.ID || "";
 
                     return `
-                            <a href="javascript:void(0)" class="qb-unit-link unit-pill"
+                            <a href="#" class="qb-unit-link"
                                data-unit="${unitCode}" data-id="${id}">
-                               <i class="fa fa-home unit-icon"></i> ${unitCode}
+                               ${unitCode}
                             </a>`;
                 }
             },
@@ -624,38 +625,60 @@ function initQueueBankRegisterTable() {
                     // 🟩 WiseConnect
                     if (parseInt(row.LineUserContract_Count || "0") > 0) {
                         badges += `
-                <span class="svc svc-green" data-title="WiseConnect">
-                    <i class="fa fa-comment"></i>
-                </span>`;
+                                    <span class="svc svc-green" data-title="WiseConnect">
+                                        <i class="fa fa-comment"></i>
+                                    </span>`;
                     }
 
                     // 🟦 Register FinPlus
                     if (row.LoanDraftDate && row.LoanDraftDate.trim() !== "") {
-                        badges += `
-                <span class="svc svc-blue" data-title="Register FinPlus">R</span>`;
+                        badges += `<span class="svc svc-blue" data-title="Register FinPlus">R</span>`;
                     }
 
                     // 🟧 Summit Bank
                     if (row.LoanSubmitDate && row.LoanSubmitDate.trim() !== "") {
-                        badges += `
-                <span class="svc svc-orange" data-title="Summit Bank">B</span>`;
+                        badges += `<span class="svc svc-orange" data-title="Summit Bank">B</span>`;
                     }
 
                     return `
-            <div>
-                ${row.CustomerName || ""}
-                <span class="svc-badges">
-                    ${badges}
-                </span>
-            </div>
-        `;
+                                <div>
+                                    ${row.CustomerName || ""}
+                                    <span class="svc-badges">
+                                        ${badges}
+                                    </span>
+                                </div>
+                            `;
                 }
             },
 
-            { data: "Appointment", name: "Appointment", className: "tbody-center" },
+            { data: "Appointment", name: "Appointment", className: "text-center" },
+            //{
+            //    data: "ReasonName",
+            //    name: "ReasonName",
+            //    className: "text-center",
+            //    render: function (data, type, row) {
+
+            //        if (type !== "display") return row.ReasonName;
+
+            //        const reason = row.ReasonName || "";
+            //        const remark = row.ReasonRemarkName || "";
+
+            //        if (reason === "ไม่ยื่น" && remark) {
+            //            return `
+            //    <div>
+            //        ${reason}
+            //        <small class="text-muted d-block">${remark}</small>
+            //    </div>
+            //`;
+            //        }
+
+            //        return reason;
+            //    }
+            //},
             {
                 data: "Status",
                 name: "Status",
+                className: "text-center",
                 render: function (data, type) {
                     if (type !== "display") return data;
 
@@ -672,15 +695,15 @@ function initQueueBankRegisterTable() {
                     return `<span style="color:black;">${status}</span>`;
                 }
             },
-            { data: "StatusTime", name: "StatusTime" },
-            { data: "Counter", name: "Counter", className: "tbody-center" },
-            { data: "Unitstatus_CS", name: "Unitstatus_CS" },
+            { data: "StatusTime", name: "StatusTime" ,className: "text-center" },
+            { data: "Counter", name: "Counter", className: "text-center" },
+            { data: "Unitstatus_CS", name: "Unitstatus_CS", className: "text-center" },
             { data: "CSResponse", name: "CSResponse" },
             {
                 data: null,
                 orderable: false,
                 searchable: false,
-                className: "text-end",
+                className: "text-center",
                 render: function (data, type, row) {
                     return `
                         <button class="btn btn-icon btn-del"
@@ -827,6 +850,8 @@ function initCreateRegisterTable() {
             formData.append("length", data.length);
             formData.append("SearchTerm", (data.search && data.search.value) ? data.search.value.trim() : "");
             formData.append("L_ProjectID", projectId || "");
+            formData.append("L_RegisterDateStart", filters.RegisterDateStart || "");
+            formData.append("L_RegisterDateEnd", filters.RegisterDateEnd || "");
 
             if (typeof showLoading === "function") showLoading();
 
@@ -878,17 +903,14 @@ function initCreateRegisterTable() {
                 className: "tbody-center",
                 defaultContent: "",
                 render: function (data, type, row) {
+
+                    // ✅ search/sort ใช้ text ปกติ
                     if (type !== "display") return data;
 
                     const unitCode = escapeHtml(data || "");
-                    const id = escapeHtml(row.RegisterLogID || ""); // ✅ ใช้ RegisterLogID
+                    const id = escapeHtml(row.RegisterLogID || "");
 
-                    return `
-                            <a href="javascript:void(0)" class="qb-unit-link unit-pill"
-                               data-unit="${unitCode}" data-id="${id}">
-                               <i class="fa fa-home unit-icon"></i> ${unitCode}
-                            </a>`
-                    ;
+                    return `<a href="#" class="qb-unit-link" data-id="${id}">${unitCode}</a>`;
                 }
             },
             { data: "CustomerName", name: "CustomerName", defaultContent: "", render: (d, t) => t === "display" ? escapeHtml(d) : d },
@@ -921,8 +943,42 @@ function initCreateRegisterTable() {
                 defaultContent: "",
                 render: (d, t) => t === "display" ? escapeHtml(d) : d
             },
-            { data: "CreateBy", name: "CreateBy", defaultContent: "", render: (d, t) => t === "display" ? escapeHtml(d) : d },
-            { data: "UpdateDate", name: "UpdateDate", defaultContent: "", render: (d, t) => t === "display" ? escapeHtml(d) : d },
+            {
+                data: null,
+                name: "ReasonName",
+                defaultContent: "",
+                className: "text-center",
+                render: function (d, type, row) {
+
+                    const reason = row.ReasonName || "";
+                    const remark = row.ReasonRemarkName || "";
+
+                    // ✅ สำหรับ search/sort → ต้องเป็น text ล้วน
+                    if (type === "filter" || type === "sort") {
+                        return reason + " " + remark;
+                    }
+
+                    // ✅ display → ใส่ HTML ได้
+                    if (type === "display") {
+
+                        if (reason === "ไม่ยื่น" && remark) {
+                            return `
+                    <div class="text-danger fw-semibold">
+                        ${escapeHtml(reason)}
+                        <small class="d-block text-muted fw-normal">
+                            ${escapeHtml(remark)}
+                        </small>
+                    </div>
+                `;
+                        }
+
+                        return escapeHtml(reason);
+                    }
+
+                    return reason;
+                }
+            },
+
             { data: "UpdateBy", name: "UpdateBy", defaultContent: "", render: (d, t) => t === "display" ? escapeHtml(d) : d }
         ]
         // ❌ no drawCallback needed (we use native title tooltip)
@@ -2187,8 +2243,6 @@ function qbUpdateSummaryRegisterHeaderDate() {
     if (spanEl2) spanEl2.textContent = text;
 }
 
-
-
 function loadSummaryRegisterAll() {
     const filters = qbGetValues();
 
@@ -2240,9 +2294,9 @@ function loadSummaryRegisterAll() {
             qbUpdateSummaryBox("loan-no", loanMap["ไม่ยื่น"]);
 
             // 3) CareerType: render BOTH box + table (dynamic by CareerTypeID)
-            const careerList = res.listDataSummeryRegisterCareerTyp || [];
-            qbRenderCareerBox(careerList);
-            qbRenderCareerTable(careerList);
+            //const careerList = res.listDataSummeryRegisterCareerTyp || [];
+            //qbRenderCareerBox(careerList);
+            //qbRenderCareerTable(careerList);
         })
         .catch(err => {
             console.error("GetlistSummeryRegister error:", err);
@@ -2255,8 +2309,8 @@ function loadSummaryRegisterAll() {
             qbUpdateSummaryBox("loan-yes", null);
             qbUpdateSummaryBox("loan-no", null);
 
-            qbResetCareerBox();
-            qbResetCareerTable();
+            //qbResetCareerBox();
+            //qbResetCareerTable();
         })
         .finally(() => {
             if (typeof hideLoading === "function") hideLoading();
@@ -2293,6 +2347,7 @@ function qbResetCareerBox() {
 }
 
 // ===== Career: TABLE view =====
+
 function qbRenderCareerTable(list) {
     qbResetCareerTable();
 
@@ -2313,6 +2368,9 @@ function qbRenderCareerTable(list) {
         if (percentEl) percentEl.textContent = `${percent}%`;
     });
 }
+
+
+
 
 function qbResetCareerTable() {
     // reset เฉพาะ tbody career table
@@ -2350,6 +2408,7 @@ function loadSummaryRegisterBank() {
 
     const tbodyBank = document.getElementById("summary-bank-body");
     const tbodyNon = document.getElementById("summary-banknonsubmissionreason-body");
+    const tbodyCareer = document.getElementById("summary-RegisterCareerType-body");
 
     if (tbodyBank) {
         tbodyBank.innerHTML = `
@@ -2358,6 +2417,10 @@ function loadSummaryRegisterBank() {
     if (tbodyNon) {
         tbodyNon.innerHTML = `
             <tr><td colspan="3" class="text-center text-muted">Loading...</td></tr>`;
+    }
+    if (tbodyCareer) {
+        tbodyCareer.innerHTML = `
+            <tr><td colspan="4" class="text-center text-muted">Loading...</td></tr>`;
     }
 
     if (typeof showLoading === "function") showLoading();
@@ -2493,6 +2556,84 @@ function loadSummaryRegisterBank() {
                 }
             }
 
+            /* =======================================
+              3) Summary Career Type (ขวาล่าง) ✅✅✅
+              ใช้: res.listDataSummerycareerTask
+              ======================================= */
+            if (tbodyCareer) {
+                const listCareer = res.listDataSummerycareerTask || [];
+
+                if (!listCareer.length) {
+                    tbodyCareer.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No data</td></tr>`;
+                } else {
+
+                    // helper: parse string -> number (รองรับ "1,234" / "1.2K" / "3M")
+                    const parseSmartNumber = (input) => {
+                        if (input === null || input === undefined) return 0;
+                        let s = input.toString().trim().toUpperCase();
+                        if (!s) return 0;
+
+                        s = s.replace(/,/g, "");
+
+                        let mul = 1;
+                        const last = s.slice(-1);
+
+                        if (last === "K") { mul = 1000; s = s.slice(0, -1); }
+                        else if (last === "M") { mul = 1000000; s = s.slice(0, -1); }
+                        else if (last === "B") { mul = 1000000000; s = s.slice(0, -1); }
+
+                        const n = parseFloat(s);
+                        if (!Number.isFinite(n)) return 0;
+                        return n * mul;
+                    };
+
+                    let totalUnit = 0;
+                    let totalValue = 0;
+
+                    const rowsHtml = listCareer.map(item => {
+                        const careerName = item.Topic || "-";
+
+                        const unitRaw = item.Unit ?? "0";
+                        const valueRaw = item.Value ?? "0";
+                        const percentRaw = (item.Percent ?? "0").toString().trim();
+
+                        const unitNum = parseSmartNumber(unitRaw);
+                        const valueNum = parseSmartNumber(valueRaw);
+
+                        totalUnit += unitNum;
+                        totalValue += valueNum;
+
+                        const unitText = (unitRaw ?? "0").toString(); // โชว์ตาม backend (ถ้าเป็น short-name ก็ยังสวย)
+                        const valueText = (typeof qbFormatValueM === "function")
+                            ? qbFormatValueM(valueNum)
+                            : valueNum.toLocaleString();
+
+                        const percentText = percentRaw.endsWith("%") ? percentRaw : `${percentRaw}%`;
+
+                        return `
+                            <tr>
+                                <td class="text-start">${careerName}</td>
+                                <td class="text-center">${unitText}</td>
+                                <td class="text-end">${valueText}</td>
+                                <td class="text-center">${percentText}</td>
+                            </tr>`;
+                    }).join("");
+
+                    const totalRowHtml = `
+                        <tr class="fw-bold">
+                            <td class="text-start">Total</td>
+                            <td class="text-center">${totalUnit.toLocaleString()}</td>
+                            <td class="text-end">
+                                ${typeof qbFormatValueM === "function"
+                            ? qbFormatValueM(totalValue)
+                            : totalValue.toLocaleString()}
+                            </td>
+                            <td class="text-center">100%</td>
+                        </tr>`;
+
+                    tbodyCareer.innerHTML = rowsHtml + totalRowHtml;
+                }
+            }
 
         })
         .catch(err => {
@@ -2511,8 +2652,6 @@ function loadSummaryRegisterBank() {
             if (typeof hideLoading === "function") hideLoading();
         });
 }
-
-
 
 // โหลด Unit สำหรับใช้ใน modal Create Register (DDLUnitCode)
 function loadUnitForRegisterBank() {
@@ -2568,6 +2707,8 @@ function loadUnitForRegisterBank() {
 }
 
 
+
+
 // ---------- helper: download ----------
 function downloadBlob(blob, filename) {
     const url = URL.createObjectURL(blob);
@@ -2580,37 +2721,53 @@ function downloadBlob(blob, filename) {
     URL.revokeObjectURL(url);
 }
 
+// ---------- helper: wait fonts/images (ลดโอกาสแคปก่อนโหลดเสร็จ) ----------
+async function waitAssets(el) {
+    try {
+        if (document.fonts && document.fonts.ready) {
+            await document.fonts.ready;
+        }
+    } catch { }
+
+    const imgs = el.querySelectorAll("img");
+    const promises = [];
+    imgs.forEach(img => {
+        if (img.complete) return;
+        promises.push(new Promise(res => {
+            img.onload = img.onerror = () => res();
+        }));
+    });
+    await Promise.all(promises);
+}
+
 // ---------- helper: capture element to PNG blob ----------
 async function captureElementToPng(el, filename) {
     if (!el) return;
 
-    // ปรับ scale ให้ภาพคมขึ้น (2 = คมกำลังดี)
+    await waitAssets(el);
+
     const canvas = await html2canvas(el, {
         backgroundColor: "#ffffff",
         scale: 2,
         useCORS: true,
         logging: false,
-        // ถ้ามี sticky/transform แปลก ๆ บางทีช่วยได้:
-        // foreignObjectRendering: true,
         windowWidth: document.documentElement.scrollWidth,
         windowHeight: document.documentElement.scrollHeight
     });
 
     return new Promise((resolve) => {
         canvas.toBlob((blob) => {
-            if (blob) {
-                downloadBlob(blob, filename);
-            }
+            if (blob) downloadBlob(blob, filename);
             resolve();
         }, "image/png");
     });
 }
 
-// ---------- capture 3 cards ----------
-async function captureThreeCards() {
-    /*const card1 = document.getElementById("cardProjectTable");*/
+// ---------- capture cards into ONE image ----------
+async function captureCardsAsOneImage() {
     const card2 = document.getElementById("cardSummaryRegister");
     const card3 = document.getElementById("cardSummaryBank");
+    if (!card2 || !card3) return;
 
     // ตั้งชื่อไฟล์ตามเวลา (กันชนกัน)
     const now = new Date();
@@ -2621,12 +2778,33 @@ async function captureThreeCards() {
         String(now.getHours()).padStart(2, "0") +
         String(now.getMinutes()).padStart(2, "0");
 
-    // (ถ้าการ์ดถูก collapse อยู่ จะ capture ได้แค่ที่เห็น)
-    // ถ้าต้องการให้แคปแม้ยุบอยู่ บอกผม เดี๋ยวผมทำ “auto expand -> capture -> restore” ให้
+    // ✅ สร้าง wrapper ชั่วคราว (วาง offscreen)
+    const wrapper = document.createElement("div");
+    wrapper.id = "qb-capture-wrapper";
+    wrapper.style.position = "fixed";
+    wrapper.style.left = "-99999px";
+    wrapper.style.top = "0";
+    wrapper.style.background = "#ffffff";
+    wrapper.style.padding = "12px";
+    wrapper.style.width = Math.max(card2.offsetWidth, card3.offsetWidth) + "px";
 
-    /*await captureElementToPng(card1, `ProjectTable_${stamp}.png`);*/
-    await captureElementToPng(card2, `SummaryRegister_${stamp}.png`);
-    await captureElementToPng(card3, `SummaryBank_${stamp}.png`);
+    // ✅ Clone การ์ด (เอาของจริงมาวางรวมกัน)
+    const c2 = card2.cloneNode(true);
+    const c3 = card3.cloneNode(true);
+
+    // ✅ กัน margin แปลก ๆ + จัด spacing ระหว่างการ์ด
+    c2.style.margin = "0";
+    c3.style.margin = "12px 0 0 0";
+
+    wrapper.appendChild(c2);
+    wrapper.appendChild(c3);
+    document.body.appendChild(wrapper);
+
+    try {
+        await captureElementToPng(wrapper, `Summary_${stamp}.png`);
+    } finally {
+        wrapper.remove();
+    }
 }
 
 // ---------- bind button ----------
@@ -2637,7 +2815,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", async () => {
         try {
             btn.disabled = true;
-            await captureThreeCards();
+            await captureCardsAsOneImage();  // ✅ รูปเดียว
         } catch (e) {
             console.error("Capture error:", e);
             alert("Capture failed. Please check console.");
@@ -2646,6 +2824,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
 
 
 
