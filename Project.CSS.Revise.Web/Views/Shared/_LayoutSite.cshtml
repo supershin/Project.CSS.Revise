@@ -152,6 +152,35 @@
             font-size: 0.9rem;
         }
 
+        /* ===== TEXT LOGO (ID ONLY) ===== */
+        #text-logo-Upper {
+            display: flex;
+            align-items: center;
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: 0.08rem;
+            text-decoration: none;
+            font-family: "Prompt", sans-serif;
+            color: #2b2f3a;
+        }
+
+            /* hover */
+            #text-logo-Upper:hover {
+                opacity: 0.85;
+            }
+
+            /* active */
+            #text-logo-Upper:active {
+                transform: scale(0.98);
+            }
+
+        /* dark mode (ถ้า body มี class dark แบบ Riho/Bootstrap template) */
+        body.dark #text-logo-Upper {
+            color: #ffffff;
+        }
+
+
+
 
     </style>
 </head>
@@ -191,9 +220,31 @@
         <!-- Page Header Start-->
         <div class="page-header">
             <div class="header-wrapper row m-0">
+                @* <div class="header-logo-wrapper col-auto p-0">
+                    <div class="logo-wrapper"> 
+                        <a href="index.html">
+                            <img class="img-fluid for-light" src="~/assets/images/logo/logo_dark.png" alt="logo-light">
+                            <img class="img-fluid for-dark" src="~/assets/images/logo/logo.png" alt="logo-dark">
+                        </a>
+                    </div>
+                    <div class="toggle-sidebar"> 
+                        <i class="status_toggle middle sidebar-toggle" data-feather="align-center">
+
+                        </i>
+                    </div>
+                </div> *@
                 <div class="header-logo-wrapper col-auto p-0">
-                    <div class="logo-wrapper"> <a href="index.html"><img class="img-fluid for-light" src="~/assets/images/logo/logo_dark.png" alt="logo-light"><img class="img-fluid for-dark" src="~/assets/images/logo/logo.png" alt="logo-dark"></a></div>
-                    <div class="toggle-sidebar"> <i class="status_toggle middle sidebar-toggle" data-feather="align-center"></i></div>
+
+                    <div class="logo-wrapper">
+                        <a href="index.html" class="text-logo" id="text-logo-Upper">
+                            CSS
+                        </a>
+                    </div>
+
+                    <div class="toggle-sidebar">
+                        <i class="status_toggle middle sidebar-toggle" data-feather="align-center"></i>
+                    </div>
+
                 </div>
                 <div class="nav-right col-xxl-7 col-xl-6 col-md-7 col-8 pull-right right-header p-0 ms-auto">
                     <ul class="nav-menus">
