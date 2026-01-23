@@ -124,12 +124,56 @@ function qbApplyBlinkToGrid() {
     if (!grid) return;
 
     grid.querySelectorAll(".qb-counter").forEach(box => {
+
         const no = qbNormalizeCounterNo(box.dataset.counter);
         const shouldBlink = qbBlinkSet.has(no);
-        if (shouldBlink) box.classList.add("blink");
-        else box.classList.remove("blink");
+
+        const header = box.querySelector(".counter-header");
+        const body = box.querySelector(".counter-body");
+
+        if (!header || !body) return;
+
+        if (shouldBlink) {
+
+            box.classList.add("blink");
+
+            // ⭐ อ่านสีเข้มจาก header
+            const strongColor = header.style.backgroundColor;
+
+            // ⭐ สร้างสีอ่อนจาก strong (ผสมขาว)
+            const softColor = lightenColor(strongColor, 0.55);
+
+            // ⭐ ใส่ CSS variable ให้ animation ใช้
+            box.style.setProperty("--blink-strong", strongColor);
+            box.style.setProperty("--blink-soft", softColor);
+
+        } else {
+
+            box.classList.remove("blink");
+
+            box.style.removeProperty("--blink-strong");
+            box.style.removeProperty("--blink-soft");
+        }
     });
 }
+
+
+/* =========================
+   helper: lighten color
+========================= */
+function lightenColor(color, amount) {
+    // rgb(220,53,69)
+    const m = color.match(/\d+/g);
+    if (!m) return color;
+
+    const r = Math.round(+m[0] + (255 - +m[0]) * amount);
+    const g = Math.round(+m[1] + (255 - +m[1]) * amount);
+    const b = Math.round(+m[2] + (255 - +m[2]) * amount);
+
+    return `rgb(${r},${g},${b})`;
+}
+
+
 
 function qbBlinkCounters(counterList, { durationMs = 15000, replace = false } = {}) {
     const list = (counterList || []).map(qbNormalizeCounterNo).filter(Boolean);
