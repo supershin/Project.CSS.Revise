@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Pages.ProjectCounter;
 using Project.CSS.Revise.Web.Models.Pages.UserBank;
 using Project.CSS.Revise.Web.Respositories;
@@ -16,7 +17,7 @@ namespace Project.CSS.Revise.Web.Service
         public bool LeavUserbankFromTeam(int UserBankID, string UserID);
         Task<int> UpdateUserBankAsync(UserBankEditModel model);
         Task<bool> SoftDeleteUserBankAsync(int id, string updatedBy);
-
+        public bool UpdateInterestRateAVG(int userBankID, string interestRateAVG);
     }
     public class UserBankService : IUserBankService
     {
@@ -70,5 +71,10 @@ namespace Project.CSS.Revise.Web.Service
             return await _userBankRepo.SoftDeleteUserBankAsync(id, updatedBy);
         }
 
+        public bool UpdateInterestRateAVG(int userBankID, string interestRateAVG)
+        {
+            return _userBankRepo.UpdateInterestRateAVG(userBankID, interestRateAVG);
+
+        }
     }
 }

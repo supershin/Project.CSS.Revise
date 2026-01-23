@@ -177,5 +177,13 @@ namespace Project.CSS.Revise.Web.Controllers
 
             return Json(new { success = true, listUserBank = DatalistUserBank });
         }
+        
+        [HttpPost]
+        public IActionResult UpdateInterestRateAVG(int BankID, string interestRateAVG)
+        {
+            var result = _userBankService.UpdateInterestRateAVG(BankID, interestRateAVG);
+            return Json(new { success = result });
+        }
+
     }
 }

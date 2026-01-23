@@ -68,6 +68,24 @@
                                                 <div class="col-xl-12 p-3">
                                                     <!-- Make card CountUserByBank here! -->
                                                     <div id="bankCountCards" class="row g-3"></div>
+                                                    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+                                                        <div class="card bank-card p-3 text-center cursor-pointer"
+                                                             data-bs-toggle="modal"
+                                                             data-bs-target="#modalEditInterest"
+                                                             onclick="prepareInterestModal('1', 'ธนาคารกรุงเทพ', '1.50')">
+
+                                                            <div class="mb-2">
+                                                                <img src="/assets/bank/bbl.png" style="width:48px;height:48px;">
+                                                            </div>
+                                                            <div class="fw-semibold">ธนาคารกรุงเทพ</div>
+                                                            <small class="text-muted">Users: 11</small>
+
+                                                            <div class="text-success small mt-1">
+                                                                <i class="fa fa-percent"></i> 1.50
+                                                            </div>
+                                                        </div>
+
+
                                                 </div>
 
                                                 <div class="col-xl-4 xl-40 col-md-5">
@@ -304,6 +322,7 @@
         </div>
     </div>
 </div>
+</div>
 <!-- Container-fluid Ends-->
 
 <!-- Insert New User Bank -->
@@ -414,6 +433,42 @@
     </div>
 </div>
 <!-- Modal Ends-->
+
+<div class="modal fade" id="modalEditInterest" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header border-0 pb-0">
+                <h6 class="modal-title fw-bold">แก้ไขดอกเบี้ย</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <form id="formEditInterest">
+                    <div class="mb-3 text-center">
+                        <div id="displayBankName" class="fw-bold text-primary fs-5 mb-1">
+                            ธนาคาร...
+                        </div>
+                        <small class="text-muted">กำหนดอัตราดอกเบี้ยปัจจุบัน</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Interest Rate (%)</label>
+                        <div class="input-group">
+                            <input type="number" id="inpInterestRate" class="form-control text-center fs-5 fw-bold"
+                                   placeholder="0.00" step="0.01" min="0">
+                            <span class="input-group-text bg-light">%</span>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="hddBankIdForInterest">
+
+                    <div class="d-grid">
+                        <button type="button" class="btn btn-primary" id="btnSaveInterest">บันทึก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script src="~/js/Pages/UserBank/index.js?ver=@DateTime.Now.Ticks.ToString()"></script>
