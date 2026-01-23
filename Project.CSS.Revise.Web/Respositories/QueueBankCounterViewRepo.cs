@@ -17,6 +17,7 @@ namespace Project.CSS.Revise.Web.Respositories
         public UpdateUnitRegisterModel.Message RemoveUnitFromCounter(UpdateUnitRegisterModel.Entity input);
         public UpdateUnitRegisterModel.Message CheckoutBankCounter(BankCheckoutRequest input);
         public bool SaveRegisterCallStaffCounter(RegisterCallStaffCounter model, int userId);
+        public DingDongModel.Result CheckCanDingDong(DingDongModel.Filter filter);
     }
     public class QueueBankCounterViewRepo : IQueueBankCounterViewRepo
     {
@@ -70,7 +71,7 @@ namespace Project.CSS.Revise.Web.Respositories
 
                                  ,CASE
 								    WHEN COUNT(DISTINCT TU.UnitCode) > 1
-									    THEN CONCAT(MIN(TU.UnitCode), ' +')
+									    THEN CONCAT(MIN(TU.UnitCode), '+')
 								    ELSE MIN(TU.UnitCode)
 							      END AS UnitCode
 
@@ -534,5 +535,121 @@ namespace Project.CSS.Revise.Web.Respositories
             return rows > 0;   // ✅ true ถ้า insert สำเร็จ
         }
 
+        public DingDongModel.Result CheckCanDingDong(DingDongModel.Filter filter)
+        {
+            var result = new DingDongModel.Result();
+
+            string projectId = (filter.ProjectID ?? "").Trim();
+            result.ProjectID = projectId;
+
+            if (string.IsNullOrEmpty(projectId))
+            {
+                result.CanDingDong = false;
+                return result;
+            }
+
+            DateTime day = (filter.Day ?? DateTime.Now).Date;
+            DateTime dayStart = day;
+            DateTime dayEnd = day.AddDays(1);
+
+            string connectionString = _context.Database.GetDbConnection().ConnectionString;
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                // =========================
+                // 1) REGISTER SIGNATURE (latest)
+                // =========================
+                int registerSig = 0;
+
+                string sqlRegisterSig = @"
+                                            SELECT
+                                                Signature = CHECKSUM_AGG(
+                                                    BINARY_CHECKSUM(
+                                                        ID,
+                                                        UnitID,
+                                                        Counter,
+                                                        RegisterDate,
+                                                        CreateDate
+                                                    )
+                                                )
+                                            FROM [CSS].[dbo].[TR_RegisterLog] WITH (NOLOCK)
+                                            WHERE ProjectID = @ProjectID
+                                              AND CreateDate >= @DayStart
+                                              AND CreateDate <  @DayEnd
+                                              AND FlagActive = 1;
+                                            ";
+
+                using (SqlCommand cmd = new SqlCommand(sqlRegisterSig, conn))
+                {
+                    cmd.Parameters.Add(new SqlParameter("@ProjectID", projectId));
+                    cmd.Parameters.Add(new SqlParameter("@DayStart", dayStart));
+                    cmd.Parameters.Add(new SqlParameter("@DayEnd", dayEnd));
+
+                    object? val = cmd.ExecuteScalar();
+                    if (val != null && val != DBNull.Value)
+                    {
+                        registerSig = Convert.ToInt32(val);
+                    }
+                }
+
+                // ✅ always return latest signature
+                result.RegisterSignature = registerSig.ToString();
+
+                // compare with baseline
+                string lastSig = (filter.LastRegisterSignature ?? "").Trim();
+                if (!string.IsNullOrEmpty(lastSig))
+                {
+                    result.RegisterChanged = (result.RegisterSignature != lastSig);
+                }
+
+                // =========================
+                // 2) BANK LATEST UPDATEDATE (latest)
+                // =========================
+                DateTime? bankLatestUpdate = null;
+
+                string sqlBankLatestUpdate = @"
+                                                SELECT MAX(T2.UpdateDate) AS BankLatestUpdateDate
+                                                FROM [CSS].[dbo].[TR_RegisterLog] T1 WITH (NOLOCK)
+                                                LEFT JOIN [CSS].[dbo].[TR_Register_BankCounter] T2 WITH (NOLOCK)
+                                                    ON T1.ID = T2.RegisterLogID
+                                                WHERE T1.ProjectID = @ProjectID
+                                                  AND T2.BankCounterStatus <> 'Check Out'
+                                                  AND T1.CreateDate >= @DayStart
+                                                  AND T1.CreateDate <  @DayEnd
+                                                  AND T1.FlagActive = 1;
+                                                ";
+
+                using (SqlCommand cmd = new SqlCommand(sqlBankLatestUpdate, conn))
+                {
+                    cmd.Parameters.Add(new SqlParameter("@ProjectID", projectId));
+                    cmd.Parameters.Add(new SqlParameter("@DayStart", dayStart));
+                    cmd.Parameters.Add(new SqlParameter("@DayEnd", dayEnd));
+
+                    object? val = cmd.ExecuteScalar();
+                    if (val != null && val != DBNull.Value)
+                    {
+                        bankLatestUpdate = Convert.ToDateTime(val);
+                    }
+                }
+
+                // ✅ always return latest bank update
+                result.BankLatestUpdateDate = bankLatestUpdate;
+
+                // compare with baseline
+                if (filter.LastBankUpdateDate.HasValue && bankLatestUpdate.HasValue)
+                {
+                    result.BankChanged = bankLatestUpdate.Value > filter.LastBankUpdateDate.Value;
+                }
+
+                // =========================
+                // 3) FINAL
+                // =========================
+                result.CanDingDong = (result.RegisterChanged || result.BankChanged);
+            }
+
+            return result;
+        }
     }
 }

@@ -109,12 +109,62 @@ function qbPlayDingSafe() {
     } catch { }
 }
 
-function qbPlayDingCooldown(ms = 1500) {
+function qbPlayDingCooldown(ms) {
     const now = Date.now();
+
     if (now - qbLastDingAt < ms) return;
+
     qbLastDingAt = now;
-    qbPlayDingSafe();
+
+    const audio = document.getElementById("counterDingAudio");
+    if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(() => { });
+    }
 }
+
+
+async function qbCheckCanDingDong(projectId) {
+
+    const sigInput = document.getElementById("hdLastRegisterSignature");
+    const bankInput = document.getElementById("hdLastBankUpdateDate");
+
+    const lastSig = sigInput?.value || "";
+    const lastBank = bankInput?.value || "";
+    const _projectId = document.getElementById("hidProjectId")?.value || "";
+
+    const form = new FormData();
+    form.append("ProjectID", _projectId);
+    form.append("LastRegisterSignature", lastSig);
+    form.append("LastBankUpdateDate", lastBank);
+    form.append("Day", new Date().toISOString().slice(0, 10)); // yyyy-mm-dd
+
+    const res = await fetch(baseUrl + "QueueBankCounterView/CheckingDingDongModel", {
+        method: "POST",
+        body: form
+    });
+
+    if (!res.ok) return false;
+
+    const data = await res.json();
+
+    if (!data?.Success) return false;
+
+    // ✅ IMPORTANT: update baseline for next time
+    if (sigInput) sigInput.value = data.RegisterSignature || "";
+    if (bankInput) bankInput.value = data.BankLatestUpdateDate || "";
+
+    return data.CanDingDong === true;
+}
+
+
+
+//function qbPlayDingCooldown(ms = 1500) {
+//    const now = Date.now();
+//    if (now - qbLastDingAt < ms) return;
+//    qbLastDingAt = now;
+//    qbPlayDingSafe();
+//}
 
 /* =========================
    [BLINK] Counter Blink Engine

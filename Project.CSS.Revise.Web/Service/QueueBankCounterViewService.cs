@@ -1,4 +1,5 @@
-﻿using Project.CSS.Revise.Web.Models.Pages.QueueBank;
+﻿using Project.CSS.Revise.Web.Models;
+using Project.CSS.Revise.Web.Models.Pages.QueueBank;
 using Project.CSS.Revise.Web.Models.Pages.QueueBankCounterView;
 using Project.CSS.Revise.Web.Respositories;
 
@@ -13,6 +14,7 @@ namespace Project.CSS.Revise.Web.Service
         public UpdateUnitRegisterModel.Message RemoveUnitFromCounter(UpdateUnitRegisterModel.Entity input);
         public UpdateUnitRegisterModel.Message CheckoutBankCounter(BankCheckoutRequest input);
         public bool SaveRegisterCallStaffCounter(RegisterCallStaffCounter model, int userId);
+        public DingDongModel.Result CheckCanDingDong(DingDongModel.Filter filter);
     }
     public class QueueBankCounterViewService : IQueueBankCounterViewService
     {
@@ -55,6 +57,11 @@ namespace Project.CSS.Revise.Web.Service
         public bool SaveRegisterCallStaffCounter(RegisterCallStaffCounter model, int userId)
         {
             return _QueueBankCounterViewRepo.SaveRegisterCallStaffCounter(model , userId);
+        }
+
+        public DingDongModel.Result CheckCanDingDong(DingDongModel.Filter filter)
+        {
+            return _QueueBankCounterViewRepo.CheckCanDingDong(filter);
         }
     }
 }

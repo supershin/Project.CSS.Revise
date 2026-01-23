@@ -55,7 +55,19 @@ var appSignalR = {
             document.getElementById("btnRefreshCounter")?.click();
 
             // 2) 🔔 ding
-            if (typeof qbPlayDingCooldown === "function") qbPlayDingCooldown(1500);
+            //if (typeof qbPlayDingCooldown === "function") qbPlayDingCooldown(1500);
+            // 🔔 ding (DB verified only)
+            try {
+                const canDing = await qbCheckCanDingDong();
+
+                if (canDing && typeof qbPlayDingCooldown === "function") {
+                    qbPlayDingCooldown(1500);
+                }
+
+            } catch (e) {
+                console.error("DingDong check failed:", e);
+            }
+
 
             // 3) ✅ refresh RIGHT PANEL
             try {

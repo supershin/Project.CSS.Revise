@@ -16,6 +16,7 @@
    Counter Boxes
    (match JS: .active / .empty / .inprocess)
    ========================= */
+/* ===== FIX HEIGHT 75rem ===== */
 .counter-box {
     border-radius: 10px;
     overflow: hidden;
@@ -34,7 +35,7 @@
 /* Header base (ลดความสูง) */
 .counter-header {
     font-weight: 700;
-    padding: 3px 8px; /* ✅ จาก 6px -> 3px */
+
     font-size: 0.80rem; /* ✅ เล็กลงนิด */
     line-height: 1; /* ✅ ชิดขึ้น */
     white-space: nowrap;

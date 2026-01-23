@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Hubs;
+using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Pages.QueueBankCounterView;
 using Project.CSS.Revise.Web.Service;
 
@@ -70,7 +71,7 @@ namespace Project.CSS.Revise.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetCounterDetailsList(string projectId , int counter)
+        public IActionResult GetCounterDetailsList(string projectId, int counter)
         {
             if (string.IsNullOrWhiteSpace(projectId))
             {
@@ -84,8 +85,9 @@ namespace Project.CSS.Revise.Web.Controllers
 
             var filter = new ListCounterDetailsModel.Filter
             {
-                 ProjectID = projectId
-                ,Counter = counter
+                ProjectID = projectId
+                ,
+                Counter = counter
             };
 
             var list = _queueBankCounterViewService.GetListsCounterDetailsQueueBank(filter);
@@ -170,6 +172,69 @@ namespace Project.CSS.Revise.Web.Controllers
 
             return File(pngBytes, "image/png");
         }
+
+
+        [HttpPost]
+        public ActionResult CheckingDingDongModel(string ProjectID, string LastRegisterSignature, string LastBankUpdateDate, string Day)
+        {
+            try
+            {
+                // =========================
+                // Parse inputs (safe)
+                // =========================
+                ProjectID = (ProjectID ?? "").Trim();
+                LastRegisterSignature = (LastRegisterSignature ?? "").Trim();
+
+                DateTime? lastBankUpdateDt = null;
+                if (!string.IsNullOrWhiteSpace(LastBankUpdateDate))
+                {
+                    // รองรับทั้ง "2026-01-23 10:20:30" / ISO / ฯลฯ
+                    if (DateTime.TryParse(LastBankUpdateDate, out var tmp))
+                        lastBankUpdateDt = tmp;
+                }
+
+                DateTime? dayDt = null;
+                if (!string.IsNullOrWhiteSpace(Day))
+                {
+                    // รองรับ "2026-01-23" หรือ "23/01/2026" (แล้วแต่ culture)
+                    if (DateTime.TryParse(Day, out var tmpDay))
+                        dayDt = tmpDay.Date;
+                }
+
+                // =========================
+                // Build filter -> call service
+                // =========================
+                var filter = new DingDongModel.Filter
+                {
+                    ProjectID = ProjectID,
+                    LastRegisterSignature = LastRegisterSignature,
+                    LastBankUpdateDate = lastBankUpdateDt,
+                    Day = dayDt
+                };
+
+                var res = _queueBankCounterViewService.CheckCanDingDong(filter);
+
+                // ✅ สำคัญ: คืนค่า "ล่าสุด" กลับไปให้ client เก็บ baseline รอบหน้า
+                return Json(new
+                {
+                    Success = true,
+                    CanDingDong = res.CanDingDong,
+
+                    ProjectID = res.ProjectID,
+                    RegisterSignature = res.RegisterSignature,          // latest
+                    BankLatestUpdateDate = res.BankLatestUpdateDate,    // latest
+
+                    // optional debug
+                    RegisterChanged = res.RegisterChanged,
+                    BankChanged = res.BankChanged
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Success = false, Message = InnerException(ex) });
+            }
+        }
+
 
     }
 }
