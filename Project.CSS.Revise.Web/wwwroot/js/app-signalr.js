@@ -13,32 +13,49 @@ var appSignalR = {
         //trigger call staff
 
         ChatProxy.on("sendCallStaff", function (data) {
+
             const status = qbNormStatus(data?.CallStaffStatus);
             const counterNo = qbNormalizeCounterNo(data?.Counter);
-            const projectId = (data?.ProjectID ?? "").toString();
+            const serverProjectId = (data?.ProjectID ?? "").toString();
             const registerLogId = parseInt(data?.RegisterLogID ?? "0", 10);
 
-            if (!counterNo) { return; }
+            if (!counterNo) return;
+
+            const pageProjectId = document.getElementById("hidProjectId")?.value || "";
 
             if (status === "start") {
-                qbCallStaffMap.set(counterNo, { projectId: projectId, registerLogId: registerLogId });
 
-                // ถ้าจะให้กระพริบด้วย (ของพ่อใหญ่มีอยู่แล้ว)
-                if (typeof qbBlinkCounters === "function") { qbBlinkCounters([counterNo], { durationMs: 15000 }); }
-                if (typeof qbPlayDingCooldown === "function") { qbPlayDingCooldown(1500); }
+                qbCallStaffMap.set(counterNo, {
+                    projectId: serverProjectId,
+                    registerLogId: registerLogId
+                });
+                // ✅ ONLY same project → blink + ding
+                if (pageProjectId && serverProjectId === pageProjectId) {
+
+                    if (typeof qbBlinkCounters === "function") {
+                        qbBlinkCounters([counterNo], { durationMs: 15000 });
+                    }
+
+                    if (typeof qbPlayDingCooldown === "function") {
+                        qbPlayDingCooldown(1500);
+                    }
+                }
             }
 
             if (status === "stop") {
                 qbCallStaffMap.delete(counterNo);
-                if (typeof qbBlinkStop === "function") { qbBlinkStop(counterNo); }
+
+                if (typeof qbBlinkStop === "function") {
+                    qbBlinkStop(counterNo);
+                }
             }
 
-            // ถ้ากำลังเปิด detail อยู่ counter เดียวกัน → update ปุ่มทันที
-            if (String(currentCounterNo ?? "") === counterNo) {
-                qbUpdateStopButtonUI(counterNo);
-            }
-
+            // update detail panel
+            //if (String(currentCounterNo ?? "") === counterNo) {
+            //    qbUpdateStopButtonUI(counterNo);
+            //}
         });
+
 
         ChatProxy.on("notifyCounter", async function (data) {
 
@@ -59,7 +76,7 @@ var appSignalR = {
             // 🔔 ding (DB verified only)
             try {
                 const canDing = await qbCheckCanDingDong();
-
+                console.log(canDing);
                 if (canDing && typeof qbPlayDingCooldown === "function") {
                     qbPlayDingCooldown(1500);
                 }

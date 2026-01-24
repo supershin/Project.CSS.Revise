@@ -109,62 +109,62 @@ function qbPlayDingSafe() {
     } catch { }
 }
 
-function qbPlayDingCooldown(ms) {
+function qbPlayDingCooldown(ms = 1500) {
     const now = Date.now();
-
     if (now - qbLastDingAt < ms) return;
-
     qbLastDingAt = now;
-
-    const audio = document.getElementById("counterDingAudio");
-    if (audio) {
-        audio.currentTime = 0;
-        audio.play().catch(() => { });
-    }
+    qbPlayDingSafe();
 }
 
 
-async function qbCheckCanDingDong(projectId) {
+async function qbCheckCanDingDong() {
+
+    const projectId = document.getElementById("hidProjectId")?.value || "";
+    if (!projectId) return false;
 
     const sigInput = document.getElementById("hdLastRegisterSignature");
     const bankInput = document.getElementById("hdLastBankUpdateDate");
 
     const lastSig = sigInput?.value || "";
     const lastBank = bankInput?.value || "";
-    const _projectId = document.getElementById("hidProjectId")?.value || "";
 
-    const form = new FormData();
-    form.append("ProjectID", _projectId);
-    form.append("LastRegisterSignature", lastSig);
-    form.append("LastBankUpdateDate", lastBank);
-    form.append("Day", new Date().toISOString().slice(0, 10)); // yyyy-mm-dd
+    try {
 
-    const res = await fetch(baseUrl + "QueueBankCounterView/CheckingDingDongModel", {
-        method: "POST",
-        body: form
-    });
+        const form = new FormData();
+        form.append("ProjectID", projectId);
+        form.append("LastRegisterSignature", lastSig);
+        form.append("LastBankUpdateDate", lastBank);
+        form.append("Day", new Date().toISOString().slice(0, 10));
 
-    if (!res.ok) return false;
+        const url = `${qbRootPath()}QueueBankCounterView/CheckingDingDongModel`;
 
-    const data = await res.json();
+        const resp = await fetch(url, {
+            method: "POST",
+            body: form
+        });
 
-    if (!data?.Success) return false;
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
 
-    // ✅ IMPORTANT: update baseline for next time
-    if (sigInput) sigInput.value = data.RegisterSignature || "";
-    if (bankInput) bankInput.value = data.BankLatestUpdateDate || "";
+        const json = await resp.json();
 
-    return data.CanDingDong === true;
+        if (!json.Success) {
+            console.error("CheckingDingDongModel error:", json.Message);
+            return false;
+        }
+
+        // ✅ update baseline (สำคัญสุด)
+        if (sigInput) sigInput.value = json.RegisterSignature || "";
+        if (bankInput) bankInput.value = json.BankLatestUpdateDate || "";
+
+        return json.CanDingDong === true;
+
+    } catch (err) {
+
+        console.error("Check ding dong failed:", err);
+        return false;
+    }
 }
 
-
-
-//function qbPlayDingCooldown(ms = 1500) {
-//    const now = Date.now();
-//    if (now - qbLastDingAt < ms) return;
-//    qbLastDingAt = now;
-//    qbPlayDingSafe();
-//}
 
 /* =========================
    [BLINK] Counter Blink Engine
@@ -514,8 +514,7 @@ function renderCounterGrid(items) {
          data-registerid="${registerLogID}">
         <div class="counter-header" style="${headerStyle}">
             ${isActive
-                ? `<span class="counter-label">Counter</span>
-                       <span class="counter-sep">:</span>
+                ? `
                        <span class="counter-no">${counterNo}</span>`
                 : `<span class="counter-no">${counterNo}</span>`
             }
@@ -1270,6 +1269,7 @@ function qbBindOldSignalRIfAvailable() {
     ChatProxy.__qbCounterViewBound = true;
 
     ChatProxy.on("sendCallStaff", function (data) {
+
         const status = qbNormStatus(data?.CallStaffStatus);
         const counterNo = qbNormalizeCounterNo(data?.Counter);
         const projectId = (data?.ProjectID ?? "").toString();
@@ -1277,10 +1277,18 @@ function qbBindOldSignalRIfAvailable() {
 
         if (!counterNo) return;
 
+        // ✅ current page project
+        const pageProjectId = document.getElementById("hidProjectId")?.value || "";
+
         if (status === "start") {
+
             qbCallStaffMap.set(counterNo, { projectId: projectId, registerLogId: registerLogId });
-            qbBlinkCounters([counterNo], { durationMs: 15000 });
-            qbPlayDingCooldown(1500);
+
+            // ✅ only same project → blink + ding
+            if (pageProjectId && projectId === pageProjectId) {
+                qbBlinkCounters([counterNo], { durationMs: 15000 });
+                //qbPlayDingCooldown(1500); 4
+            }
         }
 
         if (status === "stop") {
@@ -1293,10 +1301,11 @@ function qbBindOldSignalRIfAvailable() {
         }
     });
 
+
     ChatProxy.on("notifyCounter", async function (data) {
         console.log("📡 [SignalR] notifyCounter received:", data);
 
-        qbPlayDingCooldown(1500);
+        // qbPlayDingCooldown(1500); 1
 
         qbClickIfExists("btnSearch");
         qbClickIfExists("btnRefreshChecker");
@@ -1347,7 +1356,7 @@ async function startNotifyHub() {
     connection.on("notifyCounter", async (data) => {
         console.log("📡 [notifyHub] notifyCounter:", data);
 
-        qbPlayDingCooldown(1500);
+        // qbPlayDingCooldown(1500); 2
 
         qbClickIfExists("btnSearch");
         qbClickIfExists("btnRefreshChecker");
@@ -1400,7 +1409,7 @@ async function startNotifyHub() {
         if (status === "start") {
             qbCallStaffMap.set(counterNo, { projectId, registerLogId });
             qbBlinkCounters([counterNo], { durationMs: 15000 });
-            qbPlayDingCooldown(1500);
+            //qbPlayDingCooldown(1500); 3
         } else if (status === "stop") {
             qbCallStaffMap.delete(counterNo);
             qbBlinkStop(counterNo);
@@ -1503,5 +1512,5 @@ document.addEventListener("DOMContentLoaded", function () {
     startNotifyHub();
 
     // ✅ OLD HUB
-    qbBindOldSignalRIfAvailable();
+    //qbBindOldSignalRIfAvailable();
 });

@@ -1500,7 +1500,7 @@ async function startNotifyHub() {
     //});
     connection.on("notifyCounter", async (data) => {
         console.log("📡 [notifyHub NEW] notifyCounter (CheckerView):", data);
-        qbPlayDingCooldown(1500);
+        //qbPlayDingCooldown(1500);
 
         // ✅ โหลดจริง ไม่พึ่ง click
         try { await loadCounterList(); } catch { }
@@ -1552,7 +1552,7 @@ function qbBindOldSignalRIfAvailable_Checker() {
     ChatProxy.on("notifyCounter", async function (data) {
         console.log("📡 [OLD SignalR] notifyCounter (CheckerView):", data);
 
-        qbPlayDingCooldown(1500);
+        //qbPlayDingCooldown(1500);
 
         // ✅ อย่าพึ่ง click อย่างเดียว ให้ load จริง ๆ เลย
         try { await loadCounterList(); } catch { }
