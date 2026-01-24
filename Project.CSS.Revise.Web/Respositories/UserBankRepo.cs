@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using System.Data;
+using System.Reflection;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
@@ -6,7 +8,6 @@ using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Data;
 using Project.CSS.Revise.Web.Models;
 using Project.CSS.Revise.Web.Models.Pages.UserBank;
-using System.Reflection;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static QRCoder.PayloadGenerator;
 
@@ -23,6 +24,7 @@ namespace Project.CSS.Revise.Web.Respositories
         public bool LeavUserbankFromTeam(int UserBankID, string UserID);
         Task<int> UpdateUserBankAsync(UserBankEditModel model);
         Task<bool> SoftDeleteUserBankAsync(int id, string updatedBy);
+        public bool UpdateInterestRateAVG(int userBankID, string interestRateAVG);
     }
     public class UserBankRepo : IUserBankRepo
     {
@@ -43,12 +45,15 @@ namespace Project.CSS.Revise.Web.Respositories
             if (mustClose) conn.Open();
 
             var sql = @"
-                        SELECT COUNT(U.[ID]) CntUserByBank, B.[BankCode], B.[BankName]
+                        SELECT COUNT(U.[ID]) CntUserByBank
+                             , B.[BankCode]
+                             , B.[BankName]
+                             , B.ID
                         FROM [PR_User] U WITH (NOLOCK)
                         LEFT JOIN [PR_UserBank_Mapping] UBM WITH (NOLOCK) ON U.[ID] = UBM.[UserID]
                         LEFT JOIN [tm_Bank] B WITH (NOLOCK) ON UBM.[BankID] = B.[ID]
                         WHERE U.[FlagActive] = 1 AND U.[UserTypeID] = 74 AND B.[FlagActive] = 1
-                        GROUP BY B.[BankCode], B.[BankName]
+                        GROUP BY B.[BankCode], B.[BankName]  ,B.ID
                         ORDER BY B.[BankCode];
                     ";
 
@@ -60,7 +65,8 @@ namespace Project.CSS.Revise.Web.Respositories
                 {
                     CntUserByBank = Commond.FormatExtension.Nulltoint(reader["CntUserByBank"]),
                     BankCode = Commond.FormatExtension.NullToString(reader["BankCode"]),
-                    BankName = Commond.FormatExtension.NullToString(reader["BankName"])
+                    BankName = Commond.FormatExtension.NullToString(reader["BankName"]),
+                    BankID = Commond.FormatExtension.Nulltoint(reader["ID"]),
                 });
             }
 
@@ -219,27 +225,6 @@ namespace Project.CSS.Revise.Web.Respositories
 
             return row;
         }
-
-        //public List<GetlistUserBankInTeam> GetlistUserBankInTeam(GetlistUserBankInTeam model)
-        //{
-        //    var result = from u in _context.PR_Users
-        //                 //join e in _context.tm_Exts on u.AreaID equals e.ID into gj
-        //                 //from e in gj.DefaultIfEmpty()
-        //                 where u.FlagActive == true
-        //                     && u.ParentBankID == model.ParentBankID
-        //                     && u.UserTypeID == Constants.Ext.UserBank
-        //                 select new GetlistUserBankInTeam
-        //                 {
-        //                     ID = u.ID,
-        //                     FullName = (u.FirstName ?? "") + " " + (u.LastName ?? ""),
-        //                     Mobile = u.Mobile,
-        //                     Email = u.Email,
-        //                     AreaID = "",
-        //                     AreaName = ""
-        //                 };
-
-        //    return result.ToList();
-        //}
 
         public List<GetlistUserBankInTeam> GetlistUserBankInTeam(GetlistUserBankInTeam model)
         {
@@ -636,5 +621,41 @@ namespace Project.CSS.Revise.Web.Respositories
             return true;
         }
 
+        public bool UpdateInterestRateAVG(int BankID, string interestRateAVG)
+        {
+            if (!decimal.TryParse(interestRateAVG, out decimal rate))
+                return false;
+
+            string sql = @"
+                            UPDATE dbo.tm_Bank
+                            SET InterestRateAVG = @InterestRateAVG
+                            WHERE ID = @BankID
+                        ";
+
+            try
+            {
+                // 🔑 ดึง connection string จาก DbContext
+                string connStr = _context.Database.GetDbConnection().ConnectionString;
+
+                using (SqlConnection conn = new SqlConnection(connStr))
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.Add("@InterestRateAVG", SqlDbType.Decimal).Value = rate;
+                    cmd.Parameters.Add("@BankID", SqlDbType.Int).Value = BankID;
+
+                    conn.Open();
+                    int rows = cmd.ExecuteNonQuery();
+                    return rows > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                // log ex ได้
+                return false;
+            }
+        }
+
+
     }
+
 }

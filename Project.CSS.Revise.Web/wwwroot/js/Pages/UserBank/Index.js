@@ -140,8 +140,21 @@ function renderCountUserByBankCards(items) {
 
     (items || []).forEach(x => {
         const col = el('div', 'col-6 col-sm-4 col-lg-2 mb-2');
-        const card = el('div', 'card shadow-sm h-100');
+        // เพิ่มคลาส cursor-pointer เพื่อให้รู้ว่ากดได้
+        const card = el('div', 'card shadow-sm h-100 cursor-pointer');
         card.style.borderRadius = '10px';
+
+        // เพิ่ม event onclick ส่งข้อมูลเข้า Modal
+        // หมายเหตุ: x.InterestRate ต้องมีส่งมาจาก Controller (C#) ใน json.listCountUserByBankk 
+        // ถ้ายังไม่มี ให้ใส่ 0 ไปก่อน หรือไปแก้ Backend เพิ่ม
+        card.onclick = () => {
+            // ใช้ BankID หรือ ValueInt ตามที่ Model ส่งมา
+            const bId = x.BankID ?? x.ValueInt ?? 0;
+            const bName = x.BankName ?? x.Text ?? '-';
+            const bRate = x.InterestRate ?? 0; // สมมติว่าชื่อ field คือ InterestRate
+
+            prepareInterestModal(bId, bName, bRate);
+        };
 
         const body = el('div', 'card-body d-flex align-items-center gap-2 p-2');
 
@@ -1213,4 +1226,86 @@ $id('searchPerson')?.addEventListener('keydown', (e) => {
 $id('ddl_bank')?.addEventListener('change', () => {
     // auto-search on filter change (or keep manual — your call)
     // doSearchUserBank();
+});
+
+// ==========================================
+// ส่วนจัดการ Modal แก้ไขดอกเบี้ย (Interest Rate)
+// ==========================================
+
+// 1. ฟังก์ชันรับค่าจากคลิกการ์ด แล้วเปิด Modal
+function prepareInterestModal(id, name, rate) {
+    const modalEl = document.getElementById('modalEditInterest');
+    if (!modalEl) return;
+
+    // เซตค่าลง Input
+    document.getElementById('hddBankIdForInterest').value = id;
+    document.getElementById('displayBankName').textContent = name;
+    document.getElementById('inpInterestRate').value = rate;
+
+    // สั่งเปิด Modal ของ Bootstrap 5
+    const myModal = new bootstrap.Modal(modalEl);
+    myModal.show();
+}
+
+// 2. กดปุ่มบันทึกใน Modal
+document.getElementById('btnSaveInterest')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btnSaveInterest');
+    // ดึงค่าจาก HTML
+    const id = document.getElementById('hddBankIdForInterest').value;
+    const rate = document.getElementById('inpInterestRate').value;
+
+    // --- เช็คค่าตรงนี้ ---
+    console.log("กำลังจะบันทึก...");
+    console.log("BankID ที่ดึงได้:", id);
+    console.log("Rate ที่ดึงได้:", rate);
+
+    if (!rate) {
+        alert('กรุณาระบุดอกเบี้ย');
+        return;
+    }
+
+    const prevHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Saving...`;
+
+    try {
+        // แก้ไข 1: เปลี่ยน URL ให้ตรงกับชื่อ Action ใน Controller (UpdateInterestRateAVG)
+        const res = await fetch(baseUrl + 'UserBank/UpdateInterestRateAVG', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+            body: new URLSearchParams({
+                // แก้ไข 2: เปลี่ยนชื่อตัวแปรที่ส่งไป ให้ตรงกับ Parameter ใน C# (BankID, interestRateAVG)
+                BankID: id,
+                interestRateAVG: rate
+            })
+        });
+
+        const json = await res.json();
+
+        if (json && json.success) {
+            const modalEl = document.getElementById('modalEditInterest');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            modalInstance?.hide();
+
+            if (typeof Swal !== 'undefined') {
+                await Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', timer: 1000, showConfirmButton: false });
+            } else {
+                alert('บันทึกสำเร็จ');
+            }
+
+            // รีโหลดหน้าจอ
+            loadUserBankPage();
+
+        } else {
+            // กรณี Backend return success: false
+            alert('บันทึกไม่สำเร็จ');
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = prevHTML;
+    }
 });
