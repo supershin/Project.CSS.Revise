@@ -1119,25 +1119,53 @@ function bindRegisterLogModal(data) {
             : (window.CURRENT_LOGIN_ID ? String(window.CURRENT_LOGIN_ID) : "");
     setChoiceSingle("#ddl_Responsible", responsibleValue);
 
-    // Career
     let careerValue = "";
+
+    // helper: normalize string ให้เทียบง่าย
+    function norm(s) {
+        return String(s || "")
+            .replace(/\s+/g, " ")   // รวมช่องว่างติดกัน
+            .trim();
+    }
+
     if (data.CareerTypeID && String(data.CareerTypeID) !== "0") {
         careerValue = String(data.CareerTypeID);
     } else if (data.QuestionAnswersName) {
-        const targetName = String(data.QuestionAnswersName).trim();
+        const target = norm(data.QuestionAnswersName);
         const selectEl = document.querySelector("#ddl_Career");
+
         if (selectEl) {
-            const options = selectEl.options;
-            for (let i = 0; i < options.length; i++) {
-                const optText = options[i].text ? options[i].text.trim() : "";
-                if (optText === targetName) {
-                    careerValue = options[i].value;
-                    break;
-                }
+            const options = Array.from(selectEl.options).filter(o => o.value !== "");
+
+            // 1) exact match ก่อน (กันเคสที่มันตรงจริง)
+            let found = options.find(o => norm(o.text) === target);
+
+            // 2) contains match: "พนักงานบริษัทเอกชนรายได้ประจำ" contains "รายได้ประจำ"
+            if (!found) {
+                found = options.find(o => target.includes(norm(o.text)));
             }
+
+            // 3) reverse contains: เผื่อ option ยาวกว่า target
+            if (!found) {
+                found = options.find(o => norm(o.text).includes(target));
+            }
+
+            // 4) ถ้ามีหลายตัวที่อยู่ใน target ให้เลือกตัวที่ "ยาวที่สุด" (เจาะจงสุด)
+            if (!found) {
+                const candidates = options
+                    .map(o => ({ opt: o, t: norm(o.text) }))
+                    .filter(x => x.t && target.includes(x.t))
+                    .sort((a, b) => b.t.length - a.t.length);
+
+                if (candidates.length) found = candidates[0].opt;
+            }
+
+            if (found) careerValue = found.value;
         }
     }
+
     setChoiceSingle("#ddl_Career", careerValue);
+
 
     // Reason + NonSubmissionReason
     setChoiceSingle("#ddl_Reason", data.ReasonID);

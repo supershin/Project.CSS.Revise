@@ -21,7 +21,7 @@ namespace Project.CSS.Revise.Web.Controllers
         private readonly MasterManagementConfigProject _configProject;
         private readonly IQueueBankService _queueBankService;
         private readonly IHubContext<QueueBankHub> _hub;
-
+        private const string QB_COOKIE_PROJECT = "QB_DEFAULT_PROJECTID";
         public QueueBankController(
             IHttpContextAccessor httpContextAccessor,
             IMasterService masterService,
@@ -69,8 +69,34 @@ namespace Project.CSS.Revise.Web.Controllers
             var listBankNonSubmissionReason = _masterService.GetlisDDl(new GetDDLModel { Act = "Ext", ID = 69 });
             ViewBag.listBankNonSubmissionReason = listBankNonSubmissionReason;
 
+            ViewBag.DefaultProjectID = Request.Cookies[QB_COOKIE_PROJECT] ?? "";
+
             return View();
         }
+
+        [HttpPost]
+        public JsonResult SetDefaultProject([FromForm] string projectId)
+        {
+            // ✅ ถ้าไม่ได้ส่ง/ค่าว่าง = ล้าง cookie
+            if (string.IsNullOrWhiteSpace(projectId))
+            {
+                Response.Cookies.Delete(QB_COOKIE_PROJECT);
+                return Json(new { success = true });
+            }
+
+            // ✅ เก็บ cookie 30 วัน
+            var opt = new CookieOptions
+            {
+                Expires = DateTimeOffset.UtcNow.AddDays(30),
+                HttpOnly = true,      // ✅ JS อ่านไม่ได้ แต่เราไม่ต้องอ่าน เพราะส่งกลับใน ViewBag
+                Secure = true,        // ถ้าใช้ https
+                SameSite = SameSiteMode.Lax
+            };
+
+            Response.Cookies.Append(QB_COOKIE_PROJECT, projectId.Trim(), opt);
+            return Json(new { success = true });
+        }
+
 
         [HttpPost]
         public async Task<JsonResult> RemoveRegisterLog(int ID)
