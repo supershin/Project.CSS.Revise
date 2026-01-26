@@ -131,7 +131,6 @@ function renderBankDropdown(listBank) {
     }
 }
 
-
 // ===== Render CountUserByBank cards =====
 function renderCountUserByBankCards(items) {
     const host = $id('bankCountCards');
@@ -140,20 +139,21 @@ function renderCountUserByBankCards(items) {
 
     (items || []).forEach(x => {
         const col = el('div', 'col-6 col-sm-4 col-lg-2 mb-2');
-        // เพิ่มคลาส cursor-pointer เพื่อให้รู้ว่ากดได้
+
+        // ใส่ class cursor-pointer เพื่อให้รู้ว่ากดได้
         const card = el('div', 'card shadow-sm h-100 cursor-pointer');
         card.style.borderRadius = '10px';
 
+        // ดึงค่าดอกเบี้ย (เผื่อชื่อตัวแปรต่างกันระหว่าง InterestRateAVG กับ InterestRate)
+        const currentRate = x.InterestRateAVG ?? x.InterestRate ?? 0;
+
         // เพิ่ม event onclick ส่งข้อมูลเข้า Modal
-        // หมายเหตุ: x.InterestRate ต้องมีส่งมาจาก Controller (C#) ใน json.listCountUserByBankk 
-        // ถ้ายังไม่มี ให้ใส่ 0 ไปก่อน หรือไปแก้ Backend เพิ่ม
         card.onclick = () => {
-            // ใช้ BankID หรือ ValueInt ตามที่ Model ส่งมา
             const bId = x.BankID ?? x.ValueInt ?? 0;
             const bName = x.BankName ?? x.Text ?? '-';
-            const bRate = x.InterestRate ?? 0; // สมมติว่าชื่อ field คือ InterestRate
 
-            prepareInterestModal(bId, bName, bRate);
+            // ส่งค่าดอกเบี้ยปัจจุบันเข้าไปใน Modal
+            prepareInterestModal(bId, bName, currentRate);
         };
 
         const body = el('div', 'card-body d-flex align-items-center gap-2 p-2');
@@ -168,14 +168,22 @@ function renderCountUserByBankCards(items) {
         iconBox.style.background = 'rgba(0,0,0,.04)';
 
         const textBox = el('div', 'flex-grow-1');
+
+        // จัดรูปแบบตัวเลขให้มีทศนิยม 2 ตำแหน่ง (เช่น 1.50)
+        const rateDisplay = Number(currentRate).toFixed(2);
+
+        // ★ เพิ่มบรรทัดแสดงดอกเบี้ยตรงนี้ ★
         textBox.innerHTML = `
-      <div class="fw-semibold" style="font-size:0.85rem;line-height:1.2;">
-        ${x.BankName || x.BankCode || '-'}
-      </div>
-      <div class="text-muted small" style="font-size:0.75rem;">
-        Users: <span class="fw-bold">${Number(x.CntUserByBank || 0).toLocaleString()}</span>
-      </div>
-    `;
+            <div class="fw-semibold" style="font-size:0.85rem;line-height:1.2;">
+                ${x.BankName || x.BankCode || '-'}
+            </div>
+            <div class="text-muted small" style="font-size:0.75rem;">
+                Users: <span class="fw-bold">${Number(x.CntUserByBank || 0).toLocaleString()}</span>
+            </div>
+            <div class="text-primary small mt-1" style="font-size:0.75rem; font-weight:600;">
+                <i class="fa fa-tag me-1"></i>Rate: ${rateDisplay}%
+            </div>
+        `;
 
         body.appendChild(iconBox);
         body.appendChild(textBox);
@@ -184,7 +192,6 @@ function renderCountUserByBankCards(items) {
         host.appendChild(col);
     });
 }
-
 // === Render รายชื่อซ้าย และ bind click ===
 function renderUserBankList(data) {
     const container = document.getElementById('userBankList');
@@ -257,7 +264,7 @@ function ensureChoices() {
         });
     }
 }
-
+  
 // เติมข้อมูล dropdown (ใช้กับ Choices)
 function setChoicesOptions(choices, list) {
     // list: [{value, label}]

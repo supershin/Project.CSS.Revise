@@ -39,23 +39,24 @@ namespace Project.CSS.Revise.Web.Respositories
         {
             var result = new List<CountUserByBankModel.ListData>();
 
-            // ใช้ EF Core connection เดิม
             using var conn = (SqlConnection)_context.Database.GetDbConnection();
             var mustClose = conn.State != System.Data.ConnectionState.Open;
             if (mustClose) conn.Open();
 
+            // ★ แก้ไข SQL: เพิ่ม B.InterestRateAVG ใน SELECT และ GROUP BY
             var sql = @"
-                        SELECT COUNT(U.[ID]) CntUserByBank
-                             , B.[BankCode]
-                             , B.[BankName]
-                             , B.ID
-                        FROM [PR_User] U WITH (NOLOCK)
-                        LEFT JOIN [PR_UserBank_Mapping] UBM WITH (NOLOCK) ON U.[ID] = UBM.[UserID]
-                        LEFT JOIN [tm_Bank] B WITH (NOLOCK) ON UBM.[BankID] = B.[ID]
-                        WHERE U.[FlagActive] = 1 AND U.[UserTypeID] = 74 AND B.[FlagActive] = 1
-                        GROUP BY B.[BankCode], B.[BankName]  ,B.ID
-                        ORDER BY B.[BankCode];
-                    ";
+                SELECT COUNT(U.[ID]) CntUserByBank
+                     , B.[BankCode]
+                     , B.[BankName]
+                     , B.ID
+                     , B.InterestRateAVG  -- <--- เพิ่มบรรทัดนี้
+                FROM [PR_User] U WITH (NOLOCK)
+                LEFT JOIN [PR_UserBank_Mapping] UBM WITH (NOLOCK) ON U.[ID] = UBM.[UserID]
+                LEFT JOIN [tm_Bank] B WITH (NOLOCK) ON UBM.[BankID] = B.[ID]
+                WHERE U.[FlagActive] = 1 AND U.[UserTypeID] = 74 AND B.[FlagActive] = 1
+                GROUP BY B.[BankCode], B.[BankName], B.ID, B.InterestRateAVG -- <--- เพิ่มใน Group By ด้วย
+                ORDER BY B.[BankCode];
+            ";
 
             using var cmd = new SqlCommand(sql, conn);
             using var reader = cmd.ExecuteReader();
@@ -67,6 +68,10 @@ namespace Project.CSS.Revise.Web.Respositories
                     BankCode = Commond.FormatExtension.NullToString(reader["BankCode"]),
                     BankName = Commond.FormatExtension.NullToString(reader["BankName"]),
                     BankID = Commond.FormatExtension.Nulltoint(reader["ID"]),
+
+                    // ★ แก้ไขการรับค่า: อ่านค่า InterestRateAVG
+                    // ต้องมั่นใจว่าใน Model CountUserByBankModel.ListData มี property นี้แล้ว
+                    InterestRateAVG = reader["InterestRateAVG"] != DBNull.Value ? Convert.ToDecimal(reader["InterestRateAVG"]) : 0
                 });
             }
 

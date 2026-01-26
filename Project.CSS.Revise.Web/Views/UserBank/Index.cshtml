@@ -64,248 +64,228 @@
                                         </div>
 
                                         <div class="card-body">
-                                            <div class="row list-persons" id="addcon">
-                                                <div class="col-xl-12 p-3">
-                                                    <!-- Make card CountUserByBank here! -->
-                                                    <div id="bankCountCards" class="row g-3"></div>
-                                                    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                                                        <div class="card bank-card p-3 text-center cursor-pointer"
-                                                             data-bs-toggle="modal"
-                                                             data-bs-target="#modalEditInterest"
-                                                             onclick="prepareInterestModal('1', 'ธนาคารกรุงเทพ', '1.50')">
+                                           <div class="row list-persons" id="addcon">
+    
+    <div class="col-xl-12 p-3">
+        <div id="bankCountCards" class="row g-3"></div>
+        <div class="d-none"> <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+                <div class="card bank-card p-3 text-center cursor-pointer"
+                        onclick="prepareInterestModal('1', 'ธนาคารกรุงเทพ', '1.50')">
+                    <div class="mb-2">
+                        <img src="/assets/bank/bbl.png" style="width:48px;height:48px;">
+                    </div>
+                    <div class="fw-semibold">ธนาคารกรุงเทพ</div>
+                    <small class="text-muted">Users: 11</small>
+                    <div class="text-success small mt-1">
+                        <i class="fa fa-percent"></i> 1.50
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                                                            <div class="mb-2">
-                                                                <img src="/assets/bank/bbl.png" style="width:48px;height:48px;">
-                                                            </div>
-                                                            <div class="fw-semibold">ธนาคารกรุงเทพ</div>
-                                                            <small class="text-muted">Users: 11</small>
+    <div class="col-xl-4 xl-40 col-md-5">
+        <div class="vertical-scroll scroll-demo scroll-b-none"
+             style="height: 911px; overflow-y: auto; overflow-x: hidden;">
+            <div id="userBankList" class="list-group">
+                </div>
+        </div>
+    </div>
 
-                                                            <div class="text-success small mt-1">
-                                                                <i class="fa fa-percent"></i> 1.50
-                                                            </div>
-                                                        </div>
+    <div class="col-xl-8 xl-60 col-md-7">
+        <div class="card h-100">
+            <div class="card-header bg-white border-0 pb-0">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bank-logo-circle">
+                        <img id="editUserBankLogo" src="" alt="Bank" />
+                    </div>
+                    <div>
+                        <div id="editUserBankFullName" class="fw-bold text-dark fs-5"></div>
+                        <div id="editUserBankBankName" class="text-muted"></div>
+                    </div>
+                </div>
+                <hr class="mt-3 mb-0" />
+            </div>
 
+            <div class="card-body pt-3">
+                <ul class="simple-wrapper nav nav-tabs" id="Edit-userbank-Form-tab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active txt-primary" id="detail-tab" data-bs-toggle="tab"
+                           href="#detail-filter" role="tab" aria-controls="detail-tab" aria-selected="true">
+                            <i class="fa fa-user me-1"></i> Detail
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link txt-primary" id="team-tab" data-bs-toggle="tab"
+                           href="#team-filter" role="tab" aria-controls="team-tab" aria-selected="false">
+                            <i class="fa fa-users me-1"></i> Team
+                        </a>
+                    </li>
+                </ul>
 
-                                                </div>
+                <div class="tab-content" id="Edit-userbank-Form-tab-Content">
+                    
+                    <div class="tab-pane fade show active" id="detail-filter" role="tabpanel" aria-labelledby="detail-tab">
+                        <div class="profile-mail pt-3">
+                            
+                            <div class="mb-3 row">
+                                <label class="col-sm-3 col-form-label">หัวหน้า Team</label>
+                                <div class="col-sm-9 d-flex align-items-center">
+                                    <input type="checkbox" id="chkIsLead" class="form-check-input me-2" />
+                                </div>
+                            </div>
 
-                                                <div class="col-xl-4 xl-40 col-md-5">
-                                                    <div class="vertical-scroll scroll-demo scroll-b-none"
-                                                         style="height: 911px; overflow-y: auto; overflow-x: hidden;">
-                                                        <div id="userBankList" class="list-group">
-                                                            <!-- Render listUserBank ที่นี่ -->
-                                                        </div>
-                                                    </div>
-                                                </div>
+                            <div class="mb-3 row">
+                                <label class="col-sm-3 col-form-label">Bank</label>
+                                <div class="col-sm-9">
+                                    <select id="ddlEditBank" class="form-select"></select>
+                                </div>
+                            </div>
 
-                                                <div class="col-xl-8 xl-60 col-md-7">
-                                                    <div class="card h-100">
-                                                        <!-- Header -->
-                                                        <div class="card-header bg-white border-0 pb-0">
-                                                            <div class="d-flex align-items-center gap-3">
-                                                                <div class="bank-logo-circle">
-                                                                    <img id="editUserBankLogo" src="" alt="Bank" />
-                                                                </div>
-                                                                <div>
-                                                                    <div id="editUserBankFullName" class="fw-bold text-dark fs-5">
-                                                                        <!-- ปานิสรา วงษ์วาณิช -->
-                                                                    </div>
-                                                                    <div id="editUserBankBankName" class="text-muted">
-                                                                        <!-- ธนาคารกรุงเทพ จำกัด (มหาชน) -->
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <hr class="mt-3 mb-0" />
-                                                        </div>
+                            <div class="mb-3 row">
+                                <label class="col-sm-3 col-form-label">Team Name</label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" id="inpParentTeam" type="text" disabled>
+                                </div>
+                            </div>
 
-                                                        <!-- Body -->
-                                                        <div class="card-body pt-3">
-                                                            <ul class="simple-wrapper nav nav-tabs" id="Edit-userbank-Form-tab" role="tablist">
-                                                                <li class="nav-item">
-                                                                    <a class="nav-link active txt-primary" id="detail-tab" data-bs-toggle="tab"
-                                                                       href="#detail-filter" role="tab" aria-controls="detail-tab" aria-selected="true">
-                                                                        <i class="fa fa-user me-1"></i> Detail
-                                                                    </a>
-                                                                </li>
-                                                                <li class="nav-item">
-                                                                    <a class="nav-link txt-primary" id="team-tab" data-bs-toggle="tab"
-                                                                       href="#team-filter" role="tab" aria-controls="team-tab" aria-selected="false">
-                                                                        <i class="fa fa-users me-1"></i> Team
-                                                                    </a>
-                                                                </li>
-                                                            </ul>
+                            <div class="mb-3 row">
+                                <label class="col-sm-3 col-form-label">First Name</label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" id="inpFirstName" type="text" placeholder="First name">
+                                </div>
+                            </div>
 
-                                                            <div class="tab-content" id="Edit-userbank-Form-tab-Content">
-                                                                <div class="tab-pane fade show active" id="detail-filter" role="tabpanel" aria-labelledby="detail-tab">
-                                                                    <div class="profile-mail pt-3">
-                                                                        <!-- Bank / Lead -->
-                                                                        <div class="mb-3 row">
-                                                                            <label class="col-sm-3 col-form-label">หัวหน้า Team</label>
-                                                                            <div class="col-sm-9 d-flex align-items-center">
-                                                                                <input type="checkbox" id="chkIsLead" class="form-check-input me-2" />
-                                                                            </div>
-                                                                        </div>
+                            <div class="mb-3 row">
+                                <label class="col-sm-3 col-form-label">Last Name</label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" id="inpLastName" type="text" placeholder="Last name">
+                                </div>
+                            </div>
 
-                                                                        <div class="mb-3 row">
-                                                                            <label class="col-sm-3 col-form-label">Bank</label>
-                                                                            <div class="col-sm-9">
-                                                                                <select id="ddlEditBank" class="form-select"></select>
-                                                                            </div>
-                                                                        </div>
-                                                                        <!-- Inputs -->
-                                                                        <div class="mb-3 row">
-                                                                            <label class="col-sm-3 col-form-label">Team Name</label>
-                                                                            <div class="col-sm-9">
-                                                                                <input class="form-control" id="inpParentTeam" type="text" disabled>
-                                                                            </div>
-                                                                        </div>
+                            <div class="mb-3 row">
+                                <label class="col-sm-3 col-form-label">Mobile</label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" id="inpMobile" type="tel" placeholder="0812345678">
+                                </div>
+                            </div>
 
-                                                                        <!-- Inputs -->
-                                                                        <div class="mb-3 row">
-                                                                            <label class="col-sm-3 col-form-label">First Name</label>
-                                                                            <div class="col-sm-9">
-                                                                                <input class="form-control" id="inpFirstName" type="text" placeholder="First name">
-                                                                            </div>
-                                                                        </div>
+                            <div class="mb-3 row">
+                                <label class="col-sm-3 col-form-label">Email</label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" id="inpEmail" type="email" placeholder="example@mail.com">
+                                </div>
+                            </div>
 
-                                                                        <div class="mb-3 row">
-                                                                            <label class="col-sm-3 col-form-label">Last Name</label>
-                                                                            <div class="col-sm-9">
-                                                                                <input class="form-control" id="inpLastName" type="text" placeholder="Last name">
-                                                                            </div>
-                                                                        </div>
+                            <div class="mb-3 row">
+                                <label class="col-sm-3 col-form-label">Username</label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" id="inpUsername" type="text" placeholder="username">
+                                </div>
+                            </div>
 
-                                                                        <div class="mb-3 row">
-                                                                            <label class="col-sm-3 col-form-label">Mobile</label>
-                                                                            <div class="col-sm-9">
-                                                                                <input class="form-control" id="inpMobile" type="tel" placeholder="0812345678">
-                                                                            </div>
-                                                                        </div>
+                            <div class="mb-3 row">
+                                <label class="col-sm-3 col-form-label">Password</label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" id="inpPassword" type="password" placeholder="********">
+                                </div>
+                            </div>
 
-                                                                        <div class="mb-3 row">
-                                                                            <label class="col-sm-3 col-form-label">Email</label>
-                                                                            <div class="col-sm-9">
-                                                                                <input class="form-control" id="inpEmail" type="email" placeholder="example@mail.com">
-                                                                            </div>
-                                                                        </div>
+                            <div class="mb-3">
+                                <select id="projectMultiSelect" class="form-control" multiple></select>
+                            </div>
 
-                                                                        <div class="mb-3 row">
-                                                                            <label class="col-sm-3 col-form-label">Username</label>
-                                                                            <div class="col-sm-9">
-                                                                                <input class="form-control" id="inpUsername" type="text" placeholder="username">
-                                                                            </div>
-                                                                        </div>
+                            <div class="mb-3 row">
+                                <label class="col-sm-3 col-form-label">Area</label>
+                                <div class="col-sm-9">
+                                    @{
+                                        var areas = ViewBag.ListArea as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+                                    }
+                                    @foreach (var a in areas)
+                                    {
+                                        var val = (a.ValueInt ?? a.ValueString ?? a.Value ?? a.ID ?? "").ToString();
+                                        var text = (a.Text ?? a.Name ?? "").ToString();
+                                        var cid = $"area_{val}";
+                                        <div class="form-check form-check-inline mb-2">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   id="@cid"
+                                                   name="AreaIDs"
+                                                   value="@val" />
+                                            <label class="form-check-label" for="@cid">@text</label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
 
-                                                                        <div class="mb-3 row">
-                                                                            <label class="col-sm-3 col-form-label">Password</label>
-                                                                            <div class="col-sm-9">
-                                                                                <input class="form-control" id="inpPassword" type="password" placeholder="********">
-                                                                            </div>
-                                                                        </div>
+                            <div class="mb-2 d-flex justify-content-between align-items-center bg-white">
+                                <button id="btnDeleteUserBank" type="button" class="btn btn-outline-danger">
+                                    <i class="fa fa-trash me-1"></i> Delete
+                                </button>
+                                <button id="btnSaveUserBank" type="button" class="btn btn-primary">
+                                    <i class="fa fa-save me-1"></i> Save
+                                </button>
+                            </div>
 
-                                                                        <!-- Projects -->
-                                                                        <div class="mb-3">
-                                                                            <select id="projectMultiSelect" class="form-control" multiple></select>
-                                                                        </div>
+                        </div>
+                    </div>
 
-                                                                        <!-- Checkbox area -->
-                                                                        <div class="mb-3 row">
-                                                                            <label class="col-sm-3 col-form-label">Area</label>
-                                                                            <div class="col-sm-9">
-                                                                                @{
-                                                                                    var areas = ViewBag.ListArea as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
-                                                                                }
-                                                                                @foreach (var a in areas)
-                                                                                {
-                                                                                    var val = (a.ValueInt ?? a.ValueString ?? a.Value ?? a.ID ?? "").ToString();
-                                                                                    var text = (a.Text ?? a.Name ?? "").ToString();
-                                                                                    var cid = $"area_{val}";
-                                                                                    <div class="form-check form-check-inline mb-2">
-                                                                                        <input class="form-check-input"
-                                                                                               type="checkbox"
-                                                                                               id="@cid"
-                                                                                               name="AreaIDs"
-                                                                                               value="@val" />
-                                                                                        <label class="form-check-label" for="@cid">@text</label>
-                                                                                    </div>
-                                                                                }
-                                                                            </div>
-                                                                        </div>
+                    <div class="tab-pane fade" id="team-filter" role="tabpanel" aria-labelledby="team-tab">
+                        <div class="pt-3">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold mb-1">Teams Name</label>
+                                <input type="text" class="form-control" id="inpTeamName" disabled>
+                            </div>
 
+                            <div class="mb-3">
+                                <div class="row">
+                                    <div class="col-8">
+                                        <select class="form-select" aria-label="เลือกสมาชิกเข้าทีม" id="ddl-add-more-user-bank">
+                                            <option value="">เลือกสมาชิกเข้าทีม</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-4">
+                                        <button class="btn btn-outline-primary" type="button" id="crewDropdown">
+                                            <i class="fa fa-user-plus me-1"></i> Add crew
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
 
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="fa fa-search text-muted"></i>
+                                    </span>
+                                    <input id="inpSearchTeam" type="text" class="form-control border-start-0" placeholder="ค้นหา Full name / Email / Mobile / Area">
+                                </div>
+                            </div>
 
-                                                                        <div class="mb-2 d-flex justify-content-between align-items-center bg-white">
-                                                                            <button id="btnDeleteUserBank" type="button" class="btn btn-outline-danger">
-                                                                                <i class="fa fa-trash me-1"></i> Delete
-                                                                            </button>
-                                                                            <button id="btnSaveUserBank" type="button" class="btn btn-primary">
-                                                                                <i class="fa fa-save me-1"></i> Save
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="tab-pane fade" id="team-filter" role="tabpanel" aria-labelledby="team-tab">
-                                                                    <div class="pt-3">
+                            <div class="table-responsive">
+                                <table class="table align-middle" id="tblTeam">
+                                    <thead>
+                                        <tr class="border-bottom">
+                                            <th class="text-muted fw-semibold">Member</th>
+                                            <th class="text-muted fw-semibold">Area</th>
+                                            <th style="width:100px;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="teamTbody">
+                                        </tbody>
+                                    <tfoot>
+                                        <tr class="border-top">
+                                            <td colspan="4" class="small text-muted">
+                                                * กดปุ่ม Remove เพื่อลบออกจากทีม
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
 
-                                                                        <!-- Teams Name -->
-                                                                        <div class="mb-3">
-                                                                            <label class="form-label fw-semibold mb-1">Teams Name</label>
-                                                                            <input type="text" class="form-control" id="inpTeamName" disabled>
-                                                                        </div>
+                        </div>
+                    </div>
 
-                                                                        <div class="mb-3">
-                                                                            <div class="row">
-                                                                                <div class="col-8">
-                                                                                    <select class="form-select" aria-label="เลือกสมาชิกเข้าทีม" id="ddl-add-more-user-bank">
-                                                                                        <option value="">
-                                                                                            เลือกสมาชิกเข้าทีม
-                                                                                        </option>
-                                                                                    </select>
-                                                                                </div>
-                                                                                <div class="col-4">
-                                                                                    <button class="btn btn-outline-primary" type="button" id="crewDropdown">
-                                                                                        <i class="fa fa-user-plus me-1"></i> Add crew
-                                                                                    </button>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-
-
-                                                                        <!-- Search -->
-                                                                        <div class="mb-3">
-                                                                            <div class="input-group">
-                                                                                <span class="input-group-text bg-white border-end-0">
-                                                                                    <i class="fa fa-search text-muted"></i>
-                                                                                </span>
-                                                                                <input id="inpSearchTeam" type="text" class="form-control border-start-0" placeholder="ค้นหา Full name / Email / Mobile / Area">
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <!-- Table: Member รวมชื่อ/มือถือ/อีเมลในคอลัมน์เดียว -->
-                                                                        <div class="table-responsive">
-                                                                            <table class="table align-middle" id="tblTeam">
-                                                                                <thead>
-                                                                                    <tr class="border-bottom">
-                                                                                        <th class="text-muted fw-semibold">Member</th>
-                                                                                        <th class="text-muted fw-semibold">Area</th>
-                                                                                        <th style="width:100px;"></th>
-                                                                                    </tr>
-                                                                                </thead>
-                                                                                <tbody id="teamTbody">
-                                                                                    <!-- filled by JS: renderTeamRows(list) -->
-                                                                                </tbody>
-                                                                                <tfoot>
-                                                                                    <tr class="border-top">
-                                                                                        <td colspan="4" class="small text-muted">
-                                                                                            * กดปุ่ม Remove เพื่อลบออกจากทีม
-                                                                                        </td>
-                                                                                    </tr>
-                                                                                </tfoot>
-                                                                            </table>
-                                                                        </div>
-
-                                                                    </div>
-                                                                </div>
-                                                            </div>
+                </div> </div> </div> </div> </div>
                                                         </div>
                                                     </div>
                                                 </div>
