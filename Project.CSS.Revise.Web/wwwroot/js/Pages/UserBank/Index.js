@@ -131,7 +131,6 @@ function renderBankDropdown(listBank) {
     }
 }
 
-
 // ===== Render CountUserByBank cards =====
 function renderCountUserByBankCards(items) {
     const host = $id('bankCountCards');
@@ -140,8 +139,22 @@ function renderCountUserByBankCards(items) {
 
     (items || []).forEach(x => {
         const col = el('div', 'col-6 col-sm-4 col-lg-2 mb-2');
-        const card = el('div', 'card shadow-sm h-100');
+
+        // ใส่ class cursor-pointer เพื่อให้รู้ว่ากดได้
+        const card = el('div', 'card shadow-sm h-100 cursor-pointer');
         card.style.borderRadius = '10px';
+
+        // ดึงค่าดอกเบี้ย (เผื่อชื่อตัวแปรต่างกันระหว่าง InterestRateAVG กับ InterestRate)
+        const currentRate = x.InterestRateAVG ?? x.InterestRate ?? 0;
+
+        // เพิ่ม event onclick ส่งข้อมูลเข้า Modal
+        card.onclick = () => {
+            const bId = x.BankID ?? x.ValueInt ?? 0;
+            const bName = x.BankName ?? x.Text ?? '-';
+
+            // ส่งค่าดอกเบี้ยปัจจุบันเข้าไปใน Modal
+            prepareInterestModal(bId, bName, currentRate);
+        };
 
         const body = el('div', 'card-body d-flex align-items-center gap-2 p-2');
 
@@ -155,14 +168,22 @@ function renderCountUserByBankCards(items) {
         iconBox.style.background = 'rgba(0,0,0,.04)';
 
         const textBox = el('div', 'flex-grow-1');
+
+        // จัดรูปแบบตัวเลขให้มีทศนิยม 2 ตำแหน่ง (เช่น 1.50)
+        const rateDisplay = Number(currentRate).toFixed(2);
+
+        // ★ เพิ่มบรรทัดแสดงดอกเบี้ยตรงนี้ ★
         textBox.innerHTML = `
-      <div class="fw-semibold" style="font-size:0.85rem;line-height:1.2;">
-        ${x.BankName || x.BankCode || '-'}
-      </div>
-      <div class="text-muted small" style="font-size:0.75rem;">
-        Users: <span class="fw-bold">${Number(x.CntUserByBank || 0).toLocaleString()}</span>
-      </div>
-    `;
+            <div class="fw-semibold" style="font-size:0.85rem;line-height:1.2;">
+                ${x.BankName || x.BankCode || '-'}
+            </div>
+            <div class="text-muted small" style="font-size:0.75rem;">
+                Users: <span class="fw-bold">${Number(x.CntUserByBank || 0).toLocaleString()}</span>
+            </div>
+            <div class="text-primary small mt-1" style="font-size:0.75rem; font-weight:600;">
+                <i class="fa fa-tag me-1"></i>Rate: ${rateDisplay}%
+            </div>
+        `;
 
         body.appendChild(iconBox);
         body.appendChild(textBox);
@@ -171,7 +192,6 @@ function renderCountUserByBankCards(items) {
         host.appendChild(col);
     });
 }
-
 // === Render รายชื่อซ้าย และ bind click ===
 function renderUserBankList(data) {
     const container = document.getElementById('userBankList');
@@ -244,7 +264,7 @@ function ensureChoices() {
         });
     }
 }
-
+  
 // เติมข้อมูล dropdown (ใช้กับ Choices)
 function setChoicesOptions(choices, list) {
     // list: [{value, label}]
@@ -1213,4 +1233,86 @@ $id('searchPerson')?.addEventListener('keydown', (e) => {
 $id('ddl_bank')?.addEventListener('change', () => {
     // auto-search on filter change (or keep manual — your call)
     // doSearchUserBank();
+});
+
+// ==========================================
+// ส่วนจัดการ Modal แก้ไขดอกเบี้ย (Interest Rate)
+// ==========================================
+
+// 1. ฟังก์ชันรับค่าจากคลิกการ์ด แล้วเปิด Modal
+function prepareInterestModal(id, name, rate) {
+    const modalEl = document.getElementById('modalEditInterest');
+    if (!modalEl) return;
+
+    // เซตค่าลง Input
+    document.getElementById('hddBankIdForInterest').value = id;
+    document.getElementById('displayBankName').textContent = name;
+    document.getElementById('inpInterestRate').value = rate;
+
+    // สั่งเปิด Modal ของ Bootstrap 5
+    const myModal = new bootstrap.Modal(modalEl);
+    myModal.show();
+}
+
+// 2. กดปุ่มบันทึกใน Modal
+document.getElementById('btnSaveInterest')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btnSaveInterest');
+    // ดึงค่าจาก HTML
+    const id = document.getElementById('hddBankIdForInterest').value;
+    const rate = document.getElementById('inpInterestRate').value;
+
+    // --- เช็คค่าตรงนี้ ---
+    console.log("กำลังจะบันทึก...");
+    console.log("BankID ที่ดึงได้:", id);
+    console.log("Rate ที่ดึงได้:", rate);
+
+    if (!rate) {
+        alert('กรุณาระบุดอกเบี้ย');
+        return;
+    }
+
+    const prevHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Saving...`;
+
+    try {
+        // แก้ไข 1: เปลี่ยน URL ให้ตรงกับชื่อ Action ใน Controller (UpdateInterestRateAVG)
+        const res = await fetch(baseUrl + 'UserBank/UpdateInterestRateAVG', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+            body: new URLSearchParams({
+                // แก้ไข 2: เปลี่ยนชื่อตัวแปรที่ส่งไป ให้ตรงกับ Parameter ใน C# (BankID, interestRateAVG)
+                BankID: id,
+                interestRateAVG: rate
+            })
+        });
+
+        const json = await res.json();
+
+        if (json && json.success) {
+            const modalEl = document.getElementById('modalEditInterest');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            modalInstance?.hide();
+
+            if (typeof Swal !== 'undefined') {
+                await Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', timer: 1000, showConfirmButton: false });
+            } else {
+                alert('บันทึกสำเร็จ');
+            }
+
+            // รีโหลดหน้าจอ
+            loadUserBankPage();
+
+        } else {
+            // กรณี Backend return success: false
+            alert('บันทึกไม่สำเร็จ');
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = prevHTML;
+    }
 });

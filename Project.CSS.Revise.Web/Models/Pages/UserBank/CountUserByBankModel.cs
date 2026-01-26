@@ -8,6 +8,8 @@
             public int? CntUserByBank { get; set; }
             public string? BankCode { get; set; }
             public string? BankName { get; set; }
+            public int? BankID { get; set; }
+            public decimal InterestRateAVG { get; set; }
         }
     }
 }
