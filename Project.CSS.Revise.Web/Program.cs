@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Data;
+using Project.CSS.Revise.Web.Library.BLL;
 using Project.CSS.Revise.Web.Library.DAL;
 using Project.CSS.Revise.Web.Library.DAL.SQL;
 using Project.CSS.Revise.Web.Models;
@@ -66,6 +67,8 @@ builder.Services.AddScoped<IQueueBankCounterViewService, QueueBankCounterViewSer
 //builder.Services.AddScoped<SqlMasterManagementProject>();
 builder.Services.AddScoped<MasterManagementProviderProject, SqlMasterManagementProject>();
 builder.Services.AddScoped<MasterManagementConfigProject>();
+builder.Services.AddScoped<MasterManagementProviderQueueInspect, SqlMasterManagementQueueInspect>();
+builder.Services.AddScoped<MasterManagementConfigQueueInspect>();
 
 // Add Rate Limiting Middleware
 builder.Services.AddMemoryCache();

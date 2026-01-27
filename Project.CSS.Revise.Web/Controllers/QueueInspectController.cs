@@ -2,11 +2,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
-using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Hubs;
+using Project.CSS.Revise.Web.Library.BLL;
 using Project.CSS.Revise.Web.Models.Master;
+using Project.CSS.Revise.Web.Models.Pages.QueueInspect;
 using Project.CSS.Revise.Web.Service;
+using System.Globalization;
 
 namespace Project.CSS.Revise.Web.Controllers
 {
@@ -15,14 +16,17 @@ namespace Project.CSS.Revise.Web.Controllers
     {
         private readonly IMasterService _masterService;
         private readonly IUserAndPermissionService _userAndPermissionService;
+        private readonly MasterManagementConfigQueueInspect _configQueueInspec;
         private readonly IHubContext<NotifyHub> _notifyHubContext;
         public QueueInspectController(IHttpContextAccessor httpContextAccessor
             , IMasterService masterService
             , IUserAndPermissionService userAndPermissionService
+            , MasterManagementConfigQueueInspect configQueueInspec
             , IHubContext<NotifyHub> notifyHubContext) : base(httpContextAccessor)
         {
             _masterService = masterService;
             _userAndPermissionService = userAndPermissionService;
+            _configQueueInspec = configQueueInspec;
             _notifyHubContext = notifyHubContext;
         }
         public IActionResult Index()
@@ -58,5 +62,83 @@ namespace Project.CSS.Revise.Web.Controllers
             var result = _masterService.GetlistUnitByProject(model);
             return Json(new { success = true, data = result });
         }
+
+
+
+        [HttpPost]
+        public async Task<JsonResult> GetlistDataQueueInspect([FromForm] QueueInspectModel.FiltersModel model)
+        {
+            var tableFilter = new QueueInspectModel.FiltersModel
+            {
+                Act = "RegisterQueueInspectTable",
+                Bu = model.Bu,
+                ProjectID = model.ProjectID,
+                RegisterDateStart = model.RegisterDateStart,
+                RegisterDateEnd = model.RegisterDateEnd,
+                UnitID = model.UnitID,
+                Inspect_Round = model.Inspect_Round,
+                CSResponse = model.CSResponse,
+                UnitCS = model.UnitCS,
+                ExpectTransfer = model.ExpectTransfer,
+                Start = model.Start,
+                Length = model.Length,
+                QueueTypeID = 49,
+                SearchText = model.SearchText
+            };
+
+            try
+            {
+                var tableResult = await Task.Run(() => _configQueueInspec.sp_GetQueueInspect(tableFilter));
+
+                var rows = tableResult?.ListRegisterQueueInspectTable ?? new List<QueueInspectModel.RegisterQueueInspectTableModel>();
+
+                var recordsTotal = rows.Count > 0 ? ToIntSafe(rows[0].TotalRecords) : 0;
+                var recordsFiltered = rows.Count > 0 ? ToIntSafe(rows[0].FilteredRecords) : recordsTotal;
+
+                return Json(new
+                {
+                    draw = model.Draw,   // ✅ ต้องมี field Draw ใน FiltersModel
+                    recordsTotal,
+                    recordsFiltered,
+                    data = rows
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    draw = model.Draw,
+                    recordsTotal = 0,
+                    recordsFiltered = 0,
+                    data = new List<object>(),
+                    error = ex.Message
+                });
+            }
+        }
+
+        private static int ToIntSafe(string? s)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return 0;
+
+            s = s.Trim();
+
+            // 34,470.00 -> 34470
+            if (decimal.TryParse(
+                    s,
+                    NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint | NumberStyles.Number,
+                    CultureInfo.InvariantCulture,
+                    out var dec))
+            {
+                return (int)dec;
+            }
+
+            // fallback
+            s = s.Replace(",", "");
+            if (int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var i))
+                return i;
+
+            return 0;
+        }
+
     }
 }

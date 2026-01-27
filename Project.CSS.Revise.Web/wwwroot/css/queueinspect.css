@@ -1,8 +1,8 @@
 ﻿/* Highlight only the Project label */
 label[for="ddl_Project"] {
-    font-size: 17px; /* ใหญ่กว่าฟิลด์อื่น */
-    font-weight: 800; /* หนาขึ้น */
-    color: #2e59d9; /* น้ำเงินเข้ม */
+    font-size: 17px;
+    font-weight: 800;
+    color: #2e59d9;
     letter-spacing: 0.3px;
     position: relative;
 }
@@ -20,4 +20,134 @@ label[for="ddl_Project"] {
     background: #f8f9fa;
 }
 
+/* Delete icon button */
+.btn-icon.btn-del {
+    width: auto;
+    height: auto;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    color: #b10000;
+    font-size: 16px;
+}
 
+.btn-icon.btn-del i { font-size: 16px; }
+
+.btn-icon.btn-del:hover {
+    color: #ff0000;
+    transform: scale(1.1);
+}
+
+/* =========================
+   DataTables + scrollX: FIX ALIGN
+   + wrap text ลงข้างล่าง (ไม่ใช้ ...)
+========================= */
+
+.qb-table-wrap { width: 100%; overflow-x: auto; }
+
+table#QueueBankRegisterTable { width: 100% !important; table-layout: fixed; }
+
+/* ✅ สำคัญ: ไม่ตัด ... แล้ว ให้ตบลงบรรทัดใหม่ */
+table#QueueBankRegisterTable th,
+table#QueueBankRegisterTable td {
+    box-sizing: border-box;
+    white-space: normal;       /* wrap ได้ */
+    overflow: visible;         /* ไม่ซ่อน */
+    text-overflow: clip;       /* ไม่ใช้ ... */
+    word-break: break-word;    /* ไทย/อังกฤษแตกบรรทัดได้ */
+    vertical-align: top;
+    padding: 8px 10px;
+}
+
+/* ✅ แก้หัว/ตัวเหลื่อมของ scrollX (DataTables clone header) */
+.qb-table-wrap .dataTables_scrollHeadInner,
+.qb-table-wrap .dataTables_scrollHeadInner table,
+.qb-table-wrap .dataTables_scrollBody table {
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+.qb-table-wrap .dataTables_scrollHead { overflow: hidden !important; }
+.qb-table-wrap .dataTables_scrollBody { overflow-x: auto !important; }
+
+/* widths */
+#QueueBankRegisterTable th.col-no,         #QueueBankRegisterTable td.col-no         { width: 3.5rem; }
+#QueueBankRegisterTable th.col-unit,       #QueueBankRegisterTable td.col-unit       { width: 6.5rem; }
+#QueueBankRegisterTable th.col-customer,   #QueueBankRegisterTable td.col-customer   { width: 18rem; }
+#QueueBankRegisterTable th.col-appoint,    #QueueBankRegisterTable td.col-appoint    { width: 10rem; }
+#QueueBankRegisterTable th.col-status,     #QueueBankRegisterTable td.col-status     { width: 6.5rem; }
+#QueueBankRegisterTable th.col-time,       #QueueBankRegisterTable td.col-time       { width: 11rem; }
+#QueueBankRegisterTable th.col-counter,    #QueueBankRegisterTable td.col-counter    { width: 5.5rem; }
+#QueueBankRegisterTable th.col-unitstatus, #QueueBankRegisterTable td.col-unitstatus { width: 10rem; }
+#QueueBankRegisterTable th.col-resp,       #QueueBankRegisterTable td.col-resp       { width: 10rem; }
+#QueueBankRegisterTable th.col-csresp,     #QueueBankRegisterTable td.col-csresp     { width: 10rem; }
+#QueueBankRegisterTable th.col-action,     #QueueBankRegisterTable td.col-action     { width: 4.5rem; }
+
+
+/* Small service badges next to name */
+.svc-badges {
+    margin-left: 6px;
+}
+
+.svc {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #fff;
+    margin-left: 4px;
+    position: relative;
+    cursor: pointer;
+}
+
+    .svc:hover::after {
+        content: attr(data-title);
+        position: absolute;
+        bottom: 130%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1f2937;
+        color: #fff;
+        padding: 5px 10px;
+        font-size: 12px;
+        white-space: nowrap;
+        border-radius: 4px;
+        z-index: 1000;
+        opacity: 1;
+        pointer-events: none;
+    }
+
+    .svc:hover::before {
+        content: "";
+        position: absolute;
+        bottom: 115%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 6px solid transparent;
+        border-top-color: #1f2937;
+        z-index: 1000;
+        opacity: 1;
+    }
+
+    /* smooth fade */
+    .svc::after,
+    .svc::before {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+.svc-blue {
+    background: #1c88ff;
+}
+
+.svc-orange {
+    background: #ff9f43;
+}
+
+.svc-green {
+    background: #2ecc71;
+}

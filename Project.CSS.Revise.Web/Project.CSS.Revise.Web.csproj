@@ -9,7 +9,6 @@
 		<Folder Include="Data\" />
 		<!-- ✅ make sure Thai fonts are copied -->
 		<Content Include="wwwroot\fonts\*.ttf" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Always" />
-		<Folder Include="Models\Pages\QueueInspect\" />
 		<Folder Include="ProjectFloorPlan\" />
 	</ItemGroup>
 
