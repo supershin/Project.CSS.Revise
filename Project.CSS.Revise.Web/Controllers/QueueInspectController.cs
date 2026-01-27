@@ -86,21 +86,92 @@ namespace Project.CSS.Revise.Web.Controllers
                 SearchText = model.SearchText
             };
 
+            var summaryFilter = new QueueInspectModel.FiltersModel
+            {
+                Act = "RegisterQueueInspectSummary",
+                Bu = model.Bu,
+                ProjectID = model.ProjectID,
+                RegisterDateStart = model.RegisterDateStart,
+                RegisterDateEnd = model.RegisterDateEnd,
+                UnitID = model.UnitID,
+                Inspect_Round = model.Inspect_Round,
+                CSResponse = model.CSResponse,
+                UnitCS = model.UnitCS,
+                ExpectTransfer = model.ExpectTransfer,
+                Start = model.Start,
+                Length = model.Length,
+                QueueTypeID = 49,
+                SearchText = model.SearchText
+            };
+
+            var CheckingFilter = new QueueInspectModel.FiltersModel
+            {
+                Act = "RegisterQueueCheckingSummary",
+                Bu = model.Bu,
+                ProjectID = model.ProjectID,
+                RegisterDateStart = model.RegisterDateStart,
+                RegisterDateEnd = model.RegisterDateEnd,
+                UnitID = model.UnitID,
+                Inspect_Round = model.Inspect_Round,
+                CSResponse = model.CSResponse,
+                UnitCS = model.UnitCS,
+                ExpectTransfer = model.ExpectTransfer,
+                Start = model.Start,
+                Length = model.Length,
+                QueueTypeID = 49,
+                SearchText = model.SearchText
+            };
+
+            var TraferFilter = new QueueInspectModel.FiltersModel
+            {
+                Act = "RegisterQueueTransferTypeSummary",
+                Bu = model.Bu,
+                ProjectID = model.ProjectID,
+                RegisterDateStart = model.RegisterDateStart,
+                RegisterDateEnd = model.RegisterDateEnd,
+                UnitID = model.UnitID,
+                Inspect_Round = model.Inspect_Round,
+                CSResponse = model.CSResponse,
+                UnitCS = model.UnitCS,
+                ExpectTransfer = model.ExpectTransfer,
+                Start = model.Start,
+                Length = model.Length,
+                QueueTypeID = 49,
+                SearchText = model.SearchText
+            };
+
             try
             {
-                var tableResult = await Task.Run(() => _configQueueInspec.sp_GetQueueInspect(tableFilter));
+                // Run both tasks in parallel and await them
+                var tableTask = Task.Run(() => _configQueueInspec.sp_GetQueueInspect(tableFilter));
+                var summaryTask = Task.Run(() => _configQueueInspec.sp_GetQueueInspect(summaryFilter));
+                var CheckingTask = Task.Run(() => _configQueueInspec.sp_GetQueueInspect(CheckingFilter));
+                var TraferTask = Task.Run(() => _configQueueInspec.sp_GetQueueInspect(TraferFilter));
+
+                await Task.WhenAll(tableTask, summaryTask, CheckingTask, TraferTask);
+
+                var tableResult = tableTask.Result;
+                var summaryResult = summaryTask.Result;
+                var checkingResult = CheckingTask.Result;
+                var traferResult = TraferTask.Result;
 
                 var rows = tableResult?.ListRegisterQueueInspectTable ?? new List<QueueInspectModel.RegisterQueueInspectTableModel>();
+                var summary = summaryResult?.ListRegisterQueueInspectSummary ?? new List<QueueInspectModel.RegisterQueueInspectSummaryModel>();
+                var checking = checkingResult?.ListRegisterQueueCheckingSummary ?? new List<QueueInspectModel.RegisterQueueCheckingSummaryModel>();
+                var trafer = traferResult?.ListRegisterQueueTransferTypeSummary ?? new List<QueueInspectModel.RegisterQueueTransferTypeSummaryModel>();
 
                 var recordsTotal = rows.Count > 0 ? ToIntSafe(rows[0].TotalRecords) : 0;
                 var recordsFiltered = rows.Count > 0 ? ToIntSafe(rows[0].FilteredRecords) : recordsTotal;
 
                 return Json(new
                 {
-                    draw = model.Draw,   // ✅ ต้องมี field Draw ใน FiltersModel
+                    draw = model.Draw,   
                     recordsTotal,
                     recordsFiltered,
-                    data = rows
+                    data = rows,
+                    data2 = summary,
+                    data3 = checking,
+                    data4 = trafer
                 });
             }
             catch (Exception ex)

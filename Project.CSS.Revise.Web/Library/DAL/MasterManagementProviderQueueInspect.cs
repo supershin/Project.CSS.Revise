@@ -88,11 +88,58 @@ namespace Project.CSS.Revise.Web.Library.DAL
         {
             var Entity = new QueueInspectModel.RegisterQueueInspectSummaryModel();
 
-            Entity.Status = Commond.FormatExtension.NullToString(reader["Status"]);
-            Entity.Unit = Commond.FormatExtension.NullToString(reader["Unit"]);
-            Entity.Value = Commond.FormatExtension.NullToString(reader["Value"]);
-            Entity.Percent = Commond.FormatExtension.NullToString(reader["Percent"]);
+            Entity.Topic = Commond.FormatExtension.NullToString(reader["Topic"]);
+            Entity.Unit = Commond.FormatExtension.ConvertToShortNameUnit(reader["Unit"]);
+            Entity.Value = Commond.FormatExtension.ConvertToShortUnitV2(reader["Value"]);
+            Entity.PercentUnit = Commond.FormatExtension.NullToString(reader["PercentUnit"]);
             Entity.Colorcode = Commond.FormatExtension.NullToString(reader["Colorcode"]);
+            return Entity;
+        }
+
+
+        public static List<QueueInspectModel.RegisterQueueCheckingSummaryModel> sp_GetQueueInspect_RegisterQueueCheckingSummary_Reader(IDataReader reader)
+        {
+            List<QueueInspectModel.RegisterQueueCheckingSummaryModel> list = new List<QueueInspectModel.RegisterQueueCheckingSummaryModel>();
+            int index = 1;
+            while ((reader.Read()))
+            {
+                list.Add(sp_GetQueueInspect_RegisterQueueCheckingSummary_List_Reader(reader, index));
+                index++;
+            }
+            reader.Close();
+            return list;
+        }
+        private static QueueInspectModel.RegisterQueueCheckingSummaryModel sp_GetQueueInspect_RegisterQueueCheckingSummary_List_Reader(IDataReader reader, int index)
+        {
+            var Entity = new QueueInspectModel.RegisterQueueCheckingSummaryModel();
+
+            Entity.Checking_type = Commond.FormatExtension.NullToString(reader["Checking_type"]);
+            Entity.Cnt_unit = Commond.FormatExtension.ConvertToShortNameUnit(reader["Cnt_unit"]);
+            Entity.Sum_unit = Commond.FormatExtension.ConvertToShortUnitV2(reader["Sum_unit"]);
+            Entity.Percent_Unit = Commond.FormatExtension.NullToString(reader["Percent_Unit"]);
+            return Entity;
+        }
+
+        public static List<QueueInspectModel.RegisterQueueTransferTypeSummaryModel> sp_GetQueueInspect_RegisterQueueTransferTypeSummary_Reader(IDataReader reader)
+        {
+            List<QueueInspectModel.RegisterQueueTransferTypeSummaryModel> list = new List<QueueInspectModel.RegisterQueueTransferTypeSummaryModel>();
+            int index = 1;
+            while ((reader.Read()))
+            {
+                list.Add(sp_GetQueueInspect_RegisterQueueTransferTypeSummary_List_Reader(reader, index));
+                index++;
+            }
+            reader.Close();
+            return list;
+        }
+        private static QueueInspectModel.RegisterQueueTransferTypeSummaryModel sp_GetQueueInspect_RegisterQueueTransferTypeSummary_List_Reader(IDataReader reader, int index)
+        {
+            var Entity = new QueueInspectModel.RegisterQueueTransferTypeSummaryModel();
+
+            Entity.TransferType = Commond.FormatExtension.NullToString(reader["TransferType"]);
+            Entity.Cnt_unit = Commond.FormatExtension.ConvertToShortNameUnit(reader["Cnt_unit"]);
+            Entity.Sum_unit = Commond.FormatExtension.ConvertToShortUnitV2(reader["Sum_unit"]);
+            Entity.Percent_Unit = Commond.FormatExtension.NullToString(reader["Percent_Unit"]);
             return Entity;
         }
         #endregion

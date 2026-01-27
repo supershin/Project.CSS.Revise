@@ -31,6 +31,8 @@ namespace Project.CSS.Revise.Web.Models.Pages.QueueInspect
         {
             public List<RegisterQueueInspectTableModel> ListRegisterQueueInspectTable { get; set; } = new();
             public List<RegisterQueueInspectSummaryModel> ListRegisterQueueInspectSummary { get; set; } = new();
+            public List<RegisterQueueCheckingSummaryModel> ListRegisterQueueCheckingSummary { get; set; } = new();
+            public List<RegisterQueueTransferTypeSummaryModel> ListRegisterQueueTransferTypeSummary { get; set; } = new();
         }
 
         public class RegisterQueueInspectTableModel
@@ -66,11 +68,27 @@ namespace Project.CSS.Revise.Web.Models.Pages.QueueInspect
 
         public class RegisterQueueInspectSummaryModel
         {
-            public string? Status { get; set; } 
-            public string? Unit { get; set; } 
+            public string? Topic { get; set; }
+            public string? Unit { get; set; }
             public string? Value { get; set; }
-            public string? Percent { get; set; }
+            public string? PercentUnit { get; set; }
             public string? Colorcode { get; set; }
+        }
+
+        public class RegisterQueueCheckingSummaryModel
+        {
+            public string? Checking_type { get; set; }
+            public string? Cnt_unit { get; set; }
+            public string? Sum_unit { get; set; }
+            public string? Percent_Unit { get; set; }
+        }
+
+        public class RegisterQueueTransferTypeSummaryModel
+        {
+            public string? TransferType { get; set; }
+            public string? Cnt_unit { get; set; }
+            public string? Sum_unit { get; set; }
+            public string? Percent_Unit { get; set; }
         }
     }
 }

@@ -206,6 +206,161 @@
         </div>
     </div>
 
+    <!-- Summary Register card -->
+    <div class="card filter-card" id="cardSummaryRegister">
+        <div class="card-header d-flex align-items-center justify-content-between">
+
+            <!-- Left side -->
+            <div>
+                <h5 class="mb-0" id="Show_Name_selected">Summary Register Inspect :</h5>
+                <small id="sum-register-date" class="text-muted"></small>
+            </div>
+
+            <!-- Right side buttons -->
+            <div class="d-flex align-items-center gap-2">
+                <!-- ✅ Summary toggle -->
+                <button id="btnSummaryToggle"
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        title="Change Summary view"
+                        aria-label="Change Summary view">
+                    <i class="fa fa-table" aria-hidden="true"></i>
+                </button>
+
+                <!-- ✅ Checking toggle -->
+                <button id="btnCheckingToggle"
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        title="Change Checking view"
+                        aria-label="Change Checking view">
+                    <i class="fa fa-table" aria-hidden="true"></i>
+                </button>
+
+                <!-- collapse arrow -->
+                <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#fltCollapseSummaryRegister"
+                        aria-expanded="true"
+                        aria-controls="fltCollapseSummaryRegister">
+                    <i class="fa fa-chevron-up"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="fltCollapseSummaryRegister" class="collapse show">
+            <div class="card-body">
+
+                <!-- =========================
+                     SUMMARY (toggle ได้)
+                ========================== -->
+                <div class="summary-register mt-3">
+
+                    <!-- ✅ SUMMARY: CARD VIEW (default) -->
+                    <div id="qi-summary-card-view">
+                        <div id="qi-summary-5box" class="qi-summary-5box"></div>
+                    </div>
+
+                    <!-- ✅ SUMMARY: TABLE VIEW (hidden default) -->
+                    <div id="qi-summary-table-view" class="d-none">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered mb-0 qi-table-4border">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 160px;">Topic</th>
+                                        <th class="text-center" style="width: 120px;">Unit</th>
+                                        <th class="text-center" style="width: 160px;">Value</th>
+                                        <th class="text-center" style="width: 90px;">%</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="qi-summary-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+                <hr class="my-3" />
+
+                <!-- =========================
+                     CHECKING (toggle ได้ แยกจาก summary)
+                ========================== -->
+                <div class="summary-register">
+
+                    <!-- ✅ CHECKING: CARD VIEW (default) -->
+                    <div id="qi-checking-card-view">
+                        <div id="qi-checking-5box" class="qi-summary-5box"></div>
+                    </div>
+
+                    <!-- ✅ CHECKING: TABLE VIEW (hidden default) -->
+                    <div id="qi-checking-table-view" class="d-none">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered mb-0 qi-table-4border" id="qi-checking-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 260px;">Topic</th>
+                                        <th class="text-center" style="width: 120px;">Unit</th>
+                                        <th class="text-center" style="width: 140px;">Value</th>
+                                        <th class="text-center" style="width: 90px;">%</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="qi-checking-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <hr class="my-3" />
+
+                <!-- =========================
+                     TRANSFER TYPE (toggle ได้)
+                ========================== -->
+                <div class="summary-register" id="qi-transfer-section">
+
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 class="mb-0">Transfer Type</h6>
+
+                        <!-- ✅ Transfer toggle -->
+                        <button id="btnTransferToggle"
+                                type="button"
+                                class="btn btn-sm btn-outline-secondary"
+                                title="Change Transfer view"
+                                aria-label="Change Transfer view">
+                            <i class="fa fa-table" aria-hidden="true"></i>
+                        </button>
+                    </div>
+
+                    <!-- ✅ TRANSFER: CARD VIEW (default) -->
+                    <div id="qi-transfer-card-view">
+                        <div id="qi-transfer-5box" class="qi-summary-5box"></div>
+                    </div>
+
+                    <!-- ✅ TRANSFER: TABLE VIEW (hidden default) -->
+                    <div id="qi-transfer-table-view" class="d-none">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered mb-0 qi-table-4border" id="qi-transfer-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:260px;">TransferType</th>
+                                        <th class="text-center" style="width:120px;">Cnt_unit</th>
+                                        <th class="text-center" style="width:140px;">Sum_unit</th>
+                                        <th class="text-center" style="width:90px;">Percent_Unit</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="qi-transfer-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @section Scripts {
@@ -238,11 +393,11 @@
                                 QI_InitUnitStatusCS(function () {
                                     QI_InitExpectTransferBy(function () {
                                         QI_BindDropdownEvents();
-
-                                        initQueueInspectRegisterTable(function (dt) {
-                                            console.log("QueueInspect DT ready", dt);
-                                        });
-
+                                            initQueueInspectRegisterTable(function (dt) {
+                                                QI_InitSummaryToggle(function (ok) {
+                                                    console.log("Summary toggle ready:", ok);
+                                                });
+                                            });
                                     });
                                 });
                             });

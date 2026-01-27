@@ -42,6 +42,12 @@ namespace Project.CSS.Revise.Web.Library.DAL.SQL
                     case "RegisterQueueInspectSummary":
                         result.ListRegisterQueueInspectSummary = sp_GetQueueInspect_RegisterQueueInspectSummary_Reader(reader);
                         break;
+                    case "RegisterQueueCheckingSummary":
+                        result.ListRegisterQueueCheckingSummary = sp_GetQueueInspect_RegisterQueueCheckingSummary_Reader(reader);
+                        break;
+                    case "RegisterQueueTransferTypeSummary":
+                        result.ListRegisterQueueTransferTypeSummary = sp_GetQueueInspect_RegisterQueueTransferTypeSummary_Reader(reader);
+                        break;
                 }
                 return result;
             }
