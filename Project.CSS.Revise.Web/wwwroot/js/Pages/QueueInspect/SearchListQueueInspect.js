@@ -586,3 +586,38 @@ $(document).off("click.qi", "#btnSearch").on("click.qi", "#btnSearch", function 
     if (!QueueInspectRegisterTableDt) return initQueueInspectRegisterTable();
     QueueInspectRegisterTableDt.ajax.reload();
 });
+
+// เปิด modal
+function openCreateRegister() {
+    const modalEl = document.getElementById("modalCreateRegister");
+    const modal = new bootstrap.Modal(modalEl, { backdrop: "static" });
+    modal.show();
+    // ✅ Feather render (Riho required)
+    if (window.feather) {
+        feather.replace();
+    }
+    // ถ้าใช้ Choices.js อยู่แล้ว จะทำให้ dropdown ดูดี
+    if (window.createChoice) {
+        window.createChoice("#ddl_RegisterUnit", {
+            placeholderValue: "Select Unit Code",
+            removeItemButton: true,
+            searchEnabled: true
+        });
+    }
+}
+
+// mock save
+$(document).off("click.qiReg", "#btnRegisterSave").on("click.qiReg", "#btnRegisterSave", function () {
+    const unit = (window.QI_CHOICES && window.QI_CHOICES["#ddl_RegisterUnit"])
+        ? window.QI_CHOICES["#ddl_RegisterUnit"].getValue(true)
+        : ($("#ddl_RegisterUnit").val() || "");
+
+    if (!unit) {
+        alert("Please select Unit Code");
+        return;
+    }
+
+    // TODO: call API save จริงทีหลัง
+    console.log("SAVE REGISTER UNIT:", unit);
+    alert("Saved: " + unit);
+});

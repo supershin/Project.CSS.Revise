@@ -361,6 +361,170 @@
         </div>
     </div>
 
+
+    <!-- =========================
+         MODAL: Register New Unit (Fullscreen)
+    ========================= -->
+    <div class="modal fade" id="modalCreateRegister" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content qi-reg-modal">
+
+                <!-- Header -->
+                <div class="modal-header qi-reg-header">
+
+                    <div class="qi-reg-header-left">
+
+                        <div class="qi-reg-header-icon">
+                            <i data-feather="clipboard"></i>
+                        </div>
+
+                        <div class="qi-reg-header-text">
+                            <div class="qi-reg-title">Register Unit</div>
+                            <div class="qi-reg-subtitle">Project name</div>
+                        </div>
+
+                    </div>
+
+                    <button type="button"
+                            class="qi-reg-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close">
+                        <i data-feather="x"></i>
+                    </button>
+
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body qi-reg-body">
+
+                    <!-- Top center form row -->
+                    <div class="qi-reg-topbar">
+
+                        <div class="qi-reg-topbar-inner">
+                            <label class="qi-reg-label">
+                                Unit Code <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="qi-reg-select-wrap">
+                                <select id="ddl_RegisterUnit" class="form-control">
+                                    <option value="">-- Select Unit --</option>
+                                    <!-- mock options -->
+                                    <option value="26/5">26/5</option>
+                                    <option value="26/4">26/4</option>
+                                    <option value="26/3">26/3</option>
+                                    <option value="26/2">26/2</option>
+                                    <option value="26/1">26/1</option>
+                                </select>
+                            </div>
+
+                            <button id="btnRegisterSave"
+                                    type="button"
+                                    class="btn btn-success qi-reg-save">
+                                <i class="fa fa-save me-1"></i> Save
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <!-- Table area -->
+                    <div class="qi-reg-table-area">
+                        <div class="qi-reg-table-card">
+                            <div class="qi-reg-table-wrap">
+                                <table id="tblRegisterList" class="table table-bordered table-hover mb-0 qi-reg-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:70px;">No.</th>
+                                            <th style="width:140px;">Unit Code</th>
+                                            <th>Customer Name</th>
+                                            <th style="width:220px;">Responsible Name</th>
+                                            <th style="width:170px;">Register</th>
+                                            <th style="width:120px;">Wait</th>
+                                            <th style="width:150px;">In Process</th>
+                                            <th style="width:120px;">FastFix</th>
+                                            <th style="width:150px;">FixedDuration</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- mock rows -->
+                                        <tr>
+                                            <td class="text-center">1</td>
+                                            <td class="text-center"><a href="#" class="qi-reg-link">26/5</a></td>
+                                            <td>นางกาญ อัคราพงศา, นางสาวอลิสา อัคราพงศา</td>
+                                            <td class="text-center">-</td>
+                                            <td class="text-center">2025-09-15 14:22</td>
+                                            <td class="text-center"></td>
+                                            <td class="text-center"></td>
+                                            <td class="text-center"></td>
+                                            <td class="text-center"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center">2</td>
+                                            <td class="text-center"><a href="#" class="qi-reg-link">26/4</a></td>
+                                            <td>นายกฤษณ์ ศุภสินธรักษ์</td>
+                                            <td class="text-center">พรพิมล</td>
+                                            <td class="text-center">2025-09-15 13:18</td>
+                                            <td class="text-center"></td>
+                                            <td class="text-center">2025-09-15 13:45</td>
+                                            <td class="text-center"></td>
+                                            <td class="text-center"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center">3</td>
+                                            <td class="text-center"><a href="#" class="qi-reg-link">26/3</a></td>
+                                            <td>นายอนุพน กมล</td>
+                                            <td class="text-center">พรพิมล</td>
+                                            <td class="text-center">2025-09-15 13:18</td>
+                                            <td class="text-center"></td>
+                                            <td class="text-center">2025-09-15 13:44</td>
+                                            <td class="text-center"></td>
+                                            <td class="text-center"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center">4</td>
+                                            <td class="text-center"><a href="#" class="qi-reg-link">26/2</a></td>
+                                            <td>นายสิทธิรณัฐ รัตนิแมนพฤกษ์</td>
+                                            <td class="text-center">พรพิมล</td>
+                                            <td class="text-center">2025-09-15 13:17</td>
+                                            <td class="text-center"></td>
+                                            <td class="text-center">2025-09-15 13:17</td>
+                                            <td class="text-center"></td>
+                                            <td class="text-center"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center">5</td>
+                                            <td class="text-center"><a href="#" class="qi-reg-link">26/1</a></td>
+                                            <td>นายชยุต ดิษยวณิช</td>
+                                            <td class="text-center">Pimmada</td>
+                                            <td class="text-center">2025-09-15 13:12</td>
+                                            <td class="text-center"></td>
+                                            <td class="text-center">2025-09-15 13:16</td>
+                                            <td class="text-center"></td>
+                                            <td class="text-center"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- footer inside card (optional) -->
+                            <div class="qi-reg-table-foot text-muted small">
+                                Showing 1 to 5 of 5 entries
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer qi-reg-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @section Scripts {
