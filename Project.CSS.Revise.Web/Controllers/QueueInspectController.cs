@@ -17,16 +17,19 @@ namespace Project.CSS.Revise.Web.Controllers
         private readonly IMasterService _masterService;
         private readonly IUserAndPermissionService _userAndPermissionService;
         private readonly MasterManagementConfigQueueInspect _configQueueInspec;
+        private readonly IQueueInspectService _queueInspectService;
         private readonly IHubContext<NotifyHub> _notifyHubContext;
         public QueueInspectController(IHttpContextAccessor httpContextAccessor
             , IMasterService masterService
             , IUserAndPermissionService userAndPermissionService
             , MasterManagementConfigQueueInspect configQueueInspec
+            , IQueueInspectService queueInspectService
             , IHubContext<NotifyHub> notifyHubContext) : base(httpContextAccessor)
         {
             _masterService = masterService;
             _userAndPermissionService = userAndPermissionService;
             _configQueueInspec = configQueueInspec;
+            _queueInspectService = queueInspectService;
             _notifyHubContext = notifyHubContext;
         }
         public IActionResult Index()
@@ -62,8 +65,6 @@ namespace Project.CSS.Revise.Web.Controllers
             var result = _masterService.GetlistUnitByProject(model);
             return Json(new { success = true, data = result });
         }
-
-
 
         [HttpPost]
         public async Task<JsonResult> GetlistDataQueueInspect([FromForm] QueueInspectModel.FiltersModel model)
@@ -186,6 +187,9 @@ namespace Project.CSS.Revise.Web.Controllers
                 });
             }
         }
+
+
+
 
         private static int ToIntSafe(string? s)
         {
