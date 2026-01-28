@@ -1,0 +1,231 @@
+﻿/* 1. Fonts & Global Setup */
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+
+:root {
+    --primary-soft: #eff6ff;
+    --accent-color: #20c997;
+
+}
+
+body, h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, select, textarea, .table, .btn {
+    font-family: 'Rubik', sans-serif !important;
+}
+
+/* 2. Page & Layout Components */
+.page-header-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+}
+
+.card-shadow {
+    border: none;
+    border-radius: 20px;
+    background-color: #fff;
+    box-shadow: 0 5px 20px rgba(173, 181, 217, 0.3) !important;
+    margin-bottom: 25px;
+}
+
+.search-input-box {
+    border: 1px solid #e8ebf1;
+    border-radius: 50px;
+    padding: 10px 20px;
+    background-color: #fff;
+    width: 100%;
+    transition: all 0.3s;
+}
+
+    .search-input-box:focus {
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+        border-color: var(--bs-primary);
+        outline: none;
+    }
+
+/* 3. Table Styles */
+tr.checked-row {
+    background-color: #e6f9ec !important;
+    color: #198754;
+}
+
+#resultSection table thead th, #tblUnitList thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #f3f4f6;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+/* 4. Modal Enhancements */
+.modal-content {
+    background: #ffffff;
+    overflow: hidden;
+    border-radius: 20px;
+}
+
+.modal-backdrop.show {
+    opacity: 0.7;
+    backdrop-filter: blur(4px);
+}
+
+#conditionModal .modal-header {
+    background-color: var(--theme-deafult) !important;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.05) !important;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    position: relative;
+}
+
+    /* สร้างชั้นสีจางไว้ข้างหลังเพื่อไม่ให้กระทบตัวหนังสือ */
+    #conditionModal .modal-header::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #fff; /* ใช้สีขาวทับไปชั้นหนึ่ง */
+        opacity: 0.85;
+        z-index: 1;
+    }
+
+#conditionModal .modal-title {
+    z-index: 2; /* ดันตัวหนังสือให้อยู่เหนือชั้นสีจาง */
+}
+    #conditionModal .modal-title::before {
+        content: '\f0b0'; /* ไอคอนรูปกรวยกรอง */
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        background-color: var(--theme-deafult) !important;
+        color: #fff;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+    }
+    .btn-hover-zoom:hover {
+        transform: scale(1.02);
+    }
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+}
+/* ทำให้ปุ่ม Display Results ดูเข้มขึ้นเมื่อเอาเมาส์ไปชี้ */
+#conditionModal .modal-footer .btn:last-child:hover {
+    filter: brightness(0.9);
+    transform: scale(1.02);
+    transition: all 0.2s ease;
+}
+
+/* === ส่วนของ Today เริ่มตรงนี้จ้า ===*/
+
+/* === ส่วนของ Today เริ่มตรงนี้จ้า === */
+
+/* --- 1. Select2 Enhancements --- */
+/* ปรับแต่งให้ Select2 หน้าตาเข้ากับ Bootstrap 5 และรองรับการเลือกแบบ Multiple */
+.select2-container--default .select2-selection--multiple {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem; /* rounded-3 */
+    min-height: 38px;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+}
+
+.select2-selection__choice {
+    background-color: #f3f4f6 !important; /* เปลี่ยนเป็นสีเทาอ่อนสะอาดตา */
+    border: 1px solid #dee2e6 !important;
+    border-radius: 4px !important;
+    padding: 2px 8px !important;
+    font-size: 13px;
+    color: #4b5563 !important;
+}
+
+.select2-results__option {
+    padding: 10px 15px !important; /* เพิ่มพื้นที่ให้กดเลือกง่ายขึ้น */
+}
+
+/* --- 2. Modal Layout & Spacing --- */
+/* เพิ่มพื้นที่ Body เพื่อให้ Dropdown ไม่ถูกตัด และจัดการระยะห่างฟอร์ม */
+#conditionModal .modal-body {
+    min-height: 550px; /* เพิ่มพื้นที่ด้านล่างเผื่อ Dropdown กาง */
+    overflow-y: visible !important;
+}
+
+.mb-3 {
+    margin-bottom: 1.5rem !important; /* ระยะห่างระหว่างฟิลด์ให้ดูไม่แออัด */
+}
+
+/* --- 3. Advanced Table Styles (Sticky & Fixed Header) --- */
+/* จัดการความสูงและพื้นที่เลื่อนของตาราง */
+.table-responsive {
+    max-height: 70vh;
+    overflow: auto;
+    border-radius: 0 0 15px 15px;
+}
+
+/* ล็อคหัวตารางด้านบน (Sticky Header) */
+#resultSection .table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    white-space: nowrap; /* หัวตารางบรรทัดเดียว */
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6 !important;
+    font-weight: 600;
+    color: #495057;
+    font-size: 13px;
+    padding: 12px 15px;
+    letter-spacing: 0.5px;
+}
+
+/* เส้นกั้นตารางในส่วนเนื้อหา */
+#resultSection .table-bordered td {
+    border: 1px solid #f0f0f0 !important;
+    padding: 15px 10px;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+/* เอฟเฟกต์การชี้ (Hover) */
+#resultSection .table-hover tbody tr:hover td {
+    background-color: #f3f0ff !important; /* สีม่วงอ่อนตามสไตล์ที่คุณชอบ */
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* --- 4. Sticky Column (Lock คอลัมน์แรก) --- */
+/* ล็อคคอลัมน์ Unit Code ให้คงที่เวลาเลื่อนไปทางขวา */
+.sticky-col {
+    position: sticky;
+    left: 0;
+    z-index: 10 !important;
+    background-color: #ffffff !important;
+    border-right: 2px solid #dee2e6 !important; /* เส้นแบ่งโซนที่ล็อคชัดเจน */
+}
+
+/* ล็อคส่วนหัวของคอลัมน์แรกให้ซ้อนอยู่บนสุด */
+th.sticky-col {
+    z-index: 11 !important;
+    background-color: #f8f9fa !important;
+}
+
+/* เพิ่มเงาจางๆ ด้านข้างคอลัมน์ที่ล็อคเวลาเลื่อนผ่าน */
+.sticky-col::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -5px;
+    bottom: 0;
+    width: 5px;
+    pointer-events: none;
+    background: linear-gradient(to right, rgba(0,0,0,0.05), rgba(0,0,0,0));
+}
