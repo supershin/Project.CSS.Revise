@@ -392,12 +392,20 @@
                             QI_InitCSResponse(function () {
                                 QI_InitUnitStatusCS(function () {
                                     QI_InitExpectTransferBy(function () {
+
                                         QI_BindDropdownEvents();
+
+                                        // ✅ NEW: apply cookie default project + load unit (with callback)
+                                        QI_ApplyDefaultProjectFromCookie(function () {
+
                                             initQueueInspectRegisterTable(function (dt) {
                                                 QI_InitSummaryToggle(function (ok) {
                                                     console.log("Summary toggle ready:", ok);
                                                 });
                                             });
+
+                                        });
+
                                     });
                                 });
                             });
@@ -406,5 +414,6 @@
                 });
             });
         });
+
     </script>
 }

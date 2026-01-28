@@ -19,18 +19,21 @@ namespace Project.CSS.Revise.Web.Controllers
         private readonly MasterManagementConfigQueueInspect _configQueueInspec;
         private readonly IQueueInspectService _queueInspectService;
         private readonly IHubContext<NotifyHub> _notifyHubContext;
+        private readonly IHubContext<QueueInspectHub> _hub;
         public QueueInspectController(IHttpContextAccessor httpContextAccessor
             , IMasterService masterService
             , IUserAndPermissionService userAndPermissionService
             , MasterManagementConfigQueueInspect configQueueInspec
             , IQueueInspectService queueInspectService
-            , IHubContext<NotifyHub> notifyHubContext) : base(httpContextAccessor)
+            , IHubContext<NotifyHub> notifyHubContext
+            , IHubContext<QueueInspectHub> hub) : base(httpContextAccessor)
         {
             _masterService = masterService;
             _userAndPermissionService = userAndPermissionService;
             _configQueueInspec = configQueueInspec;
             _queueInspectService = queueInspectService;
             _notifyHubContext = notifyHubContext;
+            _hub = hub;
         }
         public IActionResult Index()
         {
@@ -188,7 +191,24 @@ namespace Project.CSS.Revise.Web.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<JsonResult> RemoveRegisterLog(int ID)
+        {
+            string projectId = _queueInspectService.RemoveRegisterLog(ID);
 
+            if (!string.IsNullOrWhiteSpace(projectId))
+            {
+                await _hub.Clients.Group($"queueinspect:project:{projectId}")
+                    .SendAsync("QueueInspectChanged", new
+                    {
+                        action = "delete",
+                        projectId = projectId,
+                        id = ID
+                    });
+            }
+
+            return Json(new { result = true });
+        }
 
 
         private static int ToIntSafe(string? s)

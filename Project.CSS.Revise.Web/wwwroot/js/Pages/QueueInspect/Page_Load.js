@@ -36,6 +36,27 @@ window.createChoice = function (sel, opts) {
     return inst;
 };
 
+// =========================
+// Cookie helper (QueueInspect)
+// =========================
+const QI_COOKIE_LAST_PROJECT = "QI_LAST_PROJECT";
+
+function QI_SetCookie(name, value, days) {
+    const d = new Date();
+    d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+    document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value ?? "")};expires=${d.toUTCString()};path=/`;
+}
+
+function QI_GetCookie(name) {
+    const key = encodeURIComponent(name) + "=";
+    const parts = document.cookie.split("; ");
+    for (let i = 0; i < parts.length; i++) {
+        const p = parts[i];
+        if (p.indexOf(key) === 0) return decodeURIComponent(p.substring(key.length));
+    }
+    return "";
+}
+
 function QI_InitBUG(done) {
     window.createChoice("#ddl_BUG", { placeholderValue: "Select BUG" });
     if (typeof done === "function") done();
@@ -83,7 +104,14 @@ document.addEventListener("DOMContentLoaded", () => {
         allowInput: true
     });
 
+    // ✅ default start = today (only when empty)
+    const elStart = document.getElementById("txt_RegisterDateStart");
+    if (elStart && !String(elStart.value || "").trim()) {
+        fpRegisterStart.setDate(new Date(), true); // true = trigger change + update input
+    }
+
 });
+
 
 document.addEventListener("DOMContentLoaded", function () {
     const toggles = document.querySelectorAll('[data-bs-toggle="collapse"][data-bs-target]');

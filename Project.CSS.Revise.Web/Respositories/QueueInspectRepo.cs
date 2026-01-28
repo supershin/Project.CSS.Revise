@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
+﻿using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Data;
-using Project.CSS.Revise.Web.Models;
 
 namespace Project.CSS.Revise.Web.Respositories
 {
@@ -12,16 +10,19 @@ namespace Project.CSS.Revise.Web.Respositories
     public class QueueInspectRepo : IQueueInspectRepo
     {
         private readonly CSSContext _context;
+        private readonly IHttpContextAccessor _http;
 
-        public QueueInspectRepo(CSSContext context)
+        public QueueInspectRepo(CSSContext context, IHttpContextAccessor http)
         {
             _context = context;
+            _http = http;
         }
 
         public string RemoveRegisterLog(int id)
         {
-            string? dep64 = User.FindFirst("DepartmentID")?.Value;
-            string? rol64 = User.FindFirst("RoleID")?.Value;
+            var user = _http.HttpContext?.User;
+            string? LoginID = user?.FindFirst("LoginID")?.Value;
+            string UserID = SecurityManager.DecodeFrom64(LoginID);
 
             var item = _context.TR_RegisterLogs.FirstOrDefault(e => e.ID == id);
 
@@ -34,7 +35,7 @@ namespace Project.CSS.Revise.Web.Respositories
 
             item.FlagActive = false;
             item.UpdateDate = DateTime.Now;
-
+            item.UpdateBy = Commond.FormatExtension.Nulltoint(UserID);
             _context.SaveChanges();
 
             return projectId;
