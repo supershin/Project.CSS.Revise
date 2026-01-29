@@ -397,18 +397,25 @@
                 <!-- Body -->
                 <div class="modal-body qi-reg-body">
 
-                    <!-- Top center form row -->
+                    <!-- Top center form row (Modern) -->
                     <div class="qi-reg-topbar">
 
                         <div class="qi-reg-topbar-inner">
-                            <label class="qi-reg-label">
-                                Unit Code <span class="text-danger">*</span>
-                            </label>
 
-                            <div class="qi-reg-select-wrap">
-                                <select id="ddl_RegisterUnit" class="form-control">
+                            <!-- label + icon -->
+                            <div class="qi-reg-field-label">
+                                <span class="qi-reg-field-ico"><i data-feather="home"></i></span>
+                                <span class="qi-reg-field-text">
+                                    Unit Code <span class="text-danger">*</span>
+                                </span>
+                            </div>
+
+                            <!-- select with icon -->
+                            <div class="qi-reg-select-wrap qi-reg-select-modern">
+                                
+
+                                <select id="ddl_RegisterUnit" class="form-control qi-reg-select">
                                     <option value="">-- Select Unit --</option>
-                                    <!-- mock options -->
                                     <option value="26/5">26/5</option>
                                     <option value="26/4">26/4</option>
                                     <option value="26/3">26/3</option>
@@ -417,14 +424,18 @@
                                 </select>
                             </div>
 
+                            <!-- save button (modern) -->
                             <button id="btnRegisterSave"
                                     type="button"
-                                    class="btn btn-success qi-reg-save">
-                                <i class="fa fa-save me-1"></i> Save
+                                    class="qi-btn-primary">
+                                <i data-feather="save"></i>
+                                <span>Save</span>
                             </button>
+
                         </div>
 
                     </div>
+
 
                     <!-- Table area -->
                     <div class="qi-reg-table-area">
