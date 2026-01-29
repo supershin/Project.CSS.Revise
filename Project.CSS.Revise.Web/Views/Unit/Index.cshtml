@@ -1,6 +1,9 @@
 ﻿@{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_LayoutSite.cshtml";
+    var projectList = ViewBag.listProject as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var UnitstatuscsList = ViewBag.listUnitstatuscs as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var CSResponsList = ViewBag.listgCSRespons as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
 }
 
 <div class="container-fluid py-4">
@@ -53,6 +56,7 @@
             <p class="text-muted mx-auto" style="max-width: 300px;">Set your filters and click Display to see the latest unit updates.</p>
         </div>
     </div>
+
     <div id="resultSection" class="card rounded-4 border-0 shadow-sm d-none">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -127,6 +131,16 @@
                         <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill">
                             <i class="fa-regular fa-file-lines me-2"></i>ข้อมูลยูนิต
                         </span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <!-- Example dropwon single select  -->
+                        <label for="ddl_Project" class="form-label fw-bold">Project</label>
+                        <select id="ddl_Project" class="form-control">
+                            @foreach (var p in projectList)
+                            {
+                                <option value="@p.ValueString">@p.Text</option>
+                            }
+                        </select>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-semibold">Unit Code</label>
@@ -222,14 +236,21 @@
                             <input type="date" class="form-control shadow-none">
                         </div>
                     </div>
-
+                    <!-- Example date range input -->
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-bold text-secondary">Expect Transfer</label>
                         <div class="input-group">
-                            <span class="input-group-text bg-white"><i class="fa-solid fa-building-columns text-muted"></i></span>
-                            <input type="date" class="form-control shadow-none">
-                            <span class="input-group-text bg-white text-muted">~</span>
-                            <input type="date" class="form-control shadow-none">
+                            <input type="text"
+                                   id="txt_DateStart"
+                                   class="form-control"
+                                   placeholder="dd/mm/yyyy">
+
+                            <span class="input-group-text" style="height:38px; display:flex; align-items:center;">-</span>
+
+                            <input type="text"
+                                   id="txt_DateEnd"
+                                   class="form-control"
+                                   placeholder="dd/mm/yyyy">
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
@@ -265,9 +286,15 @@
                             <i class="fa-solid fa-circle-check me-2"></i>สถานะ
                         </span>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">CS Reponse</label>
-                        <input type="text" class="form-control rounded-3 shadow-none" placeholder="Enter CS Reponse">
+                    <div class="col-md-12 mb-3">
+                        <!-- Example dropwon multi select  -->
+                        <label for="ddl_CSReponse" class="form-label fw-bold">CS Reponse</label>
+                        <select id="ddl_CSReponse" class="form-control" multiple>
+                            @foreach (var c in CSResponsList)
+                            {
+                                <option value="@c.ValueString">@c.Text</option>
+                            }
+                        </select>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-semibold">Deviate Status</label>
@@ -373,6 +400,9 @@
 </div>
 
 @section Scripts {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="~/js/Pages/Unit/Loading_DDL.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <script src="~/js/Pages/Unit/UnitSearch.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <link rel="stylesheet" type="text/css" href="~/css/unitsearch.css?ver=@DateTime.Now.Ticks.ToString()">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
