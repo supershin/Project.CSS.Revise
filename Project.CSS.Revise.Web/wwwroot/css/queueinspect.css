@@ -1,93 +1,81 @@
 ﻿/* =========================================================
-   Queue Inspect (CLEAN + NO DUPLICATE)
-   - Project label highlight
-   - Date inputs
-   - Delete button icon
-   - DataTables wrap (no ellipsis, wrap text)
+   Queue Inspect (CLEAN VERSION - NO MODAL)
+   Scope:
+   - Filters
+   - DataTables
    - Service badges
-   - Summary/Checking tables (FULL 4-side border)
-   - 5 box cards (used by summary + checking)
+   - Summary/Checking/Transfer cards + tables only
 ========================================================= */
 
-/* Highlight only the Project label */
-label[for="ddl_Project"] {
-    font-size: 1.0625rem; /* 17px */
+
+/* =========================================================
+   [A] Filters
+========================================================= */
+
+label[for="ddl_Project"]{
+    font-size: 1.0625rem;
     font-weight: 800;
     color: #2e59d9;
-    letter-spacing: 0.01875rem; /* 0.3px */
-    position: relative;
+    letter-spacing: 0.01875rem;
 }
 
-/* Date range inputs */
+/* date */
 .qi-date-input,
-.qi-date-sep {
-    height: 3rem !important; /* 48px */
+.qi-date-sep{
+    height: 3rem !important;
     font-size: 1.05rem;
-    border-radius: 0.5rem; /* 8px */
+    border-radius: 0.5rem;
 }
 
-.qi-date-sep {
-    padding: 0 0.875rem; /* 14px */
-    font-weight: 600;
+.qi-date-sep{
+    padding: 0 0.875rem;
+    font-weight: 700;
     background: #f8f9fa;
 }
 
-/* Delete icon button */
-.btn-icon.btn-del {
-    width: auto;
-    height: auto;
+
+/* =========================================================
+   [B] Delete button
+========================================================= */
+
+.btn-icon.btn-del{
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
     box-shadow: none !important;
+
     color: #b10000;
     font-size: 1rem;
-    transition: transform 0.12s ease, color 0.12s ease;
+    transition: .12s;
 }
 
-.btn-icon.btn-del i { font-size: 1rem; }
-
-.btn-icon.btn-del:hover {
+.btn-icon.btn-del:hover{
     color: #ff0000;
-    transform: scale(1.1);
+    transform: scale(1.08);
 }
 
-/* =========================
-   DataTables + wrap text (NO ...)
-========================= */
 
-.qb-table-wrap {
+/* =========================================================
+   [C] DataTables (wrap text)
+========================================================= */
+
+.qb-table-wrap{
     width: 100%;
     overflow-x: auto;
 }
 
-table#QueueBankRegisterTable {
+table#QueueBankRegisterTable{
     width: 100% !important;
     table-layout: fixed;
 }
 
-/* ✅ wrap ลงบรรทัดใหม่ ไม่ใช้ ... */
 table#QueueBankRegisterTable th,
-table#QueueBankRegisterTable td {
-    box-sizing: border-box;
+table#QueueBankRegisterTable td{
     white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
     word-break: break-word;
     vertical-align: top;
-    padding: 0.5rem 0.625rem; /* 8px 10px */
+    padding: 0.5rem 0.625rem;
 }
-
-/* ✅ กันหัว/ตัวเหลื่อม (กรณี DataTables มี scroll wrapper) */
-.qb-table-wrap .dataTables_scrollHeadInner,
-.qb-table-wrap .dataTables_scrollHeadInner table,
-.qb-table-wrap .dataTables_scrollBody table {
-    width: 100% !important;
-    margin: 0 !important;
-}
-
-.qb-table-wrap .dataTables_scrollHead { overflow: hidden !important; }
-.qb-table-wrap .dataTables_scrollBody { overflow-x: auto !important; }
 
 /* widths */
 #QueueBankRegisterTable th.col-no,         #QueueBankRegisterTable td.col-no         { width: 3.5rem; }
@@ -102,503 +90,138 @@ table#QueueBankRegisterTable td {
 #QueueBankRegisterTable th.col-csresp,     #QueueBankRegisterTable td.col-csresp     { width: 10rem; }
 #QueueBankRegisterTable th.col-action,     #QueueBankRegisterTable td.col-action     { width: 4.5rem; }
 
-/* =========================
-   Small service badges
-========================= */
-
-.svc-badges { margin-left: 0.375rem; }
-
-.svc {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.375rem;   /* 22px */
-    height: 1.375rem;  /* 22px */
-    border-radius: 0.25rem; /* 4px */
-    font-size: 0.75rem; /* 12px */
-    color: #fff;
-    margin-left: 0.25rem;
-    position: relative;
-    cursor: pointer;
-}
-
-.svc::after,
-.svc::before {
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    pointer-events: none;
-}
-
-.svc:hover::after {
-    content: attr(data-title);
-    position: absolute;
-    bottom: 130%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #1f2937;
-    color: #fff;
-    padding: 0.3125rem 0.625rem; /* 5px 10px */
-    font-size: 0.75rem;
-    white-space: nowrap;
-    border-radius: 0.25rem;
-    z-index: 1000;
-    opacity: 1;
-}
-
-.svc:hover::before {
-    content: "";
-    position: absolute;
-    bottom: 115%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 0.375rem solid transparent; /* 6px */
-    border-top-color: #1f2937;
-    z-index: 1000;
-    opacity: 1;
-}
-
-.svc-blue   { background: #1c88ff; }
-.svc-orange { background: #ff9f43; }
-.svc-green  { background: #2ecc71; }
-
-/* =========================
-   Shared Topic Dot (used by summary + checking)
-========================= */
-
-.qi-topic-dot {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.qi-dot {
-    width: 0.75rem;
-    height: 0.75rem;
-    border-radius: 999rem;
-    display: inline-block;
-    border: 0.0625rem solid rgba(0,0,0,0.15);
-}
 
 /* =========================================================
-   Summary + Checking Tables (FULL BORDER 4 SIDES)
-   - Applies to BOTH:
-     #qi-summary-table-view table
-     #qi-checking-table-view table
+   [D] Service badges
 ========================================================= */
 
-#qi-summary-table-view table,
-#qi-checking-table-view table {
-    width: 100%;
-    border-collapse: collapse !important;
-    border: 0.0625rem solid rgba(0,0,0,0.25) !important; /* ✅ outer 4 sides */
+.svc{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    width:22px;
+    height:22px;
+    border-radius:4px;
+
+    font-size:12px;
+    color:#fff;
+    margin-left:4px;
+    cursor:pointer;
 }
 
-#qi-summary-table-view table th,
-#qi-summary-table-view table td,
-#qi-checking-table-view table th,
-#qi-checking-table-view table td {
-    border: 0.0625rem solid rgba(0,0,0,0.25) !important; /* ✅ every cell */
-    vertical-align: middle;
-    padding: 0.5rem 0.75rem;
-}
+.svc-blue{ background:#1c88ff; }
+.svc-orange{ background:#ff9f43; }
+.svc-green{ background:#2ecc71; }
 
-#qi-summary-table-view table thead th,
-#qi-checking-table-view table thead th {
-    background: rgba(0,0,0,0.03);
-    font-weight: 600;
-    text-align: center;
-}
-
-#qi-summary-table-view table tbody tr:hover,
-#qi-checking-table-view table tbody tr:hover {
-    background: #f9fafb;
-}
 
 /* =========================================================
-   5 Boxes Cards (used by #qi-summary-5box and #qi-checking-5box)
+   [E] Topic Dot
 ========================================================= */
 
-.qi-summary-5box {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(5, minmax(12rem, 1fr));
-    gap: 1rem;
-    align-items: stretch;
-    margin-top: 0.5rem;
+.qi-topic-dot{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
 }
 
-/* Card */
-.qi-sum-card {
-    border-radius: 0.75rem;
-    overflow: hidden;
-    background: #ffffff;
-    box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.06);
-    border: 0.0625rem solid rgba(0,0,0,0.06);
-
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
+.qi-dot{
+    width:12px;
+    height:12px;
+    border-radius:999px;
+    border:1px solid rgba(0,0,0,.15);
 }
 
-.qi-sum-card:hover {
-    transform: translateY(-0.15rem);
-    box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.10);
-}
-
-/* Header */
-.qi-sum-head {
-    padding: 0.75rem 0.6rem;
-    text-align: center;
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: #000;
-}
-
-/* Body */
-.qi-sum-body {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    background: #fff;
-    border-top: 0.0625rem solid rgba(0,0,0,0.08);
-    border-bottom: 0.0625rem solid rgba(0,0,0,0.08);
-}
-
-.qi-sum-cell {
-    padding: 0.75rem 0.6rem;
-    text-align: center;
-}
-
-.qi-sum-cell + .qi-sum-cell {
-    border-left: 0.0625rem solid rgba(0,0,0,0.08);
-}
-
-.qi-sum-num {
-    font-size: 1.4rem;
-    font-weight: 600;
-    line-height: 1.1;
-    white-space: nowrap;
-}
-
-.qi-sum-lbl {
-    font-size: 0.85rem;
-    color: #666;
-}
-
-/* Footer */
-.qi-sum-foot {
-    padding: 0.6rem 0.5rem;
-    background: #f5f6f8;
-    text-align: center;
-    font-size: 1.1rem;
-    font-weight: 600;
-}
 
 /* =========================================================
-   Responsive
+   [F] Summary / Checking / Transfer tables
 ========================================================= */
 
-@media (max-width: 75rem) { /* 1200px */
-    .qi-summary-5box { grid-template-columns: repeat(3, minmax(12rem, 1fr)); }
+.qi-table-4border{
+    width:100%;
+    border-collapse:collapse !important;
+    border:1px solid rgba(0,0,0,.25) !important;
 }
 
-@media (max-width: 48rem) { /* 768px */
-    .qi-summary-5box { grid-template-columns: repeat(2, minmax(12rem, 1fr)); }
+.qi-table-4border th,
+.qi-table-4border td{
+    border:1px solid rgba(0,0,0,.25) !important;
+    padding:8px 12px;
+    vertical-align:middle;
 }
 
-@media (max-width: 30rem) { /* 480px */
-    .qi-summary-5box { grid-template-columns: 1fr; }
+.qi-table-4border thead th{
+    background:rgba(0,0,0,.03);
+    font-weight:800;
+    text-align:center;
+}
+
+.qi-table-4border tbody tr:hover{
+    background:#f9fafb;
 }
 
 
-/* =========================
-   Register Modal (Fullscreen)
-========================= */
-.qi-reg-modal {
-    border-radius: 0;
+/* =========================================================
+   [G] 5 Box Cards
+========================================================= */
+
+.qi-summary-5box{
+    display:grid;
+    grid-template-columns:repeat(5, minmax(12rem, 1fr));
+    gap:1rem;
 }
 
-.qi-reg-header {
-    background: #2f97a3; /* โทนฟ้าเหมือนเดิม แต่ดูเนียนกว่า */
-    color: #fff;
-    padding: 16px 20px;
+.qi-sum-card{
+    background:#fff;
+    border-radius:12px;
+    border:1px solid rgba(0,0,0,.06);
+    box-shadow:0 2px 8px rgba(0,0,0,.06);
+
+    display:flex;
+    flex-direction:column;
+    transition:.12s;
 }
 
-.qi-reg-body {
-    padding: 18px 20px;
-    background: #f6f7fb;
+.qi-sum-card:hover{
+    transform:translateY(-2px);
 }
 
-/* =========================
-   Modern Topbar
-========================= */
-.qi-reg-topbar {
-    background: #fff;
-    border: 1px solid #e6e8ef;
-    border-radius: 14px;
-    padding: 14px 16px;
-    margin-bottom: 14px;
+.qi-sum-head{
+    padding:12px;
+    text-align:center;
+    font-weight:800;
 }
 
-.qi-reg-topbar-inner {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* ให้กลางเหมือนเดิม */
-    gap: 14px;
-    flex-wrap: wrap;
+.qi-sum-body{
+    display:grid;
+    grid-template-columns:1fr 1fr;
 }
 
-/* label with icon */
-.qi-reg-field-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 800;
-    color: #243041;
+.qi-sum-cell{
+    padding:12px;
+    text-align:center;
 }
 
-.qi-reg-field-ico {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    background: #f3f6fb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.qi-sum-num{
+    font-size:22px;
+    font-weight:900;
 }
 
-    .qi-reg-field-ico svg {
-        width: 18px;
-        height: 18px;
-    }
-
-/* select modern */
-.qi-reg-select-wrap {
-    width: min(560px, 72vw);
+.qi-sum-foot{
+    padding:10px;
+    text-align:center;
+    font-weight:900;
+    background:#f5f6f8;
 }
 
-.qi-reg-select-modern {
-    position: relative;
-}
-
-.qi-reg-select-ico {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-    background: #f3f6fb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
-    pointer-events: none;
-}
-
-    .qi-reg-select-ico svg {
-        width: 16px;
-        height: 16px;
-    }
-
-.qi-reg-select {
-    border-radius: 12px;
-    padding-left: 56px; /* เผื่อไอคอน */
-    height: 44px;
-    border: 1px solid #e3e7ef;
-    background: #fff;
-    box-shadow: 0 1px 0 rgba(0,0,0,.02);
-}
-
-    .qi-reg-select:focus {
-        border-color: rgba(47, 151, 163, 0.65);
-        box-shadow: 0 0 0 4px rgba(47, 151, 163, 0.12);
-        outline: none;
-    }
-
-/* modern primary button */
-.qi-btn-primary {
-    height: 44px;
-    min-width: 118px;
-    border: 0;
-    border-radius: 12px;
-    padding: 0 16px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background: linear-gradient(135deg, #2fbf6b, #1f9d57);
-    color: #fff;
-    font-weight: 800;
-    letter-spacing: .2px;
-    box-shadow: 0 10px 18px rgba(31, 157, 87, 0.18);
-    transition: transform .12s, box-shadow .12s, filter .12s;
-}
-
-    .qi-btn-primary svg {
-        width: 18px;
-        height: 18px;
-    }
-
-    .qi-btn-primary:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 14px 22px rgba(31, 157, 87, 0.24);
-        filter: brightness(1.02);
-    }
-
-    .qi-btn-primary:active {
-        transform: translateY(0px);
-        box-shadow: 0 8px 14px rgba(31, 157, 87, 0.16);
-    }
 
 /* responsive */
-@media (max-width: 768px) {
-    .qi-reg-topbar-inner {
-        justify-content: flex-start;
-    }
-
-    .qi-reg-select-wrap {
-        width: 100%;
-    }
-
-    .qi-btn-primary {
-        width: 100%;
-    }
+@media (max-width:1200px){
+    .qi-summary-5box{ grid-template-columns:repeat(3,1fr); }
 }
-
-
-/* Table area */
-.qi-reg-table-area {
-    height: calc(100vh - 170px); /* fullscreen ใช้พื้นที่ให้เต็ม */
-    min-height: 360px;
+@media (max-width:768px){
+    .qi-summary-5box{ grid-template-columns:repeat(2,1fr); }
 }
-
-.qi-reg-table-card {
-    background: #fff;
-    border: 1px solid #e6e8ef;
-    border-radius: 12px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+@media (max-width:480px){
+    .qi-summary-5box{ grid-template-columns:1fr; }
 }
-
-.qi-reg-table-wrap {
-    flex: 1;
-    overflow: auto;
-}
-
-/* table look */
-.qi-reg-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background: #2f2f2f;
-    color: #fff;
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.qi-reg-table td, .qi-reg-table th {
-    vertical-align: middle;
-    white-space: nowrap;
-}
-
-.qi-reg-link {
-    text-decoration: none;
-    font-weight: 700;
-}
-
-/* bottom */
-.qi-reg-table-foot {
-    padding: 10px 14px;
-    border-top: 1px solid #eef0f6;
-    background: #fff;
-}
-
-.qi-reg-footer {
-    background: #fff;
-    border-top: 1px solid #e6e8ef;
-    padding: 12px 20px;
-}
-
-/* Responsive tweak */
-@media (max-width: 768px) {
-    .qi-reg-label {
-        text-align: left;
-        min-width: auto;
-    }
-
-    .qi-reg-select-wrap {
-        width: 100%;
-    }
-
-
-}
-
-
-/* =========================
-   Modern Register Header
-========================= */
-
-.qi-reg-header {
-    background: linear-gradient(135deg, #2f97a3, #267f89);
-    color: #fff;
-    padding: 18px 22px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border: 0;
-}
-
-/* left group */
-.qi-reg-header-left {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-/* icon circle */
-.qi-reg-header-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.18);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-}
-
-/* text */
-.qi-reg-title {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: .3px;
-    line-height: 1.1;
-}
-
-.qi-reg-subtitle {
-    font-size: 13px;
-    opacity: .85;
-    margin-top: 2px;
-}
-
-/* custom close button (modern) */
-.qi-reg-close {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    border: none;
-    background: rgba(255,255,255,0.15);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: .15s;
-}
-
-    .qi-reg-close:hover {
-        background: rgba(255,255,255,0.28);
-        transform: scale(1.05);
-    }

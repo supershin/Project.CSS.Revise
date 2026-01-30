@@ -1,11 +1,16 @@
-﻿using Project.CSS.Revise.Web.Commond;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Project.CSS.Revise.Web.Commond;
 using Project.CSS.Revise.Web.Data;
+using Project.CSS.Revise.Web.Models.Pages.QueueBank;
 
 namespace Project.CSS.Revise.Web.Respositories
 {
     public interface IQueueInspectRepo
     {
         public string RemoveRegisterLog(int id);
+        public List<SelectListItem> GetListUnitForRegisterInspect(string ProjectID);
     }
     public class QueueInspectRepo : IQueueInspectRepo
     {
@@ -41,6 +46,53 @@ namespace Project.CSS.Revise.Web.Respositories
             return projectId;
         }
 
+        public List<SelectListItem> GetListUnitForRegisterInspect(string ProjectID)
+        {
+            var result = new List<SelectListItem>();
+            string connectionString = _context.Database.GetDbConnection().ConnectionString;
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                string sql = @"
+                                SELECT 
+                                      u.ID
+                                    , u.UnitCode
+                                    , u.AddrNo
+                                FROM tm_Unit u
+                                WHERE u.ID NOT IN (
+                                    SELECT UnitID
+                                    FROM TR_RegisterLog
+                                    WHERE FlagActive = 1  
+                                      AND QCTypeID = 10
+                                      AND QueueTypeID = 49
+                                )
+                                AND u.ProjectID = @L_ProjectID
+                                AND u.FlagActive = 1
+                                ORDER BY u.UnitCode;
+                            ";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@L_ProjectID", ProjectID ?? string.Empty);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            result.Add(new SelectListItem
+                            {
+                                Value = Commond.FormatExtension.NullToString(reader["ID"]),
+                                Text = Commond.FormatExtension.NullToString(reader["UnitCode"])
+                            });
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
 
     }
 }

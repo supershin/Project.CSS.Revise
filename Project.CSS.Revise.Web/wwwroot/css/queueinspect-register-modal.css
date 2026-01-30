@@ -1,0 +1,307 @@
+﻿/* =========================================================
+   queueinspect-register-modal.css  (FIXED)
+   Namespace: qi-reg2 ONLY
+   FIX:
+   - HTML uses .qi-reg2__toolbar-grid (NOT __toolbar-inner) ✅
+   - Keep topbar CENTER and button INLINE with dropdown ✅
+   - Remove wrong duplicated @media block using grid-template-columns on flex ✅
+========================================================= */
+
+/* =========================================================
+   BASE MODAL
+========================================================= */
+.qi-reg2{
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+    background:#f5f7fb;
+    border-radius:0;
+}
+
+/* =========================================================
+   HEADER (ICON ON / NO CLOSE)
+========================================================= */
+.qi-reg2__header{
+    height:74px;
+    padding:0 22px;
+    display:flex;
+    align-items:center;
+    background:linear-gradient(135deg,#1f6f7a,#2f97a3);
+    color:#fff;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+.qi-reg2__head-left{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+/* icon badge (feather) */
+.qi-reg2__badge{
+    width:46px;
+    height:46px;
+    border-radius:14px;
+    background:rgba(255,255,255,.18);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.qi-reg2__badge svg{
+    width:20px;
+    height:20px;
+}
+
+/* title / subtitle */
+.qi-reg2__title{
+    font-size:20px;
+    font-weight:900;
+    letter-spacing:.2px;
+    line-height:1.1;
+}
+
+.qi-reg2__sub{
+    font-size:13px;
+    opacity:.9;
+    margin-top:2px;
+}
+
+/* =========================================================
+   BODY
+========================================================= */
+.qi-reg2__body{
+    padding:18px 22px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    flex:1;
+    overflow:hidden;
+}
+
+/* =========================================================
+   TOP BAR (CENTER + INLINE SELECT + BUTTON)
+   IMPORTANT: HTML class is .qi-reg2__toolbar-grid ✅
+========================================================= */
+.qi-reg2__toolbar{
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:14px;
+    padding:18px 20px;
+    box-shadow:0 8px 22px rgba(0,0,0,.05);
+}
+
+/* ✅ THIS is the real container in your HTML */
+.qi-reg2__toolbar-grid{
+    display:flex;
+    justify-content:center;     /* center whole bar content */
+    align-items:flex-end;       /* align bottom = select + button line up */
+    gap:14px;
+    max-width:980px;
+    margin:0 auto;
+    flex-wrap:wrap;             /* allow wrap on small screens */
+}
+
+/* label area */
+.qi-reg2__field{
+    flex:0 0 auto;
+    min-width:240px;
+}
+
+.qi-reg2__label{
+    font-weight:800;
+    margin-bottom:6px;
+    color:#0f172a;
+    line-height:1.1;
+}
+
+.qi-reg2__hint{
+    font-size:12px;
+    color:#64748b;
+    margin-top:2px;
+}
+
+/* select area (main width) */
+.qi-reg2__control{
+    flex:1 1 520px;
+    min-width:320px;
+    max-width:720px;
+}
+
+.qi-reg2__select{
+    height:46px;
+    border-radius:10px;
+    border:1px solid #dbe2ea;
+    padding:0 14px;
+    width:100%;
+    background:#fff;
+    transition:.15s;
+}
+
+.qi-reg2__select:focus{
+    outline:none;
+    border-color:#16a34a;
+    box-shadow:0 0 0 3px rgba(34,197,94,.12);
+}
+
+/* button area */
+.qi-reg2__actions{
+    flex:0 0 auto;
+    display:flex;
+    align-items:flex-end; /* keep button on same baseline as select */
+}
+
+.qi-reg2__btn--primary{
+    height:46px;
+    padding:0 24px;
+    border-radius:10px;
+    border:none;
+    font-weight:800;
+    color:#fff;
+    background:linear-gradient(135deg,#22c55e,#16a34a);
+    box-shadow:0 8px 18px rgba(22,163,74,.25);
+    transition:.12s;
+    white-space:nowrap;
+}
+
+.qi-reg2__btn--primary:hover{
+    transform:translateY(-1px);
+    filter:brightness(1.05);
+}
+
+.qi-reg2__btn--primary:active{
+    transform:translateY(0);
+}
+
+/* mobile: stack */
+@media (max-width:768px){
+    .qi-reg2__toolbar-grid{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .qi-reg2__field{
+        width:100%;
+        min-width:0;
+    }
+
+    .qi-reg2__control{
+        width:100%;
+        min-width:0;
+        max-width:100%;
+    }
+
+    .qi-reg2__actions{
+        width:100%;
+    }
+
+    .qi-reg2__btn--primary{
+        width:100%;
+    }
+}
+
+/* extra small */
+@media (max-width:420px){
+    .qi-reg2__header{
+        padding:0 16px;
+    }
+    .qi-reg2__body{
+        padding:14px 14px;
+    }
+}
+
+/* =========================================================
+   TABLE CARD
+========================================================= */
+.qi-reg2__card{
+    background:#fff;
+    border-radius:16px;
+    border:1px solid #e5e7eb;
+    display:flex;
+    flex-direction:column;
+    flex:1;
+    overflow:hidden;
+    box-shadow:0 10px 22px rgba(15,23,42,.06);
+}
+
+/* card head */
+.qi-reg2__card-head{
+    padding:14px 16px;
+    border-bottom:1px solid #eef2f8;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+}
+
+.qi-reg2__card-title{
+    font-weight:900;
+    font-size:15px;
+    color:#0f172a;
+}
+
+/* pill */
+.qi-reg2__pill{
+    padding:6px 12px;
+    border-radius:999px;
+    background:#f3f6fb;
+    border:1px solid #e2e8f0;
+    font-weight:900;
+    font-size:12px;
+    color:#0f172a;
+    white-space:nowrap;
+}
+
+/* table wrap */
+.qi-reg2__table-wrap{
+    flex:1;
+    overflow:auto;
+}
+
+/* table */
+.qi-reg2__table{
+    width:100%;
+    border-collapse:collapse;
+    margin:0;
+}
+
+.qi-reg2__table thead th{
+    position:sticky;
+    top:0;
+    z-index:5;
+    background:#0f172a;
+    color:#fff;
+    font-weight:900;
+    padding:12px 10px;
+    white-space:nowrap;
+}
+
+.qi-reg2__table td{
+    padding:10px 10px;
+    border-bottom:1px solid #eef2f8;
+    white-space:nowrap;
+    color:#0f172a;
+}
+
+.qi-reg2__table tbody tr:hover{
+    background:#f8fafc;
+}
+
+/* link */
+.qi-reg2__link{
+    font-weight:900;
+    text-decoration:none;
+    color:#0f172a;
+}
+
+.qi-reg2__link:hover{
+    text-decoration:underline;
+}
+
+/* footer (if you add it back later) */
+.qi-reg2__card-foot{
+    padding:10px 16px;
+    border-top:1px solid #eef2f8;
+    font-size:12px;
+    color:#64748b;
+}

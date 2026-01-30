@@ -210,6 +210,12 @@ namespace Project.CSS.Revise.Web.Controllers
             return Json(new { result = true });
         }
 
+        [HttpPost]
+        public JsonResult GetListUnitForRegisterInspect(string ProjectID)
+        {
+            var Result = _queueInspectService.GetListUnitForRegisterInspect(ProjectID);
+            return Json(new { ListData = Result });
+        }
 
         private static int ToIntSafe(string? s)
         {

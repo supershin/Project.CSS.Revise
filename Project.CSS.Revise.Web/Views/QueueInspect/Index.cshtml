@@ -363,178 +363,147 @@
 
 
     <!-- =========================
-         MODAL: Register New Unit (Fullscreen)
+         MODAL: Register New Unit (BOOTSTRAP ONLY)
     ========================= -->
     <div class="modal fade" id="modalCreateRegister" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-fullscreen">
-            <div class="modal-content qi-reg-modal">
+            <div class="modal-content">
 
                 <!-- Header -->
-                <div class="modal-header qi-reg-header">
-
-                    <div class="qi-reg-header-left">
-
-                        <div class="qi-reg-header-icon">
+                <div class="modal-header bg-dark text-white">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-3 bg-white bg-opacity-10"
+                             style="width:44px;height:44px;">
                             <i data-feather="clipboard"></i>
                         </div>
 
-                        <div class="qi-reg-header-text">
-                            <div class="qi-reg-title">Register Unit</div>
-                            <div class="qi-reg-subtitle">Project name</div>
+                        <div class="lh-sm">
+                            <div class="fs-5 fw-bold">Register New Unit</div>
+                            <div class="small text-white-50">
+                                Project: <span id="qiRegProjectName">Project name</span>
+                            </div>
                         </div>
-
                     </div>
 
-                    <button type="button"
-                            class="qi-reg-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Close">
-                        <i data-feather="x"></i>
-                    </button>
-
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <!-- Body -->
-                <div class="modal-body qi-reg-body">
+                <div class="modal-body bg-light">
+                    <div class="container-fluid px-0">
 
-                    <!-- Top center form row (Modern) -->
-                    <div class="qi-reg-topbar">
+                        <!-- Top Bar (CENTER + SAME LINE) -->
+                        <div class="card shadow-sm mb-3">
+                            <div class="card-body py-3">
 
-                        <div class="qi-reg-topbar-inner">
+                                <div class="row g-2 justify-content-center align-items-center">
 
-                            <!-- label + icon -->
-                            <div class="qi-reg-field-label">
-                                <span class="qi-reg-field-ico"><i data-feather="home"></i></span>
-                                <span class="qi-reg-field-text">
-                                    Unit Code <span class="text-danger">*</span>
+                                    <!-- Label / hint -->
+                                    <div class="col-12 col-lg-3 text-center text-lg-end">
+                                        <label for="ddl_RegisterUnit" class="form-label fw-bold mb-1">
+                                            Unit Code <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="small text-muted">เลือก Unit แล้วกด Register</div>
+                                    </div>
+
+                                    <!-- Dropdown -->
+                                    <div class="col-12 col-lg-5">
+                                        <select id="ddl_RegisterUnit" class="form-select">
+                                        </select>
+                                    </div>
+
+                                    <!-- Button -->
+                                    <div class="col-12 col-lg-auto">
+                                        <button id="btnRegisterSave"
+                                                type="button"
+                                                class="btn btn-success w-100 px-4 align-self-start">
+                                            <i data-feather="save"></i>
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Table Card -->
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white d-flex align-items-center justify-content-between">
+                                <div class="fw-bold d-flex align-items-center gap-2">
+                                    <i data-feather="list"></i>
+                                    <span>Registered Units</span>
+                                </div>
+
+                                <span class="badge bg-secondary">
+                                    <span id="qiRegCount">0</span>
                                 </span>
                             </div>
 
-                            <!-- select with icon -->
-                            <div class="qi-reg-select-wrap qi-reg-select-modern">
-                                
-
-                                <select id="ddl_RegisterUnit" class="form-control qi-reg-select">
-                                    <option value="">-- Select Unit --</option>
-                                    <option value="26/5">26/5</option>
-                                    <option value="26/4">26/4</option>
-                                    <option value="26/3">26/3</option>
-                                    <option value="26/2">26/2</option>
-                                    <option value="26/1">26/1</option>
-                                </select>
+                            <div class="card-body p-0">
+                                <div class="table-responsive" style="max-height: calc(100vh - 250px);">
+                                    <table id="tblRegisterList" class="table table-hover table-striped mb-0 align-middle">
+                                        <thead class="table-dark sticky-top">
+                                            <tr>
+                                                <th style="width:70px;" class="text-center">No.</th>
+                                                <th style="width:140px;" class="text-center">Unit Code</th>
+                                                <th>Customer Name</th>
+                                                <th style="width:220px;" class="text-center">Responsible</th>
+                                                <th style="width:170px;" class="text-center">Register</th>
+                                                <th style="width:120px;" class="text-center">Wait</th>
+                                                <th style="width:150px;" class="text-center">In Process</th>
+                                                <th style="width:120px;" class="text-center">FastFix</th>
+                                                <th style="width:150px;" class="text-center">FixedDuration</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- mock rows (remove if using ajax) -->
+                                            <tr>
+                                                <td class="text-center">1</td>
+                                                <td class="text-center"><a href="#" class="fw-bold text-decoration-none">26/5</a></td>
+                                                <td>นางกาญ อัคราพงศา, นางสาวอลิสา อัคราพงศา</td>
+                                                <td class="text-center">-</td>
+                                                <td class="text-center">2025-09-15 14:22</td>
+                                                <td class="text-center"></td>
+                                                <td class="text-center"></td>
+                                                <td class="text-center"></td>
+                                                <td class="text-center"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center">2</td>
+                                                <td class="text-center"><a href="#" class="fw-bold text-decoration-none">26/4</a></td>
+                                                <td>นายกฤษณ์ ศุภสินธรักษ์</td>
+                                                <td class="text-center">พรพิมล</td>
+                                                <td class="text-center">2025-09-15 13:18</td>
+                                                <td class="text-center"></td>
+                                                <td class="text-center">2025-09-15 13:45</td>
+                                                <td class="text-center"></td>
+                                                <td class="text-center"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
 
-                            <!-- save button (modern) -->
-                            <button id="btnRegisterSave"
-                                    type="button"
-                                    class="qi-btn-primary">
-                                <i data-feather="save"></i>
-                                <span>Save</span>
-                            </button>
+                            <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    Showing <span id="qiRegShowing">0</span> to <span id="qiRegShowingTo">0</span> of <span id="qiRegTotal">0</span>
+                                </small>
 
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    Close
+                                </button>
+                            </div>
                         </div>
 
                     </div>
-
-
-                    <!-- Table area -->
-                    <div class="qi-reg-table-area">
-                        <div class="qi-reg-table-card">
-                            <div class="qi-reg-table-wrap">
-                                <table id="tblRegisterList" class="table table-bordered table-hover mb-0 qi-reg-table">
-                                    <thead>
-                                        <tr>
-                                            <th style="width:70px;">No.</th>
-                                            <th style="width:140px;">Unit Code</th>
-                                            <th>Customer Name</th>
-                                            <th style="width:220px;">Responsible Name</th>
-                                            <th style="width:170px;">Register</th>
-                                            <th style="width:120px;">Wait</th>
-                                            <th style="width:150px;">In Process</th>
-                                            <th style="width:120px;">FastFix</th>
-                                            <th style="width:150px;">FixedDuration</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- mock rows -->
-                                        <tr>
-                                            <td class="text-center">1</td>
-                                            <td class="text-center"><a href="#" class="qi-reg-link">26/5</a></td>
-                                            <td>นางกาญ อัคราพงศา, นางสาวอลิสา อัคราพงศา</td>
-                                            <td class="text-center">-</td>
-                                            <td class="text-center">2025-09-15 14:22</td>
-                                            <td class="text-center"></td>
-                                            <td class="text-center"></td>
-                                            <td class="text-center"></td>
-                                            <td class="text-center"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-center">2</td>
-                                            <td class="text-center"><a href="#" class="qi-reg-link">26/4</a></td>
-                                            <td>นายกฤษณ์ ศุภสินธรักษ์</td>
-                                            <td class="text-center">พรพิมล</td>
-                                            <td class="text-center">2025-09-15 13:18</td>
-                                            <td class="text-center"></td>
-                                            <td class="text-center">2025-09-15 13:45</td>
-                                            <td class="text-center"></td>
-                                            <td class="text-center"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-center">3</td>
-                                            <td class="text-center"><a href="#" class="qi-reg-link">26/3</a></td>
-                                            <td>นายอนุพน กมล</td>
-                                            <td class="text-center">พรพิมล</td>
-                                            <td class="text-center">2025-09-15 13:18</td>
-                                            <td class="text-center"></td>
-                                            <td class="text-center">2025-09-15 13:44</td>
-                                            <td class="text-center"></td>
-                                            <td class="text-center"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-center">4</td>
-                                            <td class="text-center"><a href="#" class="qi-reg-link">26/2</a></td>
-                                            <td>นายสิทธิรณัฐ รัตนิแมนพฤกษ์</td>
-                                            <td class="text-center">พรพิมล</td>
-                                            <td class="text-center">2025-09-15 13:17</td>
-                                            <td class="text-center"></td>
-                                            <td class="text-center">2025-09-15 13:17</td>
-                                            <td class="text-center"></td>
-                                            <td class="text-center"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-center">5</td>
-                                            <td class="text-center"><a href="#" class="qi-reg-link">26/1</a></td>
-                                            <td>นายชยุต ดิษยวณิช</td>
-                                            <td class="text-center">Pimmada</td>
-                                            <td class="text-center">2025-09-15 13:12</td>
-                                            <td class="text-center"></td>
-                                            <td class="text-center">2025-09-15 13:16</td>
-                                            <td class="text-center"></td>
-                                            <td class="text-center"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- footer inside card (optional) -->
-                            <div class="qi-reg-table-foot text-muted small">
-                                Showing 1 to 5 of 5 entries
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Footer -->
-                <div class="modal-footer qi-reg-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                        Close
-                    </button>
                 </div>
 
             </div>
         </div>
     </div>
+
+
 
 </div>
 
@@ -552,7 +521,7 @@
     <script src="~/js/Pages/QueueInspect/Page_Load.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <script src="~/js/Pages/QueueInspect/LoadingDDLProjectANDUnit.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <script src="~/js/Pages/QueueInspect/SearchListQueueInspect.js?ver=@DateTime.Now.Ticks.ToString()"></script>
-
+    <script src="~/js/Pages/QueueInspect/ModalCreateRegister.js?ver=@DateTime.Now.Ticks.ToString()"></script>
     <!-- Your CSS -->
     <link rel="stylesheet" type="text/css" href="~/css/queueinspect.css?ver=@DateTime.Now.Ticks.ToString()">
 
